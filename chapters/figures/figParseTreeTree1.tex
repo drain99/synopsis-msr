@@ -1,0 +1,48 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_macros.tex}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,581); %set diagram left start at 0, and has height of 581
+
+
+% Text Node
+\draw     (85.5,181) .. controls (85.5,179.34) and (86.84,178) .. (88.5,178) -- (109.5,178) .. controls (111.16,178) and (112.5,179.34) .. (112.5,181) -- (112.5,190) .. controls (112.5,191.66) and (111.16,193) .. (109.5,193) -- (88.5,193) .. controls (86.84,193) and (85.5,191.66) .. (85.5,190) -- cycle  ;
+\draw (99,185.5) node  [font=\scriptsize]  {${\tt Tree}$};
+% Text Node
+\draw (45.5,224.5) node  [font=\scriptsize]  {${\tt TCons}$};
+% Text Node
+\draw (81,224.5) node  [font=\scriptsize]  {${\tt i32}$};
+% Text Node
+\draw     (108,220) .. controls (108,218.34) and (109.34,217) .. (111,217) -- (132,217) .. controls (133.66,217) and (135,218.34) .. (135,220) -- (135,229) .. controls (135,230.66) and (133.66,232) .. (132,232) -- (111,232) .. controls (109.34,232) and (108,230.66) .. (108,229) -- cycle  ;
+\draw (121.5,224.5) node  [font=\scriptsize]  {${\tt Tree}$};
+% Text Node
+\draw (80.5,265) node  [font=\scriptsize]  {${\tt 32_{i32}}$};
+% Text Node
+\draw (122.5,265) node  [font=\scriptsize]  {${\tt TNil}$};
+% Text Node
+\draw     (145,220) .. controls (145,218.34) and (146.34,217) .. (148,217) -- (169,217) .. controls (170.66,217) and (172,218.34) .. (172,220) -- (172,229) .. controls (172,230.66) and (170.66,232) .. (169,232) -- (148,232) .. controls (146.34,232) and (145,230.66) .. (145,229) -- cycle  ;
+\draw (158.5,224.5) node  [font=\scriptsize]  {${\tt Tree}$};
+% Text Node
+\draw (158.5,265) node  [font=\scriptsize]  {${\tt TNil}$};
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (95.54,193) -- (85.3,215.5) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (103.33,193) -- (116.17,215.5) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (88.71,193) -- (57.4,215.5) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (80.8,232) -- (80.8,256) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (122,232) -- (122,256) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (158.5,232) -- (158.5,256) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (110.44,193) -- (145.38,215.9) ;
+
+\end{tikzpicture}
+
+\end{document}

@@ -1,0 +1,74 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_macros.tex}
+\input{common_tikz.tex}
+\begin{document}
+
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,581); %set diagram left start at 0, and has height of 581
+
+
+% Text Node
+%\draw     (387,21) .. controls (387,19.34) and (388.34,18) .. (390,18) -- (408,18) .. controls (409.66,18) and (411,19.34) .. (411,21) -- (411,30) .. controls (411,31.66) and (409.66,33) .. (408,33) -- (390,33) .. controls (388.34,33) and (387,31.66) .. (387,30) -- cycle  ;
+\draw (399,25.5) node  [font=\scriptsize]  {\inv{${\tt List}^1$}};
+% Text Node
+\draw (364,64.5) node  [font=\scriptsize]  {${\tt LCons}^1$};
+% Text Node
+\draw (399,64.5) node  [font=\scriptsize]  {${\tt i32}^1$};
+% Text Node
+%\draw     (440,60) .. controls (440,58.34) and (441.34,57) .. (443,57) -- (461,57) .. controls (462.66,57) and (464,58.34) .. (464,60) -- (464,69) .. controls (464,70.66) and (462.66,72) .. (461,72) -- (443,72) .. controls (441.34,72) and (440,70.66) .. (440,69) -- cycle  ;
+\draw (452,64.5) node  [font=\scriptsize]  {\inv{${\tt List}^2$}};
+% Text Node
+\draw (398,104) node  [font=\scriptsize]  {${\tt 1_{i32}^2}$};
+% Text Node
+\draw (426,104) node  [font=\scriptsize]  {${\tt LCons}^2$};
+% Text Node
+\draw (452,104) node  [font=\scriptsize]  {${\tt i32}^2$};
+% Text Node
+\draw (452,144) node  [font=\scriptsize]  {${\tt 4_{i32}^2}$};
+% Text Node
+%\draw     (492,100) .. controls (492,98.34) and (493.34,97) .. (495,97) -- (513,97) .. controls (514.66,97) and (516,98.34) .. (516,100) -- (516,109) .. controls (516,110.66) and (514.66,112) .. (513,112) -- (495,112) .. controls (493.34,112) and (492,110.66) .. (492,109) -- cycle  ;
+\draw (504,104.5) node  [font=\scriptsize]  {\inv{${\tt List}^3$}};
+% Text Node
+\draw (478,144.5) node  [font=\scriptsize]  {${\tt LCons}^3$};
+% Text Node
+\draw (504,144.5) node  [font=\scriptsize]  {${\tt i32}^3$};
+% Text Node
+%\draw     (538,140) .. controls (538,138.34) and (539.34,137) .. (541,137) -- (559,137) .. controls (560.66,137) and (562,138.34) .. (562,140) -- (562,149) .. controls (562,150.66) and (560.66,152) .. (559,152) -- (541,152) .. controls (539.34,152) and (538,150.66) .. (538,149) -- cycle  ;
+\draw (550,144.5) node  [font=\scriptsize]  {\inv{${\tt List}^4$}};
+% Text Node
+\draw (504,184) node  [font=\scriptsize]  {${\tt 9_{i32}^4}$};
+% Text Node
+\draw (550,184.5) node  [font=\scriptsize]  {${\tt LNil}^4$};
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (399,32.3) -- (399,57) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (409.19,32.3) -- (440.2,57) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (392.27,32.3) -- (372.07,57) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (399,71.5) -- (399,95) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (452,111.5) -- (452,134) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (447.13,71.5) -- (431.96,95) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (452,71.5) -- (452,95) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (504,111.5) -- (504,135) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (512.63,111.5) -- (539.87,135) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (499.13,111.5) -- (483.96,135) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (504,151.5) -- (504,174) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (550,151.5) -- (550,175) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (461.75,71.5) -- (492.66,95.78) ;
+
+\end{tikzpicture}
+
+\end{document}

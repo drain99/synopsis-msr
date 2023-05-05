@@ -1,0 +1,27 @@
+\begin{center}
+
+\LARGE{Abstract}
+\end{center}
+% \vspace{-2mm}
+We describe an algorithm for checking equivalence of two
+programs that manipulate recursive data structures like
+lists, strings, and trees.  The first program, called
+specification,
+is written in a succinct and
+safe functional language with algebraic data types.
+The second program, called implementation,
+is written in C using arrays and pointers.
+Our algorithm automatically searches for a bisimulation
+relation between the two programs. Our
+primary contribution is an algorithm to discharge proof
+obligations that may contain expressions that relate
+(arbitrarily deep) recursive data structure values across the two
+diverse syntaxes. Our equivalence checker, based on this algorithm,
+can compute equivalence
+of a single abstract specification program with multiple
+C implementations that vary in their data layout and
+algorithmic strategy.
+
+\textbf{Keywords:} \textit{Equivalence checking; Bisimulation; Recursive Data Structures; Algebraic Data Types;}
+
+\setlength{\parindent}{1.0em}

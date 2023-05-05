@@ -1,0 +1,32 @@
+\begin{table}[t]
+\begin{center}
+\caption{\label{tab:dataflow_formulation}Dataflow formulation for the Invariant Inference Algorithm.}
+\setlength{\belowcaptionskip}{-30pt}
+\begin{footnotesize}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+Domain &
+\begin{tabular}{@{}l|l@{}}
+\ldelim\{{2}{3mm}
+\multirow{2}{*}{$(\phi_n,\Gamma_n)$} & {\footnotesize $\phi_n$ is a conjunction of predicates drawn from\ \ }\rdelim\}{2}{3mm}\\
+                            & {\footnotesize grammar in \ref{fig:invGrammar}, $\Gamma_n$ is a set of counterexamples}\\
+\end{tabular}\\
+\hline
+Direction & Forward\\
+\hline
+Transfer function across edge $e=(s\rightarrow d)$ & $(\phi_d,\Gamma_d) = f_e(\phi_s,\Gamma_s)$ (\cref{algo:tf})\\
+\hline
+\begin{tabular}{@{}l@{}}
+Meet operator $\otimes$\\
+{\footnotesize $(\phi_n,\Gamma_n) \leftarrow (\phi^1_n,\Gamma^1_n) \otimes (\phi^2_n,\Gamma^2_n)$}\\
+\end{tabular}
+& $\Gamma_n \leftarrow \Gamma^1_n\cup \Gamma^2_n$, \ \ \ \ \ \ \ \ $\phi_n \leftarrow \mathrm{\it StrongestInvCover}(\Gamma_n)$\\
+\hline
+Boundary condition & {\tt out[$n^{start}$]} = {\tt $(Pre,\Gamma_{n^{start}})$}\ \ \ \ \ \\
+\hline
+Initialization to $\top$ & {\tt in[$n$] = $($False,$\{\})$} for all non-start nodes\\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\end{table}

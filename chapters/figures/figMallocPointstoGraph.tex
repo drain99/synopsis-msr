@@ -1,0 +1,39 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_macros.tex}
+\input{common_tikz.tex}
+\begin{document}
+
+
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+
+% Text Node
+\draw    (79.74, 46.9) circle [x radius= 9.22, y radius= 9.22,xshift=1.7pt]   ;
+\draw (79.74,46.9) node  [font=\scriptsize,xshift=1.7pt]  {${\tt n_{C}}$};
+% Text Node
+\draw    (79.07, 91.9) circle [x radius= 9.22, y radius= 9.22,xshift=1.7pt]   ;
+\draw (79.07,91.9) node  [font=\scriptsize,xshift=1.7pt]  {${\tt l_{C}}$};
+% Text Node
+\draw    (79, 136.5) circle [x radius= 9.22, y radius= 9.22,xshift=1.7pt]   ;
+\draw (79,136.5) node  [font=\scriptsize,xshift=1.7pt]  {${\tt i_{C}}$};
+% Text Node
+\draw    (137.64,38.9) -- (170.64,38.9) -- (170.64,54.9) -- (137.64,54.9) -- cycle  ;
+\draw (154.14,46.9) node  [font=\scriptsize]  {${\tt XXX_{1}}$};
+% Text Node
+\draw    (135.91,83.9) -- (174.91,83.9) -- (174.91,99.9) -- (135.91,99.9) -- cycle  ;
+\draw (155.41,91.9) node  [font=\scriptsize]  {${\tt XXX_{2+}}$};
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},xshift=1.7pt]  (88.8,46.9) .. controls (90.67,45.23) and (93.33,45.23) .. (95,46.9) .. controls (96.67,48.57) and (98.33,48.57) .. (100,46.9) .. controls (101.67,45.23) and (103.33,45.23) .. (105,46.9) .. controls (106.67,48.57) and (108.33,48.57) .. (110,46.9) .. controls (111.67,45.23) and (113.33,45.23) .. (115,46.9) .. controls (116.67,48.57) and (118.33,48.57) .. (120,46.9) .. controls (121.67,45.23) and (123.33,45.23) .. (125,46.9) -- (127.64,46.9) -- (135.64,46.9) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},xshift=1.7pt]  (88.29,91.9) .. controls (89.96,90.23) and (91.62,90.23) .. (93.29,91.9) .. controls (94.96,93.57) and (96.62,93.57) .. (98.29,91.9) .. controls (99.96,90.23) and (101.62,90.23) .. (103.29,91.9) .. controls (104.96,93.57) and (106.62,93.57) .. (108.29,91.9) .. controls (109.96,90.23) and (111.62,90.23) .. (113.29,91.9) .. controls (114.96,93.57) and (116.62,93.57) .. (118.29,91.9) .. controls (119.96,90.23) and (121.62,90.23) .. (123.29,91.9) -- (125.91,91.9) -- (133.91,91.9) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (154.36,54.9) .. controls (156.07,56.52) and (156.12,58.19) .. (154.5,59.9) .. controls (152.88,61.61) and (152.93,63.28) .. (154.64,64.9) .. controls (156.35,66.51) and (156.4,68.18) .. (154.79,69.89) -- (154.9,73.9) -- (155.12,81.9) ;
+%Curve Lines [id:da7944199768407942] 
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (143,100) .. controls (143.66,102.27) and (142.9,103.76) .. (140.73,104.46) .. controls (138.48,105.65) and (137.9,107.34) .. (138.99,109.52) .. controls (140.34,111.29) and (140.11,112.92) .. (138.32,114.4) .. controls (136.76,116.19) and (136.99,117.82) .. (139,119.27) .. controls (141.09,119.96) and (141.9,121.42) .. (141.41,123.67) .. controls (141.39,126.01) and (142.63,127.04) .. (145.12,126.77) .. controls (147.29,125.97) and (148.82,126.58) .. (149.7,128.59) .. controls (151.29,130.55) and (152.96,130.73) .. (154.7,129.14) .. controls (156.24,127.33) and (157.9,127.09) .. (159.69,128.4) .. controls (161.81,129.42) and (163.32,128.76) .. (164.22,126.41) .. controls (164.48,124.12) and (165.69,123.04) .. (167.85,123.16) .. controls (170.29,122.4) and (171.05,120.9) .. (170.14,118.65) .. controls (168.81,116.8) and (168.99,115.76) .. (170.7,112.75) -- (169.92,106.87) -- (166.96,100) ;
+
+\end{tikzpicture}
+
+\end{document}

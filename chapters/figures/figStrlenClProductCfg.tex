@@ -1,0 +1,46 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_macros.tex}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,394); %set diagram left start at 0, and has height of 394
+
+% Text Node
+\draw    (41, 254.5) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (41,254.5) node [font=\scriptsize]  [align=left] {\tt S0:C0};
+% Text Node
+\draw    (330, 254.5) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (330,254.5) node [font=\scriptsize]  [align=left] {\tt SE:CE};
+% Text Node
+\draw    (122.5, 254.5) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (122.5,254.5) node [font=\scriptsize]  [align=left] {\tt S2:C4};
+% Text Node
+\draw (77.88,242.02) node  [font=\scriptsize]  {$ \begin{array}{s}
+{\tt S0 \rightarrow S2}\\
+{\tt C0 \rightarrow C2}
+\end{array}$};
+% Text Node
+\draw (125,307) node  [font=\scriptsize]  {$ \begin{array}{s}
+{\tt S2 \rightarrow (S5 \rightarrow S2)^4}\\
+{\tt C4 {\rightarrow} C7 {\rightarrow} ( \epsilon {+} (C8 {\rightarrow} C10 {\rightarrow} C12 {\rightarrow} C14)) {\rightarrow} C17 {\rightarrow} C4}
+\end{array}$};
+% Text Node
+\draw (225.5,235.5) node  [font=\scriptsize]  {$ \begin{array}{s}
+{\tt S2 \rightarrow SE}\\
+{\tt C4 {\rightarrow} C7 {\rightarrow} C8 {\rightarrow} ( \epsilon {+} C10}\\
+{\tt  {+} ( C10 {\rightarrow} C12) {+} ( C10 {\rightarrow} C12 {\rightarrow} C14)) {\rightarrow} CE}
+\end{array}$};
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (57.12,254.5) -- (106.88,254.5) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (139,254.5) -- (314,254.5) ;
+%Curve Lines [id:da4573956563980641] 
+\draw  [{Straight Barb[length=2.2mm, width=1.5mm]}-]  (110.5,265) .. controls (49.01,304) and (195.5,304) .. (135,265) ;
+
+
+\end{tikzpicture}
+
+\end{document}

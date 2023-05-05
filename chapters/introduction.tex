@@ -1,0 +1,216 @@
+\section{Introduction}
+\label{sec:intro}
+
+Recursive data structures like lists, strings, and trees
+are the building blocks of many algorithms and
+software systems. In languages
+like C, pointer and array based
+implementations of these data-structures
+are prone to safety and liveness bugs.
+Similar recursive data structures
+are also available in safer functional languages
+like Haskell, where
+algebraic data types (ADTs) \cite{hope} ensure
+several safety properties.
+
+\input{chapters/figures/figMallocSpecAndC.tex}
+
+
+The programs
+in \cref{fig:llAllocSpec,fig:llAllocC}
+construct lists in a functional language and in C respectively.
+%While the C implementation is likely more efficient,
+%the functional language program is
+%safer and more succinct.
+%For example,
+%the C implementation may be prone to bugs that
+%may yield out-of-bounds
+%memory accesses at runtime (safety bug), or inadvertently create
+%a cycle in the list (liveness bug).
+In prior work on formally-verified systems (e.g., seL4 \cite{seL4}),
+researchers have employed interactive proof assistants
+to prove that a
+C implementation is observably
+equivalent to
+a higher-level
+functional implementation.
+% Such equivalence
+%proofs ensure functional equality of the observable
+%behaviour of the two
+%programs written in different syntaxes, and
+%effectively rule out a large category of safety and
+%liveness bugs.  For example, if a list
+%datatype in the functional
+%language does not allow the creation of cycles, then
+%by proving equivalence with a pointer-based C implementation, we
+%rule out the potential
+%creation of a cycle in the latter.  Similarly,
+%an equivalence proof ensures the absence of stray memory accesses
+%in the C implementation. Further,
+%observable behaviour equivalence
+%of the two programs
+%significantly increases confidence in the functional correctness of
+%the C implementation.
+Unfortunately, this method
+of manually codifying equivalence proofs
+through an interactive theorem
+prover requires expertise and is laborious.
+%Moreover, such manually-codified proofs are usually not amenable to
+%reuse: separate
+%proofs are often required for each different implementation of
+%a data structure.
+%The proof-effort in
+%developing a formally-verified program
+%can be 10x
+%more than the corresponding coding-effort \cite{fscq,rayWangArticleOnFormalVerification17}.
+%For these
+%reasons, even though the development of formally-verified
+%systems is compelling, its pace of
+%adoption has been slow.
+
+We present \toolName{}, an algorithm to automatically
+search for a proof of equivalence between a functional specification
+of a recursive data-structure program
+and its
+optimized C implementation.
+To support
+this, we define a minimal functional language, called \SpecL{}, that enables the
+safe and succinct specification
+of programs manipulating and traversing recursive data structures.
+Our proof-search algorithm automatically (push-button)
+searches for a bisimulation relation
+between data-structure manipulation programs
+written in \SpecL{} and C.
+The large semantic gap between
+the two syntaxes make such automatic
+proofs particularly interesting: for the same \SpecL{} specification,
+there exist multiple
+C implementations that may differ in their memory layout and
+iteration logic; yet, \toolName{} can compare equivalence for all such
+program pairs automatically.
+
+Such equivalence proofs require the
+inference of relations between data-structure values
+at correlated intermediate program points of both programs.
+For example, if we correlate PC {\tt S3} of the \SpecL{}
+IR program in \cref{fig:llAllocSpecIR}
+with PC {\tt C3} of the C IR program in \cref{fig:llAllocCIR}, we
+need to infer
+that the contents of the entire linked list starting at
+variable {\tt l$_C$} in the C program are equal to
+the contents of the {\tt List} value {\tt l$_S$} in the \SpecL{} program.
+(Throughout the paper, we use subscripts $S$ and $C$ to represent values
+of the \SpecL{} and C programs respectively).
+We call such relations that relate
+recursive data structure values, {\em \recursiveRelations{}}.
+The automatic
+inference of invariants
+with \recursiveRelations{}
+relies on the discharge of proof obligations
+that involve equality of arbitrarily deep
+data structures.
+%We
+%develop \recursiveInvariant{} shapes with clear
+%and intuitive semantics that are also
+%amenable to automated reasoning of equivalence across
+%two different representations.
+%To derive aliasing constraints required for checking
+%these invariant shapes, we leverage the semantics of
+%the C language and associated allocation-related
+%library functions like {\tt malloc()}.
+{\em Our primary contribution is a
+proof discharge algorithm that
+uses an off-the-shelf SMT
+solver to tackle proof obligations involving \recursiveRelations{}
+in the context of an equivalence check}.
+
+%Our algorithm leverages prior work on automatic counterexample-guided
+%search for a
+%bisimulation relation \cite{oopsla20}.
+%At every step of this counterexample-guided search for
+%a bisimulation relation,
+%inductive invariants and correlations are proposed which need to
+%be checked using off-the-shelf SMT solvers.
+%Thus, a proof obligation, that may potentially involve a
+%\recursiveInvariant{}, needs to be converted to a form that is
+%amenable for reasoning through an SMT solver.
+%Further, if an SMT proof query is determined to be {\em not provable},
+%we obtain a counterexample from
+%the SMT solver; this counterexample represents
+%a potential concrete machine state that may
+%occur in the program (based on our invariant
+%reasoning).
+%These counterexamples help in faster convergence
+%of the invariant inference and correlation algorithms
+%during the automatic construction of a bisimulation relation.
+%The counterexample generated
+%by an SMT solver thus needs to be converted back to an example
+%of a recursive data-structure that demonstrates
+%the falsification of the proposed
+%invariant or correlation (\cref{fig:convertToFromSMT}).  {\em These
+%procedures to convert from a proof obligation
+%involving a \recursiveInvariant{}
+%to an SMT formula and the conversion back from an SMT-generated
+%counterexample to a recursive data-structure example
+%form our second contribution}.
+
+We have manually
+developed a small
+number of succinct specifications of data-structure
+programs in \SpecL{}
+involving ADT-based
+lists, strings, trees, and two-dimensional lists.
+Using these,
+we automatically verify
+equivalent programs in
+popular C libraries with
+strings, lists, trees, two-dimensional lists,
+combinations of arrays and lists, etc.
+For one specification program in \SpecL{}, multiple
+different C
+implementations are verified.
+%In the paper, we
+%also discuss
+%some implementation subtleties of
+%these programs revealed by these
+%verification efforts that usually
+%go unnoticed.
+
+% Stroke is a condition in which there is insufficient blood flow to a specific area of the brain, preventing that area from receiving the oxygen and vital nutrients required for proper functioning. As a result, brain cells begin to die within minutes. It has a long-lasting effect that is usually irreversible and can also result in coma or death, depending on the severity and the locality of the stroke.
+
+% Blood flow may be restricted mainly due to two reasons: a clot or an occlusion in blood vessels or a rupture of any blood vessel located within the brain. Thus stroke can be categorized into two broad categories: Ischemic Stroke (IS) and Hemorrhagic Stroke (HS) respectively. The illustration of clot and bleed in the blood vessels has been shown in Figure~\ref{fig:intro-ischemic-hemorrhagic} \footnote{Illustration in Figure~\ref{fig:intro-ischemic-hemorrhagic} has been designed using resources from \href{https://www.freepik.com/free-vector/caner-human-brain_19399741.htm}{freepik.com} created by username: brgfx.}
+
+% \begin{figure}[!htb]
+%     \centering
+%     \includegraphics[scale=0.18]{chapters/figures/intro-ischemic-hemorrhagic.pdf}
+%     \caption{Illustration of blood vessels in case of (a) Ischemic Stroke with an occlusion in the blood vessel (b) Hemorrhagic Stroke with a ruptured blood vessel.}
+%     \label{fig:intro-ischemic-hemorrhagic}
+% \end{figure} 
+
+% There were 5.5 million deaths worldwide due to stroke in 2016 (2.9 million males, 2.6 million females)~\cite{johnson2019global}. Furthermore, as per the 2019 Global Burden of Disease (GBD) analysis, stroke was the second leading cause of Disability Adjusted Life Years (DALYs) in the population aged 50 years and older, and the third leading cause of DALYs across all age groups~\cite{vos2020global}. The DALY is a unit of time that includes years of life lost to premature death and years spent with disability.
+
+% \subsection{Motivation}
+% \label{chap:intro-motivation}
+% Stroke treatment is extremely time critical, as it can result in permanent disability or even death within a few hours of onset. Prior to initiating any treatment, it is necessary to ascertain the patient's stroke type as IS or HS, as the nature of treatment for the two stroke types is diametrically opposed. Antiplatelet therapy, thrombolysis, and thrombectomy are the cornerstones of IS treatment, whereas blood pressure control, surgery, embolization techniques, and hemostatic treatment can help avoid additional damage in HS. Early and accurate stroke classification is therefore critical for timely treatment and improved outcomes. Research indicates that even a 15-minute reduction in time to treatment has a significant effect on stroke casualties and disability~\cite{saver2013time}.
+
+% Unfortunately, there is no single biomarker or even a combination of multiple biomarkers, which can accurately differentiate IS from HS. Neuroimaging techniques such as Magnetic Resonance Imaging (MRI) and Computed Tomography (CT) are the gold standard for diagnosing IS, HS, and stroke mimics accurately. But due to the high expense associated, neuroimaging facilities are primarily found in large hospitals and research institutes. The availability becomes even more scarce in developing nations’ sub-urban and rural areas. 
+% \vspace{-4mm}
+% \subsection{Research Objectives}
+% In this work we intend to develop methods leveraging artificial intelligence and machine learning models to aid in the reduction of global DALYs due to stroke, with a particular emphasis on resource-constrained settings such as those of developing nations, where neuroimaging and stroke management healthcare facilities are not readily available. 
+
+% We attempt to aid in the early detection of stroke and stroke type by developing a machine learning-based framework for clinical stroke classification that can be used in real-time even when a few tests are unavailable at the hospital. To investigate the correlation and significance of observed stroke variables from clinical dataset in terms of a smaller number of latent factors, we develop a more generalized oblique sparse factor model that outperforms the existing state-of-the-art model for exploratory factor analysis of datasets. To enable the use of deep learning and computer vision models for automated early stroke diagnosis in resource-limited settings, we develop a ten-test protocol for visual data collection that includes modified NIHSS-8 assessments and some new assessments inspired by Yoga-postures.
+
+% \vspace{-4mm}
+% \subsection{Contributions}
+% \textbf{The key contributions of this work are as follows:}
+
+% \begin{enumerate}
+%     \item A systematic review and corrective re-analysis of four popular clinical scores developed for stroke classification.
+%     \item 
+%     \begin{enumerate*}[label=(\alph*)]
+%         \item Development of a machine learning framework for stroke classification as IS and HS, that works efficiently even in the presence of missing values in the data.
+%         \item Identification of important clinical markers for distinguishing between IS and HS via data driven-methods.
+%     \end{enumerate*}
+%     \item The development of a more generalised Oblique Sparse Factor Model that performs well with less number of data points, as witnessed in case of many healthcare research problems, with its application to the stroke classification problem.
+%     \item Development of a ten-test protocol for visual data collection to assess the entire body posture to evaluate the likelihood of stroke.
+% \end{enumerate}

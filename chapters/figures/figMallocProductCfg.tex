@@ -1,0 +1,65 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_macros.tex}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,293); %set diagram left start at 0, and has height of 293
+
+
+% Text Node
+\draw    (244.5, 76.5) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (244.5,76.5) node  [font=\scriptsize] [align=left] {\tt S0:C0};
+% Text Node
+\draw    (333.5, 76.5) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (333.5,76.5) node  [font=\scriptsize] [align=left] {\tt S3:C3};
+% Text Node
+\draw    (374.5, 135) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (374.5,135) node  [font=\scriptsize] [align=left] {\tt S3:C4};
+% Text Node
+\draw    (286.5, 135) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (286.5,135) node  [font=\scriptsize] [align=left] {\tt S3:C5};
+% Text Node
+\draw    (424, 76.5) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (424,76.5) node  [font=\scriptsize] [align=left] {\tt SE:CE};
+% Text Node
+\draw (257,52) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
+{\tt S0\rightarrow S3}\\
+{\tt C0\rightarrow C3}
+\end{array}$};
+% Text Node
+\draw (345,52) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
+{\tt S3\rightarrow SE}\\
+{\tt C3\rightarrow CE}
+\end{array}$};
+% Text Node
+\draw (365,90) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
+{\tt \epsilon}\\
+{\tt C3\rightarrow C4}
+\end{array}$};
+% Text Node
+\draw (304,134) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
+{\tt \epsilon}\\
+{\tt C4\rightarrow C5}
+\end{array}$};
+% Text Node
+\draw (228,94) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
+{\tt S3\rightarrow S5\rightarrow S3}\\
+{\tt C5\rightarrow C3}
+\end{array}$};
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (260.82,76.5) -- (317.18,76.5) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (349.82,76.5) -- (407.88,76.5) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (345.8,87.23) .. controls (359.54,95) and (367.69,108) .. (370.64,119) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (358.18,135) -- (302.82,135) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (291.3,119) .. controls (294.14,111.94) and (303.11,100) .. (320.65,86.57) ;
+
+\end{tikzpicture}
+
+\end{document}

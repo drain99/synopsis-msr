@@ -1,0 +1,76 @@
+\begin{figure}[htpb]
+\begin{minipage}[c]{0.50\textwidth}
+\begin{subfigure}[b]{1\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{\ \ \ }}~ type Str = SInvalid
+~{\tiny \textcolor{mygray}{\ \ \ }}~          | SNil
+~{\tiny \textcolor{mygray}{\ \ \ }}~          | SCons (i8:ch, Str:tail).
+~{\tiny \textcolor{mygray}{   }}~ 
+~{\tiny \textcolor{mygray}{S0:}}~ i32 strlen (Str s) {
+~{\tiny \textcolor{mygray}{S1:}}~   i32 len $\coloneq$ $\mathrm{\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{S2:}}~   while ${\tt \neg (s\ is\ SNil)}$:
+~{\tiny \textcolor{mygray}{S3:}}~     assume ${\tt \neg (s\ is\ SInvalid)}$;
+~{\tiny \textcolor{mygray}{S4:}}~     s   $\coloneq$ s.tail; // (s is SCons)
+~{\tiny \textcolor{mygray}{S5:}}~     len $\coloneq$ len + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{S6:}}~   return len;
+~{\tiny \textcolor{mygray}{SE:}}~ }
+\end{allLangEnvScript}
+\end{center}
+\caption{\label{fig:llStrlenSpecIR}Strlen Spec (abstracted) IR Program}
+\end{subfigure}
+\begin{subfigure}[b]{1\textwidth}
+\begin{center}
+\vspace{5px}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{\ \ \ }}~ size_t strlen(char* s);
+~{\tiny \textcolor{mygray}{}}~
+~{\tiny \textcolor{mygray}{C0:}}~ i32 strlen (i32 s) {
+~{\tiny \textcolor{mygray}{C1:}}~   i32 i $\coloneq$ ${\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{C2:}}~   while $\mathrm{\tt s[0_{i32}]^m_{i8} \neq 0_{i8}}$:
+~{\tiny \textcolor{mygray}{C3:}}~     s $\coloneq$ s + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C4:}}~     i $\coloneq$ i + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C5:}}~   return i;
+~{\tiny \textcolor{mygray}{CE:}}~ }
+\end{allLangEnvScript}
+\end{center}
+\caption{\label{fig:llStrlenCArrIR}Generic Strlen C  (abstracted) IR using Array}
+\end{subfigure}%
+\end{minipage}%
+\begin{minipage}[c]{0.50\textwidth}
+\begin{subfigure}[b]{1\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{\ \ \ \ }}~ typedef struct clnode {
+~{\tiny \textcolor{mygray}{\ \ \ \ }}~ char chunk[4]; struct clnode* next;
+~{\tiny \textcolor{mygray}{\ \ \ \ }}~ } clnode;
+~{\tiny \textcolor{mygray}{\ \ \ \ }}~ size_t strlen(clnode* cl);
+~{\tiny \textcolor{mygray}{}}~
+~{\tiny \textcolor{mygray}{C0: }}~ i32 strlen (i32 cl) {
+~{\tiny \textcolor{mygray}{C1: }}~   i32 hi $\coloneq$ $\mathrm{\tt 0x80808080_{i32}}$;
+~{\tiny \textcolor{mygray}{C2: }}~   i32 lo $\coloneq$ $\mathrm{\tt 0x01010101_{i32}}$;
+~{\tiny \textcolor{mygray}{C3: }}~   i32 i  $\coloneq$ $\mathrm{\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{C4: }}~   while ${\tt true}$:
+~{\tiny \textcolor{mygray}{C5: }}~     i32 dword_ptr $\coloneq$ ${\tt \& \structPointer{\tt cl}{m}{\tt clnode}{chunk}}$;
+~{\tiny \textcolor{mygray}{C6: }}~     i32 dword     $\coloneq$ $\mathrm{\tt dword\_ptr[0_{i32}]^m_{i32}}$;
+~{\tiny \textcolor{mygray}{C7: }}~     if $\mathrm{\tt ((dword - lo)\ \&\ (\sim dword)\ \&\ hi) \neq 0_{i32}}$:
+~{\tiny \textcolor{mygray}{C8: }}~       if $\mathrm{\tt dword\_ptr[0_{i32}]^m_{i8} == 0_{i8}}$:
+~{\tiny \textcolor{mygray}{C9: }}~         return i;
+~{\tiny \textcolor{mygray}{C10:}}~       if $\mathrm{\tt dword\_ptr[1_{i32}]^m_{i8} == 0_{i8}}$:
+~{\tiny \textcolor{mygray}{C11:}}~         return $\mathrm{\tt i + 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C12:}}~       if $\mathrm{\tt dword\_ptr[2_{i32}]^m_{i8} == 0_{i8}}$:
+~{\tiny \textcolor{mygray}{C13:}}~         return $\mathrm{\tt i + 2_{i32}}$;
+~{\tiny \textcolor{mygray}{C14:}}~       if $\mathrm{\tt dword\_ptr[3_{i32}]^m_{i8} == 0_{i8}}$:
+~{\tiny \textcolor{mygray}{C15:}}~         return $\mathrm{\tt i + 3_{i32}}$;
+~{\tiny \textcolor{mygray}{C16:}}~     cl $\coloneq$ $\mathrm{\tt \structPointer{\tt cl}{m}{\tt clnode}{next}}$;
+~{\tiny \textcolor{mygray}{C17:}}~     i  $\coloneq$ $\mathrm{\tt i + 4_{i32}}$;
+~{\tiny \textcolor{mygray}{CE: }}~ }
+\end{allLangEnvScript}
+\end{center}
+\caption{\label{fig:llStrlenCClistIR}Optimized Chunked List Strlen (abstracted) C IR}
+\end{subfigure}%
+\end{minipage}
+\vspace{-5px}
+\caption{\label{fig:strlenSpecAndC} Strlen Spec IR and C IR Programs.}
+\vspace{-5px}
+\end{figure}

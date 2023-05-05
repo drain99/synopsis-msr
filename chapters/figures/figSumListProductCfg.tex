@@ -1,0 +1,44 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_macros.tex}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,394); %set diagram left start at 0, and has height of 394
+
+% Text Node
+\draw    (31.5, 152) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (31.5,152) node [font=\scriptsize]  [align=left] {\tt S0:C0};
+% Text Node
+\draw    (221, 152) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (221,152) node  [font=\scriptsize] [align=left] {\tt SE:CE};
+% Text Node
+\draw    (124.5, 152) circle [x radius= 16.32, y radius= 16.32]   ;
+\draw (124.5,152) node  [font=\scriptsize] [align=left] {\tt S2:C2};
+% Text Node
+\draw (73.38,138.52) node [font=\scriptsize]  {$ \begin{array}{c}
+{\tt S0 \rightarrow S2}\\
+{\tt C0 \rightarrow C2}
+\end{array}$};
+% Text Node
+\draw (124.9,206.52) node  [font=\scriptsize]  {$ \begin{array}{c}
+{\tt S2 \rightarrow S4 \rightarrow S2}\\
+{\tt C2 \rightarrow C4 \rightarrow C2}
+\end{array}$};
+% Text Node
+\draw (166.25,138.52) node  [font=\scriptsize]  {$ \begin{array}{c}
+{\tt S2 \rightarrow SE}\\
+{\tt C2 \rightarrow CE}
+\end{array}$};
+% Connection
+\draw   [-{Straight Barb[length=2.2mm, width=1.5mm]}] (48,152) -- (108.5,152) ;
+% Connection
+\draw   [-{Straight Barb[length=2.2mm, width=1.5mm]}] (141,152) -- (205,152) ;
+%Curve Lines [id:da7606075177498024] 
+\draw   [{Straight Barb[length=2.2mm, width=1.5mm]}-] (110,160) .. controls (44.51,202) and (200.73,202) .. (139,160) ;
+
+\end{tikzpicture}
+
+\end{document}

@@ -1,0 +1,45 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_macros.tex}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,293); %set diagram left start at 0, and has height of 293
+
+% Text Node
+\draw    (21, 131.5) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (21,131.5) node  [font=\footnotesize] [align=left] {\tt C0};
+% Text Node
+\draw    (78.5, 132) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (78.5,132) node  [font=\footnotesize] [align=left] {\tt C3};
+% Text Node
+\draw    (152.5, 132) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (152.5,132) node  [font=\footnotesize] [align=left] {\tt CE};
+% Text Node
+\draw    (102.5, 183.5) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (102.5,183.5) node  [font=\footnotesize] [align=left] {\tt C4};
+% Text Node
+\draw    (47.5, 183.5) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (47.5,183.5) node  [font=\footnotesize] [align=left] {\tt C5};
+% Text Node
+\draw (111.5,123) node  [font=\footnotesize]  {{${\tt i \geq_{u} n}$}};
+% Text Node
+\draw (115.5,151) node  [font=\footnotesize]  {{${\tt i <_{u} n}$}};
+% Text Node
+\draw (77,195) node  [font=\scriptsize]  {$\mathrm{\tt malloc}$};
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (89.84,132) -- (140.4,132) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (32.34,131.6) -- (67.16,131.9) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (85.71,140.75) .. controls (93.14,148) and (97.84,157.57) .. (100.24,172.39) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (91.16,183.5) -- (58.84,183.5) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (50.28,172.51) .. controls (52.06,160.45) and (57.98,150.11) .. (70.2,139.72) ;
+
+\end{tikzpicture}
+
+\end{document}
