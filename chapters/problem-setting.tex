@@ -1,0 +1,166 @@
+\section{Problem Setting and Equivalence Definition}
+\label{sec:problem-setting}
+We restrict
+our attention to programs that construct, read, and write to recursive
+data structures in \SpecL{} and C.
+If a \SpecL{} or C program contains multiple procedures, we first
+convert all tail-recursive calls to loops, and then inline
+all non-recursive procedure calls to obtain a single top-level procedure which is
+compared for equivalence.
+% The top-level procedures in $S$ and $C$
+%must have the same name for our tool
+%to compare them for equivalence.
+A top-level procedure
+may make recursive calls to itself (which are not tail recursive).
+The C program
+may also contain calls to memory allocation library functions
+like {\tt malloc} whose
+abstract semantics are available.
+
+The inputs to
+a \SpecL{} procedure
+are its explicit program arguments, which may include
+recursive data-structure values.  The inputs to a
+C procedure include the explicit arguments passed to the C procedure (e.g., pointers)
+and the implicit state of program memory at procedure entry.
+%Notice the difference in the nature of inputs to the two programs: while
+%\SpecL{} inputs are explicit well-typed values (e.g., list), C procedure's
+%inputs may be
+%derived from the state of the input memory (e.g., linked list formed by chasing the
+%{\tt next} pointer).
+For checking equivalence, we require
+the user to specify a precondition (at the entry of both
+programs) that relates these two different
+types of program inputs.
+%The user may
+%employ a
+%\recursiveInvariant{} shape for specifying a precondition.
+
+\Cref{fig:llAllocSpecIR} shows the Three-Address-Code (3AC) style
+intermediate representation (IR) of the linked-list construction \SpecL{}
+program in \cref{fig:llAllocSpec}. The primary differences between
+the \SpecL{} source and IR are: (a) tail-recursive calls
+are converted to loops in IR, and (b) {\tt match} statements
+are converted to \sumDtor{} in IR,
+where each branch of an \sumDtor{}
+expression represents a distinct constructor.
+
+Similarly, the C implementation is also lowered to a 3AC IR
+that resembles LLVM IR \cite{llvm_langref_home}. The primary differences between a C
+source and its IR are: (a) the sizes and
+memory-layouts of both scalar (e.g., {\tt int}) and
+compound (e.g., {\tt struct}) types are concretized in the IR,
+and (b) we annotate any {\tt malloc} calls with
+the IR PC at which that call appears
+(e.g., {\tt malloc$_{\tt C4}$} in \cref{fig:llAllocCIR}).
+%, and (c) the IR models only three types of UB
+%present in the C source, namely out-of-bounds
+%memory accesses (OOB), division-by-zero (DBZ), and alignment-related (Align)
+%UB assumptions.
+%We ignore the other types of
+%UB for simplicity. If the user is interested in
+%end-to-end verification of the executable code (compiled from
+%the C implementation), then she must ensure that the
+%the C compiler does not leverage these ignored UB types for
+%optimizing the generated executable. This can be achieved, for example,
+%by disabling compiler optimizations. Thus, we model only
+%those essential types of UB (OOB, DBZ, Align) which may cause
+%traps or errors during machine code execution, even in the absence
+%of compiler optimization.
+
+\toolName{} computes equivalence between the IR
+of the \SpecL{} and C source programs.
+Henceforth, we will omit the source
+representation and only show the IR of
+both \SpecL{} and C programs.
+We will continue to refer to these IRs
+as \SpecL{} and C respectively.
+
+\subsection{Equivalence Definition}
+\label{sec:eqdef}
+Given (1) a \SpecL{} program specification $S$, (2) a C implementation
+$C$,
+(3) a precondition $Pre$ that
+relates the initial inputs {\tt Input}$_S$
+and {\tt Input}$_C$ to
+$S$ and $C$ respectively, and (4) a postcondition
+$Post$ that relates the final outputs {\tt Output}$_S$
+and {\tt Output}$_C$ of $S$ and $C$ respectively\footnote{{Input}$_C$ and {Output}$_C$ include the initial and final memory state of $C$ respectively.}:\\
+$S$ and $C$ are equivalent under precondition $Pre$ if
+for all possible inputs {\tt Input}$_S$
+and {\tt Input}$_C$,
+such that $Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C)$
+holds,
+$S$'s execution is
+well-defined on {\tt Input}$_S$, {\em and} C's
+memory allocation requests during its execution on
+{\tt Input$_C$} are successful,
+then both programs $S$ and $C$ produce outputs
+that satisfy $Post$.
+$$
+(Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C) \land (S\ \  \mathrm{\tt def}) \land (C\ \ \mathrm{\tt fits})) \Rightarrow Post(\mathrm{\tt Output}_S, \mathrm{\tt Output}_C)
+$$
+
+The $(S\ \  \mathrm{\tt def})$ antecedant states that we are only
+interested in proving equivalence for well-defined
+executions of $S$, i.e., executions that are
+free of undefined
+behaviour (UB). For example, division-by-zero is UB
+in $S$.
+Sometimes
+the user may be interested in constraining the nature of
+inputs to the C program, e.g., the {\tt strlen(char* s$_C$)} function
+is well-defined only if {\tt s$_C$} is not null.
+Thus,
+for {\tt strlen}, we are only interested in computing
+equivalence for non-null input pointers. \SpecL{} has
+no notion of pointers and so this condition cannot be encoded
+in $S$ alone.
+In these cases, we use a combination of
+$Pre$ and $(S\ \  \mathrm{\tt def})$
+to constrain the executions of $C$ for which we
+are interested in proving equivalence. In the {\tt strlen} example,
+$(S\ \  \mathrm{\tt def})$
+is encoded as an
+abstract condition that the input string {\tt s}$_S$ is ``not invalid'',
+written $\neg$({\tt s$_S$ {\em is} SInvalid}).
+The precondition $Pre$ then contains the relation {\tt (s$_S$ {\em is} SInvalid)$\Leftrightarrow$({\tt s$_C$}=0)}.
+% to
+%ensure that we compute equivalence only for those executions
+%of $C$ where the input pointer {\tt s$_C$} is non-null.
+The use of an
+abstract condition $\neg$({\tt s$_S$ {\em is} SInvalid})
+in $S$
+allows different C implementations to specify
+different validating conditions.
+
+The $(C\ \  \mathrm{\tt fits})$ antecedant states that we
+prove equivalence only if the C program's memory requirements
+fit within the available system memory, i.e.,
+only for those executions of $C$ in which all
+memory allocation requests (through {\tt malloc} calls)
+are successful.
+
+The returned values of $S$ and
+$C$ procedures form their observable outputs.
+For $S$, the returned values are
+explicit and may include well-typed
+recursive data-structure objects.
+For $C$,
+observable returned values also include portions
+of the implicit memory state at
+program exit. The postcondition relates these outputs of
+the two programs.
+%, potentially through \recursiveRelations{}.
+%, potentially through the use of
+%\recursiveInvariant{} shapes.
+
+%Our proof search procedure involves the automatic inference
+%of invariants relating the intermediate values of the two
+%programs at correlated program points.
+%As we will
+%see through examples, these intermediate relations
+%can often be derived from the
+%relations between the programs' inputs ($Pre$)
+%or between the programs' outputs ($Post$) supplied
+%by the user.

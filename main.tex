@@ -7,10 +7,8 @@
 % \documentclass[a4paper,titlepage,openright,12pt]{MSThesis}
 \usepackage{graphicx}    
 \usepackage{epsfig}   
-%\usepackage[font=footnotesize]{subfig}
-% \usepackage{subfig}
-%%\usepackage{caption} % no need for this
-\usepackage{subcaption}
+\usepackage[size=small,labelfont=bf,justification=centering]{caption}
+\usepackage[size=footnotesize,labelfont=bf,justification=centering]{subcaption}
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{fancyhdr}                              
@@ -117,6 +115,10 @@
 \restylefloat{figure}
 \graphicspath{{./figures/}}
 
+\makeatletter
+\renewcommand\@makefntext[1]{\leftskip=2em\hskip-2em\@makefnmark#1}
+\makeatother
+
 \input{common_macros.tex}
 
 % \setlength{\textwidth}{16cm}
@@ -147,6 +149,8 @@
 \setcounter{page}{1}
 \pagenumbering{arabic}
 \input{chapters/introduction}
+\input{chapters/problem-setting}
+\input{chapters/examples}
 \input{chapters/conclusion}
 \input{chapters/organization-thesis}
 \input{chapters/publications}

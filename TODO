@@ -1,0 +1,82 @@
+Thesis Contents:
+
+Introduction
+Problem Setting and Equivalence Definition
+Algorithm through Examples
+  CFG Representation
+  Product-CFG and Bisimulation
+  Lifting Constructors and Recursive Relations
+  Proof Obligations
+  Unrolling and Unification
+  Decomposition of Recursive Relations
+  Category I
+  Category II
+    d-depth Under- and Over-Approximation
+  Category III
+    LHS to RHS Rewriting
+    RHS Decomposition
+    Conversion of Recursive Relations to Bisimulation
+    Reconstruction Program
+    Points-to Information in C
+  SMT Encoding of Expressions and Reconstruction of Counterexamples
+  Proof Discharge Algorithm Summary
+Formalism
+  Spec Language
+  Modelling Procedure Calls
+  Points-to Analysis
+  Counterexample-guided Best First Search Algorithm for Product-CFG
+  Counterexample-guided Invariant Inference And Counterexample Generation
+    Predicate Grammar
+    Inference of Bitvector Relations
+    Inference of Recursive Relations
+Deconstruction Program : Alternate Representation of ADT Values
+  Introduction
+  Scalability : Handling Pathsets
+  Conversion Algorithm
+  Unrolling and Unification
+  Deomposition of Deconstruction Program Pairs
+  d-depth Under- and Over-Approximation
+  Points-to Information in C
+  General Proof Discharge Algorithm
+Evaluation
+  Lifting Constructors and Specifications
+  A String Example : strchr
+  A Matrix Example : matfreq
+  Results
+Conclusion and Future Scope
+
+Today:
+ignore figures for now, reduce into the synopsis and then fill EVERY SINGLE section assuming today is the last day
+
+Synopsis Contents:
+
+Introduction
+Problem Setting and Equivalence Definition
+Algorithm through Examples
+  CFG Representation
+  Product-CFG and Bisimulation
+  Lifting Constructors and Recursive Relations
+  Proof Obligations
+  Unrolling and Unification
+  Decomposition of Recursive Relations
+  Category I
+  Category II
+    d-depth Under- and Over-Approximation
+  Category III
+    LHS to RHS Rewriting
+    RHS Decomposition
+    Conversion of Recursive Relations to Bisimulation
+    Reconstruction Program
+    Points-to Information in C
+  SMT Encoding of Expressions and Reconstruction of Counterexamples
+  Proof Discharge Algorithm Summary
+Formalism
+  Spec Language
+  Modelling Procedure Calls
+  Points-to Analysis
+  Counterexample-guided Best First Search Algorithm for Product-CFG
+  Counterexample-guided Invariant Inference And Counterexample Generation
+Evaluation
+  Lifting Constructors and Specifications
+  A String Example : strlen
+Conclusion and Future Scope

@@ -15,7 +15,6 @@ several safety properties.
 
 \input{chapters/figures/figMallocSpecAndC.tex}
 
-
 The programs
 in \cref{fig:llAllocSpec,fig:llAllocC}
 construct lists in a functional language and in C respectively.
@@ -88,6 +87,8 @@ there exist multiple
 C implementations that may differ in their memory layout and
 iteration logic; yet, \toolName{} can compare equivalence for all such
 program pairs automatically.
+
+\input{chapters/figures/figMallocSpecIRAndCIR.tex}
 
 Such equivalence proofs require the
 inference of relations between data-structure values
