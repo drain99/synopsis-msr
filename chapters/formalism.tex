@@ -1,0 +1,263 @@
+\section{Formalism}
+\label{sec:formalism}
+\subsection{The \SpecL{} Language}
+\label{sec:speclang}
+We briefly discuss the properties of the \SpecL{} language in this section.
+\SpecL{} supports first order algebraic data types (ADT) similar to functional languages.
+The language also borrows its expression grammar heavily from functional languages.
+This includes the usual constructs like {\tt let-in}, {\tt if-then-else}, function application and the {\tt match} statement
+for pattern-matching (i.e. deconstructing) sum and product values.
+\SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing UB conditions as discussed in \cref{sec:eval}.
+\SpecL{} also provides the typical bitvector and boolean operators such as {\tt bvadd(+)} for adding two bit-vectors, {\tt bvextract$_{a:b}$}
+for extracting bits $a$ through $b$ and {\tt $\lessgtr_{s}$} for comparing bit-vectors interpreted as signed integers.
+
+
+\begin{footnotesize}
+\begin{bnf*}
+\bnfprod{expr}{\bnfts{if} \bnfsp \bnfpn{expr} \bnfsp \bnfts{then} \bnfsp \bnfpn{expr} \bnfsp \bnfts{else} \bnfsp \bnfpn{expr}} \\
+\bnfmore{\bnfts{let} \bnfsp \bnfpn{id} \bnfsp \bnfts{=} \bnfsp \bnfpn{expr} \bnfsp \bnfts{in} \bnfsp \bnfpn{expr}} \\
+\bnfmore{\bnfts{match} \bnfsp \bnfpn{expr} \bnfsp \bnfts{with} \bnfsp \bnfpn{match-clause}^*} \\
+\bnfmore{\bnfts{assuming} \bnfsp \bnfpn{expr} \bnfsp \bnfts{do} \bnfsp \bnfpn{expr}} \\
+\bnfmore{\bnfpn{id} \bnfsp \bnfts{(} \bnfsp \bnfpn{expr}^* \bnfts{)}} \\
+\bnfmore{\bnfpn{data-cons} \bnfsp \bnfts{(} \bnfsp \bnfpn{expr}^* \bnfts{)}} \\
+\bnfmore{\bnfpn{expr} \bnfsp \bnfts{is} \bnfsp \bnfpn{data-cons}} \\
+\bnfmore{\bnfpn{expr} \bnfsp \bnfpn{intrinsic-op} \bnfsp \bnfpn{expr}} \\
+\bnfmore{\bnfpn{literal$_{\tt unit}$} \bnfor \bnfpn{literal$_{\tt bool}$} \bnfor \bnfpn{literal$_{\tt i<N>}$}} \\
+\\
+\bnfprod{match-clause}{\bnfts{|} \bnfsp \bnfpn{data-cons} \bnfsp \bnfpn{id}^* \bnfsp \bnfts{=>} \bnfsp \bnfpn{expr}} \\
+\bnfprod{intrinsic-op}{\bnfpn{arithmatic-op} \bnfor \bnfpn{relational-op} \bnfor \bnfpn{logical-op}} \\
+\\
+\bnfprod{arithmatic-op}{\bnfts{+} \bnfor \bnfts{-} \bnfor \bnfts{*}  \bnfor \bnfts{bvextract$\mathrm{_{a:b}}$} \bnfor \bnfts{bvconcat}} \\
+\bnfprod{relational-op}{\bnfts{=$_{\tt \{ unit,bool,i<N> \}}$} \bnfor \bnfts{<$_{\tt \{ s,u \}}$} \bnfor \bnfts{$\leq$$_{\tt \{ s,u \}}$} \bnfor \bnfts{$\geq$$_{\tt \{ s,u \}}$} \bnfor \bnfts{>$_{\tt \{ s,u \}}$}} \\
+\bnfprod{logical-op}{\bnfts{not$_{\tt \{ bool,i<N> \}}$} \bnfor \bnfts{and$_{\tt \{ bool,i<N> \}}$} \bnfor \bnfts{or$_{\tt \{ bool,i<N> \}}$} \bnfor \bnfts{xor$_{\tt \{ bool,i<N> \}}$}} \\
+\\
+\bnfprod{literal$_{\tt unit}$}{\bnfts{()}} \\
+\bnfprod{literal$_{\tt bool}$}{\bnfts{false} \bnfor \bnfts{true}} \\
+\bnfprod{literal$_{\tt i<N>}$}{\bnfts{0} \bnfsk \bnfts{2$^{\tt N}$-1}} \\
+\end{bnf*}
+\end{footnotesize}
+
+\subsection{Modeling Procedure Calls}
+\label{sec:modelfcalls}
+A top-level procedure $\delta$
+in $S$ or $C$ may make non-tail recursive
+calls, e.g., for traversing
+a tree data structure.
+Our correlation algorithm (\cref{sec:searchAlgoInformal}) ensures
+that the anchor nodes around such a callsite are correlated
+one-to-one across both programs. For example, let there be a
+recursive call in $S$ at PC $A_S$, i.e., $A_S$ is the callsite.
+Then we denote the program points just before and just
+after this callsite
+as $A^{{\tt b}}_S$ and $A^{{\tt a}}_S$ respectively.
+Let {\tt args$_{A_S}$}
+represent the values of the
+actual arguments of this procedure call.
+Let {\tt ret$_{A_S}$} represent the values returned by this procedure call.
+Similarly, for a procedure call at PC $A_C$ in $C$, let
+$A^{{\tt b}}_C$,
+$A^{{\tt a}}_C$,
+{\tt args$_{A_C}$} and {\tt ret$_{A_C}$} 
+represent the before-callsite program point, after-callsite program point,
+arguments and return values respectively.
+Our algorithm ensures that the only correlations possible in
+a product-CFG $\pi$ for these $S$ and $C$ program points are
+{\tt $A_{\pi}^{{\tt b}}$=($A_{S}^{{\tt b}}$,$A_{C}^{{\tt b}}$)}
+and
+{\tt $A_{\pi}^{{\tt a}}$=($A_{S}^{{\tt a}}$,$A_{C}^{{\tt a}}$)}.
+
+Recall that the recursive call at $A_S$ (or $A_C$) must
+be a call to the top-level procedure $\delta$.
+We utilize the user-supplied $Pre$ and $Post$ conditions for $\delta$ to obtain
+the desired invariants at nodes $A_{\pi}^{{\tt b}}$
+and 
+$A_{\pi}^{{\tt a}}$ in the product-CFG.
+We require a successful proof to
+{\em ensure} that {\small $Pre(A^{{\tt args_S}}_S, A^{{\tt args_C}}_C, m_{\tt b})$}
+holds at $A_{\pi}^{{\tt b}}$.  Further, the proof can
+{\em assume} that {\small $Post(A^{{\tt ret_S}}_S, A^{{\tt ret_C}}_C, m_{\tt a})$} holds
+at 
+$A_{\pi}^{{\tt a}}$. Here, $m_{\tt b}$
+and $m_{\tt a}$ represent the memory states in $C$ at
+$A^{{\tt b}}_C$ and
+$A^{{\tt a}}_C$ respectively.
+Thus, for such recursive calls to the
+top-level function, we inductively
+prove the precondition (on the
+arguments of the procedure call) at $A_{\pi}^{{\tt b}}$
+and assume the postcondition (on the return values of the procedure call)
+at $A_{\pi}^{{\tt a}}$.
+
+
+
+\subsection{Invariant Inference and Counterexample Generation}
+\label{sec:invinference}
+
+\input{chapters/figures/figInvariantDFA.tex}
+
+\Cref{tab:dataflow_formulation} presents our dataflow analysis for inferring invariants $\phi_n$
+at each node $n$ of a product-CFG, while also generating a set of counterexamples $\Gamma_n$ at node $n$
+that represents the potential concrete machine states at $n$.
+
+Given the invariants and counterexamples at node $s$
+($\phi_s,\Gamma_s$),
+the transfer function initializes the new candidate set
+of counterexamples at $d$ ($\Gamma^{can}_{d}$)
+to the current set of counterexamples at $d$ ($\Gamma_{d}$) union-ed with
+the counterexamples obtained by executing $\Gamma_s$ on edge $e$ ({\tt exec$_e$}).
+The candidate invariant at $d$ ($\phi^{can}_d$) is computed
+as the strongest cover of $\Gamma^{can}_{d}$ ({\em StrongestInvCover()}).
+At each step, the transfer function attempts to prove
+$\{\phi_s\} (e) \{\phi^{can}_d\}$ (by checking {\tt SAT}isfiability of its
+negation). If the proof succeeds, the candidate invariant $\phi^{can}_d$ is
+returned alongwith the counterexamples $\Gamma^{can}_d$ learned so far.
+Else the candidate invariant $\phi^{can}_d$ is weakened using
+the counterexamples obtained from the {\tt SAT} query ($\gamma$) and the proof attempt is
+repeated.
+
+The predicate grammar allows the automatic inference of
+affine relations between bitvector values of both
+programs, and \recursiveRelations{} between an ADT value in \SpecL{} ($\alpha_S$)
+and a {\em lifted} ADT value from C (${\tt liftC}_m(p_C)$).
+We enumerate these \recursiveRelation{}
+guesses for all bitvector variables $v^{C}$ in $C$. For each variable $v^{C}$,
+all candidate {\tt liftC} constructors are attempted. In
+our implementation, the candidate
+{\tt liftC}
+constructors are derived from the constructors
+present in the precondition $Pre$
+and the postcondition $Post$.  More
+sophisticated strategies for automatic guessing of
+these lifting constructors
+are possible.
+
+{\em StrongestInvCover()} for affine relations involves
+identifying the basis vectors of the kernel of the
+matrix formed by the counterexamples in the bitvector
+domain \cite{esop05,semalign}.
+For inequality and
+\recursiveRelations{}, {\em StrongestInvCover($\Gamma$)}
+returns false iff any counterexample in $\Gamma$ evaluates the
+relation to false --- this effectively simulates the Houdini approach \cite{houdini}.
+
+\begin{figure}[t]
+\begin{center}
+\begin{subfigure}[t]{.46\textwidth}
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$f_e(\phi_s, \Gamma_s)$}{
+  $\Gamma^{can}_{d} \mapsfrom \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
+  $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
+  \While{{\tt SAT$(\neg(\{\phi_s\} (e) \{\phi^{can}_{d}\}), \gamma_s)$}}
+  {
+    $\gamma_{d} \ \ \ \ \mapsfrom {\tt exec}_e(\gamma_s)$;\\
+    $\Gamma^{can}_{d} \mapsfrom \Gamma^{can}_{d}\cup\gamma_{d}$;\\
+    $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
+  }
+  \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$;}\\
+}
+\end{footnotesize}
+\end{algorithm}
+\caption{\label{algo:tf} Transfer function $f_e$ across
+edge $e=(s\rightarrow d)$.}
+\end{subfigure}%
+\hfill
+\rulesep
+\hfill
+\begin{subfigure}[t]{.52\textwidth}
+\begin{center}
+\begin{tabular}{@{}l@{}l}
+$Inv \rightarrow$ &
+\begin{tabular}{@{}l|l|l@{}}
+$\sum_{i}{c_iv_i}=c$ & $v_1 \odot v_2$ & $\alpha_S = {\tt liftC}_m(v^{C} \dots)$
+\end{tabular}\\
+\end{tabular}%
+\vspace{7px}
+\end{center}
+\caption{\label{fig:invGrammar} Predicate grammar for constructing invariants.\\$v$ represents a bitvector variable in either $S$ or $C$. \\ $c$ represents a bitvector constant.\\$\odot$ represent one of $\{<,\leq\}$ inequality operators.\\$\alpha_S$ represents an ADT variable in \SpecL{}.\\$v^{C}$ represents a bitvector variable in $C$.\\$m$ represents the current $C$ memory state.}
+\end{subfigure}%
+\caption{Transfer function $f_e$ and Predicate grammar for invariant inference dataflow analysis in \cref{tab:dataflow_formulation}.
+Given invariants ($\phi_{s}$) and counterexamples ($\Gamma_{s}$) at node $s$,
+$f_e$ returns the updated
+invariants ($\phi_{d}$) and counterexamples ($\Gamma_{d}$) at
+node $d$.
+{\em StrongestInvCover($\Gamma$)} computes the strongest invariant cover for counterexamples $\Gamma$.
+{\tt exec$_e$($\Gamma$)} (concretely) executes
+counterexamples $\Gamma$ over edge $e$.
+{\tt SAT($\phi$, $\gamma$)} determines
+the satisfiability of $\phi$; if satisfiable, the models (counterexamples) are returned in output parameter $\gamma$.}
+\end{center}
+\end{figure}
+
+
+\subsection{Points-to Analysis}
+\label{sec:pointsToFormal}
+We first identify the set $R$ of all region labels.
+For each call to {\tt malloc()} at PC $A$,
+we add $A_1$ and $A_{2+}$ to $R$. $R=\bigcup_{A}\{A_1,A_{2+}\}\cup\{{\tt heap}\}$.
+
+Let $S$ be the set of all scalar pseudo-registers in $C$'s
+IR. We use a forward dataflow
+analysis to identify a may-point-to function $\Delta: (S\cup{}R) \mapsto 2^{R}$
+at each program point.
+For an IR instruction {\tt x := c}, for constant $c$, the
+transfer function updates $\Delta({\tt x}) := \emptyset$.
+For instruction {\tt x := y op z} (for some arithmetic
+or logical operand {\tt op}),
+we update $\Delta({\tt x}) := \Delta({\tt y})\cup\Delta({\tt z})$.
+For a
+load instruction {\tt x := *y}, we
+update $\Delta({\tt x})$ to $\bigcup_{R\in\Delta(y)}\Delta(R)$.
+For a store instruction {\tt *x := y}, for all
+$R\in\Delta({\tt x})$, we update $\Delta(R) := \Delta(R)\cup\Delta(y)$.
+For recursive procedure calls, a {\em supergraph}
+is created by adding control flow edges
+from the call-site to the procedure head (copying actual arguments
+to the formal arguments) and from the procedure
+return to the returning point of the call-site (copying returned
+value to the variable assigned at the callsite), e.g., in
+\cref{fig:decons}, the dashed edges
+represent supergraph edges.
+For a malloc instruction {\tt x := malloc$_A$()} (where $A$
+represents the allocation site), we perform the following steps (in order):
+(a) Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $r\in{}S\cup{}R$, if $A_1\in\Delta(r)$, then update $\Delta(r) := (\Delta(r)\setminus\{A_1\})\cup\{A_{2+}\}$;
+(b) Update $\Delta({\tt x}) := \{A_1\}$;
+(c)Update $\Delta(A_{2+}) := \Delta(A_{2+})\cup\Delta(A_1)$;
+(d) Update $\Delta(A_1) := \emptyset$ (empty set).
+% \begin{enumerate}
+% \item Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $r\in{}S\cup{}R$, if $A_1\in\Delta(r)$, then update $\Delta(r) := (\Delta(r)\setminus\{A_1\})\cup\{A_{2+}\}$.
+% \item Update $\Delta({\tt x}) := \{A_1\}$
+% \item Update $\Delta(A_{2+}) := \Delta(A_{2+})\cup\Delta(A_1)$.
+% \item Update $\Delta(A_1) := \emptyset$ (empty set).
+% \end{enumerate}
+
+The meet operator is set-union. At program entry for
+program $C$, $\Delta(r)=\{{\tt heap}\}$ for
+all $r\in{}S\cup{}R$ (boundary condition at entry), where {\tt heap} represents all the {\em other} memory
+regions that are not captured by the region labels associated with allocation
+sites.
+
+The same dataflow analysis is used for both the C program and a
+reconstruction program for a lifting constructor.
+The only difference is in the boundary condition at entry of a
+reconstruction program. For the
+reconstruction program, we use the results of the points-to
+analysis on $C$ at the from-PC where the proof obligation is being
+discharged; these results are used
+to initialize the may-point-to function at the
+entry of the reconstruction program.
+% A deconstruction
+% program does not contain any store and malloc operations.
+
+%The allocation-site abstraction (with a bounded-depth call stack) is
+%known to be effective at disambiguating memory regions belonging to
+%different data structures
+%\cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
+%In our work, we also need to reason about non-aliasing
+%of the most-recently allocated object (through a {\tt malloc} call) and
+%the previously-allocated objects (as in the {\tt List}
+%construction example). The coarse-grained $\{1, 2+\}$
+%categorization of allocation recency is effective for such
+%disambiguation.

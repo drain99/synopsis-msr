@@ -1,5 +1,4 @@
 \documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
-\input{common_macros.tex}
 \input{common_tikz.tex}
 \begin{document}
 \tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt             
@@ -27,16 +26,16 @@
 \draw (235,380.5) node  [font=\scriptsize]  {
 \begin{tabular}{|ll|}
 \hline
-\Tstrut $\mathrm{\tt \circled{1}\ l_{C}^{first} = l_{C}^{second}}$ & $\mathrm{\tt \circled{2}\ i_{C} \rightsquigarrow \emptyset}$ \\
+\Tstrut $\mathrm{\tt \circled{1}\ l_{C}^{fst} = l_{C}^{snd}}$ & $\mathrm{\tt \circled{2}\ i_{C} \rightsquigarrow \emptyset}$ \\
 \Tstrut $\mathrm{\tt \circled{3}\ p_{C} \rightsquigarrow \{ C4_{1} \}}$ & $\mathrm{\tt \circled{4}\ l_{C} \rightsquigarrow \{ C4_{2+} \}}$ \\
 \Tstrut \Bstrut $\mathrm{\tt \circled{5}\ C4_{1} \rightsquigarrow \{ C4_{2+} \} }$ & $\mathrm{\tt \circled{6}\ C4_{2+} \rightsquigarrow \{ C4_{2+} \}}$ \\
 \hline
 \end{tabular}
 };
 % Text Node
-\draw (245,450) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{check\ \structPointer{l_C^{first}}{m}{\tt lnode}{next} = \structPointer{l_C^{second}}{m'}{\tt lnode}{next}}$}};
+\draw (245,450) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{check\ \structPointer{l_C^{fst}}{m}{\tt lnode}{next} = \structPointer{l_C^{snd}}{m'}{\tt lnode}{next}}$}};
 % Text Node
-\draw (241,513.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{assume\ \tt tail^{first}=tail^{second}}$}};
+\draw (241,513.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{assume\ \tt tail^{fst}=tail^{snd}}$}};
 % Connection
 \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (97.56,448.15) -- (81,474.4) ;
 % Connection
@@ -68,16 +67,16 @@
 % \draw (235,375) node  [font=\scriptsize]  {
 % \begin{tabular}{|ll|}
 % \hline
-% \Tstrut $\mathrm{\tt \circled{1}\ l_{C}^{first} = l_{C}^{second}}$ & $\mathrm{\tt \circled{2}\ i_{C} \rightsquigarrow \emptyset}$ \\
+% \Tstrut $\mathrm{\tt \circled{1}\ l_{C}^{fst} = l_{C}^{snd}}$ & $\mathrm{\tt \circled{2}\ i_{C} \rightsquigarrow \emptyset}$ \\
 % \Tstrut $\mathrm{\tt \circled{3}\ p_{C} \rightsquigarrow \{ C4_{1} \}}$ & $\mathrm{\tt \circled{4}\ l_{C} \rightsquigarrow \{ C4_{2+} \}}$ \\
 % \Tstrut \Bstrut $\mathrm{\tt \circled{5}\ C4_{1} \rightsquigarrow \{ C4_{2+} \} }$ & $\mathrm{\tt \circled{6}\ C4_{2+} \rightsquigarrow \{ C4_{2+} \}}$ \\
 % \hline
 % \end{tabular}
 % };
 % % Text Node
-% \draw (248,470) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{check\ \structPointer{l_C^{first}}{m}{\tt lnode}{next} = \structPointer{l_C^{second}}{m'}{\tt lnode}{next}}$}};
+% \draw (248,470) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{check\ \structPointer{l_C^{fst}}{m}{\tt lnode}{next} = \structPointer{l_C^{snd}}{m'}{\tt lnode}{next}}$}};
 % % Text Node
-% \draw (244,539.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{assume\ \tt tail^{first}=tail^{second}}$}};
+% \draw (244,539.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{assume\ \tt tail^{fst}=tail^{snd}}$}};
 % % Connection
 % \draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (98.54,460.67) -- (80,495) ;
 % % Connection

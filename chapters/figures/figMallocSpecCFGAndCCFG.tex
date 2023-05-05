@@ -1,65 +1,22 @@
-\begin{figure}[t]
-\begin{tabular}{ccc}
-\begin{subfigure}[b]{0.27\textwidth}
+\begin{figure}[H]
+\begin{tabular}{cc}
+\begin{subfigure}[b]{0.5\textwidth}
 \begin{center}
-{\includegraphics[scale=0.87]{figMallocSpecCfg.pdf}}
-\vspace{12pt}
+{\includegraphics[scale=1.3]{chapters/figures/figMallocSpecCfg.pdf}}
+\vspace{10pt}
 \end{center}
-\caption{\label{fig:llAllocSpecIRCFG}CFG of \SpecL{} program}
-\end{subfigure}%
-&
-\begin{subfigure}[b]{0.27\textwidth}
-\begin{center}
-{\includegraphics[scale=0.87]{figMallocCCfg.pdf}}
-\vspace{1pt}
-\end{center}
-\caption{\label{fig:llAllocCCFG}CFG of C program}
-\end{subfigure}%
-&
-\begin{subfigure}[b]{0.40\textwidth}
-\begin{center}
-{\includegraphics[scale=0.84]{figMallocProductCfg.pdf}}
-\end{center}
-\caption{\label{fig:llAllocProductCFG}Product-CFG across \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG}}
-\end{subfigure}%
-\\
-\multicolumn{3}{c}{
-\begin{subfigure}[b]{1.0\textwidth}
-\begin{center}
-\begin{scriptsize}
-% \begin{tabular}{|c|l|c|llll|}
-% \hline
-% \tt PC-Pair & \multicolumn{1}{c|} {\tt Invariants} & \tt PC-Pair & \multicolumn{4}{c|} {\tt Invariants}  \\
-% \hline
-% \hline
-% {\tt (S0:C0)} & \multicolumn{1}{l|} {\Tstrut ${\tt { \circled{P}}\  n_{S}=n_{C}}$} &
-% {\tt (S3:C3)} & \Tstrut  ${\tt {\scriptsize \circled{I1}}\  n_{S}=n_{C}}$ & ${\tt {\scriptsize \circled{I2}}\  i_{S}=i_{C}}$ & ${\tt {\scriptsize \circled{I3}}\  i_{S} \leq_{u} n_{S}}$ & ${\tt {\scriptsize \circled{I4}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
-% {\tt (SE:CE)} & \multicolumn{1}{l|} {\Tstrut  ${\tt {\circled{E}}\  ret_{S}\indEq{}Clist^{lnode}_{m}(ret_{C})}$} &
-% {\tt (S3:C4)(S3:C5)} & \Tstrut  ${\tt {\scriptsize \circled{I5}}\  n_{S}=n_{C}}$ & ${\tt {\scriptsize \circled{I6}}\  i_{S}=i_{C}}$ & ${\tt {\scriptsize \circled{I7}}\  i_{S} <_{u} n_{S}}$ & ${\tt {\scriptsize \circled{I8}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
-% \hline
-% \end{tabular}
-\begin{tabular}{|c|llll|}
-\hline
-\tt PC-Pair & \multicolumn{4}{c|} {\tt Invariants} \\
-\hline
-\hline
-${\tt (S0:C0)}$ &
-\multicolumn{4}{l|} {\Tstrut ${\tt { \circled{P}}\  n_{S}=n_{C}}$} \\
-${\tt (S3:C3)}$ &
-\Tstrut  ${\tt {\scriptsize \circled{I1}}\  n_{S}=n_{C}}$ & ${\tt {\scriptsize \circled{I2}}\  i_{S}=i_{C}}$ & ${\tt {\scriptsize \circled{I3}}\  i_{S} \leq_{u} n_{S}}$ & ${\tt {\scriptsize \circled{I4}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
-${\tt (S3:C4)\ (S3:C5)}$ &
-\Tstrut  ${\tt {\scriptsize \circled{I5}}\  n_{S}=n_{C}}$ & ${\tt {\scriptsize \circled{I6}}\  i_{S}=i_{C}}$ & ${\tt {\scriptsize \circled{I7}}\  i_{S} <_{u} n_{S}}$ & ${\tt {\scriptsize \circled{I8}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
-${\tt (SE:CE)}$ &
-\multicolumn{4}{l|} {\Tstrut  ${\tt {\circled{E}}\  ret_{S}\indEq{}Clist^{lnode}_{m}(ret_{C})}$} \\
-\hline
-\end{tabular}
-\end{scriptsize}
-\end{center}
-\caption{\label{tab:llproductInv}Node invariants for the product-CFG in \cref{fig:llAllocProductCFG}}
-\end{subfigure}%
-}
-\\
-\end{tabular}
 \vspace{-15px}
-\caption{\label{fig:mallocCfgsWithInvs}CFGs and Product program for the IRs in \cref{fig:llAllocSpecIRAndCIR}}
+\caption{\label{fig:llAllocSpecIRCFG}CFG of \SpecL{} Program}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{center}
+{\includegraphics[scale=1.3]{chapters/figures/figMallocCCfg.pdf}}
+\end{center}
+\vspace{-15px}
+\caption{\label{fig:llAllocCCFG}CFG of C Program}
+\end{subfigure}%
+\\
+\end{tabular}
+\caption{\label{fig:mallocSpecCFGAndCCFG}CFGs for Spec and C Programm IRs in \cref{fig:llAllocSpecIRAndCIR}}
 \end{figure}

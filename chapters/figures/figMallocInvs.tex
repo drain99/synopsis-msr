@@ -1,32 +1,8 @@
-\begin{figure}[t]
-\begin{tabular}{ccc}
-\begin{subfigure}[b]{0.27\textwidth}
-\begin{center}
-{\includegraphics[scale=0.87]{figMallocSpecCfg.pdf}}
-\vspace{12pt}
-\end{center}
-\caption{\label{fig:llAllocSpecIRCFG}CFG of \SpecL{} program}
-\end{subfigure}%
-&
-\begin{subfigure}[b]{0.27\textwidth}
-\begin{center}
-{\includegraphics[scale=0.87]{figMallocCCfg.pdf}}
-\vspace{1pt}
-\end{center}
-\caption{\label{fig:llAllocCCFG}CFG of C program}
-\end{subfigure}%
-&
-\begin{subfigure}[b]{0.40\textwidth}
-\begin{center}
-{\includegraphics[scale=0.84]{figMallocProductCfg.pdf}}
-\end{center}
-\caption{\label{fig:llAllocProductCFG}Product-CFG across \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG}}
-\end{subfigure}%
-\\
-\multicolumn{3}{c}{
+\begin{figure}[H]
+\begin{tabular}{cc}
 \begin{subfigure}[b]{1.0\textwidth}
 \begin{center}
-\begin{scriptsize}
+\begin{footnotesize}
 % \begin{tabular}{|c|l|c|llll|}
 % \hline
 % \tt PC-Pair & \multicolumn{1}{c|} {\tt Invariants} & \tt PC-Pair & \multicolumn{4}{c|} {\tt Invariants}  \\
@@ -53,13 +29,10 @@ ${\tt (SE:CE)}$ &
 \multicolumn{4}{l|} {\Tstrut  ${\tt {\circled{E}}\  ret_{S}\indEq{}Clist^{lnode}_{m}(ret_{C})}$} \\
 \hline
 \end{tabular}
-\end{scriptsize}
+\end{footnotesize}
 \end{center}
-\caption{\label{tab:llproductInv}Node invariants for the product-CFG in \cref{fig:llAllocProductCFG}}
 \end{subfigure}%
-}
 \\
 \end{tabular}
-\vspace{-15px}
-\caption{\label{fig:mallocCfgsWithInvs}CFGs and Product program for the IRs in \cref{fig:llAllocSpecIRAndCIR}}
+\caption{\label{tab:llproductInv}Node Invariants for Product-CFG in \cref{fig:llAllocProductCFG}}
 \end{figure}

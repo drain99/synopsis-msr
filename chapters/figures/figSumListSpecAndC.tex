@@ -1,42 +1,46 @@
-\begin{figure}[htbp]
+\begin{figure}[H]
 \begin{tabular}{cc}
-\begin{subfigure}[b]{0.50\textwidth}
+\begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
 \begin{allLangEnvScript}
-~{\tiny \textcolor{mygray}{   }}~   
-~{\tiny \textcolor{mygray}{S0:}}~ i32 sum_list (List l) {
-~{\tiny \textcolor{mygray}{S1:}}~   i32 sum $\coloneq$ ${\tt 0_{i32}}$;
-~{\tiny \textcolor{mygray}{S2:}}~   while $\mathrm{\tt\neg (l\ is\ LNil)}$:
-~{\tiny \textcolor{mygray}{S3:}}~     sum $\coloneq$ sum + ${\tt l.val}$; // (l is LCons);
-~{\tiny \textcolor{mygray}{S4:}}~     l   $\coloneq$ l.next;
-~{\tiny \textcolor{mygray}{S5:}}~   return sum;
-~{\tiny \textcolor{mygray}{SE:}}~ }
+~{\scriptsize \textcolor{mygray}{   }}~   
+~{\scriptsize \textcolor{mygray}{S0:}}~ i32 sum_list (List l) {
+~{\scriptsize \textcolor{mygray}{S1:}}~   i32 sum $\coloneqq$ ${\tt 0_{i32}}$;
+~{\scriptsize \textcolor{mygray}{S2:}}~   while $\mathrm{\tt\neg (l\ is\ LNil)}$:
+~{\scriptsize \textcolor{mygray}{S2:}}~     // (l is LCons);
+~{\scriptsize \textcolor{mygray}{S3:}}~     sum $\coloneqq$ sum + ${\tt l.val}$;
+~{\scriptsize \textcolor{mygray}{S4:}}~     l   $\coloneqq$ l.next;
+~{\scriptsize \textcolor{mygray}{S5:}}~   return sum;
+~{\scriptsize \textcolor{mygray}{SE:}}~ }
 \end{allLangEnvScript}
 \end{center}
+\vspace{-15px}
 \caption{\label{fig:llTraverseSpec}(Abstracted) Spec IR}
 \end{subfigure}%
 &
-\begin{subfigure}[b]{0.50\textwidth}
+\begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
-{\includegraphics[scale=0.9]{figSumListProductCfg.pdf}}
+\begin{allLangEnvScript}
+~{\scriptsize \textcolor{mygray}{\ \ \ }}~ unsigned sum_list (lnode* l);
+~{\scriptsize \textcolor{mygray}{C0:}}~ i32 sum_list (i32 l) {
+~{\scriptsize \textcolor{mygray}{C1:}}~   i32 sum $\coloneqq$ ${\tt 0_{i32}}$;
+~{\scriptsize \textcolor{mygray}{C2:}}~   while ${\tt l \neq 0_{i32}}$:
+~{\scriptsize \textcolor{mygray}{C3:}}~     sum $\coloneqq$ sum + $\structPointer{\tt l}{m}{\tt lnode}{val}$;
+~{\scriptsize \textcolor{mygray}{C4:}}~     l   $\coloneqq$ $\structPointer{\tt l}{m}{\tt lnode}{next}$;
+~{\scriptsize \textcolor{mygray}{C5:}}~   return sum;
+~{\scriptsize \textcolor{mygray}{CE:}}~ }
+\end{allLangEnvScript}
 \end{center}
-\caption{\label{fig:llTraverseProduct}Product-CFG}
+\vspace{-15px}
+\caption{\label{fig:llTraverseC}(Abstracted) C IR}
 \end{subfigure}%
 \\
 \begin{subfigure}[b]{0.50\textwidth}
 \begin{center}
-\begin{allLangEnvScript}
-~{\tiny \textcolor{mygray}{\ \ \ }}~ unsigned sum_list (lnode* l);
-~{\tiny \textcolor{mygray}{C0:}}~ i32 sum_list (i32 l) {
-~{\tiny \textcolor{mygray}{C1:}}~   i32 sum $\coloneq$ ${\tt 0_{i32}}$;
-~{\tiny \textcolor{mygray}{C2:}}~   while ${\tt l \neq 0_{i32}}$:
-~{\tiny \textcolor{mygray}{C3:}}~     sum $\coloneq$ sum + $\structPointer{\tt l}{m}{\tt lnode}{val}$;
-~{\tiny \textcolor{mygray}{C4:}}~     l   $\coloneq$ $\structPointer{\tt l}{m}{\tt lnode}{next}$;
-~{\tiny \textcolor{mygray}{C5:}}~   return sum;
-~{\tiny \textcolor{mygray}{CE:}}~ }
-\end{allLangEnvScript}
+{\includegraphics[scale=1.2]{chapters/figures/figSumListProductCfg.pdf}}
 \end{center}
-\caption{\label{fig:llTraverseC}(Abstracted) C IR}
+\vspace{-15px}
+\caption{\label{fig:llTraverseProduct}Product-CFG}
 \end{subfigure}%
 &
 \begin{subfigure}[b]{0.50\textwidth}
@@ -50,14 +54,15 @@
 ${\tt (S0:C0)}$ &
 \Tstrut ${\tt {\circled{P}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
 \multirow{2}{*}{${\tt (S2:C2)}$} &
-\Tstrut \BBstrut ${\tt {\scriptsize \circled{I1}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\ & ${\tt {\scriptsize \circled{I2}}\  sum_{S}=sum_{C}}$ \\
+\Tstrut \Bstrut ${\tt {\scriptsize \circled{I1}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\ & ${\tt {\scriptsize \circled{I2}}\  sum_{S}=sum_{C}}$ \\
 ${\tt (SE:CE)}$ &
-\Tstrut \BBstrut ${\tt {\circled{E}}\  ret_{S}=ret_{C}}$ \\
+\Tstrut \Bstrut ${\tt {\circled{E}}\  ret_{S}=ret_{C}}$ \\
 \hline
 \end{tabular}
 \end{footnotesize}
 \vspace{13px}
 \end{center}
+\vspace{-15px}
 \caption{\label{fig:llTraverseProductInv}Node Invariants of the Product-CFG}
 \end{subfigure}%
 \\

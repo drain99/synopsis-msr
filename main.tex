@@ -21,7 +21,8 @@
 \usepackage{rotating}
 \usepackage{moreverb}
 \usepackage{tikz}
-\usepackage{multirow}
+\usepackage{multirow,bigdelim}
+\usepackage{makecell}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
@@ -33,6 +34,7 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage[inline]{enumitem}
+\usepackage{stmaryrd}
 %\usepackage[colorlinks=false]{hyperref}
 \usepackage{lipsum}
 \usepackage{lscape}
@@ -41,6 +43,7 @@
 \usepackage{float}
 \usepackage{longtable}
 \usepackage{wrapfig}
+\usepackage{algorithm2e}
 \usepackage{cleveref}
 \usepackage[acronym,nomain]{glossaries}
 %\usepackage{natbib}
@@ -97,7 +100,6 @@
 \newcommand{\Guide}{Sorav Bansal}
 \newcommand{\Auth}{Indrajit Banerjee}
 \newcommand{\Entry}{(2020CSY7569)}
-% \newcommand{\ThesisTitle}{MACHINE LEARNING BASED METHOD FOR STROKE DETECTION AND STROKE TYPE IDENTIFICATION IN RESOURCE LIMITED ENVIRONMENT}
 
 \newcommand{\ThesisTitle}{COUNTEREXAMPLE GUIDED EQUIVALENCE CHECKING BETWEEN PROGRAM SPECIFICATION USING SAFE ALGEBRAIC DATA TYPES AND ITS C IMPLEMENTATIONS}
 
@@ -121,7 +123,7 @@
 
 \input{common_macros.tex}
 
-% \setlength{\textwidth}{16cm}
+% \hypersetup{draft}
 \begin{document}
 
 \include{others/titlepage}
@@ -148,15 +150,17 @@
 
 \setcounter{page}{1}
 \pagenumbering{arabic}
-\input{chapters/introduction}
-\input{chapters/problem-setting}
-\input{chapters/examples}
-\input{chapters/conclusion}
-\input{chapters/organization-thesis}
-\input{chapters/publications}
+\include{chapters/introduction}
+\include{chapters/problem-setting}
+\include{chapters/examples}
+\include{chapters/formalism}
+\include{chapters/evaluation}
+\include{chapters/conclusion}
+\include{chapters/organization-thesis}
+\include{chapters/publications}
 \begin{singlespace}
 	\bibliographystyle{abbrvnat}
-	\bibliography{refs}
+	\bibliography{main}
 \end{singlespace}
 % \include{chapters/Appendix}
 

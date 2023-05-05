@@ -1,9 +1,3 @@
-\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
-            \node[shape=circle,draw,inner sep=1pt] (char) {#1};}}
-\newcommand*\inv[1]{\tikz[baseline=(char.base)]{
-\node[shape=rounded rectangle,draw,inner sep=2pt] (char) {\scriptsize {\tt #1}};}}
-\newcommand*\pred[1]{\fbox{\scriptsize {\tt #1}}}
-
 \newcommand{\xmark}{\ding{55}}%
 \newcommand{\rulesep}{\unskip\ \vrule\ }
 
@@ -44,7 +38,7 @@
 \newcommand\stackrqarrow[2]{%
     \mathrel{\stackunder[2pt]{\stackon[1pt]{$\rightsquigarrow$}{$\scriptscriptstyle#1$}}{%
             $\scriptscriptstyle#2$}}}
-% \usetikzlibrary{arrows, quotes,shapes,positioning, calc}
+\usetikzlibrary{arrows, quotes,shapes,positioning, calc}
 
 \newcommand{\toolName}{S2C}%
 \newcommand{\sumDtor}{\underline{if}-\underline{then}-\underline{else}}%
@@ -62,11 +56,19 @@
 \newcommand{\pointsTo}{\rightsquigarrow}
 \newcommand{\interfere}{\diamond}
 
-\newcommand\Tstrut{\rule{0pt}{2.6ex}}         % = `top' strut
-\newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}}   % = `bottom' strut
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=1pt] (char) {#1};}}
+\newcommand*\inv[1]{\tikz[baseline=(char.base)]{
+\node[shape=rounded rectangle,draw,inner sep=2pt] (char) {\scriptsize {\tt #1}};}}
+\newcommand*\pred[1]{\fbox{\scriptsize {\tt #1}}}
+
+\newcommand\Tstrut{\rule{0pt}{2.7ex}}         % = `top' strut
+\newcommand\Bstrut{\rule[-1.2ex]{0pt}{0pt}}   % = `bottom' strut
 
 \definecolor{myastral}{RGB}{46,116,181}
 \definecolor{myolive}{named}{olive}
 \definecolor{mygreen}{rgb}{0,0.6,0.2}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{myred}{rgb}{0.8,0,0.2}
+
+\newtheorem{theorem}{Theorem}
