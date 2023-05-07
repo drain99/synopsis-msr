@@ -7,42 +7,47 @@ We briefly discuss the properties of the \SpecL{} language in this section.
 The types in \SpecL{} can be represented in {\em first order recursive types} with {\tt Product} and {\tt Sum}
 type constructors and {\tt Unit, Bool, i<N>} types (i.e., nullary type constructors) as follows:
 
-$T \mapsto \mu \alpha \ |\  Product(T,\dots,T) \ |\  Sum(T,\dots,T) \ |\  Unit \ |\  Bool \ |\  i<N> \ |\  \alpha$
+$T \rightarrow {\tt \mu} \alpha \ |\  {\tt Product}(T,\dots,T) \ |\  {\tt Sum}(T,\dots,T) \ |\  {\tt Unit} \ |\ {\tt Bool} \ |\  {\tt i\langle N \rangle} \ |\  \alpha$
 
 For example, the {\tt List} type can be written as $\mu \alpha. Sum(Unit, Prod(i32,\alpha))$.
+
 The language also borrows its expression grammar heavily from functional languages.
 This includes the usual constructs like {\tt let-in}, {\tt if-then-else}, function application and the {\tt match} statement
 for pattern-matching (i.e. deconstructing) sum and product values.
+Unlike functional languages, \SpecL{} only supports first order functions.
+Also, \SpecL{} does not support partial function application.
+Hence, we constrain our attention to C programs containing only first order functions.
 \SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing UB conditions.
 These assumptions become part of ($S$\ \ {\tt def}) as discussed in \cref{sec:eqdef}.
 \SpecL{} also provides the typical boolean and bitvector operators for expressing computation in C succintly yet explicitly.
 This includes logical operators (e.g., {\tt and}), bitvector arithmatic operators (e.g., {\tt bvadd(+)}) and
 relational operators for comparing bitvectors interpreted as signed or unsigned integers (e.g., {\tt $\leq_{u,s}$}).
 
-\begin{footnotesize}
-\begin{bnf*}
-\bnfprod{expr}{\bnfts{if} \bnfsp \bnfpn{expr} \bnfsp \bnfts{then} \bnfsp \bnfpn{expr} \bnfsp \bnfts{else} \bnfsp \bnfpn{expr}} \\
-\bnfmore{\bnfts{let} \bnfsp \bnfpn{id} \bnfsp \bnfts{=} \bnfsp \bnfpn{expr} \bnfsp \bnfts{in} \bnfsp \bnfpn{expr}} \\
-\bnfmore{\bnfts{match} \bnfsp \bnfpn{expr} \bnfsp \bnfts{with} \bnfsp \bnfpn{match-clause}^*} \\
-\bnfmore{\bnfts{assuming} \bnfsp \bnfpn{expr} \bnfsp \bnfts{do} \bnfsp \bnfpn{expr}} \\
-\bnfmore{\bnfpn{id} \bnfsp \bnfts{(} \bnfsp \bnfpn{expr}^* \bnfts{)}} \\
-\bnfmore{\bnfpn{data-cons} \bnfsp \bnfts{(} \bnfsp \bnfpn{expr}^* \bnfts{)}} \\
-\bnfmore{\bnfpn{expr} \bnfsp \bnfts{is} \bnfsp \bnfpn{data-cons}} \\
-\bnfmore{\bnfpn{expr} \bnfsp \bnfpn{intrinsic-op} \bnfsp \bnfpn{expr}} \\
-\bnfmore{\bnfpn{literal$_{\tt unit}$} \bnfor \bnfpn{literal$_{\tt bool}$} \bnfor \bnfpn{literal$_{\tt i<N>}$}} \\
+\begin{figure}[H]
+\begin{small}
+\begin{tabular}{rcl}
+\NonTerm{expr} & $\rightarrow$ & \Term{if} \NonTerm{expr} \Term{then} \NonTerm{expr} \Term{else} \NonTerm{expr} \\
+& $|$ & \Term{let} \NonTerm{id} \Term{=} \NonTerm{expr} \Term{in} \NonTerm{expr} \\
+& $|$ & \Term{match} \NonTerm{expr} \Term{with} \NonTerm{match-clause-list} \\
+& $|$ & \Term{assuming} \NonTerm{expr} \Term{do} \NonTerm{expr} \\
+& $|$ & \NonTerm{id} \Term{(} \NonTerm{expr-list} \Term{)} \\
+& $|$ & \NonTerm{data-cons} \Term{(} \NonTerm{expr-list} \Term{)} \\
+& $|$ & \NonTerm{expr} \Term{is} \NonTerm{data-cons} \\
+& $|$ & \NonTerm{expr} \NonTerm{scalar-op} \NonTerm{expr} \\
+& $|$ & \NonTerm{literal$_{\mathrm{Unit}}$} $|$ \NonTerm{literal$_{\mathrm{Bool}}$} $|$ \NonTerm{literal$_{\mathrm{i<N>}}$} \\
 \\
-\bnfprod{match-clause}{\bnfts{|} \bnfsp \bnfpn{data-cons} \bnfsp \bnfpn{id}^* \bnfsp \bnfts{=>} \bnfsp \bnfpn{expr}} \\
-\bnfprod{intrinsic-op}{\bnfpn{arithmatic-op} \bnfor \bnfpn{relational-op} \bnfor \bnfpn{logical-op}} \\
+\NonTerm{match-clause-list} & $\rightarrow$ & \NonTerm{match-clause}$^*$ \\
+\NonTerm{match-clause} & $\rightarrow$ & \Term{$|$} \NonTerm{data-cons} \Term{(} \NonTerm{id-list} \Term{)} \Term{$\Rightarrow$} \NonTerm{expr} \\
+\NonTerm{expr-list} & $\rightarrow$ & \Term{$\epsilon$} \Term{$|$} \NonTerm{expr} \Term{,} \NonTerm{expr-list} \\
+\NonTerm{id-list} & $\rightarrow$ & \Term{$\epsilon$} \Term{$|$} \NonTerm{id} \Term{,} \NonTerm{id-list} \\
 \\
-\bnfprod{arithmatic-op}{\bnfts{+} \bnfor \bnfts{-} \bnfor \bnfts{*}  \bnfor \bnfts{bvextract$\mathrm{_{a:b}}$} \bnfor \bnfts{bvconcat}} \\
-\bnfprod{relational-op}{\bnfts{=$_{\tt \{ unit,bool,i<N> \}}$} \bnfor \bnfts{<$_{\tt \{ s,u \}}$} \bnfor \bnfts{$\leq$$_{\tt \{ s,u \}}$} \bnfor \bnfts{$\geq$$_{\tt \{ s,u \}}$} \bnfor \bnfts{>$_{\tt \{ s,u \}}$}} \\
-\bnfprod{logical-op}{\bnfts{not$_{\tt \{ bool,i<N> \}}$} \bnfor \bnfts{and$_{\tt \{ bool,i<N> \}}$} \bnfor \bnfts{or$_{\tt \{ bool,i<N> \}}$} \bnfor \bnfts{xor$_{\tt \{ bool,i<N> \}}$}} \\
-\\
-\bnfprod{literal$_{\tt unit}$}{\bnfts{()}} \\
-\bnfprod{literal$_{\tt bool}$}{\bnfts{false} \bnfor \bnfts{true}} \\
-\bnfprod{literal$_{\tt i<N>}$}{\bnfts{0} \bnfsk \bnfts{2$^{\tt N}$-1}} \\
-\end{bnf*}
-\end{footnotesize}
+\NonTerm{literal$_{\mathrm{Unit}}$} & $\rightarrow$ & \Term{()} \\
+\NonTerm{literal$_{\mathrm{Bool}}$} & $\rightarrow$ & \Term{false} $|$ \Term{true} \\
+\NonTerm{literal$_{\mathrm{i<N>}}$} & $\rightarrow$ & [\Term{0$\dots$2$^{\mathrm{N}}$-1}] \\
+\end{tabular}
+\end{small}
+\caption{\label{fig:specgrammar}Simplified expression grammar of \SpecL{} language}
+\end{figure}
 
 \subsection{Counterexample-Guided Best-First Search Algorithm for a Product-CFG}
 \label{sec:searchAlgoFormal}
@@ -191,13 +196,12 @@ the counterexamples obtained from the {\tt SAT} query ($\gamma$) and the proof a
 repeated.
 
 The predicate grammar allows the automatic inference of
-affine relations between bitvector values of both
-programs, and \recursiveRelations{} between an ADT value in \SpecL{} ($\alpha_S$)
+affine and inequality relations between bitvector values of both
+programs, as well as, \recursiveRelations{} between an ADT value in \SpecL{} ($\alpha_S$)
 and a {\em lifted} ADT value from C (${\tt liftC}_m(p_C)$).
 We enumerate these \recursiveRelation{}
-guesses for all bitvector variables $v^{C}$ in $C$. For each variable $v^{C}$,
-all candidate {\tt liftC} constructors are attempted. In
-our implementation, the candidate
+guesses for all bitvector variables $v^{C}$ in $C$ and candidate {\tt liftC} lifting constructor.
+In our implementation, the candidate
 {\tt liftC}
 constructors are derived from the constructors
 present in the precondition $Pre$
@@ -210,81 +214,14 @@ are possible.
 identifying the basis vectors of the kernel of the
 matrix formed by the counterexamples in the bitvector
 domain \cite{esop05,semalign}.
-For inequality and
-\recursiveRelations{}, {\em StrongestInvCover($\Gamma$)}
+For inequality relations, {\em StrongestInvCover($\Gamma$)}
 returns false iff any counterexample in $\Gamma$ evaluates the
 relation to false --- this effectively simulates the Houdini approach \cite{houdini}.
-
-
-\subsection{Points-to Analysis}
-\label{sec:pointsToFormal}
-We first identify the set $R$ of all region labels.
-For each call to {\tt malloc()} at PC $A$,
-we add $A_1$ and $A_{2+}$ to $R$. $R=\bigcup_{A}\{A_1,A_{2+}\}\cup\{{\tt heap}\}$.
-
-Let $S$ be the set of all scalar pseudo-registers in $C$'s
-IR. We use a forward dataflow
-analysis to identify a may-point-to function $\Delta: (S\cup{}R) \mapsto 2^{R}$
-at each program point.
-For an IR instruction {\tt x := c}, for constant $c$, the
-transfer function updates $\Delta({\tt x}) := \emptyset$.
-For instruction {\tt x := y op z} (for some arithmetic
-or logical operand {\tt op}),
-we update $\Delta({\tt x}) := \Delta({\tt y})\cup\Delta({\tt z})$.
-For a
-load instruction {\tt x := *y}, we
-update $\Delta({\tt x})$ to $\bigcup_{R\in\Delta(y)}\Delta(R)$.
-For a store instruction {\tt *x := y}, for all
-$R\in\Delta({\tt x})$, we update $\Delta(R) := \Delta(R)\cup\Delta(y)$.
-For recursive procedure calls, a {\em supergraph}
-is created by adding control flow edges
-from the call-site to the procedure head (copying actual arguments
-to the formal arguments) and from the procedure
-return to the returning point of the call-site (copying returned
-value to the variable assigned at the callsite), e.g., in
-\cref{fig:decons}, the dashed edges
-represent supergraph edges.
-For a malloc instruction {\tt x := malloc$_A$()} (where $A$
-represents the allocation site), we perform the following steps (in order):
-(a) Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $r\in{}S\cup{}R$, if $A_1\in\Delta(r)$, then update $\Delta(r) := (\Delta(r)\setminus\{A_1\})\cup\{A_{2+}\}$;
-(b) Update $\Delta({\tt x}) := \{A_1\}$;
-(c)Update $\Delta(A_{2+}) := \Delta(A_{2+})\cup\Delta(A_1)$;
-(d) Update $\Delta(A_1) := \emptyset$ (empty set).
-% \begin{enumerate}
-% \item Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $r\in{}S\cup{}R$, if $A_1\in\Delta(r)$, then update $\Delta(r) := (\Delta(r)\setminus\{A_1\})\cup\{A_{2+}\}$.
-% \item Update $\Delta({\tt x}) := \{A_1\}$
-% \item Update $\Delta(A_{2+}) := \Delta(A_{2+})\cup\Delta(A_1)$.
-% \item Update $\Delta(A_1) := \emptyset$ (empty set).
-% \end{enumerate}
-
-The meet operator is set-union. At program entry for
-program $C$, $\Delta(r)=\{{\tt heap}\}$ for
-all $r\in{}S\cup{}R$ (boundary condition at entry), where {\tt heap} represents all the {\em other} memory
-regions that are not captured by the region labels associated with allocation
-sites.
-
-The same dataflow analysis is used for both the C program and a
-reconstruction program for a lifting constructor.
-The only difference is in the boundary condition at entry of a
-reconstruction program. For the
-reconstruction program, we use the results of the points-to
-analysis on $C$ at the from-PC where the proof obligation is being
-discharged; these results are used
-to initialize the may-point-to function at the
-entry of the reconstruction program.
-% A deconstruction
-% program does not contain any store and malloc operations.
-
-%The allocation-site abstraction (with a bounded-depth call stack) is
-%known to be effective at disambiguating memory regions belonging to
-%different data structures
-%\cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
-%In our work, we also need to reason about non-aliasing
-%of the most-recently allocated object (through a {\tt malloc} call) and
-%the previously-allocated objects (as in the {\tt List}
-%construction example). The coarse-grained $\{1, 2+\}$
-%categorization of allocation recency is effective for such
-%disambiguation.
+In case of \recursiveRelations{}, {\em StrongestInvCover($\Gamma$)}
+attempts to disprove the \recursiveRelation{} $l_1 \indEq{} l_2$ by evaluating
+its depth-$\eta$ under-approximation $l_1 \indEqDepth{\eta} l_2$ for each counterexample
+in $\Gamma$ and returns false if any one of them successfully evaluates to false.
+$\eta$ is a constant parameter of the algorithm.
 
 \subsection{Modeling Procedure Calls}
 \label{sec:modelfcalls}
@@ -336,3 +273,83 @@ prove the precondition (on the
 arguments of the procedure call) at $A_{\pi}^{{\tt b}}$
 and assume the postcondition (on the return values of the procedure call)
 at $A_{\pi}^{{\tt a}}$.
+
+
+\subsection{Points-to Analysis}
+\label{sec:pointsToFormal}
+We first identify the set $R_C$ of all region labels representing mutually non-overlapping
+regions of the $C$ memory state $m$.
+For each call to {\tt malloc()} at PC $A$,
+we add $A_1$ and $A_{2+}$ to $R_C$. $R_C=\bigcup_{A}\{A_1,A_{2+}\}\cup\{{\tt heap}\}$,
+where {\tt heap} represents all {\em other} memory regions that are not
+captured by the region labels associated with allocation sites.
+
+Let $S_{C}$ be the set of all scalar pseudo-registers in $C$'s
+IR. We use a forward dataflow
+analysis to identify a may-point-to function $\Delta: (S_{C}\cup{}R_C) \mapsto 2^{R_C}$
+at each program point.
+For an IR instruction {\tt x := c}, for constant $c$, the
+transfer function updates $\Delta({\tt x}) := \emptyset$.
+For instruction {\tt x := y op z} (for some arithmetic
+or logical operand {\tt op}),
+we update $\Delta({\tt x}) := \Delta({\tt y})\cup\Delta({\tt z})$.
+For a
+load instruction {\tt x := *y}, we
+update $\Delta({\tt x})$ to $\bigcup_{R_C\in\Delta(y)}\Delta(R_C)$.
+For a store instruction {\tt *x := y}, for all
+$R_C\in\Delta({\tt x})$, we update $\Delta(R_C) := \Delta(R_C)\cup\Delta(y)$.
+For recursive procedure calls, a {\em supergraph}
+is created by adding control flow edges
+from the call-site to the procedure head (copying actual arguments
+to the formal arguments) and from the procedure
+return to the returning point of the call-site (copying returned
+value to the variable assigned at the callsite), e.g., in
+\cref{fig:recons}, the dashed edges
+represent supergraph edges.
+For a malloc instruction {\tt x := malloc$_A$()} (where $A$
+represents the allocation site), we perform the following steps (in order):
+% (a) Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $r\in{}S\cup{}R$, if $A_1\in\Delta(r)$, then update $\Delta(r) := (\Delta(r)\setminus\{A_1\})\cup\{A_{2+}\}$;
+% (b) Update $\Delta({\tt x}) := \{A_1\}$;
+% (c)Update $\Delta(A_{2+}) := \Delta(A_{2+})\cup\Delta(A_1)$;
+% (d) Update $\Delta(A_1) := \emptyset$ (empty set).
+\begin{enumerate}
+\item Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $r\in{}S_C\cup{}R_C$, if $A_1\in\Delta(r)$, then update $\Delta(r) := (\Delta(r)\setminus\{A_1\})\cup\{A_{2+}\}$.
+\item Update $\Delta({\tt x}) := \{A_1\}$
+\item Update $\Delta(A_{2+}) := \Delta(A_{2+})\cup\Delta(A_1)$.
+\item Update $\Delta(A_1) := \emptyset$ (empty set).
+\end{enumerate}
+
+The meet operator is set-union.
+For a C program $C$, the boundary condition at entry is given by
+$\Delta_C^{entry}(r)=R_C$ for all $r\in{}S_C\cup{}R_C$,
+where $\Delta_P^{pc}$ represents the may-point-to function
+for program $P$ at PC $pc$.
+
+In case of a reconstruction program $R$, the domain of $\Delta$ contains the pseudo-registers in $C$'s IR ($S_C$) as well as
+any region labels ($R_C$). In addition to these, the domain also contains the pseudo-registers
+of the reconstruction program itself, say $R_R$. For a reconstruction program $R$ originating from a proof obligation
+at a product program PC $(n_S,n_C)$, the boundary condition is given by:
+
+\begin{center}
+\begin{tabular}{rll}
+$\Delta^{entry}_R(r)=$ & $\Delta^{n_C}_C(r)$ & $\mathrm{for\ all}\ r \in{}S_C\cup{}R_C$ \\
+& $\emptyset$ & $\mathrm{for\ all}\ r \in{}R_R$ \\
+\end{tabular}
+\end{center}
+
+Hence, for a reconstruction program, we use the results of the points-to analysis on $C$ at the PC where
+the proof obligation is being discharged. This is a crucial step for proving equality of values
+under mutating $C$ memory state as seen in \cref{sec:pointsToAsInvariants}.
+% A deconstruction
+% program does not contain any store and malloc operations.
+
+The allocation-site abstraction (with a bounded-depth call stack) is
+known to be effective at disambiguating memory regions belonging to
+different data structures
+\cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
+In our work, we also need to reason about non-aliasing
+of the most-recently allocated object (through a {\tt malloc} call) and
+the previously-allocated objects (as in the {\tt List}
+construction example). The coarse-grained $\{1, 2+\}$
+categorization of allocation recency is effective for such
+disambiguation.

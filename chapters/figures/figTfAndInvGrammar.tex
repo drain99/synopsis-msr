@@ -1,50 +1,51 @@
 \begin{figure}[H]
-  \begin{center}
-  \begin{subfigure}[t]{.46\textwidth}
-  \begin{algorithm}[H]
-  \begin{footnotesize}
-  \SetAlgoLined
-  \SetKwProg{Fn}{Function}{}{end}
-  \Fn{$f_e(\phi_s, \Gamma_s)$}{
-    $\Gamma^{can}_{d} \mapsfrom \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
+\begin{center}
+\begin{subfigure}{.58\textwidth}
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$f_e(\phi_s, \Gamma_s)$}{
+  $\Gamma^{can}_{d} \mapsfrom \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
+  $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
+  \While{{\tt SAT$(\neg(\{\phi_s\} (e) \{\phi^{can}_{d}\}), \gamma_s)$}}
+  {
+    $\gamma_{d} \ \ \ \ \mapsfrom {\tt exec}_e(\gamma_s)$;\\
+    $\Gamma^{can}_{d} \mapsfrom \Gamma^{can}_{d}\cup\gamma_{d}$;\\
     $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
-    \While{{\tt SAT$(\neg(\{\phi_s\} (e) \{\phi^{can}_{d}\}), \gamma_s)$}}
-    {
-      $\gamma_{d} \ \ \ \ \mapsfrom {\tt exec}_e(\gamma_s)$;\\
-      $\Gamma^{can}_{d} \mapsfrom \Gamma^{can}_{d}\cup\gamma_{d}$;\\
-      $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
-    }
-    \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$;}\\
   }
-  \end{footnotesize}
-  \end{algorithm}
-  \caption{\label{algo:tf} Transfer function $f_e$ across
-  edge $e=(s\rightarrow d)$.}
-  \end{subfigure}%
-  \hfill
-  \rulesep
-  \hfill
-  \begin{subfigure}[t]{.52\textwidth}
-  \begin{center}
-  \begin{tabular}{@{}l@{}l}
-  $Inv \rightarrow$ &
-  \begin{tabular}{@{}l|l|l@{}}
-  $\sum_{i}{c_iv_i}=c$ & $v_1 \odot v_2$ & $\alpha_S = {\tt liftC}_m(v^{C} \dots)$
-  \end{tabular}\\
-  \end{tabular}%
-  \vspace{7px}
-  \end{center}
-  \caption{\label{fig:invGrammar} Predicate grammar for constructing invariants.\\$v$ represents a bitvector variable in either $S$ or $C$. \\ $c$ represents a bitvector constant.\\$\odot$ represent one of $\{<,\leq\}$ inequality operators.\\$\alpha_S$ represents an ADT variable in \SpecL{}.\\$v^{C}$ represents a bitvector variable in $C$.\\$m$ represents the current $C$ memory state.}
-  \end{subfigure}%
-  \caption{Transfer function $f_e$ and Predicate grammar for invariant inference dataflow analysis in \cref{tab:dataflow_formulation}.
-  Given invariants ($\phi_{s}$) and counterexamples ($\Gamma_{s}$) at node $s$,
-  $f_e$ returns the updated
-  invariants ($\phi_{d}$) and counterexamples ($\Gamma_{d}$) at
-  node $d$.
-  {\em StrongestInvCover($\Gamma$)} computes the strongest invariant cover for counterexamples $\Gamma$.
-  {\tt exec$_e$($\Gamma$)} (concretely) executes
-  counterexamples $\Gamma$ over edge $e$.
-  {\tt SAT($\phi$, $\gamma$)} determines
-  the satisfiability of $\phi$; if satisfiable, the models (counterexamples) are returned in output parameter $\gamma$.}
-  \end{center}
-  \end{figure}
+  \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$;}\\
+}
+\end{footnotesize}
+\end{algorithm}
+\caption{\label{algo:tf} Transfer function $f_e$ across
+edge $e=(s\rightarrow d)$.}
+\end{subfigure}%
+\hfill
+\rulesep
+\hfill
+\begin{subfigure}{.40\textwidth}
+\begin{center}
+\begin{footnotesize}
+\begin{tabular}{p{0.45cm}p{0.15cm}l}
+${Inv}$ & $\rightarrow$ & $\sum_{i}{c_i v_i}=c$ $|$ $v_1 \odot v_2$  \\
+% & $|$ & $v_1 \odot v_2$ \\
+& $\ \ |$ & $\alpha_S = {\tt liftC}_m(v^C \dots)$ \\
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\vspace{-10px}
+\caption{\label{fig:invGrammar}\footnotesize Predicate grammar for constructing invariants. $v$ represents a bitvector variable in either $S$ or $C$. $c$ represents a bitvector constant. $\odot$ $\in$ $\{<,\leq\}$. $\alpha_S$ represents an ADT variable in \SpecL{}. $v^{C}$ represents a bitvector variable in $C$. $m$ represents the current $C$ memory state.}
+\end{subfigure}%
+\caption{Transfer function $f_e$ and Predicate grammar $Inv$ for invariant inference dataflow analysis in \cref{tab:dataflow_formulation}.
+Given invariants ($\phi_{s}$) and counterexamples ($\Gamma_{s}$) at node $s$,
+$f_e$ returns the updated
+invariants ($\phi_{d}$) and counterexamples ($\Gamma_{d}$) at
+node $d$.
+{\em StrongestInvCover($\Gamma$)} computes the strongest invariant cover for counterexamples $\Gamma$.
+{\tt exec$_e$($\Gamma$)} (concretely) executes
+counterexamples $\Gamma$ over edge $e$.
+{\tt SAT($\phi$, $\gamma$)} determines
+the satisfiability of $\phi$; if satisfiable, the models (counterexamples) are returned in output parameter $\gamma$.}
+\end{center}
+\end{figure}
