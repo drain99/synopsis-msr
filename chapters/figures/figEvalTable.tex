@@ -1,63 +1,60 @@
 \begin{figure}[H]
 \begin{scriptsize}
-\begin{tabular}{lllclllc}
+\begin{tabular}{@{}l@{\hspace{5px}}l@{\hspace{5px}}l@{\hspace{5px}}cl@{\hspace{5px}}l@{\hspace{5px}}l@{\hspace{5px}}c@{}}
 \toprule
-{\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf ${\tt \bf ( d_u, d_o )}$} & {\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf ${\tt \bf ( d_u, d_o )}$} \\
+{\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf ${\tt \bf d_u,d_o}$} & {\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf ${\tt \bf d_u,d_o}$} \\
 \midrule
-\multicolumn{4}{c}{\bf list} &                                              \multicolumn{4}{c}{\bf tree} \\
-u32[] & sum naive & 16 & (1,2) &                                           u32[] & sum & 264 & (1,2) \\
-      & sum opt & 49 & (4,5) &                                             tnode(u32) & sum & 204 & (1,2) \\
-lnode(u32) & sum naive & 8 & (1,2) &                                      \multicolumn{4}{c}{\bf matfreq} \\             
-           & sum opt & 54 & (4,5) &                                       char[][] & naive & 974 & (1,3) \\                                      
-           & create & 426 & (1,1) &                                                & opt & 1.8k & (4,8) \\                                       
-clnode(u32) & sum opt & 39 & (4,5) &                                      char[r] & naive & 958 & (1,3) \\                                       
-\multicolumn{4}{c}{\bf strlen}   &                                            & opt & 1.9k & (4,8) \\                                        
-char[] & dietlibc$\mathrm{_{small}}$ & 9 & (1,2) &                             char[c] & naive & 984 & (1,3) \\                                       
-       & dietlibc$\mathrm{_{fast}}$ & 44 & (3,2) &                                     & opt & 1.9k & (4,6) \\
-       & glibc & 52 & (3,2) &                                                  lnode(char[]) & naive & 753 & (1,3) \\
-       & klibc & 9 & (1,2) &                                                         & opt & 1.7k & (4,6) \\ 
-       & musl & 49 & (3,2) &                                                   lnode(char)[] & naive & 1.5k & (1,2) \\
-       & netbsd & 9 & (1,2) &                                                                & opt & 2.3k & (4,6) \\
-       & newlib & 50 & (3,2) &                                              clnode(char)[] & opt & 1.8k & (4,6) \\
-       & openbsd & 8 & (1,2) &                                                \multicolumn{4}{c}{\bf strpbrk} \\ 
-       & uClibc & 8 & (1,2) &                                                 char[], char[] & dietlibc & 398 & (1,2) \\
-lnode(char) & naive & 13 & (1,2) &                                                          & opt      & 494 & (4,2) \\
-            & opt & 49 & (3,5) &                                              char[], lnode(char) & naive & 392 & (1,2) \\
-clnode(char) & opt & 45 & (3,5) &                                                                & opt & 540 & (4,2) \\ 
- \multicolumn{4}{c}{\bf strchr} &                                                 char[], clnode(char) & opt & 523 & (4,2) \\
-char[] & dietlibc$\mathrm{_{small}}$ & 16 & (1,1) &                           lnode(char), char[] & naive & 497 & (1,2) \\
-       & dietlibc$\mathrm{_{fast}}$ & 89 & (4,1) &                                               & opt & 602 & (4,2) \\ 
-       & glibc & 127 & (4,1) &                                                lnode(char), lnode(char) & naive & 345 & (1,2) \\
-       & klibc & 23 & (1,1) &                                                                           & opt & 503 & (4,2) \\
-       & newlib$\mathrm{_{small}}$ & 15 & (1,1) &                         lnode(char), clnode(char) & opt & 572 & (4,2) \\
-       & openbsd & 24 & (1,1) &                                             \multicolumn{4}{c}{\bf strcspn} \\
-       & uClibc & 22 & (1,1) &                                              char[], char[] & dietlibc & 462 & (1,2) \\ 
-lnode(char) & naive & 19 & (1,1) &                                                        & opt      & 538 & (4,2) \\ 
-            & opt & 146 & (4,1) &                                           char[], lnode(char) & naive & 395 & (1,2) \\
-\multicolumn{4}{c}{\bf strcmp}   &                                     & opt & 521 & (4,2) \\
-char[], char[] & dietlibc$\mathrm{_{small}}$ & 39 & (1,1) &                 char[], clnode(char) & opt & 527 & (4,2) \\
-       & freebsd & 39 & (1,1) &                                             lnode(char), char[] & naive & 601 & (1,2) \\
-       & glibc & 41 & (1,1) &                                                                  & opt & 660 & (4,2) \\ 
-       & klibc & 41 & (1,1) &                                               lnode(char), lnode(char) & naive & 349 & (1,2) \\
-       & musl & 41 & (1,1) &                                                                        & opt & 502 & (4,2) \\
-       & netbsd & 39 & (1,1) &                                              lnode(char), clnode(char) & opt & 595 & (4,2) \\
-       & newlib$\mathrm{_{small}}$ & 42 & (1,1) &                              \multicolumn{4}{c}{\bf strspn} \\
-       & newlib$\mathrm{_{fast}}$ & 405 & (4,1) &                              char[], char[] & dietlibc & 277 & (1,2)                   \\
-       & openbsd & 40 & (1,1) &                                                              & opt      & 388 & (4,2)                    \\
-       & uClibc & 38 & (1,1) &                                                 char[], lnode(char) & naive & 405 & (1,2)                 \\
-lnode(char), lnode(char) & naive & 47 & (1,1) &                                                   & opt & 682 & (4,2)                    \\ 
-            & opt & 293 & (4,1) &                                              char[], clnode(char) & opt & 535 & (4,2)                  \\
-clnode(char), clnode(char) & opt & 254 & (4,1) &                               lnode(char), char[] & naive & 409 & (1,2)           \\
-\multicolumn{4}{c}{\bf vecdot} &                                                          & opt & 553 & (4,2)              \\
-u32[] & naive & 65 & (1,2) &                                                  lnode(char), lnode(char) & naive & 357 & (1,2)        \\
-      & opt & 176 & (4,5)   &                                                                          & opt & 514 & (4,2)        \\
-lnode(u32) & naive & 37 & (1,2) &                                              lnode(char), clnode(char) & opt & 616 & (4,2)         \\
-           & opt & 120 & (4,5)   &                                               & & & \\
-clnode(u32) & opt & 118 & (4,5)   &                                               & & & \\
+\multicolumn{4}{c}{\bf list} &                               \multicolumn{4}{c}{\bf tree} \\
+u32[] & sum naive & 16 & (1,2) &                             u32[] & sum & 264 & (1,2) \\
+      & sum opt & 49 & (4,5) &                               tnode(u32) & sum & 204 & (1,2) \\
+      & dot naive & 65 & (1,2) &                             \multicolumn{4}{c}{\bf matfreq} \\
+      & dot opt & 176 & (4,5) &                              u8[][] & naive & 974 & (1,3) \\
+lnode(u32) & sum naive & 8 & (1,2) &                         & opt & 1.8k & (4,8) \\
+           & sum opt & 54 & (4,5) &                          u8[r] & naive & 958 & (1,3) \\
+           & dot naive & 37 & (1,2) &                        & opt & 1.9k & (4,8) \\
+           & dot opt & 120 & (4,5) &                         u8[c] & naive & 984 & (1,3) \\
+           & construct & 426 & (1,1) &                       & opt & 1.9k & (4,6) \\
+clnode(u32) & sum opt & 39 & (4,5) &                         lnode(u8[]) & naive & 753 & (1,3) \\
+            & dot opt & 118 & (4,5) &                        & opt & 1.7k & (4,6) \\
+\multicolumn{4}{c}{\bf strlen}   &                           lnode(u8)[] & naive & 1.5k & (1,2) \\
+u8[] & dietlibc$\mathrm{_{s}}$ & 9 & (1,2) &             & opt & 2.3k & (4,6) \\
+       & dietlibc$\mathrm{_{f}}$ & 44 & (3,2) &           clnode(u8)[] & opt & 1.8k & (4,6) \\
+       & glibc & 52 & (3,2) &                                \multicolumn{4}{c}{\bf strpbrk} \\
+       & klibc & 9 & (1,2) &                                 u8[],u8[] & dietlibc & 398 & (1,2) \\
+       & musl & 49 & (3,2) &                                 & opt      & 494 & (4,2) \\
+       & netbsd & 9 & (1,2) &                                u8[],lnode(u8) & naive & 392 & (1,2) \\
+       & newlib & 50 & (3,2) &                               & opt & 540 & (4,2) \\
+       & openbsd & 8 & (1,2) &                               u8[],clnode(u8) & opt & 523 & (4,2) \\
+       & uClibc & 8 & (1,2) &                                lnode(u8),u8[] & naive & 497 & (1,2) \\
+lnode(u8) & naive & 13 & (1,2) &                             & opt & 602 & (4,2) \\
+            & opt & 49 & (3,5) &                             lnode(u8),lnode(u8) & naive & 345 & (1,2) \\
+clnode(u8) & opt & 45 & (3,5) &                              & opt & 503 & (4,2) \\
+ \multicolumn{4}{c}{\bf strchr} &                            lnode(u8),clnode(u8) & opt & 572 & (4,2) \\
+u8[] & dietlibc$\mathrm{_{s}}$ & 16 & (1,1) &            \multicolumn{4}{c}{\bf strcspn} \\
+       & dietlibc$\mathrm{_{f}}$ & 89 & (4,1) &           u8[],u8[] & dietlibc & 462 & (1,2) \\
+       & glibc & 127 & (4,1) &                               & opt      & 538 & (4,2) \\
+       & klibc & 23 & (1,1) &                                u8[],lnode(u8) & naive & 395 & (1,2) \\
+       & newlib$\mathrm{_{s}}$ & 15 & (1,1) &            & opt & 521 & (4,2) \\
+       & openbsd & 24 & (1,1) &                              u8[],clnode(u8) & opt & 527 & (4,2) \\
+       & uClibc & 22 & (1,1) &                               lnode(u8),u8[] & naive & 601 & (1,2) \\
+lnode(u8) & naive & 19 & (1,1) &                             & opt & 660 & (4,2) \\
+            & opt & 146 & (4,1) &                            lnode(u8),lnode(u8) & naive & 349 & (1,2) \\
+\multicolumn{4}{c}{\bf strcmp}   &                           & opt & 502 & (4,2) \\
+u8[],u8[] & dietlibc$\mathrm{_{s}}$ & 39 & (1,1) &      lnode(u8),clnode(u8) & opt & 595 & (4,2) \\
+       & freebsd & 39 & (1,1) &                              \multicolumn{4}{c}{\bf strspn} \\
+       & glibc & 41 & (1,1) &                                u8[],u8[] & dietlibc & 277 & (1,2) \\
+       & klibc & 41 & (1,1) &                                & opt      & 388 & (4,2) \\
+       & musl & 41 & (1,1) &                                 u8[],lnode(u8) & naive & 405 & (1,2) \\
+       & netbsd & 39 & (1,1) &                               & opt & 682 & (4,2) \\
+       & newlib$\mathrm{_{s}}$ & 42 & (1,1) &            u8[],clnode(u8) & opt & 535 & (4,2) \\
+       & newlib$\mathrm{_{f}}$ & 405 & (4,1) &            lnode(u8),u8[] & naive & 409 & (1,2) \\
+       & openbsd & 40 & (1,1) &                              & opt & 553 & (4,2) \\
+       & uClibc & 38 & (1,1) &                               lnode(u8),lnode(u8) & naive & 357 & (1,2) \\
+lnode(u8),lnode(u8) & naive & 47 & (1,1) &                   & opt & 514 & (4,2) \\
+            & opt & 293 & (4,1) &                            lnode(u8),clnode(u8) & opt & 616 & (4,2) \\
+clnode(u8),clnode(u8) & opt & 254 & (4,1) &                  & & & \\
 \bottomrule
 \end{tabular}
 \end{scriptsize}
-\vspace{-5px}
 \caption{\label{tab:results}Equivalence checking times and minimum under- and over-approximation depth values at which equivalence checks succeeded.}
-\vspace{-5px}
 \end{figure}

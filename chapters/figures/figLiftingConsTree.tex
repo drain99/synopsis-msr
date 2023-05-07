@@ -6,34 +6,34 @@
 \multicolumn{1}{|c|}{\Tstrut \Bstrut\footnotesize Lifting Constructor} & \multicolumn{1}{c|}{\Tstrut \Bstrut \footnotesize Definition} \\
 \hline
 \hline
-% \multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T1} {\tt List = LNil | LCons(i32, List)}} \\
+% \multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T2} {\tt List = LNil | LCons(i32, List)}} \\
 % \hline
 % $\mathrm{Clist^{u32[]}_m(p\ i\ n : i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i\geq_{u}n)}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(p[i]^m_{i32}, Clist^{u32[]}_m(p,i+1_{i32},n))}$} \\
 % \hline
 % $\mathrm{Clist^{lnode(u32)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(\structPointer{\tt p}{m}{\tt lnode}{val}, Clist^{lnode}_m(\structPointer{\tt p}{m}{\tt lnode}{next})}$} \\
 % \hline
-% $\mathrm{Clist^{clnode(u32)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(\structPointer{\tt p}{m}{\tt clnode}{chunk}[i]^m_{i32}, Clist^{clnode}_m((ite(i==3_{i2}, \structPointer{\tt p}{m}{\tt clnode}{next},p), i+1_{i2}))}$} \\
+% $\mathrm{Clist^{clnode(u32)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(\structPointer{\tt p}{m}{\tt clnode}{chunk}[i]^m_{i32},}$ \\ \qquad \qquad \quad $\mathrm{Clist^{clnode}_m((i==3_{i2}\ ?\ \structPointer{\tt p}{m}{\tt clnode}{next}\ :\ p), i+1_{i2}))}$} \\
 % \hline
 % $\mathrm{Clist^{u32[r]}_m(p\ i\ j\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (j\geq_{u}v)}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(p[i*v+j]^m_{i32}, Clist^{u32[r]}_m(p,i,j+1_{i32},u,v))}$} \\
 % \hline
 % $\mathrm{Clist^{u32[c]}_m(p\ i\ j\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (j\geq_{u}v)}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(p[i+j*u]^m_{i32}, Clist^{u32[c]}_m(p,i,j+1_{i32},u,v))}$} \\
 % \hline
 % \hline
-% \multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T2} {\tt Tree = TNil | TCons(i32, Tree, Tree)}} \\
-% \hline
-% $\mathrm{Ctree^{u32[]}_m(p\ i\ n : i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} n)}$ $\mathrm{\underline{then}\ TNil}$ \\ \Bstrut $\mathrm{\underline{else}\ TCons(p[i]^{i32}_m, Ctree^{u32[]}_m(p,2_{i32}*i+1_{i32},n), Ctree^{u32[]}_m(p,2_{i32}*i+2_{i32},n))}$ } \\
-% \hline
-% $\mathrm{Ctree^{tnode(u32)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ TNil}$ \\ \Bstrut $\mathrm{\underline{else}\ TCons(\structPointer{\tt p}{m}{\tt tnode}{val}, Ctree^{tnode}_m(\structPointer{\tt p}{m}{\tt tnode}{left}), Ctree^{tnode}_m(\structPointer{\tt p}{m}{\tt tnode}{right}))}$ } \\
-% \hline
-% \hline
-\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T1} {\tt Str = SInvalid | SNil | SCons(i8, Str)}} \\
+\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T3} {\tt Tree = TNil | TCons(i32, Tree, Tree)}} \\
 \hline
-$\mathrm{Cstr^{u8[]}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (p[0_{i32}]^m_{i8}==0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(p[0_{i32}]^m_{i8}, Cstr^{u8[]}_m(p+1_{i32}))}$} \\
+$\mathrm{Ctree^{u32[]}_m(p\ i\ n : i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} n)}$ $\mathrm{\underline{then}\ TNil}$ \\ \Bstrut $\mathrm{\underline{else}\ TCons(p[i]^{i32}_m,}$ $\mathrm{Ctree^{u32[]}_m(p,2_{i32}*i+1_{i32},n),}$ \\ \qquad\qquad\qquad\qquad\ $\mathrm{Ctree^{u32[]}_m(p,2_{i32}*i+2_{i32},n))}$ } \\
 \hline
-$\mathrm{Cstr^{lnode(u8)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt lnode}{val} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt lnode}{val}, Cstr^{lnode(u8)}_m(\structPointer{\tt p}{m}{\tt lnode}{next}))}$} \\
+$\mathrm{Ctree^{tnode(u32)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ TNil}$ \\ \Bstrut $\mathrm{\underline{else}\ TCons(\structPointer{\tt p}{m}{\tt tnode}{val}, Ctree^{tnode}_m(\structPointer{\tt p}{m}{\tt tnode}{left}),}$ \\ \qquad\qquad\qquad\qquad\qquad\ \ \ $\mathrm{Ctree^{tnode}_m(\structPointer{\tt p}{m}{\tt tnode}{right}))}$ } \\
 \hline
-$\mathrm{Cstr^{clnode(u8)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8},}$ \\ \qquad \qquad \quad $\mathrm{Cstr^{clnode(u8)}_m((i==3_{i2}\ ?\ \structPointer{\tt p}{m}{\tt clnode}{next}\ :\ p), i+1_{i2}))}$} \\
-\hline
+% \hline
+% \multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T1} {\tt Str = SInvalid | SNil | SCons(i8, Str)}} \\
+% \hline
+% $\mathrm{Cstr^{u8[]}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (p[0_{i32}]^m_{i8}==0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(p[0_{i32}]^m_{i8}, Cstr^{u8[]}_m(p+1_{i32}))}$} \\
+% \hline
+% $\mathrm{Cstr^{lnode(u8)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt lnode}{val} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt lnode}{val}, Cstr^{lnode}_m(\structPointer{\tt p}{m}{\tt lnode}{next}))}$} \\
+% \hline
+% $\mathrm{Cstr^{clnode(u8)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8},}$ \\ \qquad \qquad \quad $\mathrm{Cstr^{clnode}_m((i==3_{i2}\ ?\ \structPointer{\tt p}{m}{\tt clnode}{next}\ :\ p), i+1_{i2}))}$} \\
+% \hline
 % \hline
 % \multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T4} {\tt Matrix = MNil | MCons(List, Matrix)}} \\
 % \hline
@@ -53,5 +53,5 @@ $\mathrm{Cstr^{clnode(u8)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\unde
 \end{center}
 \end{scriptsize}
 \vspace{-15px}
-\caption{\label{tab:LiftingConsStr}String lifting constructors and their definitions.}
+\caption{\label{tab:LiftingConsTree}Tree lifting constructors and their definitions.}
 \end{table}

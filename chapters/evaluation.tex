@@ -16,7 +16,7 @@ our unrolling parameter $k$ (used for categorization of proof obligations) is fi
 
 The user provides a \SpecL{} program (specification), a C implementation,
 and a file that contains the precondition and postcondition.
-We use only four distinct ADTs (shown in \cref{tab:LiftingConsTable}) in our specification
+We use only four distinct ADTs in our specification
 programs written in \SpecL{}, one each for a string \inv{\small T1}, list \inv{\small T2},
 tree \inv{\small T3}, and a two-dimensional
 matrix \inv{\small T4}.
@@ -24,7 +24,7 @@ For example, the {\tt String} ADT is a sum-type formed by constructors
 {\tt Invalid} (to
 encode the well-formedness condition of a string, e.g., it should be non-null),
 {\tt Nil} (representing an empty string) and {\tt Cons} (representing
-a recursive construction formed through a product of a character and a string).
+a recursive construction formed through a product of a character byte and a string).
 
 For each C implementation, an equivalence check requires the identification of
 lifting constructors that relate C values to the ADT values in \SpecL{}.
@@ -47,6 +47,7 @@ in data layouts and algorithmic strategies.
 The optimized algorithmic strategies involve
 loop optimizations through unrolling and manual vectorization.
 
+\subsection{Experiments}
 We consider implementations with diverse data layouts
 for each \SpecL{} ADT (e.g., {\tt List, Matrix}).
 This includes array, linked list for {\tt List} and
@@ -85,7 +86,7 @@ encountered during evaluation.
 
 \input{chapters/figures/figLiftingConsStr.tex}
 
-\subsection{String} We wrote a single specification in \SpecL{} for each of the
+\subsubsection{String} We wrote a single specification in \SpecL{} for each of the
 following
 common string library functions: {\tt strlen}, {\tt strchr}, {\tt strcmp}, {\tt strspn},
 {\tt strcspn}, and {\tt strpbrk}.  For each specification
@@ -97,7 +98,9 @@ Some of these libraries implement the same function in two ways: one that is opt
 for code size ({\tt small}) and another that is optimized for runtime ({\tt fast}).
 All these library implementations use a {\em null character} terminated array to represent
 a string, and the
-corresponding lifting constructor is {\tt Cstr}$^{\tt char[]}_m$.
+corresponding lifting constructor is {\tt Cstr}$^{\tt u8[]}_m$.
+{\tt u<N>} represents the N-bit unsigned integer in C.
+For example, {\tt u8} represents {\tt unsigned char} type.
 
 Further, we implemented
 custom C implementations for some of these functions that used
@@ -109,22 +112,23 @@ through a {\tt next} pointer)
 contains a small array (chunk) of values.
 We use a default chunk size of four for our
 benchmarks.
-The corresponding lifting constructors are {\tt Cstr}$^{\tt lnode(char)}_m$
-and {\tt Cstr}$^{\tt clnode(char)}_m$ respectively.
+The corresponding lifting constructors are {\tt Cstr}$^{\tt lnode(u8)}_m$
+and {\tt Cstr}$^{\tt clnode(u8)}_m$ respectively.
 All three {\tt Cstr} lifting constructors are defined in \cref{tab:LiftingConsStr}.
-{\tt Cstr}$^{\tt lnode(char)}_m$ requires a single
+{\tt Cstr}$^{\tt lnode(u8)}_m$ requires a single
 argument $p$ representing the $C$ pointer to the list node.
-On the other hand, {\tt Cstr}$^{\tt clnode(char)}_m$ requires two arguments $p$
+On the other hand, {\tt Cstr}$^{\tt clnode(u8)}_m$ requires two arguments $p$
 and $i$ where $p$ represents the pointer to the chunked linked list node
 and $i$ represents the position of the initial character in the chunk.
 
-We often label a lifting constructor based on its underlying data layout.
-For example, {\tt Cstr}$^{\tt clnode(char)}_m$ represents a lifting constructor
+Usually, we label a lifting constructor based on its underlying data layout.
+For example, {\tt Cstr}$^{\tt clnode(u8)}_m$ represents a lifting constructor
 with a chunked linked list of characters as its underlying data layout.
-In general, {\tt T[]} represents an array of type T (e.g., {\tt char[]}).
+In general, we use the following naming convension for different data layouts.
+{\tt T[]} represents an array of type T (e.g., {\tt u8[]}).
 {\tt lnode(T)} represents a  linked list node type which encapsulates a value of type {\tt T}.
 Similarly, {\tt clnode(T)} and {\tt tnode(T)} represent a chunked linked list and a tree node
-containing values of type {\tt T} represpectively.
+containing values of type {\tt T} respectively.
 
 \input{chapters/figures/figStrlenSpecAndC.tex}
 
@@ -133,37 +137,65 @@ different $C$ implementations. \cref{fig:llStrlenCArrIR} is a generic implementa
 using a null character terminated array to represent a string similar to a C-style string.
 The second implementation in \cref{fig:llStrlenCClistIR} differs from \cref{fig:llStrlenCArrIR}
 in the following: (a) it uses a chunked linked list data layout for string values
-and (b) it uses optimized bit manipulation algorithm to identify whether one of the four
+and (b) it uses an optimized bit manipulation algorithm to identify whether one of the four
 character bytes is zero (i.e. null) in a chunk at a time. \toolName{} is able to automatically
-find and prove a bisimulation relation for both implementations against the unchanged specification.
+search for and find a bisimulation relation showing equivalence
+for both implementations against the unaltered specification.
 \Cref{fig:StrlenProductCFGsAndInvs} shows the Product CFGs and Invariants for these two implementations.
 
 \input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
-\subsection{List} We wrote a \SpecL{} program that creates a list and another \SpecL{}
-program that traverses a list to compute the sum of all its elements. We use three different
+\input{chapters/figures/figLiftingConsList.tex}
+
+\subsubsection{List} We wrote a \SpecL{} program specification that creates a list, a
+program that traverses a list to compute the sum of its elements and a program
+that computes the dot product of two lists. We use three different
 data layouts for a list in C: character array ({\tt Clist}$_m^{\tt u32[]}$),
 linked list ({\tt Clist}$_m^{\tt lnode(u32)}$), and
 a chunked linked list ({\tt Clist}$_m^{\tt clnode(u32)}$).
-\\ \\
-\subsubsection*{Tree} We wrote a \SpecL{} program that sums all the nodes in a tree
-through an inorder traversal. We use two different data layouts for a tree: 
-(1) a flat array where a
-complete binary tree is laid out in breadth-first search order ({\tt Ctree}$_m^{\tt u32[]}$),
-and (2) a linked tree node with two pointers for the left and right children ({\tt Ctree}$_m^{\tt tnode(u32)}$).
+The lifting constructors are shown in \cref{tab:LiftingConsList}.
+Although similar to the String lifting constructors, these lifting
+constructors differ widely in their data encodings. For example,
+{\tt Clist}$_m^{\tt u32[]}$ represents a list value constructed
+from a C array of size $n$ pointed to by $p$. The list becomes empty
+when we are at the end of the array. {\tt Clist}$_m^{\tt lnode(u32)}$
+and {\tt Clist}$_m^{\tt clnode(u32)}$, on the other hand, encodes empty
+lists using {\em null pointers}. These encodings are in contrast to the
+String lifting constructors, all of which uses {\em null character} to
+encode the empty string.
 
-\subsubsection*{Vector and Matrix} We wrote a \SpecL{} program to compute the dot-product
-of two vectors, where a vector is of ADT type {\tt List} in \SpecL{}. Also, we wrote a
-\SpecL{} program to compute the number of times a value appears in a 2D matrix. A
-matrix is represented as an ADT that resembles a {\tt List} of {\tt List}s (\inv{\small T4} in \cref{tab:LiftingConsTable}).
-The $C$ implementations for a {\tt Matrix2D} object include
+\input{chapters/figures/figLiftingConsTree.tex}
+
+\subsubsection{Tree} We wrote a \SpecL{} program that sums all the nodes in a tree
+through an inorder traversal using recursion. We use two different data layouts for a tree: 
+(1) a flat array where a
+complete binary tree is laid out in breadth-first search order commonly used for heaps ({\tt Ctree}$_m^{\tt u32[]}$),
+and (2) a linked tree node with two pointers for the left and right children ({\tt Ctree}$_m^{\tt tnode(u32)}$).
+Both \SpecL{} and C programs contain non-tail recursive procedure calls for left and right children.
+\toolName{} is able to handle such procedure calls as described in \cref{sec:modelfcalls}.
+
+\input{chapters/figures/figLiftingConsMatrix.tex}
+
+\subsubsection{Matrix} We wrote a
+\SpecL{} program to count the frequency of a value appearing in a 2D matrix.
+A matrix is represented as an ADT that resembles a {\tt List} of {\tt List}s (\inv{\small T4} in \cref{tab:LiftingConsMatrix}).
+The $C$ implementations for a {\tt Matrix} object include
 a two-dimensional array ({\tt Cmat}$^{\tt u32[][]}_m$), a flattened row-major array ({\tt Cmat}$^{\tt u32[r]}_m$),
 a flattened column-major array ({\tt Cmat}$^{\tt u32[c]}_m$), a linked list of 1D arrays ({\tt Cmat}$^{\tt lnode(u32[])}_m$),
 a 1D array of linked lists ({\tt Cmat}$^{\tt lnode(u32)[]}_m$) and a 1D array of chunked linked list ({\tt Cmat}$^{\tt clnode(u32)[]}_m$)
-data layouts.
-%\footnote{Would it be possible to show figures for the following: strlen array + optimized chunked list IRs (CFGs can be ignored), 2 matrix data representations (atleast the C struct definitions if not the programs)}. ZZZ: Ok, let's put them in the appendix
+data layouts. Note that both {\tt T[r]} and {\tt T[c]} represent an array of type {\tt T}. The {\em r} and {\em c} simply
+emphasizes that these flat arrays are used to represent 2-dimensional matrices in row-major and column-major encodings
+respectively. We also introduce two auxiliary lifting constructors, {\tt Clist}$_m^{\tt u32[r]}$ and {\tt Clist}$_m^{\tt u32[r]}$
+for lifting each row of matrices lifted using the corresponding {\tt Cmat}$_m^{\tt u32[r]}$ and {\tt Cmat}$_m^{\tt u32[r]}$ Matrix lifting
+constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
 
+TODO: finish the matfreq listings and refer them here, add the entry precondition also for clarity.
 
+\input{chapters/figures/figMatfreq2C.tex}
+
+\input{chapters/figures/figEvalTable.tex}
+
+\subsection{Results}
 \Cref{tab:results} lists all the various C implementations and the time it took
 to compute equivalence with their \SpecL{} counterparts. For functions that
 take two or more data structures as arguments, we show
@@ -173,12 +205,22 @@ at which the equivalence proof completed (keeping all other parameters to their
 default values).
 
 During the verification of {\tt strchr} and {\tt strpbrk} implementations,
-we identified an interesting subtlety. Because {\tt strchr} and {\tt strpbrk}
-return null if the character is
-not present in the string, we additionally need to model the UB assumption that the zero
+we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
+return null pointers to signify absence of the required character(s) in the input string,
+we additionally need to model the UB assumption that the zero
 address does not belong to the null-terminated array representing the string. This
 is modeled as a UB assumption $\neg${\tt ($s_S$ is SInvalid)} in the loop body that traverses the string
-(so every substring needs to be valid) in $S$.
-Because the lifting constructor
-$\mathrm{Cstr^{T}_m(p:i32)}$ relates the {\tt SInvalid} constructor to {\tt p==0$_{\tt i32}$} (\cref{tab:LiftingConsTable}),
-this ensures that the zero address cannot belong to the null-terminated array.
+using the {\tt assuming-do} statement discussed in \cref{sec:speclang}.
+This constraints the inputs to only valid string values in $S$ (that do not contain the {\tt SInvalid} constructor)
+during equivalence check.
+The string lifting constructors {\tt Cstr}$_m^{\tt T}\mathrm{(p:i32,...)}$
+relate the {\tt SInvalid} constructor to the condition {\tt (p == 0$_{\tt i32}$)} (as defined in \cref{tab:LiftingConsList}).
+This ensures that the zero address cannot belong to the null-terminated array.
+Furthermore, these lifting constructors are used to assert equality of lists in the $S$ and $C$ programs as
+part of the precondition $Pre$.
+This constrains the inputs of $C$ also to valid strings only (that do not contain a character at the null address)
+during equivalence check due to the $(S\ \  \mathrm{\tt def})$ assumption.
+This is an example where $(S\ \  \mathrm{\tt def})$
+and $Pre$ are used in combination to constrain the inputs of $S$ and $C$ to only well-formed values.
+
+TODO: add the sensitivity graphs i.e. keep one depth at max and increase the other incrementally

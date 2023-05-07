@@ -46,8 +46,8 @@ Evaluation
 Conclusion and Future Scope
 
 Sunday: finalize formalism, evaluation, conclusion sections
-in evaluation, take the strlen example and discuss in slight detail about pathset and queries, more on this in thesis
-where we are able handle arbitrary if-then-else using deconstruction programs.
+list, tree, matrix sections : add subtables, edit text and refer to table
+add figure for matrix data layouts along with the c function signatures
 
 Monday: fully finish the examples and send to sir with the following points:
 how I plan to introduce the program graph concept, should i put it in synopsis?

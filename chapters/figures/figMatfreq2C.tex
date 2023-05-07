@@ -1,0 +1,94 @@
+\begin{figure}[H]
+\begin{minipage}[c]{0.50\textwidth}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{A0:}}~ u32 matfreq(u32 mat[],
+~{\tiny \textcolor{mygray}{A0:}}~             u32 u,
+~{\tiny \textcolor{mygray}{A0:}}~             u32 v,
+~{\tiny \textcolor{mygray}{A0:}}~             u32 x) {
+~{\tiny \textcolor{mygray}{A0:}}~   u32 count = 0;
+~{\tiny \textcolor{mygray}{A0:}}~   for (u32 i=0; i<u; ++i) {
+~{\tiny \textcolor{mygray}{A0:}}~     for (u32 j=0; j<v; ++j) {
+~{\tiny \textcolor{mygray}{A0:}}~       if (mat[i*v+j] == x)
+~{\tiny \textcolor{mygray}{A0:}}~         count++;
+~{\tiny \textcolor{mygray}{A0:}}~     }
+~{\tiny \textcolor{mygray}{A0:}}~   }
+~{\tiny \textcolor{mygray}{A0:}}~   return count;
+~{\tiny \textcolor{mygray}{A0:}}~ }
+\end{allLangEnvScript}
+\end{center}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{A0:}}~ typedef struct lnode {
+~{\tiny \textcolor{mygray}{A0:}}~   u32* val;
+~{\tiny \textcolor{mygray}{A0:}}~   struct lnode* next;
+~{\tiny \textcolor{mygray}{A0:}}~ } lnode;
+~{\tiny \textcolor{mygray}{A0:}}~ 
+~{\tiny \textcolor{mygray}{A0:}}~ u32 matfreq(lnode* mat,
+~{\tiny \textcolor{mygray}{A0:}}~             u32 v,
+~{\tiny \textcolor{mygray}{A0:}}~             u32 x) {
+~{\tiny \textcolor{mygray}{A0:}}~   u32 count = 0;
+~{\tiny \textcolor{mygray}{A0:}}~   while (mat) {
+~{\tiny \textcolor{mygray}{A0:}}~     for (u32 j=0; j<v; ++j) {
+~{\tiny \textcolor{mygray}{A0:}}~       if (mat$\rightarrow$val[j] == x)
+~{\tiny \textcolor{mygray}{A0:}}~         count++;
+~{\tiny \textcolor{mygray}{A0:}}~     }
+~{\tiny \textcolor{mygray}{A0:}}~     mat = mat$\rightarrow$next;
+~{\tiny \textcolor{mygray}{A0:}}~   }
+~{\tiny \textcolor{mygray}{A0:}}~   return count;
+~{\tiny \textcolor{mygray}{A0:}}~ }
+\end{allLangEnvScript}
+\end{center}
+\vspace{-15px}
+\caption{\label{fig:Matfreq}Spec Program}
+\end{subfigure}%
+\end{minipage}%
+\begin{minipage}[c]{0.50\textwidth}
+\begin{subfigure}[t]{\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{A0:}}~ typedef struct clnode {
+~{\tiny \textcolor{mygray}{A0:}}~   u32 chunk[4];
+~{\tiny \textcolor{mygray}{A0:}}~   struct clnode* next;
+~{\tiny \textcolor{mygray}{A0:}}~ } clnode;
+~{\tiny \textcolor{mygray}{A0:}}~ 
+~{\tiny \textcolor{mygray}{A0:}}~ u32 matfreq(clnode* mat[],
+~{\tiny \textcolor{mygray}{A0:}}~             u32 u,
+~{\tiny \textcolor{mygray}{A0:}}~             u32 x) {
+~{\tiny \textcolor{mygray}{A0:}}~   u32 count = 0;
+~{\tiny \textcolor{mygray}{A0:}}~   for (u32 i=0; i<u; ++i) {
+~{\tiny \textcolor{mygray}{A0:}}~     clnode* cl = mat[i];
+~{\tiny \textcolor{mygray}{A0:}}~     while (cl) {
+~{\tiny \textcolor{mygray}{A0:}}~       if (cl$\rightarrow$chunk[0] == x)
+~{\tiny \textcolor{mygray}{A0:}}~         count++;
+~{\tiny \textcolor{mygray}{A0:}}~       if (cl$\rightarrow$chunk[1] == x)
+~{\tiny \textcolor{mygray}{A0:}}~         count++;
+~{\tiny \textcolor{mygray}{A0:}}~       if (cl$\rightarrow$chunk[2] == x)
+~{\tiny \textcolor{mygray}{A0:}}~         count++;
+~{\tiny \textcolor{mygray}{A0:}}~       if (cl$\rightarrow$chunk[3] == x)
+~{\tiny \textcolor{mygray}{A0:}}~         count++;
+~{\tiny \textcolor{mygray}{A0:}}~       cl = cl$\rightarrow$next;
+~{\tiny \textcolor{mygray}{A0:}}~     }
+~{\tiny \textcolor{mygray}{A0:}}~     mat = mat$\rightarrow$next;
+~{\tiny \textcolor{mygray}{A0:}}~   }
+~{\tiny \textcolor{mygray}{A0:}}~   return count;
+~{\tiny \textcolor{mygray}{A0:}}~ }
+
+
+
+
+
+
+
+
+\end{allLangEnvScript}
+\end{center}
+\vspace{-15px}
+\caption{\label{fig:llAllocC}C Program with {\tt malloc()}}
+\end{subfigure}%
+\end{minipage}%
+\caption{\label{fig:llAllocSpecAndC}Spec and C Programs constructing a Linked List.}
+\end{figure}

@@ -2,7 +2,7 @@
 \begin{tabular}{cc}
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\scriptsize \textcolor{mygray}{A0:}}~ type List = LNil | LCons (val:i32, tail:List).
 ~{\scriptsize \textcolor{mygray}{A1:}}~
 ~{\scriptsize \textcolor{mygray}{A2:}}~ fn mk_list_impl (n:i32) (i:i32) (l:List):List =
@@ -11,7 +11,7 @@
 ~{\scriptsize \textcolor{mygray}{A5:}}~       else make_list_impl(n, i + ${\tt 1_{i32}}$, LCons(i, l)).
 ~{\scriptsize \textcolor{mygray}{A6:}}~
 ~{\scriptsize \textcolor{mygray}{A7:}}~ fn mk_list (n:i32):List = mk_list_impl(n, ${\tt 0_{i32}}$, LNil).
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \vspace{-15px}
 \caption{\label{fig:llAllocSpec}Spec Program}
@@ -19,7 +19,7 @@
 \\
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\scriptsize \textcolor{mygray}{B0: }}~ typedef struct lnode {
 ~{\scriptsize \textcolor{mygray}{B1: }}~   unsigned val; struct lnode* next; } lnode;
 ~{\scriptsize \textcolor{mygray}{B2: }}~ 
@@ -31,7 +31,7 @@
 ~{\scriptsize \textcolor{mygray}{B8: }}~   }
 ~{\scriptsize \textcolor{mygray}{B9:}}~   return l;
 ~{\scriptsize \textcolor{mygray}{B10:}}~ }
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \vspace{-15px}
 \caption{\label{fig:llAllocC}C Program with {\tt malloc()}}

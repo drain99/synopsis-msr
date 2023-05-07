@@ -2,7 +2,7 @@
 \begin{tabular}{cc}
 \begin{subfigure}[b]{0.4\textwidth}
 \begin{center}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\scriptsize \textcolor{mygray}{S0:}}~ List mk_list (i32 n) {
 ~{\scriptsize \textcolor{mygray}{S1:}}~   List l $\coloneqq$ LNil;
 ~{\scriptsize \textcolor{mygray}{S2:}}~   i32  i $\coloneqq$ ${\tt 0_{i32}}$;
@@ -14,7 +14,7 @@
 ~{\scriptsize \textcolor{mygray}{   }}~
 ~{\scriptsize \textcolor{mygray}{   }}~
 ~{\scriptsize \textcolor{mygray}{   }}~
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \vspace{-15px}
 \caption{\label{fig:llAllocSpecIR}(Abstracted) Spec IR}
@@ -22,7 +22,7 @@
 &
 \begin{subfigure}[b]{0.6\textwidth}
 \begin{center}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\scriptsize \textcolor{mygray}{C0:}}~ i32 mk_list (i32 n) {
 ~{\scriptsize \textcolor{mygray}{C1:}}~   i32 l $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{C2:}}~   i32 i $\coloneqq$ ${\tt 0_{i32}}$;
@@ -34,7 +34,7 @@
 ~{\scriptsize \textcolor{mygray}{C8:}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{C9:}}~   return l;
 ~{\scriptsize \textcolor{mygray}{CE:}}~ }
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \vspace{-15px}
 \caption{\label{fig:llAllocCIR}(Abstracted) C IR}

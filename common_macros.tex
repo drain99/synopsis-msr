@@ -7,10 +7,11 @@
 \newfloat{Algorithm}{t!}{lop}
 
 \lstdefinelanguage{All}[]{C}{
-  morekeywords={if,then,else,match,with,let,in,fn,type,i32,i8,List,lnode,Str,clnode}
+  morekeywords={if,then,else,match,with,let,in,fn,type,i32,i8,List,lnode,Str,clnode,u32}
 }
 
-\lstnewenvironment{allLangEnvScript}{\lstset{language=All,basicstyle=\footnotesize\ttfamily,mathescape=true}}{}
+\lstnewenvironment{allLangEnvFoot}{\lstset{language=All,basicstyle=\footnotesize\ttfamily,mathescape=true}}{}
+\lstnewenvironment{allLangEnvScript}{\lstset{language=All,basicstyle=\scriptsize\ttfamily,mathescape=true}}{}
 
 \lstnewenvironment{myexample}{\lstset{basicstyle=\ttfamily}}{}
 \lstnewenvironment{myexamplesmall}{\lstset{basicstyle=\footnotesize\ttfamily}}{}

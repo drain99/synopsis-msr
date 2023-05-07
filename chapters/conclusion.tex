@@ -28,7 +28,8 @@ where correlations and invariants are identified manually during
 proof codification.
 Programming languages like Dafny \cite{dafny} offer automated program
 reasoning facilities for imperative languages with
-algebraic data types. Such languages perform automatic
+abstract data types such as sets and arrays.
+Such languages perform automatic
 compile-time checks
 for manually-specified safety
 and liveness predicates. Prior work on push-button
@@ -64,3 +65,7 @@ identifying \recursiveRelations{} as invariants and using
 bisimulation to discharge the associated
 proof obligations may have applications
 beyond equivalence checking.
+
+TODO: talk about future scope? improvement to the invariant inference algorithm, equivalence in the presence of local allocation
+and more scalable encodings for data types such as tree where the number of clauses in the d-depth over-approximation is exponential
+in d.

@@ -1,7 +1,7 @@
 \begin{figure}[H]
 \begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{S0:}}~ i32 strlen (Str s) {
 ~{\tiny \textcolor{mygray}{S1:}}~   i32 len $\coloneqq$ $\mathrm{\tt 0_{i32}}$;
 ~{\tiny \textcolor{mygray}{S2:}}~   while ${\tt \neg (s\ is\ SNil)}$:
@@ -11,7 +11,7 @@
 ~{\tiny \textcolor{mygray}{S6:}}~     len $\coloneqq$ len + ${\tt 1_{i32}}$;
 ~{\tiny \textcolor{mygray}{S7:}}~   return len;
 ~{\tiny \textcolor{mygray}{SE:}}~ }
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \vspace{-15px}
 \caption{\label{fig:llStrlenSpecIR}Strlen Specification}
@@ -19,7 +19,7 @@
 \begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
 \vspace{5px}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{\ \ \ }}~ size_t strlen(char* s);
 ~{\tiny \textcolor{mygray}{C0:}}~ i32 strlen (i32 s) {
 ~{\tiny \textcolor{mygray}{C1:}}~   i32 i $\coloneqq$ ${\tt 0_{i32}}$;
@@ -29,14 +29,14 @@
 ~{\tiny \textcolor{mygray}{C5:}}~   return i;
 ~{\tiny \textcolor{mygray}{CE:}}~ }
 
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \vspace{-15px}
 \caption{\label{fig:llStrlenCArrIR}Strlen Implementation using Array}
 \end{subfigure}
 \begin{subfigure}[b]{1\textwidth}
 \begin{center}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ typedef struct clnode {
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ char chunk[4]; struct clnode* next;
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ } clnode;
@@ -54,7 +54,7 @@
 ~{\tiny \textcolor{mygray}{C10:}}~       if $\mathrm{\tt dword\_ptr[3_{i32}]^m_{i8} == 0_{i8}}$: return $\mathrm{\tt i + 3_{i32}}$;
 ~{\tiny \textcolor{mygray}{C11:}}~     cl $\coloneqq$ $\mathrm{\tt \structPointer{\tt cl}{m}{\tt clnode}{next}}$; i  $\coloneqq$ $\mathrm{\tt i + 4_{i32}}$;
 ~{\tiny \textcolor{mygray}{CE\phantom{ }:}}~ }
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \vspace{-15px}
 \caption{\label{fig:llStrlenCClistIR}Optimized Strlen Implementation using Chunked Linked List}
