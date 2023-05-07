@@ -3,14 +3,14 @@
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \begin{allLangEnvScript}
-  ~{\scriptsize \textcolor{mygray}{A0:}}~ type List = LNil | LCons (val:i32, tail:List).
-  ~{\scriptsize \textcolor{mygray}{A1:}}~
-  ~{\scriptsize \textcolor{mygray}{A2:}}~ fn mk_list_impl (n:i32) (i:i32) (l:List):List =
-  ~{\scriptsize \textcolor{mygray}{A3:}}~    if ${\tt i \geq_u n}$
-  ~{\scriptsize \textcolor{mygray}{A4:}}~       then l
-  ~{\scriptsize \textcolor{mygray}{A5:}}~       else make_list_impl(n, i + ${\tt 1_{i32}}$, LCons(i, l)).
-  ~{\scriptsize \textcolor{mygray}{A6:}}~
-  ~{\scriptsize \textcolor{mygray}{A7:}}~ fn mk_list (n:i32):List = mk_list_impl(n, ${\tt 0_{i32}}$, LNil).
+~{\scriptsize \textcolor{mygray}{A0:}}~ type List = LNil | LCons (val:i32, tail:List).
+~{\scriptsize \textcolor{mygray}{A1:}}~
+~{\scriptsize \textcolor{mygray}{A2:}}~ fn mk_list_impl (n:i32) (i:i32) (l:List):List =
+~{\scriptsize \textcolor{mygray}{A3:}}~    if ${\tt i \geq_u n}$
+~{\scriptsize \textcolor{mygray}{A4:}}~       then l
+~{\scriptsize \textcolor{mygray}{A5:}}~       else make_list_impl(n, i + ${\tt 1_{i32}}$, LCons(i, l)).
+~{\scriptsize \textcolor{mygray}{A6:}}~
+~{\scriptsize \textcolor{mygray}{A7:}}~ fn mk_list (n:i32):List = mk_list_impl(n, ${\tt 0_{i32}}$, LNil).
 \end{allLangEnvScript}
 \end{center}
 \vspace{-15px}
@@ -20,17 +20,17 @@
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \begin{allLangEnvScript}
-  ~{\scriptsize \textcolor{mygray}{B0: }}~ typedef struct lnode {
-  ~{\scriptsize \textcolor{mygray}{B1: }}~   unsigned val; struct lnode* next; } lnode;
-  ~{\scriptsize \textcolor{mygray}{B2: }}~ 
-  ~{\scriptsize \textcolor{mygray}{B3: }}~ lnode* mk_list(unsigned n) {
-  ~{\scriptsize \textcolor{mygray}{B4: }}~   lnode* l = NULL;
-  ~{\scriptsize \textcolor{mygray}{B5: }}~   for (unsigned i = 0; i < n; ++i) {
-  ~{\scriptsize \textcolor{mygray}{B6: }}~     lnode* p = malloc(sizeof lnode);
-  ~{\scriptsize \textcolor{mygray}{B7: }}~     p$\rightarrow$val = i; p$\rightarrow$next = l; l = p;
-  ~{\scriptsize \textcolor{mygray}{B8: }}~   }
-  ~{\scriptsize \textcolor{mygray}{B9:}}~   return l;
-  ~{\scriptsize \textcolor{mygray}{B10:}}~ }
+~{\scriptsize \textcolor{mygray}{B0: }}~ typedef struct lnode {
+~{\scriptsize \textcolor{mygray}{B1: }}~   unsigned val; struct lnode* next; } lnode;
+~{\scriptsize \textcolor{mygray}{B2: }}~ 
+~{\scriptsize \textcolor{mygray}{B3: }}~ lnode* mk_list(unsigned n) {
+~{\scriptsize \textcolor{mygray}{B4: }}~   lnode* l = NULL;
+~{\scriptsize \textcolor{mygray}{B5: }}~   for (unsigned i = 0; i < n; ++i) {
+~{\scriptsize \textcolor{mygray}{B6: }}~     lnode* p = malloc(sizeof lnode);
+~{\scriptsize \textcolor{mygray}{B7: }}~     p$\rightarrow$val = i; p$\rightarrow$next = l; l = p;
+~{\scriptsize \textcolor{mygray}{B8: }}~   }
+~{\scriptsize \textcolor{mygray}{B9:}}~   return l;
+~{\scriptsize \textcolor{mygray}{B10:}}~ }
 \end{allLangEnvScript}
 \end{center}
 \vspace{-15px}

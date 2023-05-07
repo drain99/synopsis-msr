@@ -8,8 +8,8 @@
 ~{\scriptsize \textcolor{mygray}{S2:}}~   i32  i $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{S3:}}~   while $\mathrm{\tt \neg (i \geq_{u} n)}$:
 ~{\scriptsize \textcolor{mygray}{S4:}}~     l $\coloneqq$ LCons(i, l);
-~{\scriptsize \textcolor{mygray}{S5:}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
-~{\scriptsize \textcolor{mygray}{S6:}}~   return l;
+~{\scriptsize \textcolor{mygray}{S5:}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$; $\phantom{m \coloneqq \mathrm{\tt m[\&\structPointer{\tt p}{m}{\tt lnode}{val} \leftarrow i]_{i32}};}$
+~{\scriptsize \textcolor{mygray}{S6:}}~   return l; $\phantom{m \coloneqq \mathrm{\tt m[\&\structPointer{\tt p}{m}{\tt lnode}{next} \leftarrow l]_{i32}};}$
 ~{\scriptsize \textcolor{mygray}{SE:}}~ }
 ~{\scriptsize \textcolor{mygray}{   }}~
 ~{\scriptsize \textcolor{mygray}{   }}~
@@ -41,5 +41,5 @@
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:llAllocSpecIRAndCIR}IRs for the Spec and C Programs in \cref{fig:llAllocSpecAndC} respectively}
+\caption{\label{fig:llAllocSpecIRAndCIR}IRs for the Spec and C Programs in \cref{fig:llAllocSpec,fig:llAllocC} respectively.}
 \end{figure}

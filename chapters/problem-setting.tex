@@ -1,4 +1,4 @@
-\section{Problem Setting and Equivalence Definition}
+\section{\large Problem Setting and Equivalence Definition}
 \label{sec:problem-setting}
 We restrict
 our attention to programs that construct, read, and write to recursive
@@ -23,11 +23,11 @@ are its explicit program arguments, which may include
 recursive data-structure values.  The inputs to a
 C procedure include the explicit arguments passed to the C procedure (e.g., pointers)
 and the implicit state of program memory at procedure entry.
-%Notice the difference in the nature of inputs to the two programs: while
-%\SpecL{} inputs are explicit well-typed values (e.g., list), C procedure's
-%inputs may be
-%derived from the state of the input memory (e.g., linked list formed by chasing the
-%{\tt next} pointer).
+Notice the difference in the nature of inputs to the two programs: while
+\SpecL{} inputs are explicit well-typed values, C procedure's
+inputs may be
+derived from the state of the input memory (e.g., linked list formed by chasing the
+{\tt next} pointer).
 For checking equivalence, we require
 the user to specify a precondition (at the entry of both
 programs) that relates these two different
@@ -38,7 +38,10 @@ types of program inputs.
 
 \Cref{fig:llAllocSpecIR} shows the Three-Address-Code (3AC) style
 intermediate representation (IR) of the linked-list construction \SpecL{}
-program in \cref{fig:llAllocSpec}. The primary differences between
+program in \cref{fig:llAllocSpec}.
+We often omit intermediate registers in the intermediate representation
+for brevity and ease of exposition, and refer to this as {\em abstracted} IR.
+The primary differences between
 the \SpecL{} source and IR are: (a) tail-recursive calls
 are converted to loops in IR, and (b) {\tt match} statements
 are converted to \sumDtor{} in IR,
@@ -123,16 +126,18 @@ are interested in proving equivalence. In the {\tt strlen} example,
 $(S\ \  \mathrm{\tt def})$
 is encoded as an
 abstract condition that the input string {\tt s}$_S$ is ``not invalid'',
-written $\neg$({\tt s$_S$ {\em is} SInvalid}).
+written $\neg$({\tt s$_S$ {\em is} SInvalid}), where {\tt SInvalid} is
+a constructor for the \SpecL{} {\tt String} type.
 The precondition $Pre$ then contains the relation {\tt (s$_S$ {\em is} SInvalid)$\Leftrightarrow$({\tt s$_C$}=0)}.
-% to
-%ensure that we compute equivalence only for those executions
-%of $C$ where the input pointer {\tt s$_C$} is non-null.
-The use of an
-abstract condition $\neg$({\tt s$_S$ {\em is} SInvalid})
-in $S$
-allows different C implementations to specify
-different validating conditions.
+This ensures that we compute equivalence only for those executions
+of $C$ where the input pointer {\tt s$_C$} is non-null.
+The use of an explicit constructor for expressing ill-formedness
+of \SpecL{} input values along with a cleverly chosen $Pre$ allows us
+to constrain the executions to $Spec$ and $C$ to well-formed inputs
+only during equivalence check.
+Please refer to {\tt Chapter \ThesisChapterEval{}} of thesis for
+a more detailed explaination of this strategy for
+the function {\tt strchr}.
 
 The $(C\ \  \mathrm{\tt fits})$ antecedant states that we
 prove equivalence only if the C program's memory requirements

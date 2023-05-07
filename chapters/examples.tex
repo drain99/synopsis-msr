@@ -175,7 +175,7 @@ the value stored at {\tt p->value} in memory $m$ and the list formed by recursiv
 constructor {\tt Clist} allows us to compare C values and \SpecL{} values for equality; a
 relation involving a recursive constructor is called a {\em \recursiveRelation{}}.
 
-We later discuss in \cref{sec:searchAlgoInformal}
+We later discuss in \cref{sec:searchAlgoFormal}
 how a product-CFG can be constructed automatically through a counterexample-guided
 search. Before that, we discuss the proof obligations that arise from a given
 product-CFG. Consider the
@@ -1220,7 +1220,7 @@ are shown in \cref{fig:decons}.
 To check bisimulation
 between the programs that deconstruct
 ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-and ${\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$, the decons-PCFG
+and ${\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$, the recons-PCFG
 correlates one unrolling of the first
 program
 with one
@@ -1230,12 +1230,12 @@ program is based on the unrolling procedure in \cref{eqn:clist}.
 Thus, the PC-transition correlations of both programs
 are trivially obtained
 by unifying the unrolling procedure with itself. A node
-is created in the decons-PCFG that
+is created in the recons-PCFG that
 encodes the correlation of the entries of the unrolling procedure in
 both programs, we call this node the {\em recursive-node} in the
-decons-PCFG, e.g., the
+recons-PCFG, e.g., the
 recursive node in \cref{fig:reconsPCFG} is {\tt D0:D0}. A recursive
-call becomes a back-edge in the decons-PCFG that terminates at the
+call becomes a back-edge in the recons-PCFG that terminates at the
 recursive-node.
 A candidate
 invariant at the recursive-node
@@ -1369,7 +1369,7 @@ says that a pointer within a {\tt C4}$_{2+}$ object
 may point to a {\tt C4}$_{2+}$
 object (but not to a {\tt C4}$_1$ object).
 
-\subsubsection{Transferring points-to information to the decons-PCFG}
+\subsubsection{Transferring points-to information to the recons-PCFG}
 \label{sec:pointsToAsInvariants}
 Recall that
 in \cref{sec:recursiveEqToBisim},
@@ -1378,7 +1378,7 @@ ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
 \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$
 to a bisimulation check. Also, recall
 that we discharge the bisimulation check through the construction
-of a decons-PCFG that compares the unrolling procedure with itself (executing
+of a recons-PCFG that compares the unrolling procedure with itself (executing
 on memory states $m$ and $m'$).
 During this bisimulation check, we need to prove
 that for each execution
@@ -1406,13 +1406,13 @@ of the internal nodes of the linked list with the distinguishing
 writes.
 For this, we need to identify a points-to invariant,
 {\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$, at the recursive-node
-of the decons-PCFG
+of the recons-PCFG
 (shown in \cref{fig:reconsPCFG}).
 To see why {\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$ is
 an inductive invariant at the recursive-node:
 \begin{itemize}
 \item (Base case) The invariant holds
-at entry to the decons-PCFG (because it holds for ${\tt l}^{start}_C$).
+at entry to the recons-PCFG (because it holds for ${\tt l}^{start}_C$).
 \item (Induction step) If ${\tt l}_C\pointsTo{}\{{\tt C4}_{2+}\}$
 holds at the start of an unrolling procedure,
 it also holds at the start of a recursive call to the
@@ -1432,15 +1432,15 @@ program (e.g., {\tt D0} in \cref{fig:decons}) is based on
 the results of the points-to analysis
 on $C$ at the PC where the proof obligation is being discharged (e.g., {\tt C5}
 in our \cref{fig:llAllocC}). The points-to invariants
-at a node {\tt (l$^{fst}_i$,l$^{snd}_j$)} of a decons-PCFG are
+at a node {\tt (l$^{fst}_i$,l$^{snd}_j$)} of a recons-PCFG are
 derived from the results of the points-to analysis on the individual
 reconstruction programs at nodes l$^{fst}_i$ and l$^{snd}_j$
 respectively.
 
 During proof obligation discharge (e.g., during the bisimulation
-check on decons-PCFG), the points-to invariants are encoded as SMT constraints.
+check on recons-PCFG), the points-to invariants are encoded as SMT constraints.
 This allows us to successfully
-complete the bisimulation proof on the decons-PCFG, and
+complete the bisimulation proof on the recons-PCFG, and
 consequently successfully discharge the
 proof obligation
 $\{\phi_{{\tt S3:C5}}\}\\({\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}) \{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})\}$ in \cref{tab:llproductInv}.
@@ -1526,123 +1526,3 @@ we imprecisely return false for $P$ (without a counterexample).
 
 A more detailed discussion on algorithms introduced in this section
 along with their pseudo-code is available in the thesis.
-
-\subsection{Counterexample-Guided Best-First Search Algorithm for a Product-CFG}
-\label{sec:searchAlgoInformal}
-
-\toolName{} constructs a product-CFG incrementally to search for
-an observably-equivalent bisimulation relation between
-the individual CFGs of a \SpecL{} program $S$ and a C program $C$.
-Multiple candidate product-CFGs are partially constructed
-during this search; the search completes when one of these
-candidates yields an equivalence proof.
-
-{\em Anchor nodes} in the CFG of the $C$ program
-are identified to ensure that every cycle in the CFG
-contains at least one anchor node. Also, for
-every procedure call in the CFG, anchor nodes
-are created just before and just after the callsite, e.g.,
-in \cref{fig:llAllocCCFG}, {\tt C4} and {\tt C5} are anchor
-nodes around the call to {\tt malloc()}.
-Our algorithm
-ensures that for each anchor node in $C$, we
-identify a correlated node in $S$ --- if
-a product-CFG $\pi$
-contains a product-CFG node $(n_S,n_C)$, then $\pi$
-correlates node $n_C$
-in $C$ with node $n_S$ in $S$.
-The
-first partially-constructed product-CFG
-contains a single entry node
-that encodes the correlation of the entry nodes ({\tt S0:C0})
-of the two input CFGs.
-
-At each step of the incremental construction algorithm,
-a node $(n_S,n_C)$ is chosen in a product-CFG $\pi$
-and a path $\rho_C$ in $C$'s CFG starting at $n_C$ (and
-ending at an anchor node in $C$) is selected.
-Then, the potential correlations $\rho_C$
-with paths
-in $S$'s CFG are enumerated.
-For
-example, in \cref{fig:mallocCfgsWithInvs}, at product-CFG
-node {\tt (S3:C3)}, we first select the $C$ path {\tt C3$\rightarrow$C4},
-and its potential correlation possibilities
-with paths $\epsilon$, ${\tt S3\rightarrow{}S5}$, ${\tt S3\rightarrow{}S5\rightarrow{}S3}$, ${\tt S3\rightarrow{}S5\rightarrow{}S3\rightarrow{}S5}$, ... in $S$ are enumerated (up to an unroll factor $\mu$).
-
-For each enumerated correlation possibility $(\rho_S,\rho_C)$,
-a separate
-product-CFG $\pi'$ is created (by cloning $\pi$)
-and a new product-CFG
-edge $e=(\rho_S,\rho_C)$ is added to $\pi'$.
-The head of the product-CFG edge $e$ is the
-(potentially newly added) product-CFG node representing
-the correlation of the end-points of paths $\rho_S$
-and $\rho_C$. For example, the node {\tt (S3:C4)} is added
-to the product-CFG if it correlates paths $\epsilon$ and ${\tt C3\rightarrow{}C4}$
-starting at {\tt (S3:C3)}.
-For each node $s$ in a product-CFG $\pi$, we maintain
-a small number of
-concrete machine state pairs (of $S$ and $C$) at $s$.
-The concrete
-machine state pairs at $s$
-are obtained as
-counterexamples to an unsucessful proof
-obligation $\{\phi_s\} (s \rightarrow d) \{\phi_d\}$ (for
-some edge $s \rightarrow d$ and node $d$ in $\pi$).
-Thus, by construction, these counterexamples represent
-concrete state pairs that
-may potentially occur
-at $s$ during the lockstep execution encoded
-by $\pi$.
-
-To evaluate the promise of a possible correlation
-$(\rho_S,\rho_C)$ starting at node $s$
-in product-CFG $\pi$,
-we examine the execution
-behavior of the counterexamples at $s$ on
-the product-CFG edge $e=(s\rightarrow d)=(\rho_S,\rho_C)$.
-If the counterexamples ensure that the machine
-states remain
-related at $d$, then that candidate correlation
-is ranked higher.
-This ranking criterion is based on prior work \cite{oopsla20}.
-A best-first search (BFS) procedure based on this ranking
-criterion is used to incrementally construct
-a product-CFG that proves bisimulation.
-For each intermediate candidate product-CFG $\pi$ generated
-during this search procedure,
-an automatic invariant inference procedure is used
-to identify invariants at all the nodes in $\pi$.
-The counterexamples
-obtained from the proof obligations created
-by this invariant inference procedure are added to the
-respective nodes in $\pi$; these counterexamples
-help rank future correlations starting at those
-nodes.
-
-If after invariant inference,
-we realize that an intermediate candidate product-CFG $\pi_1$
-is not promising enough,
-we backtrack and choose another
-candidate product-CFG $\pi_2$ and explore the potential correlations that
-can be added to $\pi_2$.
-Thus, a product-CFG is constructed one edge at a time.
-If at any stage, the invariants inferred for a product-CFG
-$\pi_i$ ensure equal
-observables, we have successfully demonstrated equivalence.
-
-This counterexample-guided BFS procedure
-is similar to the one described in prior work on
-the Counter algorithm \cite{oopsla20}. Our
-primary contribution is a proof discharge
-algorithm for proof obligations containing
-\recursiveRelations{}
-(\cref{sec:proofObligations,sec:proofDischarge,sec:cat1,sec:cat2,sec:cat3}).
-These proof obligations may
-be generated either at the intermediate (search) or
-the final (check)
-phases of the BFS procedure.
-%The use of
-%a precise-enough alias analysis in C is an important part of this
-%contribution.

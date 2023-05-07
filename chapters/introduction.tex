@@ -125,48 +125,50 @@ uses an off-the-shelf SMT
 solver to tackle proof obligations involving \recursiveRelations{}
 in the context of an equivalence check}.
 
-%Our algorithm leverages prior work on automatic counterexample-guided
-%search for a
-%bisimulation relation \cite{oopsla20}.
-%At every step of this counterexample-guided search for
-%a bisimulation relation,
-%inductive invariants and correlations are proposed which need to
-%be checked using off-the-shelf SMT solvers.
-%Thus, a proof obligation, that may potentially involve a
-%\recursiveInvariant{}, needs to be converted to a form that is
-%amenable for reasoning through an SMT solver.
-%Further, if an SMT proof query is determined to be {\em not provable},
-%we obtain a counterexample from
-%the SMT solver; this counterexample represents
-%a potential concrete machine state that may
-%occur in the program (based on our invariant
-%reasoning).
-%These counterexamples help in faster convergence
-%of the invariant inference and correlation algorithms
-%during the automatic construction of a bisimulation relation.
-%The counterexample generated
-%by an SMT solver thus needs to be converted back to an example
-%of a recursive data-structure that demonstrates
-%the falsification of the proposed
-%invariant or correlation (\cref{fig:convertToFromSMT}).  {\em These
-%procedures to convert from a proof obligation
-%involving a \recursiveInvariant{}
-%to an SMT formula and the conversion back from an SMT-generated
-%counterexample to a recursive data-structure example
-%form our second contribution}.
+Our algorithm leverages prior work on automatic counterexample-guided
+search for a
+bisimulation relation \cite{oopsla20}.
+At every step of this counterexample-guided search for
+a bisimulation relation,
+inductive invariants and correlations are proposed which need to
+be checked using off-the-shelf SMT solvers.
+Thus, a proof obligation, that may potentially involve a
+\recursiveRelation{}, needs to be converted to a form that is
+amenable for reasoning through an SMT solver.
+Further, if an SMT proof query is determined to be {\em not provable},
+we expect a counterexample; this counterexample represents
+a potential concrete machine state that may
+occur in the program (based on our invariant
+reasoning).
+These counterexamples help in faster convergence
+of the invariant inference and correlation algorithms
+during the automatic construction of a bisimulation relation.
+This requires the reconstruction of a machine state which may include
+recursive ADT values from counterexamples returned by the SMT solver.
+These procedures to convert a proof obligation involving a \recursiveRelation{}
+to a sequence of SMT solver queries and the conversion back from the SMT-generated
+counterexamples to a machine state possibly containing ADT values, are part
+of our proof discharge algorithm.
 
 We have manually
 developed a small
 number of succinct specifications of data-structure
 programs in \SpecL{}
 involving ADT-based
-lists, strings, trees, and two-dimensional lists.
+lists, strings, trees, and two-dimensional matrices.
 Using these,
 we automatically verify
 equivalent programs in
 popular C libraries with
-strings, lists, trees, two-dimensional lists,
-combinations of arrays and lists, etc.
+strings and common functions operating
+on lists, trees, matrices.
+A diverse set of data layouts are
+considered for each such data structure.
+For example, a list may be implemented
+using a flat array, a linked list or even
+a chunked linked list (each node contains a constant-sized chunk).
+On the other hand, a matrix might be laid out in a 2-dimensional array,
+a row major array, a column major array or an array of linked lists etc.
 For one specification program in \SpecL{}, multiple
 different C
 implementations are verified.

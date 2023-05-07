@@ -3,14 +3,21 @@
 \subsection{The \SpecL{} Language}
 \label{sec:speclang}
 We briefly discuss the properties of the \SpecL{} language in this section.
-\SpecL{} supports first order algebraic data types (ADT) similar to functional languages.
+\SpecL{} supports recursive algebraic data types (ADT) similar to the ones available in most functional languages.
+The types in \SpecL{} can be represented in {\em first order recursive types} with {\tt Product} and {\tt Sum}
+type constructors and {\tt Unit, Bool, i<N>} types (i.e., nullary type constructors) as follows:
+
+$T \mapsto \mu \alpha \ |\  Product(T,\dots,T) \ |\  Sum(T,\dots,T) \ |\  Unit \ |\  Bool \ |\  i<N> \ |\  \alpha$
+
+For example, the {\tt List} type can be written as $\mu \alpha. Sum(Unit, Prod(i32,\alpha))$.
 The language also borrows its expression grammar heavily from functional languages.
 This includes the usual constructs like {\tt let-in}, {\tt if-then-else}, function application and the {\tt match} statement
 for pattern-matching (i.e. deconstructing) sum and product values.
-\SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing UB conditions as discussed in \cref{sec:eval}.
-\SpecL{} also provides the typical bitvector and boolean operators such as {\tt bvadd(+)} for adding two bit-vectors, {\tt bvextract$_{a:b}$}
-for extracting bits $a$ through $b$ and {\tt $\lessgtr_{s}$} for comparing bit-vectors interpreted as signed integers.
-
+\SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing UB conditions.
+These assumptions become part of ($S$\ \ {\tt def}) as discussed in \cref{sec:eqdef}.
+\SpecL{} also provides the typical boolean and bitvector operators for expressing computation in C succintly yet explicitly.
+This includes logical operators (e.g., {\tt and}), bitvector arithmatic operators (e.g., {\tt bvadd(+)}) and
+relational operators for comparing bitvectors interpreted as signed or unsigned integers (e.g., {\tt $\leq_{u,s}$}).
 
 \begin{footnotesize}
 \begin{bnf*}
@@ -37,63 +44,131 @@ for extracting bits $a$ through $b$ and {\tt $\lessgtr_{s}$} for comparing bit-v
 \end{bnf*}
 \end{footnotesize}
 
-\subsection{Modeling Procedure Calls}
-\label{sec:modelfcalls}
-A top-level procedure $\delta$
-in $S$ or $C$ may make non-tail recursive
-calls, e.g., for traversing
-a tree data structure.
-Our correlation algorithm (\cref{sec:searchAlgoInformal}) ensures
-that the anchor nodes around such a callsite are correlated
-one-to-one across both programs. For example, let there be a
-recursive call in $S$ at PC $A_S$, i.e., $A_S$ is the callsite.
-Then we denote the program points just before and just
-after this callsite
-as $A^{{\tt b}}_S$ and $A^{{\tt a}}_S$ respectively.
-Let {\tt args$_{A_S}$}
-represent the values of the
-actual arguments of this procedure call.
-Let {\tt ret$_{A_S}$} represent the values returned by this procedure call.
-Similarly, for a procedure call at PC $A_C$ in $C$, let
-$A^{{\tt b}}_C$,
-$A^{{\tt a}}_C$,
-{\tt args$_{A_C}$} and {\tt ret$_{A_C}$} 
-represent the before-callsite program point, after-callsite program point,
-arguments and return values respectively.
-Our algorithm ensures that the only correlations possible in
-a product-CFG $\pi$ for these $S$ and $C$ program points are
-{\tt $A_{\pi}^{{\tt b}}$=($A_{S}^{{\tt b}}$,$A_{C}^{{\tt b}}$)}
-and
-{\tt $A_{\pi}^{{\tt a}}$=($A_{S}^{{\tt a}}$,$A_{C}^{{\tt a}}$)}.
+\subsection{Counterexample-Guided Best-First Search Algorithm for a Product-CFG}
+\label{sec:searchAlgoFormal}
 
-Recall that the recursive call at $A_S$ (or $A_C$) must
-be a call to the top-level procedure $\delta$.
-We utilize the user-supplied $Pre$ and $Post$ conditions for $\delta$ to obtain
-the desired invariants at nodes $A_{\pi}^{{\tt b}}$
-and 
-$A_{\pi}^{{\tt a}}$ in the product-CFG.
-We require a successful proof to
-{\em ensure} that {\small $Pre(A^{{\tt args_S}}_S, A^{{\tt args_C}}_C, m_{\tt b})$}
-holds at $A_{\pi}^{{\tt b}}$.  Further, the proof can
-{\em assume} that {\small $Post(A^{{\tt ret_S}}_S, A^{{\tt ret_C}}_C, m_{\tt a})$} holds
-at 
-$A_{\pi}^{{\tt a}}$. Here, $m_{\tt b}$
-and $m_{\tt a}$ represent the memory states in $C$ at
-$A^{{\tt b}}_C$ and
-$A^{{\tt a}}_C$ respectively.
-Thus, for such recursive calls to the
-top-level function, we inductively
-prove the precondition (on the
-arguments of the procedure call) at $A_{\pi}^{{\tt b}}$
-and assume the postcondition (on the return values of the procedure call)
-at $A_{\pi}^{{\tt a}}$.
+\toolName{} constructs a product-CFG incrementally to search for
+an observably-equivalent bisimulation relation between
+the individual CFGs of a \SpecL{} program $S$ and a C program $C$.
+Multiple candidate product-CFGs are partially constructed
+during this search; the search completes when one of these
+candidates yields an equivalence proof.
 
+{\em Anchor nodes} in the CFG of the $C$ program
+are identified to ensure that every cycle in the CFG
+contains at least one anchor node. Also, for
+every procedure call in the CFG, anchor nodes
+are created just before and just after the callsite, e.g.,
+in \cref{fig:llAllocCCFG}, {\tt C4} and {\tt C5} are anchor
+nodes around the call to {\tt malloc()}.
+Our algorithm
+ensures that for each anchor node in $C$, we
+identify a correlated node in $S$ --- if
+a product-CFG $\pi$
+contains a product-CFG node $(n_S,n_C)$, then $\pi$
+correlates node $n_C$
+in $C$ with node $n_S$ in $S$.
+The
+first partially-constructed product-CFG
+contains a single entry node
+that encodes the correlation of the entry nodes ({\tt S0:C0})
+of the two input CFGs.
 
+At each step of the incremental construction algorithm,
+a node $(n_S,n_C)$ is chosen in a product-CFG $\pi$
+and a path $\rho_C$ in $C$'s CFG starting at $n_C$ (and
+ending at an anchor node in $C$) is selected.
+Then, the potential correlations $\rho_C$
+with paths
+in $S$'s CFG are enumerated.
+For
+example, in \cref{fig:llAllocProductCFG}, at product-CFG
+node {\tt (S3:C3)}, we first select the $C$ path {\tt C3$\rightarrow$C4},
+and its potential correlation possibilities
+with paths $\epsilon$, ${\tt S3\rightarrow{}S5}$, ${\tt S3\rightarrow{}S5\rightarrow{}S3}$, ${\tt S3\rightarrow{}S5\rightarrow{}S3\rightarrow{}S5}$, ... in $S$ are enumerated (up to an unroll factor $\mu$).
+
+For each enumerated correlation possibility $(\rho_S,\rho_C)$,
+a separate
+product-CFG $\pi'$ is created (by cloning $\pi$)
+and a new product-CFG
+edge $e=(\rho_S,\rho_C)$ is added to $\pi'$.
+The head of the product-CFG edge $e$ is the
+(potentially newly added) product-CFG node representing
+the correlation of the end-points of paths $\rho_S$
+and $\rho_C$. For example, the node {\tt (S3:C4)} is added
+to the product-CFG if it correlates paths $\epsilon$ and ${\tt C3\rightarrow{}C4}$
+starting at {\tt (S3:C3)}.
+For each node $s$ in a product-CFG $\pi$, we maintain
+a small number of
+concrete machine state pairs (of $S$ and $C$) at $s$.
+The concrete
+machine state pairs at $s$
+are obtained as
+counterexamples to an unsucessful proof
+obligation $\{\phi_s\} (s \rightarrow d) \{\phi_d\}$ (for
+some edge $s \rightarrow d$ and node $d$ in $\pi$).
+Thus, by construction, these counterexamples represent
+concrete state pairs that
+may potentially occur
+at $s$ during the lockstep execution encoded
+by $\pi$.
+
+To evaluate the promise of a possible correlation
+$(\rho_S,\rho_C)$ starting at node $s$
+in product-CFG $\pi$,
+we examine the execution
+behavior of the counterexamples at $s$ on
+the product-CFG edge $e=(s\rightarrow d)=(\rho_S,\rho_C)$.
+If the counterexamples ensure that the machine
+states remain
+related at $d$, then that candidate correlation
+is ranked higher.
+This ranking criterion is based on prior work \cite{oopsla20}.
+A best-first search (BFS) procedure based on this ranking
+criterion is used to incrementally construct
+a product-CFG that proves bisimulation.
+For each intermediate candidate product-CFG $\pi$ generated
+during this search procedure,
+an automatic invariant inference procedure is used
+to identify invariants at all the nodes in $\pi$.
+The counterexamples
+obtained from the proof obligations created
+by this invariant inference procedure are added to the
+respective nodes in $\pi$; these counterexamples
+help rank future correlations starting at those
+nodes.
+
+If after invariant inference,
+we realize that an intermediate candidate product-CFG $\pi_1$
+is not promising enough,
+we backtrack and choose another
+candidate product-CFG $\pi_2$ and explore the potential correlations that
+can be added to $\pi_2$.
+Thus, a product-CFG is constructed one edge at a time.
+If at any stage, the invariants inferred for a product-CFG
+$\pi_i$ ensure equal
+observables, we have successfully demonstrated equivalence.
+
+This counterexample-guided BFS procedure
+is similar to the one described in prior work on
+the Counter algorithm \cite{oopsla20}. Our
+primary contribution is a proof discharge
+algorithm for proof obligations containing
+\recursiveRelations{}
+(\cref{sec:proofObligations,sec:proofDischarge,sec:cat1,sec:cat2,sec:cat3}).
+These proof obligations may
+be generated either at the intermediate (search) or
+the final (check)
+phases of the BFS procedure.
+%The use of
+%a precise-enough alias analysis in C is an important part of this
+%contribution.
+
+\input{chapters/figures/figInvariantDFA.tex}
+\input{chapters/figures/figTfAndInvGrammar.tex}
 
 \subsection{Invariant Inference and Counterexample Generation}
 \label{sec:invinference}
-
-\input{chapters/figures/figInvariantDFA.tex}
 
 \Cref{tab:dataflow_formulation} presents our dataflow analysis for inferring invariants $\phi_n$
 at each node $n$ of a product-CFG, while also generating a set of counterexamples $\Gamma_n$ at node $n$
@@ -139,57 +214,6 @@ For inequality and
 \recursiveRelations{}, {\em StrongestInvCover($\Gamma$)}
 returns false iff any counterexample in $\Gamma$ evaluates the
 relation to false --- this effectively simulates the Houdini approach \cite{houdini}.
-
-\begin{figure}[t]
-\begin{center}
-\begin{subfigure}[t]{.46\textwidth}
-\begin{algorithm}[H]
-\begin{footnotesize}
-\SetAlgoLined
-\SetKwProg{Fn}{Function}{}{end}
-\Fn{$f_e(\phi_s, \Gamma_s)$}{
-  $\Gamma^{can}_{d} \mapsfrom \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
-  $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
-  \While{{\tt SAT$(\neg(\{\phi_s\} (e) \{\phi^{can}_{d}\}), \gamma_s)$}}
-  {
-    $\gamma_{d} \ \ \ \ \mapsfrom {\tt exec}_e(\gamma_s)$;\\
-    $\Gamma^{can}_{d} \mapsfrom \Gamma^{can}_{d}\cup\gamma_{d}$;\\
-    $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
-  }
-  \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$;}\\
-}
-\end{footnotesize}
-\end{algorithm}
-\caption{\label{algo:tf} Transfer function $f_e$ across
-edge $e=(s\rightarrow d)$.}
-\end{subfigure}%
-\hfill
-\rulesep
-\hfill
-\begin{subfigure}[t]{.52\textwidth}
-\begin{center}
-\begin{tabular}{@{}l@{}l}
-$Inv \rightarrow$ &
-\begin{tabular}{@{}l|l|l@{}}
-$\sum_{i}{c_iv_i}=c$ & $v_1 \odot v_2$ & $\alpha_S = {\tt liftC}_m(v^{C} \dots)$
-\end{tabular}\\
-\end{tabular}%
-\vspace{7px}
-\end{center}
-\caption{\label{fig:invGrammar} Predicate grammar for constructing invariants.\\$v$ represents a bitvector variable in either $S$ or $C$. \\ $c$ represents a bitvector constant.\\$\odot$ represent one of $\{<,\leq\}$ inequality operators.\\$\alpha_S$ represents an ADT variable in \SpecL{}.\\$v^{C}$ represents a bitvector variable in $C$.\\$m$ represents the current $C$ memory state.}
-\end{subfigure}%
-\caption{Transfer function $f_e$ and Predicate grammar for invariant inference dataflow analysis in \cref{tab:dataflow_formulation}.
-Given invariants ($\phi_{s}$) and counterexamples ($\Gamma_{s}$) at node $s$,
-$f_e$ returns the updated
-invariants ($\phi_{d}$) and counterexamples ($\Gamma_{d}$) at
-node $d$.
-{\em StrongestInvCover($\Gamma$)} computes the strongest invariant cover for counterexamples $\Gamma$.
-{\tt exec$_e$($\Gamma$)} (concretely) executes
-counterexamples $\Gamma$ over edge $e$.
-{\tt SAT($\phi$, $\gamma$)} determines
-the satisfiability of $\phi$; if satisfiable, the models (counterexamples) are returned in output parameter $\gamma$.}
-\end{center}
-\end{figure}
 
 
 \subsection{Points-to Analysis}
@@ -261,3 +285,54 @@ entry of the reconstruction program.
 %construction example). The coarse-grained $\{1, 2+\}$
 %categorization of allocation recency is effective for such
 %disambiguation.
+
+\subsection{Modeling Procedure Calls}
+\label{sec:modelfcalls}
+A top-level procedure $\delta$
+in $S$ or $C$ may make non-tail recursive
+calls, e.g., for traversing
+a tree data structure.
+Our correlation algorithm (\cref{sec:searchAlgoFormal}) ensures
+that the anchor nodes around such a callsite are correlated
+one-to-one across both programs. For example, let there be a
+recursive call in $S$ at PC $A_S$, i.e., $A_S$ is the callsite.
+Then we denote the program points just before and just
+after this callsite
+as $A^{{\tt b}}_S$ and $A^{{\tt a}}_S$ respectively.
+Let {\tt args$_{A_S}$}
+represent the values of the
+actual arguments of this procedure call.
+Let {\tt ret$_{A_S}$} represent the values returned by this procedure call.
+Similarly, for a procedure call at PC $A_C$ in $C$, let
+$A^{{\tt b}}_C$,
+$A^{{\tt a}}_C$,
+{\tt args$_{A_C}$} and {\tt ret$_{A_C}$} 
+represent the before-callsite program point, after-callsite program point,
+arguments and return values respectively.
+Our algorithm ensures that the only correlations possible in
+a product-CFG $\pi$ for these $S$ and $C$ program points are
+{\tt $A_{\pi}^{{\tt b}}$=($A_{S}^{{\tt b}}$,$A_{C}^{{\tt b}}$)}
+and
+{\tt $A_{\pi}^{{\tt a}}$=($A_{S}^{{\tt a}}$,$A_{C}^{{\tt a}}$)}.
+
+Recall that the recursive call at $A_S$ (or $A_C$) must
+be a call to the top-level procedure $\delta$.
+We utilize the user-supplied $Pre$ and $Post$ conditions for $\delta$ to obtain
+the desired invariants at nodes $A_{\pi}^{{\tt b}}$
+and 
+$A_{\pi}^{{\tt a}}$ in the product-CFG.
+We require a successful proof to
+{\em ensure} that {\small $Pre(A^{{\tt args_S}}_S, A^{{\tt args_C}}_C, m_{\tt b})$}
+holds at $A_{\pi}^{{\tt b}}$.  Further, the proof can
+{\em assume} that {\small $Post(A^{{\tt ret_S}}_S, A^{{\tt ret_C}}_C, m_{\tt a})$} holds
+at 
+$A_{\pi}^{{\tt a}}$. Here, $m_{\tt b}$
+and $m_{\tt a}$ represent the memory states in $C$ at
+$A^{{\tt b}}_C$ and
+$A^{{\tt a}}_C$ respectively.
+Thus, for such recursive calls to the
+top-level function, we inductively
+prove the precondition (on the
+arguments of the procedure call) at $A_{\pi}^{{\tt b}}$
+and assume the postcondition (on the return values of the procedure call)
+at $A_{\pi}^{{\tt a}}$.
