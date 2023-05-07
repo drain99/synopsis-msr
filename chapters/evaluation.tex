@@ -1,67 +1,14 @@
 \section{Evaluation}
 \label{sec:eval}
-\begin{table}
-\begin{scriptsize}
-\begin{tabular}{|l|l|}
-\hline
-\multicolumn{1}{|c|}{\bf Lifting Constructor} & \multicolumn{1}{c|}{\bf Definition} \\
-\hline
-\hline
-\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T1} {\tt List = LNil | LCons(i32, List)}} \\
-\hline
-$\mathrm{Clist^{u32[]}_m(p\ i\ n : i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i\geq_{u}n)}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(p[i]^m_{i32}, Clist^{u32[]}_m(p,i+1_{i32},n))}$} \\
-\hline
-$\mathrm{Clist^{lnode(u32)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(\structPointer{\tt p}{m}{\tt lnode}{val}, Clist^{lnode}_m(\structPointer{\tt p}{m}{\tt lnode}{next})}$} \\
-\hline
-$\mathrm{Clist^{clnode(u32)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(\structPointer{\tt p}{m}{\tt clnode}{chunk}[i]^m_{i32}, Clist^{clnode}_m((ite(i==3_{i2}, \structPointer{\tt p}{m}{\tt clnode}{next},p), i+1_{i2}))}$} \\
-\hline
-$\mathrm{Clist^{u32[r]}_m(p\ i\ j\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (j\geq_{u}v)}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(p[i*v+j]^m_{i32}, Clist^{u32[r]}_m(p,i,j+1_{i32},u,v))}$} \\
-\hline
-$\mathrm{Clist^{u32[c]}_m(p\ i\ j\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (j\geq_{u}v)}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(p[i+j*u]^m_{i32}, Clist^{u32[c]}_m(p,i,j+1_{i32},u,v))}$} \\
-\hline
-\hline
-\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T2} {\tt Tree = TNil | TCons(i32, Tree, Tree)}} \\
-\hline
-$\mathrm{Ctree^{u32[]}_m(p\ i\ n : i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} n)}$ $\mathrm{\underline{then}\ TNil}$ \\ \Bstrut $\mathrm{\underline{else}\ TCons(p[i]^{i32}_m, Ctree^{u32[]}_m(p,2_{i32}*i+1_{i32},n), Ctree^{u32[]}_m(p,2_{i32}*i+2_{i32},n))}$ } \\
-\hline
-$\mathrm{Ctree^{tnode(u32)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ TNil}$ \\ \Bstrut $\mathrm{\underline{else}\ TCons(\structPointer{\tt p}{m}{\tt tnode}{val}, Ctree^{tnode}_m(\structPointer{\tt p}{m}{\tt tnode}{left}), Ctree^{tnode}_m(\structPointer{\tt p}{m}{\tt tnode}{right}))}$ } \\
-\hline
-\hline
-\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T3} {\tt Str = SInvalid | SNil | SCons(i32, Str)}} \\
-\hline
-$\mathrm{Cstr^{char[]}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (p[0_{i32}]^m_{i8}==0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(p[0_{i32}]^m_{i8}, Cstr^{char[]}_m(p+1_{i32}))}$} \\
-\hline
-$\mathrm{Cstr^{lnode(char)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt lnode}{val} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt lnode}{val}, Cstr^{lnode}_m(\structPointer{\tt p}{m}{\tt lnode}{next}))}$} \\
-\hline
-$\mathrm{Cstr^{clnode(char)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8}, Cstr^{clnode}_m((ite(i==3_{i32},\structPointer{\tt p}{m}{\tt clnode}{next} , p), i+1_{i2}))}$} \\
-\hline
-\hline
-\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T4} {\tt Matrix2D = MNil | MCons(List, Matrix2D)}} \\
-\hline
-$\mathrm{Cmat^{u32[][]}_m(p\ i\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[]}_m(p[i]^m_{i32},0_{i32},v), Cmat^{u32[][]}_m(p,i+1_{i32},u,v))}$} \\
-\hline
-$\mathrm{Cmat^{u32[r]}_m(p\ i\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[r]}_m(p,i,0_{i32},u,v), Cmat^{u32[r]}_m(p,i+1_{i32},u,v))}$} \\
-\hline
-$\mathrm{Cmat^{u32[c]}_m(p\ i\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[c]}_m(p,i,0_{i32},u,v), Cmat^{u32[c]}_m(p,i+1_{i32},u,v))}$} \\
-\hline
-$\mathrm{Cmat^{lnode(u32[])}_m(p\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[]}_m(\structPointer{\tt p}{m}{\tt lnode}{val},0_{i32},v),Cmat^{lnode(u32[])}_m(\structPointer{\tt p}{m}{\tt lnode}{next},v))}$} \\
-\hline
-$\mathrm{Cmat^{lnode(u32)[]}_m(p\ i\ u:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{lnode(u32)}_m(p[i]^m_{i32}), Cmat^{lnode(u32)[]}_m(p,i+1_{i32},u))}$} \\
-\hline
-$\mathrm{Cmat^{clnode(u32)[]}_m(p\ i\ u:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{clnode(u32)}_m(p[i]^m_{i32},0_{i2}), Cmat^{clnode(u32)[]}_m(p,i+1_{i32},u))}$} \\
-\hline
-\end{tabular}
-\end{scriptsize}
-\caption{\label{tab:LiftingConsTable}Examples of lifting constructors and their definitions.}
-\vspace{-18px}
-\end{table}
+
 We have implemented \toolName{} on top of the
 Counter tool \cite{oopsla20}.
 We use four SMT solvers running in parallel for discharging
-a non-recursive proof obligation: {\tt z3-4.8.7}, {\tt z3-4.8.14} \cite{z3},
+SMT proof obligations discharged by our proof discharge algorithm:
+{\tt z3-4.8.7}, {\tt z3-4.8.14} \cite{z3},
 {\tt Yices2-45e38fc} \cite{yices},
 and {\tt cvc4-1.7} \cite{cvc4solver}.
-An unroll factor of four is used to handle unrolling in the C implementation.
+An unroll factor of four is used to handle loop unrolling in the C implementation.
 We use a default value of eight for
 over- and under-approximation depths ($d_o$ and $d_u$).
 The default value of
@@ -70,12 +17,12 @@ our unrolling parameter $k$ (used for categorization of proof obligations) is fi
 The user provides a \SpecL{} program (specification), a C implementation,
 and a file that contains the precondition and postcondition.
 We use only four distinct ADTs (shown in \cref{tab:LiftingConsTable}) in our specification
-programs written in \SpecL{}, one each for a list \inv{\small T1}, tree \inv{\small T2},
-string \inv{\small T3}, and a two-dimensional
+programs written in \SpecL{}, one each for a string \inv{\small T1}, list \inv{\small T2},
+tree \inv{\small T3}, and a two-dimensional
 matrix \inv{\small T4}.
 For example, the {\tt String} ADT is a sum-type formed by constructors
 {\tt Invalid} (to
-encode the validity condition of a string, e.g., it should be non-null),
+encode the well-formedness condition of a string, e.g., it should be non-null),
 {\tt Nil} (representing an empty string) and {\tt Cons} (representing
 a recursive construction formed through a product of a character and a string).
 
@@ -87,9 +34,9 @@ in the middle of both programs (i.e., in the inferred invariants at intermediate
 nodes), and at the exit of both programs (i.e., in the postcondition $Post$).
 $Pre$ and $Post$ are user-specified, but the inductive invariants are inferred
 automatically by our algorithm.
-%  Our invariant inference algorithm derives
-%the shape of the lifting constructors from the user-specified $Pre$ and $Post$,
-%and uses these shapes in enumerating relational guesses at product-CFG nodes.
+ Our invariant inference algorithm derives
+the shape of the lifting constructors from the user-specified $Pre$ and $Post$,
+and uses these shapes in enumerating relational guesses at product-CFG nodes.
 % The \recursiveRelations{} in the precondition,
 % postcondition, and invariants may relate \SpecL{} ADT variables with the
 % values lifted (through a lifting constructor) from C variables (and current
@@ -100,102 +47,45 @@ in data layouts and algorithmic strategies.
 The optimized algorithmic strategies involve
 loop optimizations through unrolling and manual vectorization.
 
-Implementations with
-diverse data layouts are compared, which include arrays,
-linked lists, {\em chunked linked lists}, 2D arrays, etc.
-In a chunked linked list, a single list node (linked
-through a {\tt next} pointer)
-contains a small array (chunk) of values.
-We use a default chunk size of four for our
-benchmarks.
-If the chunk size is changed, one
-can simply re-run the equivalence checker
-(after updating $Pre$ and $Post$ accordingly)
-to confirm equivalence of the modified $C$ program against original $S$
-specification.
+We consider implementations with diverse data layouts
+for each \SpecL{} ADT (e.g., {\tt List, Matrix}).
+This includes array, linked list for {\tt List} and
+row and column major layouts for {\tt Matrix} to name a few.
+% In a chunked linked list, a single list node (linked
+% through a {\tt next} pointer)
+% contains a small array (chunk) of values.
+% We use a default chunk size of four for our
+% benchmarks.
+% If the chunk size is changed, one
+% can simply re-run the equivalence checker
+% (after updating $Pre$ and $Post$ accordingly)
+% to confirm equivalence of the modified $C$ program against original $S$
+% specification.
+Next we consider each ADT in more detail. For each, we discuss
+(a) its functions considered, (b) list of C data layouts along with
+their lifting constructors and (c) different algorithmic strategies
+encountered during evaluation.
 
-The required lifting constructor may be different for different data layouts.
-\Cref{tab:LiftingConsTable} shows the various lifting constructors used for validating
-the benchmarks we describe below. In this table,
-we use {\tt lnode(T)} to represent a linked list node
-which encapsulates a value of type {\tt T}.
-Similarly, {\tt clnode(T)} and {\tt tnode(T)} represent
-a chunked linked list node and a tree node respectively
-that encapsulate
-value(s) of type {\tt T}. {\tt u32} represents
-the 32-bit unsigned integer type.
-We use a ternary {\tt ite(c,x,y)} operator which
-returns {\tt x} if {\tt c} evaluates to true and {\tt y} otherwise.
-The syntax {\tt T[]} represents an array of type {\tt T}.
-{\tt T[r]} and {\tt T[c]} represent flattened
-arrays of type {\tt T}, flattened using row-major and column-major
-formats respectively.
+% The required lifting constructor may be different for different data layouts.
+% \Cref{tab:LiftingConsTable} shows the various lifting constructors used for validating
+% the benchmarks we describe below. In this table,
+% we use {\tt lnode(T)} to represent a linked list node
+% which encapsulates a value of type {\tt T}.
+% Similarly, {\tt clnode(T)} and {\tt tnode(T)} represent
+% a chunked linked list node and a tree node respectively
+% that encapsulate
+% value(s) of type {\tt T}. {\tt u32} represents
+% the 32-bit unsigned integer type.
+% We use a ternary {\tt ite(c,x,y)} operator which
+% returns {\tt x} if {\tt c} evaluates to true and {\tt y} otherwise.
+% The syntax {\tt T[]} represents an array of type {\tt T}.
+% {\tt T[r]} and {\tt T[c]} represent flattened
+% arrays of type {\tt T}, flattened using row-major and column-major
+% formats respectively.
 
-\begin{figure}[t]
-\begin{scriptsize}
-\begin{tabular}{lllclllc}
-\toprule
-{\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf ${\tt \bf ( d_u, d_o )}$} & {\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf ${\tt \bf ( d_u, d_o )}$} \\
-\midrule
-\multicolumn{4}{c}{\bf list} &                                              \multicolumn{4}{c}{\bf tree} \\
-u32[] & sum naive & 16 & (1,2) &                                           u32[] & sum & 264 & (1,2) \\
-      & sum opt & 49 & (4,5) &                                             tnode(u32) & sum & 204 & (1,2) \\
-lnode(u32) & sum naive & 8 & (1,2) &                                      \multicolumn{4}{c}{\bf matfreq} \\             
-           & sum opt & 54 & (4,5) &                                       char[][] & naive & 974 & (1,3) \\                                      
-           & create & 426 & (1,1) &                                                & opt & 1.8k & (4,8) \\                                       
-clnode(u32) & sum opt & 39 & (4,5) &                                      char[r] & naive & 958 & (1,3) \\                                       
-\multicolumn{4}{c}{\bf strlen}   &                                            & opt & 1.9k & (4,8) \\                                        
-char[] & dietlibc$\mathrm{_{small}}$ & 9 & (1,2) &                             char[c] & naive & 984 & (1,3) \\                                       
-       & dietlibc$\mathrm{_{fast}}$ & 44 & (3,2) &                                     & opt & 1.9k & (4,6) \\
-       & glibc & 52 & (3,2) &                                                  lnode(char[]) & naive & 753 & (1,3) \\
-       & klibc & 9 & (1,2) &                                                         & opt & 1.7k & (4,6) \\ 
-       & musl & 49 & (3,2) &                                                   lnode(char)[] & naive & 1.5k & (1,2) \\
-       & netbsd & 9 & (1,2) &                                                                & opt & 2.3k & (4,6) \\
-       & newlib & 50 & (3,2) &                                              clnode(char)[] & opt & 1.8k & (4,6) \\
-       & openbsd & 8 & (1,2) &                                                \multicolumn{4}{c}{\bf strpbrk} \\ 
-       & uClibc & 8 & (1,2) &                                                 char[], char[] & dietlibc & 398 & (1,2) \\
-lnode(char) & naive & 13 & (1,2) &                                                          & opt      & 494 & (4,2) \\
-            & opt & 49 & (3,5) &                                              char[], lnode(char) & naive & 392 & (1,2) \\
-clnode(char) & opt & 45 & (3,5) &                                                                & opt & 540 & (4,2) \\ 
- \multicolumn{4}{c}{\bf strchr} &                                                 char[], clnode(char) & opt & 523 & (4,2) \\
-char[] & dietlibc$\mathrm{_{small}}$ & 16 & (1,1) &                           lnode(char), char[] & naive & 497 & (1,2) \\
-       & dietlibc$\mathrm{_{fast}}$ & 89 & (4,1) &                                               & opt & 602 & (4,2) \\ 
-       & glibc & 127 & (4,1) &                                                lnode(char), lnode(char) & naive & 345 & (1,2) \\
-       & klibc & 23 & (1,1) &                                                                           & opt & 503 & (4,2) \\
-       & newlib$\mathrm{_{small}}$ & 15 & (1,1) &                         lnode(char), clnode(char) & opt & 572 & (4,2) \\
-       & openbsd & 24 & (1,1) &                                             \multicolumn{4}{c}{\bf strcspn} \\
-       & uClibc & 22 & (1,1) &                                              char[], char[] & dietlibc & 462 & (1,2) \\ 
-lnode(char) & naive & 19 & (1,1) &                                                        & opt      & 538 & (4,2) \\ 
-            & opt & 146 & (4,1) &                                           char[], lnode(char) & naive & 395 & (1,2) \\
-\multicolumn{4}{c}{\bf strcmp}   &                                     & opt & 521 & (4,2) \\
-char[], char[] & dietlibc$\mathrm{_{small}}$ & 39 & (1,1) &                 char[], clnode(char) & opt & 527 & (4,2) \\
-       & freebsd & 39 & (1,1) &                                             lnode(char), char[] & naive & 601 & (1,2) \\
-       & glibc & 41 & (1,1) &                                                                  & opt & 660 & (4,2) \\ 
-       & klibc & 41 & (1,1) &                                               lnode(char), lnode(char) & naive & 349 & (1,2) \\
-       & musl & 41 & (1,1) &                                                                        & opt & 502 & (4,2) \\
-       & netbsd & 39 & (1,1) &                                              lnode(char), clnode(char) & opt & 595 & (4,2) \\
-       & newlib$\mathrm{_{small}}$ & 42 & (1,1) &                              \multicolumn{4}{c}{\bf strspn} \\
-       & newlib$\mathrm{_{fast}}$ & 405 & (4,1) &                              char[], char[] & dietlibc & 277 & (1,2)                   \\
-       & openbsd & 40 & (1,1) &                                                              & opt      & 388 & (4,2)                    \\
-       & uClibc & 38 & (1,1) &                                                 char[], lnode(char) & naive & 405 & (1,2)                 \\
-lnode(char), lnode(char) & naive & 47 & (1,1) &                                                   & opt & 682 & (4,2)                    \\ 
-            & opt & 293 & (4,1) &                                              char[], clnode(char) & opt & 535 & (4,2)                  \\
-clnode(char), clnode(char) & opt & 254 & (4,1) &                               lnode(char), char[] & naive & 409 & (1,2)           \\
-\multicolumn{4}{c}{\bf vecdot} &                                                          & opt & 553 & (4,2)              \\
-u32[] & naive & 65 & (1,2) &                                                  lnode(char), lnode(char) & naive & 357 & (1,2)        \\
-      & opt & 176 & (4,5)   &                                                                          & opt & 514 & (4,2)        \\
-lnode(u32) & naive & 37 & (1,2) &                                              lnode(char), clnode(char) & opt & 616 & (4,2)         \\
-           & opt & 120 & (4,5)   &                                               & & & \\
-clnode(u32) & opt & 118 & (4,5)   &                                               & & & \\
-\bottomrule
-\end{tabular}
-\end{scriptsize}
-\vspace{-5px}
-\caption{\label{tab:results}Equivalence checking times and minimum under- and over-approximation depth values at which equivalence checks succeeded.}
-\vspace{-5px}
-\end{figure}
+\input{chapters/figures/figLiftingConsStr.tex}
 
-\subsubsection*{String} We wrote a single specification in \SpecL{} for each of the
+\subsection{String} We wrote a single specification in \SpecL{} for each of the
 following
 common string library functions: {\tt strlen}, {\tt strchr}, {\tt strcmp}, {\tt strspn},
 {\tt strcspn}, and {\tt strpbrk}.  For each specification
@@ -205,31 +95,52 @@ libraries like {\tt glibc} \cite{glibc}, {\tt klibc} \cite{klibc}, {\tt newlib} 
 {\tt dietlibc} \cite{dietlibc}, {\tt musl} \cite{musl}, and {\tt netbsd} \cite{netbsd}.
 Some of these libraries implement the same function in two ways: one that is optimized
 for code size ({\tt small}) and another that is optimized for runtime ({\tt fast}).
-All these library implementations use a null-terminated array to represent
+All these library implementations use a {\em null character} terminated array to represent
 a string, and the
 corresponding lifting constructor is {\tt Cstr}$^{\tt char[]}_m$.
 
 Further, we implemented
 custom C implementations for some of these functions that used
 linked-list
-and chunked linked list data structures
+and {\em chunked linked list} data structures
 to represent a string.
+In a chunked linked list, a single list node (linked
+through a {\tt next} pointer)
+contains a small array (chunk) of values.
+We use a default chunk size of four for our
+benchmarks.
 The corresponding lifting constructors are {\tt Cstr}$^{\tt lnode(char)}_m$
 and {\tt Cstr}$^{\tt clnode(char)}_m$ respectively.
+All three {\tt Cstr} lifting constructors are defined in \cref{tab:LiftingConsStr}.
 {\tt Cstr}$^{\tt lnode(char)}_m$ requires a single
 argument $p$ representing the $C$ pointer to the list node.
 On the other hand, {\tt Cstr}$^{\tt clnode(char)}_m$ requires two arguments $p$
-and $i$ where $p$ represents the pointer to the {\em chunked} linked list node
+and $i$ where $p$ represents the pointer to the chunked linked list node
 and $i$ represents the position of the initial character in the chunk.
-\Cref{sec:strlenexamples} shows the {\tt strlen} specification and two vastly
-different $C$ implementations along with their CFGs and invariants.
-% We used a default chunk size of four. If we change the chunk size, we can
-% simply
-% re-run the equivalence checker (with the updated $Pre$ or $Post$) to confirm that
-% the programs are still equivalent.
-% Notice that a default chunk size of 4 is used 
 
-\subsubsection*{List} We wrote a \SpecL{} program that creates a list and another \SpecL{}
+We often label a lifting constructor based on its underlying data layout.
+For example, {\tt Cstr}$^{\tt clnode(char)}_m$ represents a lifting constructor
+with a chunked linked list of characters as its underlying data layout.
+In general, {\tt T[]} represents an array of type T (e.g., {\tt char[]}).
+{\tt lnode(T)} represents a  linked list node type which encapsulates a value of type {\tt T}.
+Similarly, {\tt clnode(T)} and {\tt tnode(T)} represent a chunked linked list and a tree node
+containing values of type {\tt T} represpectively.
+
+\input{chapters/figures/figStrlenSpecAndC.tex}
+
+\Cref{fig:strlenSpecAndC} shows the {\tt strlen} specification and two vastly
+different $C$ implementations. \cref{fig:llStrlenCArrIR} is a generic implementation
+using a null character terminated array to represent a string similar to a C-style string.
+The second implementation in \cref{fig:llStrlenCClistIR} differs from \cref{fig:llStrlenCArrIR}
+in the following: (a) it uses a chunked linked list data layout for string values
+and (b) it uses optimized bit manipulation algorithm to identify whether one of the four
+character bytes is zero (i.e. null) in a chunk at a time. \toolName{} is able to automatically
+find and prove a bisimulation relation for both implementations against the unchanged specification.
+\Cref{fig:StrlenProductCFGsAndInvs} shows the Product CFGs and Invariants for these two implementations.
+
+\input{chapters/figures/figStrlenCfgsWithInvs.tex}
+
+\subsection{List} We wrote a \SpecL{} program that creates a list and another \SpecL{}
 program that traverses a list to compute the sum of all its elements. We use three different
 data layouts for a list in C: character array ({\tt Clist}$_m^{\tt u32[]}$),
 linked list ({\tt Clist}$_m^{\tt lnode(u32)}$), and

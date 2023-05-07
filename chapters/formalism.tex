@@ -343,13 +343,13 @@ under mutating $C$ memory state as seen in \cref{sec:pointsToAsInvariants}.
 % A deconstruction
 % program does not contain any store and malloc operations.
 
-The allocation-site abstraction (with a bounded-depth call stack) is
-known to be effective at disambiguating memory regions belonging to
-different data structures
-\cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
-In our work, we also need to reason about non-aliasing
-of the most-recently allocated object (through a {\tt malloc} call) and
-the previously-allocated objects (as in the {\tt List}
-construction example). The coarse-grained $\{1, 2+\}$
-categorization of allocation recency is effective for such
-disambiguation.
+% The allocation-site abstraction (with a bounded-depth call stack) is
+% known to be effective at disambiguating memory regions belonging to
+% different data structures
+% \cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
+% In our work, we also need to reason about non-aliasing
+% of the most-recently allocated object (through a {\tt malloc} call) and
+% the previously-allocated objects (as in the {\tt List}
+% construction example). The coarse-grained $\{1, 2+\}$
+% categorization of allocation recency is effective for such
+% disambiguation.

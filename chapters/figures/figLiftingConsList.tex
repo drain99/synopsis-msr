@@ -1,0 +1,22 @@
+\begin{center}
+\begin{table}[H]
+\begin{scriptsize}
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{\Tstrut \Bstrut\footnotesize Lifting Constructor} & \multicolumn{1}{c|}{\Tstrut \Bstrut \footnotesize Definition} \\
+\hline
+\hline
+\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T1} {\tt Str = SInvalid | SNil | SCons(ch:i8, tail:Str)}} \\
+\hline
+$\mathrm{Cstr^{char[]}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (p[0_{i32}]^m_{i8}==0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(p[0_{i32}]^m_{i8}, Cstr^{char[]}_m(p+1_{i32}))}$} \\
+\hline
+$\mathrm{Cstr^{lnode(char)}_m(p:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt lnode}{val} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt lnode}{val}, Cstr^{lnode}_m(\structPointer{\tt p}{m}{\tt lnode}{next}))}$} \\
+\hline
+$\mathrm{Cstr^{clnode(char)}_m(p:i32,i:i2)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ SInvalid}$ \\ \Tstrut $\mathrm{\underline{else\ if}\ (\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8} == 0_{i8})\ \underline{then}\ SNil}$ \\ \Bstrut $\mathrm{\underline{else}\ SCons(\structPointer{\tt p}{m}{\tt clnode}{chunk} [i]^m_{i8},}$ \\ \qquad \qquad \quad $\mathrm{Cstr^{clnode}_m((ite(i==3_{i2},\structPointer{\tt p}{m}{\tt clnode}{next} , p), i+1_{i2}))}$} \\
+\hline
+\end{tabular}
+\end{scriptsize}
+\caption{\label{tab:LiftingConsStr}Lifting constructors and their definitions for {\tt String} ADT.}
+\vspace{-18px}
+\end{table}
+\end{center}

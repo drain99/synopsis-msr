@@ -1,15 +1,16 @@
-\begin{figure}
+\begin{figure}[H]
 \begin{tabular}{cc}
 \begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
-{\includegraphics[scale=0.87]{figStrlenArrProductCfg.pdf}}
+{\includegraphics[scale=1]{chapters/figures/figStrlenArrProductCfg.pdf}}
 \end{center}
-\caption{\label{fig:llproduct}Product CFG for Array-based Implementation}
+\vspace{-10px}
+\caption{\label{fig:StrlenArrProductCFG}Product CFG for programs \cref{fig:llStrlenSpecIR,fig:llStrlenCArrIR}}
 \end{subfigure}%
 &
 \begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
-\begin{footnotesize}
+\begin{scriptsize}
 \begin{tabular}{|c|l|}
 \hline
 \tt PC-Pair & \multicolumn{1}{c|} {\tt Invariants} \\
@@ -17,27 +18,30 @@
 \hline
 \Tstrut ${\tt (S0:C0)}$ &
 ${\tt {\circled{P}}\  s_{S}\indEq{}Cstr^{char[]}_{m}(s_{C})}$ \\
-\Tstrut \BBstrut \multirow{2}{*}{${\tt (S2:C2)}$} &
+\Tstrut \Bstrut \multirow{2}{*}{${\tt (S2:C2)}$} &
 ${\tt {\scriptsize \circled{I1}}\  s_{S}\indEq{}Cstr^{char[]}_{m}(s_{C})}$ \\ & ${\tt {\scriptsize \circled{I2}}\  len_{S}=i_{C}}$ \\
-\Tstrut \BBstrut ${\tt (SE:CE)}$ &
+\Tstrut \Bstrut ${\tt (SE:CE)}$ &
 ${\tt {\circled{E}}\  ret_{S}=ret_{C}}$ \\
 \hline
 \end{tabular}
-\end{footnotesize}
+\vspace{5px}
+\end{scriptsize}
 \end{center}
-\caption{\label{fig:XX}Invariants Table for Array-based Implementation}
+\vspace{-10px}
+\caption{\label{fig:StrlenArrInvs}Invariants Table for \cref{fig:StrlenArrProductCFG}}
 \end{subfigure}%
 \\
 \begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
-{\includegraphics[scale=0.87]{figStrlenClProductCfg.pdf}}
+{\includegraphics[scale=0.9]{chapters/figures/figStrlenClProductCfg.pdf}}
 \end{center}
-\caption{\label{fig:llproduct}Product CFG for Chunked linked list-based Implementation}
+\vspace{-10px}
+\caption{\label{fig:StrlenClProductCFG}Product CFG for programs \cref{fig:llStrlenSpecIR,fig:llStrlenCClistIR}}
 \end{subfigure}%
 &
 \begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
-\begin{footnotesize}
+\begin{scriptsize}
 \begin{tabular}{|c|l|}
 \hline
 \tt PC-Pair & \multicolumn{1}{c|} {\tt Invariants} \\
@@ -45,18 +49,17 @@ ${\tt {\circled{E}}\  ret_{S}=ret_{C}}$ \\
 \hline
 \Tstrut ${\tt (S0:C0)}$ &
 ${\tt {\circled{P}}\  s_{S}\indEq{}Cstr^{clnode}_{m}(cl_{C}, 0)}$ \\
-\Tstrut \BBstrut \multirow{2}{*}{${\tt (S2:C4)}$} &
+\Tstrut \Bstrut \multirow{2}{*}{${\tt (S2:C3)}$} &
 ${\tt {\scriptsize \circled{I1}}\  s_{S}\indEq{}Cstr^{clnode}_{m}(cl_{C}, 0)}$ \\ & ${\tt {\scriptsize \circled{I2}}\  len_{S}=i_{C}}$ \\
-\Tstrut \BBstrut ${\tt (SE:CE)}$ &
+\Tstrut \Bstrut ${\tt (SE:CE)}$ &
 ${\tt {\circled{E}}\  ret_{S}=ret_{C}}$ \\
 \hline
 \end{tabular}
-\end{footnotesize}
+\end{scriptsize}
 \end{center}
-\caption{\label{fig:XX}Invariants Table for Chunked linked list-based Implementation}
+\vspace{-10px}
+\caption{\label{fig:StrlenClInvs}Invariants Table \cref{fig:StrlenClProductCFG}}
 \end{subfigure}%
 \end{tabular}
-\vspace{-10px}
-\caption{\label{fig:strlenall}Product CFGs and Invariants Tables for two Implementations of Strlen Spec}
-\vspace{-8px}
+\caption{\label{fig:StrlenProductCFGsAndInvs}Product CFGs and Invariants Tables showing bisimulation between Strlen specification in \cref{fig:llStrlenSpecIR} and two C implementations in \cref{fig:llStrlenCArrIR,fig:llStrlenCClistIR}}
 \end{figure}

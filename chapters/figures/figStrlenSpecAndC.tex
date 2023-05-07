@@ -1,43 +1,39 @@
-\begin{figure}[htpb]
-\begin{minipage}[c]{0.50\textwidth}
-\begin{subfigure}[b]{1\textwidth}
+\begin{figure}[H]
+\begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
 \begin{allLangEnvScript}
-~{\tiny \textcolor{mygray}{\ \ \ }}~ type Str = SInvalid
-~{\tiny \textcolor{mygray}{\ \ \ }}~          | SNil
-~{\tiny \textcolor{mygray}{\ \ \ }}~          | SCons (i8:ch, Str:tail).
-~{\tiny \textcolor{mygray}{   }}~ 
 ~{\tiny \textcolor{mygray}{S0:}}~ i32 strlen (Str s) {
-~{\tiny \textcolor{mygray}{S1:}}~   i32 len $\coloneq$ $\mathrm{\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{S1:}}~   i32 len $\coloneqq$ $\mathrm{\tt 0_{i32}}$;
 ~{\tiny \textcolor{mygray}{S2:}}~   while ${\tt \neg (s\ is\ SNil)}$:
 ~{\tiny \textcolor{mygray}{S3:}}~     assume ${\tt \neg (s\ is\ SInvalid)}$;
-~{\tiny \textcolor{mygray}{S4:}}~     s   $\coloneq$ s.tail; // (s is SCons)
-~{\tiny \textcolor{mygray}{S5:}}~     len $\coloneq$ len + ${\tt 1_{i32}}$;
-~{\tiny \textcolor{mygray}{S6:}}~   return len;
+~{\tiny \textcolor{mygray}{S4:}}~     // (s is SCons)
+~{\tiny \textcolor{mygray}{S5:}}~     s   $\coloneqq$ s.tail;
+~{\tiny \textcolor{mygray}{S6:}}~     len $\coloneqq$ len + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{S7:}}~   return len;
 ~{\tiny \textcolor{mygray}{SE:}}~ }
 \end{allLangEnvScript}
 \end{center}
-\caption{\label{fig:llStrlenSpecIR}Strlen Spec (abstracted) IR Program}
-\end{subfigure}
-\begin{subfigure}[b]{1\textwidth}
+\vspace{-15px}
+\caption{\label{fig:llStrlenSpecIR}Strlen Specification}
+\end{subfigure}%
+\begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
 \vspace{5px}
 \begin{allLangEnvScript}
 ~{\tiny \textcolor{mygray}{\ \ \ }}~ size_t strlen(char* s);
-~{\tiny \textcolor{mygray}{}}~
 ~{\tiny \textcolor{mygray}{C0:}}~ i32 strlen (i32 s) {
-~{\tiny \textcolor{mygray}{C1:}}~   i32 i $\coloneq$ ${\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{C1:}}~   i32 i $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\tiny \textcolor{mygray}{C2:}}~   while $\mathrm{\tt s[0_{i32}]^m_{i8} \neq 0_{i8}}$:
-~{\tiny \textcolor{mygray}{C3:}}~     s $\coloneq$ s + ${\tt 1_{i32}}$;
-~{\tiny \textcolor{mygray}{C4:}}~     i $\coloneq$ i + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C3:}}~     s $\coloneqq$ s + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C4:}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
 ~{\tiny \textcolor{mygray}{C5:}}~   return i;
 ~{\tiny \textcolor{mygray}{CE:}}~ }
+
 \end{allLangEnvScript}
 \end{center}
-\caption{\label{fig:llStrlenCArrIR}Generic Strlen C  (abstracted) IR using Array}
-\end{subfigure}%
-\end{minipage}%
-\begin{minipage}[c]{0.50\textwidth}
+\vspace{-15px}
+\caption{\label{fig:llStrlenCArrIR}Strlen Implementation using Array}
+\end{subfigure}
 \begin{subfigure}[b]{1\textwidth}
 \begin{center}
 \begin{allLangEnvScript}
@@ -45,32 +41,23 @@
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ char chunk[4]; struct clnode* next;
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ } clnode;
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ size_t strlen(clnode* cl);
-~{\tiny \textcolor{mygray}{}}~
-~{\tiny \textcolor{mygray}{C0: }}~ i32 strlen (i32 cl) {
-~{\tiny \textcolor{mygray}{C1: }}~   i32 hi $\coloneq$ $\mathrm{\tt 0x80808080_{i32}}$;
-~{\tiny \textcolor{mygray}{C2: }}~   i32 lo $\coloneq$ $\mathrm{\tt 0x01010101_{i32}}$;
-~{\tiny \textcolor{mygray}{C3: }}~   i32 i  $\coloneq$ $\mathrm{\tt 0_{i32}}$;
-~{\tiny \textcolor{mygray}{C4: }}~   while ${\tt true}$:
-~{\tiny \textcolor{mygray}{C5: }}~     i32 dword_ptr $\coloneq$ ${\tt \& \structPointer{\tt cl}{m}{\tt clnode}{chunk}}$;
-~{\tiny \textcolor{mygray}{C6: }}~     i32 dword     $\coloneq$ $\mathrm{\tt dword\_ptr[0_{i32}]^m_{i32}}$;
-~{\tiny \textcolor{mygray}{C7: }}~     if $\mathrm{\tt ((dword - lo)\ \&\ (\sim dword)\ \&\ hi) \neq 0_{i32}}$:
-~{\tiny \textcolor{mygray}{C8: }}~       if $\mathrm{\tt dword\_ptr[0_{i32}]^m_{i8} == 0_{i8}}$:
-~{\tiny \textcolor{mygray}{C9: }}~         return i;
-~{\tiny \textcolor{mygray}{C10:}}~       if $\mathrm{\tt dword\_ptr[1_{i32}]^m_{i8} == 0_{i8}}$:
-~{\tiny \textcolor{mygray}{C11:}}~         return $\mathrm{\tt i + 1_{i32}}$;
-~{\tiny \textcolor{mygray}{C12:}}~       if $\mathrm{\tt dword\_ptr[2_{i32}]^m_{i8} == 0_{i8}}$:
-~{\tiny \textcolor{mygray}{C13:}}~         return $\mathrm{\tt i + 2_{i32}}$;
-~{\tiny \textcolor{mygray}{C14:}}~       if $\mathrm{\tt dword\_ptr[3_{i32}]^m_{i8} == 0_{i8}}$:
-~{\tiny \textcolor{mygray}{C15:}}~         return $\mathrm{\tt i + 3_{i32}}$;
-~{\tiny \textcolor{mygray}{C16:}}~     cl $\coloneq$ $\mathrm{\tt \structPointer{\tt cl}{m}{\tt clnode}{next}}$;
-~{\tiny \textcolor{mygray}{C17:}}~     i  $\coloneq$ $\mathrm{\tt i + 4_{i32}}$;
-~{\tiny \textcolor{mygray}{CE: }}~ }
+~{\tiny \textcolor{mygray}{C0\phantom{ }:}}~ i32 strlen (i32 cl) {
+~{\tiny \textcolor{mygray}{C1\phantom{ }:}}~   i32 hi $\coloneqq$ $\mathrm{\tt 0x80808080_{i32}}$; i32 lo $\coloneqq$ $\mathrm{\tt 0x01010101_{i32}}$;
+~{\tiny \textcolor{mygray}{C2\phantom{ }:}}~   i32 i  $\coloneqq$ $\mathrm{\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{C3\phantom{ }:}}~   while ${\tt true}$:
+~{\tiny \textcolor{mygray}{C4\phantom{ }:}}~     i32 dword_ptr $\coloneqq$ ${\tt \& \structPointer{\tt cl}{m}{\tt clnode}{chunk}}$;
+~{\tiny \textcolor{mygray}{C5\phantom{ }:}}~     i32 dword     $\coloneqq$ $\mathrm{\tt dword\_ptr[0_{i32}]^m_{i32}}$;
+~{\tiny \textcolor{mygray}{C6\phantom{ }:}}~     if $\mathrm{\tt ((dword - lo)\ \&\ (\sim dword)\ \&\ hi) \neq 0_{i32}}$:
+~{\tiny \textcolor{mygray}{C7\phantom{ }:}}~       if $\mathrm{\tt dword\_ptr[0_{i32}]^m_{i8} == 0_{i8}}$: return i;
+~{\tiny \textcolor{mygray}{C8\phantom{ }:}}~       if $\mathrm{\tt dword\_ptr[1_{i32}]^m_{i8} == 0_{i8}}$: return $\mathrm{\tt i + 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C9\phantom{ }:}}~       if $\mathrm{\tt dword\_ptr[2_{i32}]^m_{i8} == 0_{i8}}$: return $\mathrm{\tt i + 2_{i32}}$;
+~{\tiny \textcolor{mygray}{C10:}}~       if $\mathrm{\tt dword\_ptr[3_{i32}]^m_{i8} == 0_{i8}}$: return $\mathrm{\tt i + 3_{i32}}$;
+~{\tiny \textcolor{mygray}{C11:}}~     cl $\coloneqq$ $\mathrm{\tt \structPointer{\tt cl}{m}{\tt clnode}{next}}$; i  $\coloneqq$ $\mathrm{\tt i + 4_{i32}}$;
+~{\tiny \textcolor{mygray}{CE\phantom{ }:}}~ }
 \end{allLangEnvScript}
 \end{center}
-\caption{\label{fig:llStrlenCClistIR}Optimized Chunked List Strlen (abstracted) C IR}
+\vspace{-15px}
+\caption{\label{fig:llStrlenCClistIR}Optimized Strlen Implementation using Chunked Linked List}
 \end{subfigure}%
-\end{minipage}
-\vspace{-5px}
-\caption{\label{fig:strlenSpecAndC} Strlen Spec IR and C IR Programs.}
-\vspace{-5px}
+\caption{\label{fig:strlenSpecAndC}Abstracted IRs of Strlen Specification program in \cref{fig:llStrlenSpecIR} along with two different C implementations. \Cref{fig:llStrlenCArrIR} is a generic implementation using a null character terminated array to represent a String. \Cref{fig:llStrlenCClistIR} is an optimized implementation using chunked linked list representation of String.}
 \end{figure}
