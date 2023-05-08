@@ -277,6 +277,7 @@ at $A_{\pi}^{{\tt a}}$.
 
 \subsection{Points-to Analysis}
 \label{sec:pointsToFormal}
+We formulate our points-to analysis as a dataflow analysis as discussed below.
 We first identify the set $R_C$ of all region labels representing mutually non-overlapping
 regions of the $C$ memory state $m$.
 For each call to {\tt malloc()} at PC $A$,
@@ -338,8 +339,8 @@ $\Delta^{entry}_R(r)=$ & $\Delta^{n_C}_C(r)$ & $\mathrm{for\ all}\ r \in{}S_C\cu
 \end{center}
 
 Hence, for a reconstruction program, we use the results of the points-to analysis on $C$ at the PC where
-the proof obligation is being discharged. This is a crucial step for proving equality of values
-under mutating $C$ memory state as seen in \cref{sec:pointsToAsInvariants}.
+the proof obligation is being discharged. This is a crucial step for proving equality of $C$ values
+under different $C$ memory state as seen in \cref{sec:pointsToAsInvariants}.
 % A deconstruction
 % program does not contain any store and malloc operations.
 

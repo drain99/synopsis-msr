@@ -6,15 +6,15 @@
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$f_e(\phi_s, \Gamma_s)$}{
-  $\Gamma^{can}_{d} \mapsfrom \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
-  $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
+  $\Gamma^{can}_{d} \coloneqq \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
+  $\phi^{can}_{d} \coloneqq \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
   \While{{\tt SAT$(\neg(\{\phi_s\} (e) \{\phi^{can}_{d}\}), \gamma_s)$}}
   {
-    $\gamma_{d} \ \ \ \ \mapsfrom {\tt exec}_e(\gamma_s)$;\\
-    $\Gamma^{can}_{d} \mapsfrom \Gamma^{can}_{d}\cup\gamma_{d}$;\\
-    $\phi^{can}_{d} \mapsfrom \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
+    $\gamma_{d} \ \ \ \coloneqq {\tt exec}_e(\gamma_s)$;\\
+    $\Gamma^{can}_{d} \coloneqq \Gamma^{can}_{d}\cup\gamma_{d}$;\\
+    $\phi^{can}_{d} \coloneqq \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
   }
-  \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$;}\\
+  \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$};\\
 }
 \end{footnotesize}
 \end{algorithm}

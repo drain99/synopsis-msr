@@ -1,13 +1,26 @@
 \section{Outline of the Thesis}
 \label{sec:outlinethesis}
-% \textbf{Chapter 1} of the thesis contains a general introduction and description of the research problem, in which we first explain the motivation for the research by outlining the global burden caused by brain stroke especially on the developing nations in order to establish our research objectives. 
+\textbf{Chapter 1} of the thesis contains a general introduction to the research problem of automatically verifying C functions against a functional specification.
+We take a C program and its analogue in a safe functional language, and contrast their differences. This helps us motivate the need to solve this problem.
+We finish by stating our contribution: a proof discharge algorithm.
 
-% In \textbf{Chapter 2}, we review the available methods for clinically differentiating ischemic and hemorrhagic strokes in order to understand the advantages and disadvantages of previous techniques. We conduct a re-analysis of all included studies to correct their methodology and get an accurate estimate of their performance via quantitative comparison. 
+In \textbf{Chapter 2}, we constrain the programs being considered by formulating the problem statement. This helps us clearly define the
+subproblem being solved. Next we define the necessary context and terminology (e.g., equivalence) for the rest of the thesis.
 
-% In the previous chapter, we identify the issues with the clinical scores, which attempt to resolve in \textbf{Chapter 3} by developing a machine learning based framework for stroke classification solely using clinical attributes. We incorporate MICE imputation within our framework to address the missing values. Additionally, we demonstrate how easy it is to obtain extremely high but misleading performance as a result of target leakage in the data, which the majority of researches do not perform. We further conduct analysis to determine the most critical clinical markers for stroke classification.
+\textbf{Chapter 3} starts with some basic concepts related to equivalence such as bisimulation and product program.
+The rest of the chapter gradually introduces the proof discharge algorithm and related subprocedures while
+going through two example program pairs for demonstration.
 
-% To gain a better understanding of the behaviour of attributes in medical datasets and their relationships, we develop a more generalised oblique sparse factor model in \textbf{Chapter 4}, a tool commonly used for exploratory data analysis. We propose a doubly-penalized lasso-based objective function and use a gradient descent-based alternate minimization algorithm to optimise it for the retrieval of model parameters. Additionally, we conduct a simulation study to compare our model's performance to that of two existing oblique sparse factor models, \textit{fanc} and \textit{sparse principal component analysis} and further demonstrate our model's performance over stroke dataset used in Chapter 3. 
+Next, we formalize previously discussed topics in \textbf{Chapter 4}. We begin with the description of our custom language `Spec'. This is followed by
+algorithms required in tandem with our proof discharge algorithm for an automatic equivalence checker such as a best-first search algorithm
+for finding a bisimulation relation and an automatic invariant inference procedure. We finish this chapter with a dataflow analysis formulation
+of our pointer analysis.
 
-% We further propose that analysing stroke patients' gait and microexpressions using computer vision and deep learning models may aid in retrieving additional information for identifying and classifying stroke in resource-constrained settings. However, there is no protocol for visual datasets that can be analysed for automated stroke identification and classification. In \textbf{Chapter 5}, we develop a protocol for collecting data from ten tests in order to enable deeplearning and computer vision models. 
+In \textbf{Chapter 5}, we evaluate our automatic equivalence checker based on the proof discharge algorithm on a large variety of C programs involving
+lists, strings, trees and matrices.
+This includes C programs taken from C library implementations as well as manually written programs. We show that our equivalence checker is able
+to prove equivalence of a single specification with multiple of C implementations, each varying in its data layouts and algorithmic
+strategies.
 
-% \textbf{Chapter 6} concludes the research and summarises our major contributions. In the end, the scope of potential future research directions is discussed. 
+Finally, \textbf{Chapter 6} concludes the research and discusses some related works. We note our major ideas and contributions finishing with
+some potential future improvements to our algorithm.
