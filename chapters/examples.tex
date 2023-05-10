@@ -538,7 +538,7 @@ after simplification yields
 $P': {\tt LHS}\Rightarrow{}{\tt l_S\ \ is\ \ LNil}$.
 Note that unlike $P$, $P'$ does not contain a \recursiveRelation{} in its {\tt RHS}.
 
-\subsection{Category 1: The $k$-unrolling of $P$ does not contain \recursiveRelations{}}
+\subsection[Handling Category 1 Proof Obligations]{Category 1: $k$-unrolling of $P$ does not contain \recursiveRelations{}}
 \label{sec:cat1}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge ${\tt (S0:C0) \rightarrow (S3:C3)}$
@@ -591,7 +591,7 @@ evaluates to false, we also obtain a counterexample.
 
 \input{chapters/figures/figSumListSpecAndC.tex}
 
-\subsection{Category 2: The $k$-unrolling of $P$
+\subsection[Handling Category 2 Proof Obligations]{Category 2: $k$-unrolling of $P$
 contains a \recursiveRelation{} in the LHS only}
 \label{sec:cat2}
 
@@ -934,7 +934,7 @@ are executed starting at the machine state represented by this counterexample, t
 values of $sum_S$ and $sum_C$ are {\tt 3+42+43=88} and {\tt 3+42=45} respectively. Evidently, the
 counterexample falsifies the proof condition because these values are not equal (as required by the postcondition).
 \vspace{-6px}
-\subsection{Category 3: The $k$-unrolling of $P$ contains a \recursiveRelation{} in RHS and optionally in LHS}
+\subsection[Handling Category 3 Proof Obligations]{Category 3: $k$-unrolling of $P$ contains a \recursiveRelation{} in RHS and optionally in LHS}
 \label{sec:cat3}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge ${\tt (S3:C5) \rightarrow (S3:C3)}$

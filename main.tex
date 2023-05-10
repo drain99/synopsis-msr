@@ -13,7 +13,7 @@
 \usepackage{float}
 \usepackage{fancyhdr}                              
 \usepackage{makeidx}
-\usepackage[nottoc,notlot,notlof]{tocbibind}     
+% \usepackage[nottoc,notlot,notlof]{tocbibind}     
 \usepackage{supertabular}
 \usepackage{array}              
 \usepackage{setspace} 
@@ -29,7 +29,7 @@
 \usepackage{mathtools}
 % \usepackage{captcont}
 \usepackage{verbatim}
-\usepackage{titlesec}
+% \usepackage{titlesec}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -113,8 +113,8 @@
 \addtolength{\oddsidemargin}{30pt}
 \addtolength{\evensidemargin}{-30pt}
 
-\titlespacing*{\chapter}{0pt}{-50pt}{20pt}
-\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{11pt}{\Huge}
+% \titlespacing*{\chapter}{0pt}{-50pt}{20pt}
+% \titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{11pt}{\Huge}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg,.ps}
 \restylefloat{figure}
 \graphicspath{{./figures/}}
@@ -146,8 +146,10 @@
 \include{others/abstract}
 \thispagestyle{empty}
 
-\setcounter{tocdepth}{1}
+\setcounter{tocdepth}{2}
+\begin{spacing}{0.98}
 \tableofcontents
+\end{spacing}
 \newpage
 
 \setcounter{page}{1}
