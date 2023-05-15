@@ -105,6 +105,7 @@ decomposition clauses $(P_i \rightarrow X_i)$ whose $P_i$ evaluates to {\tt fals
 For example, the one-unrolling of $P:{\tt LHS} \Rightarrow l_S \indEq{} {\tt Clist}_m^{\tt lnode}(0)$, after simplification, yields
 $P': {\tt LHS} \Rightarrow l_S\ {\tt is}\ {\tt LNil}$. We categorize a proof obligation $P$ based on this $k$-unrolled form of $P$ as follows:
 \begin{itemize}
+    \setlength{\itemsep}{0px}
     \item Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}
     \item Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the {\tt LHS}
     \item Type III: $k$-unrolling $P$ contains \recursiveRelations{} in the {\tt RHS}
@@ -632,8 +633,8 @@ lifting constructor ${\tt Clist}^{\tt lnode}$, the PC-transition correlations of
 are trivially obtained
 by unifying the program structure with itself. A node
 is created in the recons-PCFG that
-encodes the correlation of the entries of the unrolling procedure in
-both programs, we call this node the {\em recursive-node} in the
+encodes the correlation of the entries to both programs,
+we call this node the {\em recursive-node} in the
 recons-PCFG, e.g., the
 recursive node in \cref{fig:reconsPCFG} is {\tt R0:R0}. A recursive
 call becomes a back-edge in the recons-PCFG that terminates at the
@@ -654,9 +655,9 @@ The bisimulation check thus involves checking that
 if the invariant
 ${\tt l}^{fst}_C={\tt l}^{snd}_C$
 holds at the recursive-node,
-then during one iteration of the unrolling procedure
-in both programs:
+then during one iteration of the static programs:
 \begin{enumerate}
+\setlength{\itemsep}{0px}
 \item The \underline{if} condition
 ({\tt l$^{fst}_C=0$}) in the first program
 is equal to the corresponding \underline{if}
@@ -671,7 +672,7 @@ $(({\tt l}^{fst}_C\neq 0)\land({\tt l}^{snd}_C\neq 0))\Rightarrow (\structPointe
 \item If the \underline{if} condition
 evaluates to false in both programs, then
 the invariant holds at the beginning
-of the unrolling procedure invoked through the
+of the programs invoked through the
 recursive call.
 This involves checking equality
 of the arguments to the recursive call, i.e.,
@@ -690,101 +691,65 @@ to the newly allocated objects
 ${\tt p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt val}$
 and
 ${\tt p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt next}$.
-We capture this aliasing information by running a points-to analysis on
+We capture this aliasing information by running an intraprocedual allocation-site based points-to analysis on
 the original $C$ program as well as the reconstruction programs being checked
-for equivalence. An intraprocedual allocation-site and recency based points-to analysis is used.
-The recency parameter allows us to distinguish the most recent allocation from the rest for
-each allocation site.
-
-\subsubsection{Points-to Analysis}
-\label{sec:pointsTo}
-To reason about aliasing (as required during the bisimulation
-check in \cref{sec:bisim}), we conservatively compute the
-{\em may-point-to}
-information for each program value using Andersen's algorithm \cite{andersen94programanalysis}.
-The range of this computed
-may-point-to function are {\em sets of region labels}, where
-each region label identifies a set of memory objects.
-The sets of memory objects identified by two distinct region
-labels are necessarily disjoint. We write $p\pointsTo\{R_1,R_2\}$
-to represent the condition that value $p$ may point to
+for equivalence. Our points-to analysis also splits each allocation site region (e.g., {\tt C4} in \cref{fig:llAllocCIR}) into
+two regions {\tt C4}$_1$ and {\tt C4}$_2$, where {\tt C4}$_1$ represents the region of the most recent allocation and {\tt C4}$_2$
+represents the region of all other allocations through ${\tt malloc_{C4}}$ respectively.
+We write $p\pointsTo\{R_1,R_2\}$ to represent the condition that value $p$ {\em may point to}
 an object belonging to one of the region labels $R_1$ or $R_2$ (but
-may not point to any object outside of $R_1$ and $R_2$).
+may not point to any object outside of $R_1$ and $R_2$). We compute may-point-to information for
+all program variables as well as the region labels themselves.
+% For example, at the start of PC {\tt C7} in \cref{fig:llAllocCIR},
+% {\tt i}$_C\pointsTo{}\emptyset$,
+% {\tt n}$_C\pointsTo{}\{{\tt C4}_1\}$,
+% and {\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$.
+% Because the may-point-to analysis determines the
+% sets of objects pointed-to by {\tt n}$_C$ and {\tt l}$_C$ to
+% be disjoint ($\{{\tt C4_{1}}\}$ vs. $\{{\tt C4_{2+}}\}$), any
+% memory accesses through {\tt n}$_C$ and {\tt l}$_C$
+% cannot alias at {\tt C7} (for an access
+% offset that is within the bounds of
+% the allocation size `{\tt sizeof lnode}').
+% Similarly, at PC {\tt C7}, we
+% get
+% ${\tt C4}_{1}\pointsTo{}\{{\tt C4}_{2+}\}$ and
+% ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$.
+% The condition
+% ${\tt C4}_{1}\pointsTo{}\{{\tt C4}_{2+}\}$
+% holds because the {\tt next} pointer of the object
+% pointed-to by ${\tt n}_C$ (which
+% is a ${\tt C4}_1$ object) may point to
+% a {\tt C4}$_{2+}$ object (e.g., object pointed-to
+% by {\tt l}$_C$).
+% Similarly, ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$
+% says that a pointer within a {\tt C4}$_{2+}$ object
+% may point to a {\tt C4}$_{2+}$
+% object (but not to a {\tt C4}$_1$ object).
 
-We populate the set of all region labels using the
-{\em allocation
-sites} of the program, i.e., PCs where a call to
-{\tt malloc} exists, e.g., {\tt C4}
-in \cref{fig:llAllocCIR} is an allocation site.
-For each allocation site $A$, we create
-two region labels: (1) the first region label, called $A_1$,
-identifies the set of memory
-objects that were allocated by the most recent execution of $A$. (2) The second
-region label, called $A_{2+}$, identifies
-the set of memory objects that were allocated by older (not the most
-recent) executions of $A$.
-
-For example, at the start of PC {\tt C7} in \cref{fig:llAllocCIR},
-{\tt i}$_C\pointsTo{}\emptyset$,
-{\tt n}$_C\pointsTo{}\{{\tt C4}_1\}$,
-and {\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$.
-Because the may-point-to analysis determines the
-sets of objects pointed-to by {\tt n}$_C$ and {\tt l}$_C$ to
-be disjoint ($\{{\tt C4_{1}}\}$ vs. $\{{\tt C4_{2+}}\}$), any
-memory accesses through {\tt n}$_C$ and {\tt l}$_C$
-cannot alias at {\tt C7} (for an access
-offset that is within the bounds of
-the allocation size `{\tt sizeof lnode}').
-
-The may-point-to information is computed not
-just for scalar program values ({\tt n}$_C$,
-{\tt l}$_C$, ...) but also for each region label.
-For region labels $A1_{r1}$, $A2_{r2}$, $A3_{r3}$:
-$A1_{r1}\pointsTo{}\{A2_{r2},A3_{r3}\}$ represents
-the condition that the values (pointers) stored
-in objects identified
-by $A1_{r1}$ may point to an object identified by
-either $A2_{r2}$ or $A3_{r3}$ (but not to any object
-outside $A2_{r2}$ and $A3_{r3}$).
-In \cref{fig:llAllocCIR}, at PC {\tt C7}, we
-get
-${\tt C4}_{1}\pointsTo{}\{{\tt C4}_{2+}\}$ and
-${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$.
-The condition
-${\tt C4}_{1}\pointsTo{}\{{\tt C4}_{2+}\}$
-holds because the {\tt next} pointer of the object
-pointed-to by ${\tt n}_C$ (which
-is a ${\tt C4}_1$ object) may point to
-a {\tt C4}$_{2+}$ object (e.g., object pointed-to
-by {\tt l}$_C$).
-Similarly, ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$
-says that a pointer within a {\tt C4}$_{2+}$ object
-may point to a {\tt C4}$_{2+}$
-object (but not to a {\tt C4}$_1$ object).
-
-\subsubsection{Transferring points-to information to the recons-PCFG}
-\label{sec:pointsToAsInvariants}
-Recall that
-in \cref{sec:recursiveEqToBisim},
-we reduce a validity check of the condition
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
-\indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$
-to a bisimulation check. Also, recall
-that we discharge the bisimulation check through the construction
-of a recons-PCFG that compares the unrolling procedure with itself (executing
-on memory states $m$ and $m'$).
-During this bisimulation check, we need to prove
-that for each execution
-of the unrolling procedure, $\structPointer{{\tt l}_C}{m}{\tt lnode}{\{val,next\}}$
-and $\structPointer{{\tt l}_C}{m'}{\tt lnode}{\{val,next\}}$\footnote{Here, we use the symbol {\tt l}$_C$ to
-refer to equal values {\tt l}$^{fst}_C$ and
-{\tt l}$^{snd}_C$.} are equal.
-To successfully discharge these proof obligations, it suffices
-to show ${\tt l}_C$ cannot alias with the memory writes that
-distinguish $m$ from $m'$.
+% \subsubsection{Transferring points-to information to the recons-PCFG}
+% \label{sec:pointsToAsInvariants}
+% Recall that
+% in \cref{sec:recursiveEqToBisim},
+% we reduce a validity check of the condition
+% ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
+% \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$
+% to a bisimulation check. Also, recall
+% that we discharge the bisimulation check through the construction
+% of a recons-PCFG that compares the unrolling procedure with itself (executing
+% on memory states $m$ and $m'$).
+% During this bisimulation check, we need to prove
+% that for each execution
+% of the unrolling procedure, $\structPointer{{\tt l}_C}{m}{\tt lnode}{\{val,next\}}$
+% and $\structPointer{{\tt l}_C}{m'}{\tt lnode}{\{val,next\}}$\footnote{Here, we use the symbol {\tt l}$_C$ to
+% refer to equal values {\tt l}$^{fst}_C$ and
+% {\tt l}$^{snd}_C$.} are equal.
+% To successfully discharge these proof obligations, it suffices
+% to show ${\tt l}_C$ cannot alias with the memory writes that
+% distinguish $m$ from $m'$.
 
 Our points-to analysis on
-the C program determines that at PC {\tt C5} (the start of
+the C program determines that at PC {\tt C5} of \cref{fig:llAllocCIR} (the start of
 the product-CFG edge {\tt (S3:C5)$\rightarrow$(S3:C3)} across which the proof
 condition is being evaluated),
 the pointer to the {\em head}
@@ -798,37 +763,25 @@ the distinguishing writes. We also need to confirm non-aliasing
 of the internal nodes of the linked list with the distinguishing
 writes.
 For this, we need to identify a points-to invariant,
-{\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$, at the recursive-node
+{\tt l}$_C^{snd}\pointsTo{}\{{\tt C4}_{2+}\}$, at the recursive-node
 of the recons-PCFG
 (shown in \cref{fig:reconsPCFG}).
-To see why {\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$ is
+To identify such points-to invariant, we run our points-to analysis
+on the reconstruction programs (\cref{fig:reconsProg}) before comparing them for equivalence.
+We use the results of the points-to analysis on $C$ at the PC where the proof obligation
+is being discharged (e.g., {\tt C5} in \cref{fig:llAllocC}).
+To see why {\tt l}$_C^{snd}\pointsTo{}\{{\tt C4}_{2+}\}$ is
 an inductive invariant at the recursive-node:
 \begin{itemize}
+\setlength{\itemsep}{0px}  
 \item (Base case) The invariant holds
 at entry to the recons-PCFG (because it holds for ${\tt l}^{start}_C$).
-\item (Induction step) If ${\tt l}_C\pointsTo{}\{{\tt C4}_{2+}\}$
-holds at the start of an unrolling procedure,
-it also holds at the start of a recursive call to the
-unrolling procedure. This
+\item (Induction step) If ${\tt l}_C^{snd}\pointsTo{}\{{\tt C4}_{2+}\}$
+holds at the entry node,
+it also holds at the start of a recursive call. This
 follows from ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$ (points-to information at PC {\tt C5}),
-which ensures that {\tt l$_C$->next} may point to only ${\tt C4}_{2+}$ objects.
+which ensures that $\structPointer{\tt l_C}{m'}{\tt lnode}{next}$ may point to only ${\tt C4}_{2+}$ objects.
 \end{itemize}
-
-To identify this points-to invariant, we run
-our points-to analysis (the same analysis that is run
-on the C program) on the reconstruction programs (\cref{fig:reconsProg})
-before
-comparing them for equivalence. The boundary
-condition for the points-to analysis at the
-entry node of the reconstruction
-program (e.g., {\tt R0} in \cref{fig:recons}) is based on
-the results of the points-to analysis
-on $C$ at the PC where the proof obligation is being discharged (e.g., {\tt C5}
-in our \cref{fig:llAllocC}). The points-to invariants
-at a node {\tt (R$^{fst}_i$,R$^{snd}_j$)} of a recons-PCFG are
-derived from the results of the points-to analysis on the individual
-reconstruction programs at nodes {\tt R}$^{fst}_i$ and {\tt R}$^{snd}_j$
-respectively.
 
 During proof obligation discharge (e.g., during the bisimulation
 check on recons-PCFG), the points-to invariants are encoded as SMT constraints.
@@ -837,77 +790,90 @@ complete the bisimulation proof on the recons-PCFG, and
 consequently successfully discharge the
 proof obligation
 $\{\phi_{{\tt S3:C5}}\}\\({\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}) \{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})\}$ in \cref{tab:llproductInv}.
-The points-to analysis is described more formally
-in \cref{sec:pointsToFormal}.
+% The points-to analysis is described more formally
+% in \cref{sec:pointsToFormal}.
+
+\subsection{Summary of Proof Discharge Algorithm}
+Let $Solve({\tt LHS}, {\tt RHS}, k, d_o, d_u)$ be the top-level procedure representing the proof
+obligation ${\tt LHS}\Rightarrow{\tt RHS}$, where $k$, $d_o$ and $d_u$ are the categorization parameter,
+over- and under-approximation depths respectively.
+$Solve$ returns either {\tt T} or {\tt F}(${\tt \Gamma}$) signifying proven and disproven respectively
+where ${\tt Gamma}$ is a set of counterexamples.
+Without loss of generality, let {\tt RHS} be a single conjunctive
+clause. Otherwise, it broken into smaller queries through RHS-breaking as previously discussed. \cref{algo:proofSummary}
+gives a broad overview of our proof discharge algorithm.
+
+\input{chapters/figures/figProofSummary.tex}
+
 
 %Thus, as a part of the invariant inference procedure on the product-CFG
 %for the decomposition programs, we also run our points-to analysis on the
 %product-CFG to identify points-to invariants at the product-CFG
 %nodes.  This improves precision, as shown in the example discussed
 %above.
-\vspace{-5px}
-\subsubsection{Proof discharge algorithm for Type III obligations}
-\label{sec:cat3summary}
+% \vspace{-5px}
+% \subsubsection{Proof discharge algorithm for Type III obligations}
+% \label{sec:cat3summary}
 
-Before the start of an equivalence check, a points-to analysis is run on the $C$ IR once.
-During the equivalence check,
-to discharge a Type III proof obligation $P: {\tt LHS}\Rightarrow{\tt RHS}$ (expressed
-in first-order logic), we first replace the recursive
-values of program $S$ in the {\tt RHS}
-with lifted C values, based on the equalities present in the {\tt LHS}, to
-obtain $P_2$.
-This is followed by decomposition and RHS-breaking of $P_2$.
+% Before the start of an equivalence check, a points-to analysis is run on the $C$ IR once.
+% During the equivalence check,
+% to discharge a Type III proof obligation $P: {\tt LHS}\Rightarrow{\tt RHS}$ (expressed
+% in first-order logic), we first replace the recursive
+% values of program $S$ in the {\tt RHS}
+% with lifted C values, based on the equalities present in the {\tt LHS}, to
+% obtain $P_2$.
+% This is followed by decomposition and RHS-breaking of $P_2$.
 
-Upon successful decomposition, we
-obtain several smaller proof obligations.
-To prove $P$, we require all these smaller proof
-obligations to be provable. If any of these smaller proof obligations
-is not provable, we are unable to prove $P$.  If we obtain a counterexample
-to any of these smaller proof obligations, then that counterexample
-also falsifies $P$.
-Let $P_3$ represent any such smaller proof obligation.
-{\tt RHS} of $P_3$, being
-a decomposition clause,
-must relate atomic expressions on the {\tt RHS}.
-If $P_3$ relates two scalar values in the {\tt RHS}, then
-it is a Type II proof obligation and can be discharged
-using the algorithm in \cref{sec:cat2algo}.
+% Upon successful decomposition, we
+% obtain several smaller proof obligations.
+% To prove $P$, we require all these smaller proof
+% obligations to be provable. If any of these smaller proof obligations
+% is not provable, we are unable to prove $P$.  If we obtain a counterexample
+% to any of these smaller proof obligations, then that counterexample
+% also falsifies $P$.
+% Let $P_3$ represent any such smaller proof obligation.
+% {\tt RHS} of $P_3$, being
+% a decomposition clause,
+% must relate atomic expressions on the {\tt RHS}.
+% If $P_3$ relates two scalar values in the {\tt RHS}, then
+% it is a Type II proof obligation and can be discharged
+% using the algorithm in \cref{sec:cat2algo}.
 
-If $P_3$ relates two lifted
-expressions in
-the {\tt RHS},
-we check if the reconstruction
-programs of the two lifted ADT values being
-compared can be proven to be bisimilar (assuming that
-{\tt LHS} of $P_3$ holds at the correlated entry nodes
-in the recons-PCFG).
-To improve
-the bisimulation
-check's precision, we transfer the points-to information of the $C$ program
-(at the PC where the proof obligation is being discharged) to the entry
-of the reconstruction programs. The same points-to analysis is ran on the
-reconstruction programs to populate the points-to function at all PCs.
+% If $P_3$ relates two lifted
+% expressions in
+% the {\tt RHS},
+% we check if the reconstruction
+% programs of the two lifted ADT values being
+% compared can be proven to be bisimilar (assuming that
+% {\tt LHS} of $P_3$ holds at the correlated entry nodes
+% in the recons-PCFG).
+% To improve
+% the bisimulation
+% check's precision, we transfer the points-to information of the $C$ program
+% (at the PC where the proof obligation is being discharged) to the entry
+% of the reconstruction programs. The same points-to analysis is ran on the
+% reconstruction programs to populate the points-to function at all PCs.
 
-These queries
-generated by a bisimulation check are discharged
-by a recursive call to the proof discharge procedure.
-The depth of these recursive calls to the
-proof discharge procedure is determined by
-the maximum {\em recursion nest depth} (similar
-to loop nest depth) of the decomposition
-program.
+% These queries
+% generated by a bisimulation check are discharged
+% by a recursive call to the proof discharge procedure.
+% The depth of these recursive calls to the
+% proof discharge procedure is determined by
+% the maximum {\em recursion nest depth} (similar
+% to loop nest depth) of the decomposition
+% program.
 
-If the bisimilarity check succeeds, the proof procedure returns
-true for $P$.
-If the bisimilarity check fails,
-we imprecisely return false for $P$ (without a counterexample).
+% If the bisimilarity check succeeds, the proof procedure returns
+% true for $P$.
+% If the bisimilarity check fails,
+% we imprecisely return false for $P$ (without a counterexample).
 
-Finally, if $P_3$ neither
-relates two scalar values, nor relates two lifted expressions,
-we attempt to prove that {\tt LHS} of $P_3$ imply {\tt false}.
-If successfully disproven, we return false for $P$ with the counterexamples.
-Otherwise, we imprecisely return false for $P$ (without a counterexample).
+% Finally, if $P_3$ neither
+% relates two scalar values, nor relates two lifted expressions,
+% we attempt to prove that {\tt LHS} of $P_3$ imply {\tt false}.
+% If successfully disproven, we return false for $P$ with the counterexamples.
+% Otherwise, we imprecisely return false for $P$ (without a counterexample).
 
-Please refer to {\tt Chapter \ThesisChapterAlgo{}} of the thesis for a
-detailed discussion on the algorithms introduced in this section along
-with their pseudo-code.
+% Please refer to {\tt Chapter \ThesisChapterAlgo{}} of the thesis for a
+% detailed discussion on the algorithms introduced in this section along
+% with their pseudo-code.

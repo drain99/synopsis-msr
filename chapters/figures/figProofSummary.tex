@@ -1,0 +1,33 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{scriptsize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$Solve({\tt LHS}, {\tt RHS}, k, d_o, d_u)$}{
+  $({\tt LHS}_k, {\tt RHS}_k) \mapsfrom Unroll({\tt LHS}, {\tt RHS}, k)$;\\
+  \Switch{$Categorize({\tt LHS}_k, {\tt RHS}_k)$}{
+    \lCase{${\tt Type\ I}$}{\Return{$SMTSolve({\tt LHS}_k \Rightarrow {\tt RHS}_k)$}}
+    \uCase{${\tt Type\ II}$}{
+      $({\tt LHS}_o, {\tt LHS}_u) \mapsfrom Approximate({\tt LHS}, d_o, d_u)$;\\
+      \lIf{$SMTSolve({\tt LHS}_o \Rightarrow {\tt RHS}_k) \equiv {\tt T}$}{\Return{${\tt T}$}}
+      \lIf{$SMTSolve({\tt LHS}_u \Rightarrow {\tt RHS}_k) \equiv {\tt F}({\tt \Gamma})$}{\Return{${\tt F}({\tt \Gamma})$}}
+      \lElse{\Return{${\tt F}(\emptyset)$}}
+    }
+    \Case{${\tt Type\ III}$}{
+      \ForEach{${\tt P}_i \Rightarrow {\tt RHS}_i : DecomposeAndRHSBreak({\tt LHS}, {\tt RHS})$}{
+        \uIf{${\tt RHS}_i\ \equiv\ l_1\indEq{}l_2$}{
+          $(R_1,R_2) \mapsfrom GetReconstructionPrograms(l_1,l_2)$;\\
+          \lIf{$IsBisimilar({\tt LHS} \land {\tt P}_i,R_1,R_2) \equiv {\tt F}$}{\Return{${\tt F}(\emptyset)$}}
+        }
+        \Else{
+          \lIf{$Solve({\tt LHS} \land {\tt P}_i, {\tt RHS}_i, k, d_o, d_u) \equiv {\tt F}(\tt \Gamma)$}{\Return{${\tt F}({\tt \Gamma})$}}
+        }
+      }
+      \Return{${\tt T}$}
+    }
+  }
+}
+\end{scriptsize}
+\end{algorithm}
+\caption{\label{algo:proofSummary} Summary of the Proof Discharge Algorithm}
+\end{figure}
