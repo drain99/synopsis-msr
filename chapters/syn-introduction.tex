@@ -1,0 +1,201 @@
+\section{Introduction}
+\label{sec:syn-intro}
+
+The problem of equivalence checking between a functional specification and an
+implementation written in a low level imperative language such as C
+has been of immense research interest
+and has several important applications such as (a) program verification, where
+the equivalence checker is used to verify that the C implementation
+behaves according to the specification and (b) translation validation, where
+the equivalence checker attempts to generate a proof of equivalence across
+the transformations (and translations) performed by an optimizing compiler
+and more. The verification of a C implementation against its manually written
+functional specification through manually-coded refinement proofs has been
+performed extensively in the seL4 microkernel \cite{seL4}.
+Frameworks for program equivalence proofs have been developed in interactive
+theorem provers like Coq \cite{programEquivalenceInCoq} where correlations and invariants
+are manually identified during proof codification.
+On the other hand, programming languages like Dafny \cite{dafny} offer automated program
+reasoning for imperative languages with abstract data types such as sets and arrays.
+Such languages perform automatic compile-time checks for manually-specified correctness predicates through
+SMT solvers.
+% Also, there exists significant prior work on translation validation
+% \cite{tvi,tristan_tv_eqsat11,stepp_eqsat_llvm11,eqsat,pec,zuck03,zuck05,heffter05,covac,c_to_verilog,kanade09,lopes16,tvoc_cav05,ddec,semalign,oopsla20,tv_oskernel,namjoshi13}
+% across low level programming languages such as C and assembly.
+% In most of these applications, soundness in critial,
+% i.e., if the equivalence checker determines the programs to be equivalent, then the programs are indeed equivalent
+% and evidently has equivalent observable behaviour. On the other hand, a sound equivalence checker may be incomplete
+% and fail to prove the programs to be equivalent, even if they were equivalent.
+
+We present \toolName{}, an algorithm to automatically (push-down) search
+for a proof of equivalence between a functional specification and its
+optimized C implementation. We will demonstrate how \toolName{} is capable of
+proving equivalence of multiple equivalent C implementations with vastly
+different (a) data layouts (e.g. array, linked list representations of a {\em list})
+and (b) algorithmic strategies (e.g. alternate algorithms, optimizations) against
+a {\em single} functional specification. On top of program verification and translation
+validation, this opens the possibility of regression verification \cite{strichman_regressverify,felsing14},
+where \toolName{} can be used to automate verification across software updates that change data layouts
+and algorithms. We start by formulating the problem statement and define equivalence in this context.
+Next, we shortly introduce bisimulation in the context of program equivalence.
+We finish this section with our contributions.
+
+\subsection{Problem Setting and Bisimulation}
+\label{sec:syn-setting-bisimulation}
+We restrict our attention to programs that construct, read, and write
+to recursive data structures. In languages like C, pointer and array based
+implementations of these data-structures are prone to safety and liveness bugs.
+Similar recursive data structures are also available in safer functional langugaes like Haskell,
+where algebraic data types (ADTs) \cite{hope} ensure several safety properties.
+We define a minimal functional language, called \SpecL{}, that enables the safe
+and succint specification of programs manipulating and traversing recursive data structures.
+
+\input{chapters/figures/figMallocSpecAndC.tex}
+\input{chapters/figures/figMallocSpecIRAndCIR.tex}
+
+\Cref{fig:llAllocSpec,fig:llAllocC} shows construction of lists in \SpecL{} and C respectively.
+The inputs to a \SpecL{} procedure are its well-typed arguments, which may include recursive data structure
+values. The inputs to a C procedure are its explicit arguments and the implicit state of program memory
+at procedure entry. We lower both \SpecL{} and C programs to a
+Three-Address-Code (3AC) style intermediate representation (IR)
+as shown in \cref{fig:llAllocSpecIR,fig:llAllocCIR}. For a \SpecL{} program,
+(a) all tail-recursive calls are converted to loops in IR while non-tail calls are preserved and
+(b) {\tt match} statements are lowered to equivalent \sumDtor{} conditionals.
+For a C program, (a) the sizes and memory layouts of both scalar (e.g., {\tt int})
+and compound (e.g., {\tt struct}) types are concretized in IR and
+(b) all allocation functions (e.g., {\tt malloc}) are annotated with their
+allocation site i.e. IR PC (e.g., {\tt malloc$_{\tt C4}$} in \cref{fig:llAllocCIR}).
+
+\subsubsection{Equivalence Definition}
+\label{sec:syn-equivalence}
+\toolName{} computes equivalence between the IRs of the \SpecL{} and C sources respectively.
+Henceforth, we will omit the sources and continue to refer to the IRs as \SpecL{} and C directly.
+Given (1) a \SpecL{} program specification $S$, (2) a C implementation $C$,
+(3) a precondition $Pre$ that relates the inputs {\tt Input}$_S$ and {\tt Input}$_C$ to $S$ and $C$
+respectively, and (4) a postcondition $Post$ that relates the final outputs {\tt Output}$_S$
+and {\tt Output}$_C$ of $S$ and $C$ respectively:\\
+$S$ and $C$ are equivalent if for all possible inputs {\tt Input}$_S$ and {\tt Input}$_C$ such that
+$Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C)$ holds,
+$S$'s execution is well-defined on {\tt Input}$_S$ i.e. $(S\ \ {\tt def})$, {\em and} C's
+memory allocation requests during its execution on {\tt Input$_C$} are successful i.e. $(C\ \ {\tt fits})$,
+then both programs $S$ and $C$ produce outputs
+that satisfy $Post$.
+$$
+(Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C) \land (S\ \  \mathrm{\tt def}) \land (C\ \ \mathrm{\tt fits})) \Rightarrow Post(\mathrm{\tt Output}_S, \mathrm{\tt Output}_C)
+$$
+
+\input{chapters/figures/figMallocSpecCFGAndCCFG.tex}
+
+\Cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} shows the Control-Flow Graph (CFG) representation
+of the \SpecL{} and C programs in \cref{fig:llAllocSpecIR,fig:llAllocCIR} respectively.
+Each node represent a PC location of its corresponding program, and each edge represent
+transitions between PCs through instruction execution. For brevity, we often represent
+a sequence of instructions with a single edge, e.g., in \cref{fig:llAllocCCFG}, the edge
+{\small \tt C5$\rightarrow$C3} represents the path
+{\small \tt C5$\rightarrow$C6$\rightarrow$C7$\rightarrow$C8$\rightarrow$C3}.
+A control-flow edge is associated with an {\em edge condition} (the condition under which that edge is taken),
+a {\em transfer function} (how the program state is mutated if that edge is taken),
+and a {\em UB assumption} (what condition should be true for the program
+execution to be well-defined across this edge).
+
+\input{chapters/figures/figMallocProductCFG.tex}
+
+\subsubsection{Bisimulation Relation}
+\label{sec:syn-bisim}
+We construct a {\em bisimulation relation} to identify equivalence between two programs.
+A bisimulation relation correlates the transitions of $S$ and $C$ in lockstep, such that the
+lockstep execution ensures identical observable behavior.
+A bisimulation relation between two programs can be represented using a {\em product program}
+\cite{covac} and the CFG representation of a product program is called a {\em product-CFG}.
+\Cref{fig:llAllocProductCFG} shows a product-CFG, that encodes the lockstep execution
+(bisimulation relation) between the CFGs in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG}.
+
+\input{chapters/figures/figMallocInvs.tex}
+
+\Cref{tab:llproductInv} shows the precondition (labeled \circled{\small P}),
+inductive invariants (labeled \circled{\small I}) and postcondition (labeled \circled{\small E})
+for the product-CFG in \cref{fig:llAllocProductCFG}. The precondition and postcondition are
+provided manually by the user while the intermediate inductive invariants are inferred automatically.
+The invariant labeled \circled{\small I4} is an example of a \recursiveRelation{} and represents
+the equality between the \SpecL{} {\tt list} variable l$_S$ and the {\tt list} represented by
+chasing {\tt lnode} pointers starting at l$_C$.
+{\tt Clist}$^{{\tt lnode}}_m({\tt p})$ is called a {\em lifting constructor} that {\em lifts}
+the C pointer value {\tt p} (pointing to an object of type {\tt struct lnode}) and the C
+memory state $m$ to a \SpecL{} {\tt List} value, and is defined by:
+\begin{small}
+\begin{equation}\label{eqn:clist}
+\begin{split}
+U_C: \mathrm{\tt Clist}^{{\tt lnode}}_m&\mathrm{\tt (p:i32)} = \mathrm{\tt \underline{if}\ (p==0)}\ \mathrm{\tt \underline{then}\ }{\tt LNil} \\
+                                                         & \mathrm{\tt \underline{else}\ {\tt LCons}(}\structPointer{p}{m}{{\tt lnode}}{val},\ {\tt Clist}_m^{\tt lnode}(\structPointer{p}{m}{{\tt lnode}}{next}))
+\end{split}
+\end{equation}
+\end{small}
+The iterative construction of the product-CFG along with inference of inductive invariants at its nodes are based on
+prior work \cite{oopsla20} and discussed briefly in \cref{sec:syn-contribs}. Given a product-CFG
+and inferred invariants, the equivalence checker attempts to prove each inductive invariant and
+postcondition under the appropiate preconditions for each edge in the product-CFG. These proof
+obligations are expressed as relational Hoare triples \cite{relationalHoareLogic,hoareTriple}
+and lowered to a first order logic predicate using weakest precondition predicate transformer.
+For example, $\{\phi_s\} (\rho_S,\rho_C) \{\phi_d\}$
+represents the Hoare triple where $\phi_s$ and $\phi_d$ represents the pre- and postconditions
+and $(\rho_S,\rho_C)$ represents a product-CFG edge correlating the paths $\rho_S$ and $\rho_C$
+in $S$ and $C$ respectively. The above Hoare triple lowers to the following predicate:
+\begin{small}
+\begin{equation}\label{eqn:firstOrderFormula}
+(\phi_s \land pathcond_{\rho_S} \land pathcond_{\rho_C} \land ubfree_{\rho_S}) \Rightarrow {\tt WP}_{{\rho_S,\rho_C}}(\phi_d)
+\end{equation}
+\end{small}
+
+We will use `{\tt LHS}' and `{\tt RHS}' to refer to the antecedant and consequent of the
+implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.
+These proof obligations often contains \recursiveRelations{} encoding equality between
+arbitrarily-deep recursively data structure values of $S$ and $C$ respectively.
+The handling of these proof obligations is a major challenge and forms our primary
+contribution as discussed next in \cref{sec:syn-contribs}.
+
+\subsection{Our Contributions}
+\label{sec:syn-contribs}
+As previously discussed in \cref{sec:syn-bisim}, showing equivalence through a bisimulation proof
+requires three major subsystems:
+\circled{\small 1} An algorithm for construction of a product-CFG by correlating
+program executions across the \SpecL{} and C programs respectively,
+\circled{\small 2} An algorithm for identification of inductive invariants at correlated PCs and
+\circled{\small 3} A proof discharge algorithm for discharging proof obligations containing \recursiveRelations{}.
+We base algorithms \circled{\small 1} and \circled{\small 2} on modified versions of counterexample-guided correlation
+and invariant inference algorithms\cite{oopsla20}. Our primary contributions are as follows:
+
+\begin{itemize}
+\item Proof Discharge Algorithm: Discharging proof obligations (algorithm \circled{\small 3})
+involving \recursiveRelations{} is rather challenging and forms our primary contribution.
+We describe a {\em sound} proof discharge algorithm capable of tackling proof obligations involving
+\recursiveRelations{} using off-the-shelf SMT solvers. Our proof discharge algorithm is also capable of
+reconstruction of counterexamples for the original proof query from models returned by the individual SMT queries.
+These counterexamples improve the scalability of counterexample-guided algorithms for
+\circled{\small 1} and \circled{\small 2} immensely. As part of our proof discharge procedure,
+we reformulate equality of values (i.e. \recursiveRelations{}) as equivalence of their corresponding programs
+and discharge these proof queries using a nested (albeit much simpler) bisimulation check.
+
+\item Spec-to-C Equivalence Checker Tool: Our second contribution is \toolName{}, an equivalence checker tool
+capable of proving equivalence between a \SpecL{} and a C program automatically. \toolName{} is based on
+the Counter tool\cite{oopsla20} and uses its (a) counterexample-guided correlation algorithm for
+incremental construction of a product-CFG and (b) counterexample-guided invariant inference algortihm
+for inference of inductive invariants at correlated PCs in the (partially constructed) product-CFG.
+\toolName{} uses our proof discharge algorithm for discharging proof obligations originating
+due to equivalence check.
+\end{itemize}
+
+\Cref{sec:syn-examples} walks through our proof discharge algorithm by demonstrating each of its
+components using examples. We evaluate our equivalence checking tool \toolName{} in \cref{sec:syn-eval}.
+Finally, we conclude our discussion with \cref{sec:syn-conclusion}.
+
+then in the next section, give one section for the decomposition
+then go straight into the 3 types with brief descriptions
+a small subsection that tells a bit of intricasies maybe
+
+then the final section is evaluation, try to keep as much info as possible, show the strlen example
+and the results table
+
+Conclusion is vague and takes 30mins to write (include future scope)
+
+TODO: today i have to finish writing introduction and the evaluation section maybe?
+evaluation is a lot but its also least change

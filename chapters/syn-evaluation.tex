@@ -1,5 +1,5 @@
 \section{Evaluation}
-\label{sec:eval}
+\label{sec:syn-eval}
 
 We have implemented \toolName{} on top of the
 Counter tool \cite{oopsla20}.
@@ -79,7 +79,7 @@ libraries like {\tt glibc} \cite{glibc}, {\tt klibc} \cite{klibc}, {\tt newlib} 
 {\tt openbsd} \cite{openbsdlibc}, {\tt uClibc} \cite{uclibc},
 {\tt dietlibc} \cite{dietlibc}, {\tt musl} \cite{musl}, and {\tt netbsd} \cite{netbsd}.
 Some of these libraries implement the same function in two ways: one that is optimized
-for code size ({\tt small}) and another that is optimized for runtime ({\tt fast}).
+for code size (subscripted with {\tt s}) and another that is optimized for runtime (subscripted with {\tt f}).
 All these library implementations use a {\em null character} terminated array to represent
 a string, and the
 corresponding lifting constructor is {\tt Cstr}$^{\tt u8[]}_m$.
@@ -156,7 +156,6 @@ through an inorder traversal using recursion. We use two different data layouts 
 complete binary tree is laid out in breadth-first search order commonly used for heaps ({\tt Ctree}$_m^{\tt u32[]}$),
 and (2) a linked tree node with two pointers for the left and right children ({\tt Ctree}$_m^{\tt tnode(u32)}$).
 Both \SpecL{} and C programs contain non-tail recursive procedure calls for left and right children.
-\toolName{} is able to handle such procedure calls as described in \cref{sec:modelfcalls}.
 
 \input{chapters/figures/figLiftingConsMatrix.tex}
 
@@ -173,10 +172,6 @@ respectively. We also introduce two auxiliary lifting constructors, {\tt Clist}$
 for lifting each row of matrices lifted using the corresponding {\tt Cmat}$_m^{\tt u32[r]}$ and {\tt Cmat}$_m^{\tt u32[r]}$ Matrix lifting
 constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
 
-TODO: finish the matfreq listings and refer them here, add the entry precondition also for clarity.
-
-\input{chapters/figures/figMatfreq2C.tex}
-
 \input{chapters/figures/figEvalTable.tex}
 
 \subsection{Results}
@@ -188,23 +183,21 @@ We also show the minimum under-approximation ($d_u$) and over-approximation ($d_
 at which the equivalence proof completed (keeping all other parameters to their
 default values).
 
-During the verification of {\tt strchr} and {\tt strpbrk} implementations,
-we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
-return null pointers to signify absence of the required character(s) in the input string,
-we additionally need to model the UB assumption that the zero
-address does not belong to the null-terminated array representing the string. This
-is modeled as a UB assumption $\neg${\tt ($s_S$ is SInvalid)} in the loop body that traverses the string
-using the {\tt assuming-do} statement discussed in \cref{sec:speclang}.
-This constraints the inputs to only valid string values in $S$ (that do not contain the {\tt SInvalid} constructor)
-during equivalence check.
-The string lifting constructors {\tt Cstr}$_m^{\tt T}\mathrm{(p:i32,...)}$
-relate the {\tt SInvalid} constructor to the condition {\tt (p == 0$_{\tt i32}$)} (as defined in \cref{tab:LiftingConsList}).
-This ensures that the zero address cannot belong to the null-terminated array.
-Furthermore, these lifting constructors are used to assert equality of lists in the $S$ and $C$ programs as
-part of the precondition $Pre$.
-This constrains the inputs of $C$ also to valid strings only (that do not contain a character at the null address)
-during equivalence check due to the $(S\ \  \mathrm{\tt def})$ assumption.
-This is an example where $(S\ \  \mathrm{\tt def})$
-and $Pre$ are used in combination to constrain the inputs of $S$ and $C$ to only well-formed values.
-
-TODO: add the sensitivity graphs i.e. keep one depth at max and increase the other incrementally
+% During the verification of {\tt strchr} and {\tt strpbrk} implementations,
+% we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
+% return null pointers to signify absence of the required character(s) in the input string,
+% we additionally need to model the UB assumption that the zero
+% address does not belong to the null-terminated array representing the string. This
+% is modeled as a UB assumption $\neg${\tt ($s_S$ is SInvalid)} in the loop body that traverses the string
+% using the {\tt assuming-do} statement discussed in \cref{sec:speclang}.
+% This constraints the inputs to only valid string values in $S$ (that do not contain the {\tt SInvalid} constructor)
+% during equivalence check.
+% The string lifting constructors {\tt Cstr}$_m^{\tt T}\mathrm{(p:i32,...)}$
+% relate the {\tt SInvalid} constructor to the condition {\tt (p == 0$_{\tt i32}$)} (as defined in \cref{tab:LiftingConsList}).
+% This ensures that the zero address cannot belong to the null-terminated array.
+% Furthermore, these lifting constructors are used to assert equality of lists in the $S$ and $C$ programs as
+% part of the precondition $Pre$.
+% This constrains the inputs of $C$ also to valid strings only (that do not contain a character at the null address)
+% during equivalence check due to the $(S\ \  \mathrm{\tt def})$ assumption.
+% This is an example where $(S\ \  \mathrm{\tt def})$
+% and $Pre$ are used in combination to constrain the inputs of $S$ and $C$ to only well-formed values.

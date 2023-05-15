@@ -45,9 +45,9 @@ $\mathrm{Clist^{u32[r]}_m(p\ i\ j\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\
 $\mathrm{Cmat^{u32[r]}_m(p\ i\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[r]}_m(p,i,0_{i32},u,v), Cmat^{u32[r]}_m(p,i+1_{i32},u,v))}$} \\
 \hline
 \hline
-$\mathrm{Cmat^{u32[c]}_m(p\ i\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[c]}_m(p,i,0_{i32},u,v), Cmat^{u32[c]}_m(p,i+1_{i32},u,v))}$} \\
-\hline
 $\mathrm{Clist^{u32[c]}_m(p\ i\ j\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (j\geq_{u}v)}$ $\mathrm{\underline{then}\ LNil}$ \\ \Bstrut $\mathrm{\underline{else}\ LCons(p[i+j*u]^m_{i32}, Clist^{u32[c]}_m(p,i,j+1_{i32},u,v))}$} \\
+\hline
+$\mathrm{Cmat^{u32[c]}_m(p\ i\ u\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (i \geq_{u} u)}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[c]}_m(p,i,0_{i32},u,v), Cmat^{u32[c]}_m(p,i+1_{i32},u,v))}$} \\
 \hline
 \hline
 $\mathrm{Cmat^{lnode(u32[])}_m(p\ v:i32)}$ & \makecell[l]{\Tstrut $\mathrm{\underline{if}\ (p==0_{i32})}$ $\mathrm{\underline{then}\ MNil}$ \\ \Bstrut $\mathrm{\underline{else}\ MCons(Clist^{u32[]}_m(\structPointer{\tt p}{m}{\tt lnode}{val},0_{i32},v),}$ \\ \qquad\qquad\ \ \ \  $\mathrm{Cmat^{lnode(u32[])}_m(\structPointer{\tt p}{m}{\tt lnode}{next},v))}$} \\

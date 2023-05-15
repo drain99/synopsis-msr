@@ -1,4 +1,5 @@
 \section{Algorithm through Linked List Examples}
+\label{sec:examples}
 A {\tt List} ADT in the
 \SpecL{} program is defined at line {\tt A0}
 in \cref{fig:llAllocSpec}. An empty list is represented
@@ -71,14 +72,14 @@ can be represented using a
 {\em product program} \cite{covac} and the CFG of a product program is called a {\em product-CFG}.
 \Cref{fig:llAllocProductCFG} shows a product-CFG,
 that encodes the lockstep execution (bisimulation relation) between the
-CFGs in \cref{fig:llAllocSpecIRCFG} and \cref{fig:llAllocCCFG}. 
+CFGs in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG}.
 
 A node in the product-CFG is formed by pairing nodes
 of $S$ and $C$ CFGs, e.g., {\tt (S3:C5)} is formed by
 pairing {\tt S3} and {\tt C5}.
 If the lockstep
 execution is at node {\tt (S3:C5)} in the product-CFG,
-then $S$'s execution is at {\tt S3} and $A$'s execution
+then $S$'s execution is at {\tt S3} and $C$'s execution
 is at {\tt C5}.
 The start node {\tt (S0:C0)} of the product-CFG
 correlates the start nodes of the CFGs of both programs.
@@ -528,17 +529,26 @@ a $k$-unrolling of $P$ (for a fixed unrolling parameter $k$).
 After unrolling,
 we eliminate those decomposition clauses
 $(p^i_1\land{}p^i_2)\rightarrow{}(a^i_1=a^i_2)$ whose
-path condition $(p^i_1\land{}p^i_2)$ evaluates to false
-under simplification.
-We categorize the proof obligation based
-on this $k$-unrolled form of $P$.
+path condition $(p^i_1\land{}p^i_2)$ evaluates to {\tt false}
+under the {\tt LHS} ignoring all \recursiveRelations{}.
 For example, the one-unrolling
 of $P: {\tt LHS}\Rightarrow{}{\tt l_S\indEq{}Clist^{{\tt lnode}}_{m}(0)}$
 after simplification yields
 $P': {\tt LHS}\Rightarrow{}{\tt l_S\ \ is\ \ LNil}$.
 Note that unlike $P$, $P'$ does not contain a \recursiveRelation{} in its {\tt RHS}.
+We categorize a proof obligation $P$ based
+on this $k$-unrolled form of $P$ as follows:\footnote{TODO: make this a para, not a footnote. In general, checking whether a path condition is {\tt false} requires a proof discharge for each clause.
+Instead, we use a syntactic simplifier to identify these decomposition clauses.
+A more sophisticated approach would likely improve the completeness of the overall algorithm at the cost of performance.
+Nevertheless, this imprecise categorization is sound.
+Similarly, a higher value for the parameter $k$ would increase completeness of categorization and the overall proof discharge algorithm.}:
+\begin{itemize}
+    \item Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}
+    \item Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the {\tt LHS}
+    \item Type III: $k$-unrolling $P$ contains \recursiveRelations{} in the {\tt RHS}
+\end{itemize}
 
-\subsection[Handling Category 1 Proof Obligations]{Category 1: $k$-unrolling of $P$ does not contain \recursiveRelations{}}
+\subsection[Handling Type I Proof Obligations]{Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}}
 \label{sec:cat1}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge ${\tt (S0:C0) \rightarrow (S3:C3)}$
@@ -585,14 +595,13 @@ Please refer to {\tt Chapter \ThesisChapterAlgo{}} of the thesis for
 the intricacies of (a) translation of the formlua to SMT logic and (b) reconstruction
 of counterexamples from the models returned by the SMT solver.
 Assuming a capable enough SMT solver,
-all proof obligations in Category 1 can be discharged precisely, i.e.,
+all proof obligations in Type I can be discharged precisely, i.e.,
 we can always decide whether $P$ evaluates to true or false. If it
 evaluates to false, we also obtain a counterexample.
 
 \input{chapters/figures/figSumListSpecAndC.tex}
 
-\subsection[Handling Category 2 Proof Obligations]{Category 2: $k$-unrolling of $P$
-contains a \recursiveRelation{} in the LHS only}
+\subsection[Handling Type II Proof Obligations]{Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the LHS}
 \label{sec:cat2}
 
 Consider the pair of programs in \cref{fig:llTraverseSpec,fig:llTraverseC}
@@ -601,14 +610,14 @@ The corresponding product-CFG and its node
 invariants that ensure observable
 equivalence are shown in \cref{fig:llTraverseProduct,fig:llTraverseProductInv}.
 
-Consider
-the proof obligation $\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$, where
+Consider the proof obligation originating due to \circled{\small I2} invariant across edge ({\tt S2:C2})$\rightarrow$({\tt S2:C2}) in \cref{fig:llTraverseSpecAndC}:
+$\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$, where
 the node invariant $\phi_{{\tt S2:C2}}$ contains
 the \recursiveRelation{} $l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$.
 The corresponding (simplified) first-order logic condition for this
 proof obligation is:
 ($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C}) \land {\tt sum}_S={\tt sum}_C \land \neg({\tt l_S}\ is\ {\tt LNil}) \land {\tt l_C\neq0}) \Rightarrow (({\tt sum}_S + l_S.val) = (sum_C + \structPointer{l}{m}{{\tt lnode}}{val}))$.
-We fail to remove the recursive relation on the {\tt LHS} even after
+We fail to remove the \recursiveRelation{} on the {\tt LHS} even after
 $k$-unrolling for any finite depth $k$ because both sides of $\sim$
 represents list values of arbitrary length.
 In such a scenario, we do not know of an efficient
@@ -632,7 +641,7 @@ Clearly, this proof obligation is false.
 Whenever a proof
 obligation evaluates to false, we
 expect an ideal proof discharge algorithm to generate a
-counterexample that falsifies the proof condition.
+counterexample that falsifies the proof obligation.
 Let's call this
 requirement \circled{\small R2}.
 Recall that such counterexamples help in faster
@@ -746,17 +755,15 @@ are isomorphic till depth $d$ {\em and} the
 corresponding values in both ($d$-depth)
 isomorphic structures
 are also equal.
-$l_1\indEqDepth{d}l_2$ can be identified through d-unrolling followed by removal of all conjunctive clauses containing \recursiveRelations{}.
+$l_1\indEqDepth{d}l_2$ can be identified through a $d$-depth bounded version of iterative unrolling and unification procedure
+described in \cref{sec:unifyAndUnroll} followed by keeping only those correlation tuples that equate scalar expressions during decomposition.
+Along with the expressions and path conditions, we also keep track of the depth parameter which is incremented by one for each successfully unified ADT value constructors. 
+We terminate early if the current depth is greater than $d$.
+In case both expressions are atoms, we eagerly unroll both sides and unify further as long as the current depth is within bounds.
 
-For example, the condition $l\indEqDepth{1}{\tt Clist}^{{\tt lnode}}_{m}({\tt p})$
-can be one-unrolled to:
-\begin{small}
-\begin{center}
-\underline{if} $l$ {\em is} {\tt LNil} \underline{then} {\tt LNil} \underline{else} {\tt LCons($l$.val,$l$.tail)}\\
-$\indEqDepth{1}$\\
-$\mathrm{\tt \underline{if}\ (p==0)\ \underline{then}\ }{\tt LNil}\mathrm{\tt \ \underline{else}\ {\tt LCons}(}\structPointer{p}{m}{{\tt lnode}}{val},\ {\tt Clist}^{{\tt lnode}}_m(\structPointer{p}{m}{{\tt lnode}}{next}))$.
-\end{center}
-\end{small}
+
+For example, the condition $l\indEqDepth{1}{\tt Clist}^{{\tt lnode}}_{m}({\tt p})$ can be computed
+through one-depth bounded iterative unrolling and unification.
 During decomposition, keeping only correlation tuples that equate scalar expressions,
 the condition above
 reduces to the SMT-encodable predicate:
@@ -797,9 +804,9 @@ is equivalent to
 $({\tt p}=0) \vee (\neg({\tt p}\neq 0)\land({\tt p}\xrightarrow[]{m}_{{\tt lnode}}\mathrm{\tt next}=0))$.
 \end{itemize}
 
-\subsubsection{Proof discharge algorithm for Category 2 proof obligations}
+\subsubsection{Proof discharge algorithm for Type II proof obligations}
 \label{sec:cat2algo}
-Thus, for a {\em Category 2} proof obligation
+Thus, for a {\em Type II} proof obligation
 $P: \{\phi_s\} (e) \{\phi_d\}$, we first
 submit the proof obligation
 $(P_{{\tt pre-o}}: \{\phi^{o_{d_1}}_s\} (e) \{\phi_d\})$
@@ -836,6 +843,8 @@ $P_{{\tt pre-u}}$ to true, then we have neither
 proven nor disproven $P$. In this case, we
 imprecisely (but soundly) return false for the
 original proof obligation $P$ (without a counterexample).
+Note that both approximations of $P$ strictly fall in Type I and are
+discharged as discussed in \cref{sec:cat1}.
 Revisiting our examples,
 the proof obligation $\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \\ \{sum_{S} = sum_{C}\}$ is provable using a depth-1 overapproximation of the
 precondition $\phi_{{\tt S2:C2}}$ --- the depth-1 overapproximation retains the
@@ -934,7 +943,7 @@ are executed starting at the machine state represented by this counterexample, t
 values of $sum_S$ and $sum_C$ are {\tt 3+42+43=88} and {\tt 3+42=45} respectively. Evidently, the
 counterexample falsifies the proof condition because these values are not equal (as required by the postcondition).
 \vspace{-6px}
-\subsection[Handling Category 3 Proof Obligations]{Category 3: $k$-unrolling of $P$ contains a \recursiveRelation{} in RHS and optionally in LHS}
+\subsection[Handling Type III Proof Obligations]{Type III: $k$-unrolling $P$ contains \recursiveRelations{} in the RHS}
 \label{sec:cat3}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge ${\tt (S3:C5) \rightarrow (S3:C3)}$
@@ -953,7 +962,7 @@ relations):
 ({\tt i}_S={\tt i}_C \land {\tt p}_C={\tt malloc()} \land {\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \Rightarrow ({\tt LCons}({\tt i}_S, {\tt l}_S) \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt p}_C))
 \end{equation}
 \end{small}
-On the {\tt RHS} of this first-order logic formula, {\tt LCons(i, l$_S$)} is compared for
+On the {\tt RHS} of this first-order logic formula, {\tt LCons(i$_S$, l$_S$)} is compared for
 equality with {\tt Clist$_{m'}^{{\tt lnode}}$(p$_C$)}; here {\tt p$_C$}
 represents the address of the newly allocated {\tt lnode} object (through {\tt malloc}) and $m'$
 represents the C memory state after executing the writes at lines
@@ -970,12 +979,12 @@ equal to $m$ everywhere except at address {\tt a} which contains the value {\tt 
 We also refer to
 these memory writes that distinguish $m$ from $m'$, the {\em distinguishing writes}.
 
-\subsubsection{Replacing \SpecL{} recursive values in the RHS with lifted C values}
+\subsubsection{LHS-to-RHS Substitution and RHS Decomposition}
 \toolName{} utilizes
 the $\indEq{}$ relationships in the {\tt LHS} (antecedant) of ``$\Rightarrow$''
 to rewrite \cref{eqn:ex1cat3}
-so that the recursive {\tt List} values in its {\tt RHS} (conclusion)
-are replaced with the lifted $C$ values (lifted using
+so that the recursive {\tt List} values in its {\tt RHS} (consequent)
+are substituted with the lifted $C$ values (lifted using
 the {\tt Clist} constructor). Thus, we
 rewrite \cref{eqn:ex1cat3} to:
 %\begin{equation}\label{eqn:clistsEqualUnder}
@@ -988,13 +997,14 @@ rewrite \cref{eqn:ex1cat3} to:
 ({\tt i}_S={\tt i}_C \land {\tt p}_C={\tt malloc()} \land {\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \Rightarrow ({\tt LCons}({\tt i}_S, {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt p}_C))
 \end{equation}
 \end{small}
-After decomposition and RHS-breaking, \cref{eqn:ex1cat3}
-reduces to the following smaller proof obligations (showing only the
+Next, we decompose the {\tt RHS} by decomposing the \recursiveRelation{} in the {\tt RHS}
+followed by RHS-breaking. This process reduces \cref{eqn:ex1cat3} into the following
+smaller proof obligations (showing only the
 {\tt RHS}, the {\tt LHS} is the same as in \cref{eqn:ex1cat3}):
 (1) $\neg({\tt p}_C=0)$,
 (2) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ i$_S$\ =\ (p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$value)}, and
 (3) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$next)}.
-The first two proof obligations fall in {\em Category 2} and
+The first two proof obligations fall in {\em Type II} and
 are discharged through over- and under-approximation schemes (as discussed
 in \cref{sec:cat2}):
 \begin{enumerate}
@@ -1038,7 +1048,7 @@ which will be successfully discharged by the SMT solver.}:
 \end{equation}
 \end{small}
 
-Thus, we are interested in proving equality
+Hence, we are interested in proving equality
 between two {\tt List} values in $C$ under different memory states $m$ and $m'$.
 %Note that in general this \recursiveRelation{} may be under an precondition.
 Next, we show how the above can be reformulated to the problem of
@@ -1473,12 +1483,12 @@ in \cref{sec:pointsToFormal}.
 %nodes.  This improves precision, as shown in the example discussed
 %above.
 \vspace{-5px}
-\subsubsection{Proof discharge algorithm for Category 3 obligations}
+\subsubsection{Proof discharge algorithm for Type III obligations}
 \label{sec:cat3summary}
 
 Before the start of an equivalence check, a points-to analysis is run on the $C$ IR once.
 During the equivalence check,
-to discharge a Category 3 proof obligation $P: {\tt LHS}\Rightarrow{\tt RHS}$ (expressed
+to discharge a Type III proof obligation $P: {\tt LHS}\Rightarrow{\tt RHS}$ (expressed
 in first-order logic), we first replace the recursive
 values of program $S$ in the {\tt RHS}
 with lifted C values, based on the equalities present in the {\tt LHS}, to
@@ -1497,8 +1507,7 @@ Let $P_3$ represent any such smaller proof obligation.
 a decomposition clause,
 must relate atomic expressions on the {\tt RHS}.
 If $P_3$ relates two scalar values in the {\tt RHS}, then
-it is
-a Category 2 proof obligation and can be discharged
+it is a Type II proof obligation and can be discharged
 using the algorithm in \cref{sec:cat2algo}.
 
 If $P_3$ relates two lifted

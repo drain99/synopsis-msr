@@ -54,33 +54,19 @@ how I plan to introduce the program graph concept, should i put it in synopsis?
 
 Synopsis Contents:
 
-Introduction
-Problem Setting and Equivalence Definition
-Algorithm through Examples
-  CFG Representation
-  Product-CFG and Bisimulation
-  Lifting Constructors and Recursive Relations
-  Proof Obligations
-  Unrolling and Unification
-  Decomposition of Recursive Relations
-  Category I
-  Category II
-    d-depth Under- and Over-Approximation
-  Category III
-    LHS to RHS Rewriting
-    RHS Decomposition
-    Conversion of Recursive Relations to Bisimulation
-    Reconstruction Program
-    Points-to Information in C
-  SMT Encoding of Expressions and Reconstruction of Counterexamples
-  Proof Discharge Algorithm Summary
-Formalism
-  Spec Language
-  Modelling Procedure Calls
-  Points-to Analysis
-  Counterexample-guided Best First Search Algorithm for Product-CFG
-  Counterexample-guided Invariant Inference And Counterexample Generation
-Evaluation
-  Lifting Constructors and Specifications
-  A String Example : strlen
-Conclusion and Future Scope
+Introduction (5 pages)
+  Introduce the top-level problem : taken from intro + related work
+  Take the example and define the constrains of the problem we are setting to solve : intro with example
+  Shortly on IRs, CFGs and product program : existing text
+  Our contributions : proof discharge algorithm + recovery of counterexamples to aid in our algorithm
+Proof Discharge Algorithm (10 pages)
+  Shortly describe lifting constructors and recursive relations
+  Introduce decomposition archieved through partial unification under a rewriting system
+  Go through each of the 3 types in vague detail taking examples for each and writing about them
+  Talk on the usefulness of the counterexamples : counterexample-guided correlation and invariant inference procedures (borrow heavily from Counter, state shortly on what differs)
+Evaluation : put a lot of focus, try to almost everything in including the table except the lifting constructor : MUST SHOW THE STRLEN EXAMPLE (5 pages)
+Conclusion : limitations (scaling for size of SMT queries, non-bisimilar specification and implementation), then whatevers is in conclusion (1 pages)
+
+TODOS:
+end of week finish this synopsis thingy
+end of next week finish the program graph chapter
