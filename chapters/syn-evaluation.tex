@@ -15,7 +15,8 @@ The default value of
 our unrolling parameter $k$ (used for categorization of proof obligations) is five.
 
 \toolName{} requires the user to provide a \SpecL{} program (specification), a C implementation,
-and a file that contains the precondition and postcondition.
+and a file that contains the precondition and postcondition. All inductive invariants
+at intermediate nodes in the product-CFG are inferred automatically.
 We consider programs involving four distinct ADTs, namely,
 \inv{\small T1} String, \inv{\small T2} List, \inv{\small T3} Tree
 and \inv{\small T4} Matrix.
@@ -25,21 +26,23 @@ and \inv{\small T4} Matrix.
 % {\tt Nil} (representing an empty string) and {\tt Cons} (representing
 % a recursive construction formed through a product of a character byte and a string).
 
-For each C implementation, an equivalence check requires the identification of
-lifting constructors that relate C values to the ADT values in \SpecL{}.
-The relations between a \SpecL{} value and a lifted value derived from C values (and current memory state)
-may be required at the entry of both programs (i.e., in the precondition $Pre$),
-in the middle of both programs (i.e., in the inferred invariants at intermediate product-CFG
-nodes), and at the exit of both programs (i.e., in the postcondition $Post$).
-$Pre$ and $Post$ are user-specified, but the inductive invariants are inferred
-automatically by our algorithm.
-Our invariant inference algorithm derives
-the shape of the lifting constructors from the user-specified $Pre$ and $Post$,
-and uses these shapes in enumerating relational guesses at product-CFG nodes.
+% For each C implementation, an equivalence check requires the identification of
+% lifting constructors that relate C values to the ADT values in \SpecL{}.
+% The relations between a \SpecL{} value and a lifted value derived from C values (and current memory state)
+% may be required at the entry of both programs (i.e., in the precondition $Pre$),
+% in the middle of both programs (i.e., in the inferred invariants at intermediate product-CFG
+% nodes), and at the exit of both programs (i.e., in the postcondition $Post$).
+% $Pre$ and $Post$ are user-specified, but the inductive invariants are inferred
+% automatically by our algorithm.
+% Our invariant inference algorithm derives
+% the shape of the lifting constructors from the user-specified $Pre$ and $Post$,
+% and uses these shapes in enumerating relational guesses at product-CFG nodes.
 % The \recursiveRelations{} in the precondition,
 % postcondition, and invariants may relate \SpecL{} ADT variables with the
 % values lifted (through a lifting constructor) from C variables (and current
 % memory state).
+
+\input{chapters/figures/figLiftingConsStr.tex}
 
 \subsection{Experiments}
 For each \SpecL{} program specification, we consider multiple
@@ -68,7 +71,7 @@ constructors, and (c) different algorithmic strategies.
 % arrays of type {\tt T}, flattened using row-major and column-major
 % formats respectively.
 
-\input{chapters/figures/figLiftingConsStr.tex}
+\input{chapters/figures/figStrlenSpecAndC.tex}
 
 \subsubsection{String} We wrote a single specification in \SpecL{} for each of the
 following
@@ -88,7 +91,7 @@ For example, {\tt u8} represents {\tt unsigned char} type.
 
 Further, we implemented
 custom C programs for all of these functions that used
-linked-list
+linked list
 and {\em chunked linked list} data structures
 to represent a string.
 In a chunked linked list, a single list node (linked
@@ -98,14 +101,14 @@ We use a default chunk size of four for our
 benchmarks.
 The corresponding lifting constructors are {\tt Cstr}$^{\tt lnode(u8)}_m$
 and {\tt Cstr}$^{\tt clnode(u8)}_m$ respectively.
-All three {\tt Cstr} lifting constructors are defined in \cref{tab:LiftingConsStr}.
+The {\tt Cstr} lifting constructors are defined in \cref{tab:LiftingConsStr}.
 {\tt Cstr}$^{\tt lnode(u8)}_m$ requires a single
-argument $p$ representing the $C$ pointer to the list node.
+argument $p$ representing the pointer to the list node.
 On the other hand, {\tt Cstr}$^{\tt clnode(u8)}_m$ requires two arguments $p$
 and $i$ where $p$ represents the pointer to the chunked linked list node
 and $i$ represents the position of the initial character in the chunk.
 
-Usually, we label a lifting constructor based on its underlying data layout.
+Usually, we name a lifting constructor based on its underlying data layout.
 For example, {\tt Cstr}$^{\tt clnode(u8)}_m$ represents a lifting constructor
 with a chunked linked list of characters as its underlying data layout.
 In general, we use the following naming convension for different data layouts.
@@ -114,23 +117,20 @@ In general, we use the following naming convension for different data layouts.
 Similarly, {\tt clnode(T)} and {\tt tnode(T)} represent a chunked linked list and a tree node
 containing values of type {\tt T} respectively.
 
-\input{chapters/figures/figStrlenSpecAndC.tex}
+\input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
 \Cref{fig:strlenSpecAndC} shows the {\tt strlen} specification and two vastly
 different $C$ implementations. \cref{fig:llStrlenCArrIR} is a generic implementation
 using a null character terminated array to represent a string similar to a C-style string.
 The second implementation in \cref{fig:llStrlenCClistIR} differs from \cref{fig:llStrlenCArrIR}
 in the following: (a) it uses a chunked linked list data layout for string values
-and (b) it uses an optimized bit manipulation algorithm to identify whether one of the four
-character bytes is zero (i.e. null) in a chunk at a time. \toolName{} is able to automatically
-search for and find a bisimulation relation showing equivalence
+and (b) it uses specialized bit manipulations to identify a zero character in a chunk at a time.
+\toolName{} is able to automatically find a bisimulation implying equivalence
 for both implementations against the unaltered specification.
-\Cref{fig:StrlenProductCFGsAndInvs} shows the Product CFGs and Invariants for these two implementations.
-
-\input{chapters/figures/figStrlenCfgsWithInvs.tex}
+\Cref{fig:StrlenProductCFGsAndInvs} shows the product-CFG and invariants for each implementation.
 
 \input{chapters/figures/figLiftingConsList.tex}
-
+\vspace{-10px}
 \subsubsection{List} We wrote a \SpecL{} program specification that creates a list, a
 program that traverses a list to compute the sum of its elements and a program
 that computes the dot product of two lists. We use three different
@@ -149,7 +149,7 @@ String lifting constructors, all of which uses {\em null character} to
 encode the empty string.
 
 \input{chapters/figures/figLiftingConsTree.tex}
-
+\vspace{-10px}
 \subsubsection{Tree} We wrote a \SpecL{} program that sums all the nodes in a tree
 through an inorder traversal using recursion. We use two different data layouts for a tree: 
 (1) a flat array where a
@@ -158,7 +158,7 @@ and (2) a linked tree node with two pointers for the left and right children ({\
 Both \SpecL{} and C programs contain non-tail recursive procedure calls for left and right children.
 
 \input{chapters/figures/figLiftingConsMatrix.tex}
-
+\vspace{-10px}
 \subsubsection{Matrix} We wrote a
 \SpecL{} program to count the frequency of a value appearing in a 2D matrix.
 A matrix is represented as an ADT that resembles a {\tt List} of {\tt List}s (\inv{\small T4} in \cref{tab:LiftingConsMatrix}).
@@ -173,8 +173,9 @@ for lifting each row of matrices lifted using the corresponding {\tt Cmat}$_m^{\
 constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
 
 \input{chapters/figures/figEvalTable.tex}
-
+\vspace{-12px}
 \subsection{Results}
+\vspace{-10px}
 \Cref{tab:results} lists the various C implementations and the time it took
 to compute equivalence with their \SpecL{} counterparts. For functions that
 take two or more data structures as arguments, we show

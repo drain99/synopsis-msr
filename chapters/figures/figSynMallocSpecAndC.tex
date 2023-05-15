@@ -1,0 +1,75 @@
+\begin{figure}[H]
+\begin{tabular}{cc}
+\begin{subfigure}[b]{0.565\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{A0}}~ type List = LNil | LCons (val:i32, tail:List).
+~{\tiny \textcolor{mygray}{A1}}~
+~{\tiny \textcolor{mygray}{A2}}~ fn mk_list_impl (n:i32) (i:i32) (l:List):List=
+~{\tiny \textcolor{mygray}{A3}}~    if ${\tt i \geq_u n}$ then l
+~{\tiny \textcolor{mygray}{A4}}~    else make_list_impl(n, i+${\tt 1_{i32}}$, LCons(i, l)).
+~{\tiny \textcolor{mygray}{A5}}~
+~{\tiny \textcolor{mygray}{A6}}~ fn mk_list (n:i32):List=
+~{\tiny \textcolor{mygray}{A7}}~    mk_list_impl(n, ${\tt 0_{i32}}$, LNil).
+\end{allLangEnvScript}
+\end{center}
+\caption{\label{fig:llAllocSpec}Spec Program}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.435\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{S0}}~ List mk_list (i32 n) {
+~{\tiny \textcolor{mygray}{S1}}~   List l $\coloneqq$ LNil;
+~{\tiny \textcolor{mygray}{S2}}~   i32  i $\coloneqq$ ${\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{S3}}~   while $\mathrm{\tt \neg (i \geq_{u} n)}$:
+~{\tiny \textcolor{mygray}{S4}}~     l $\coloneqq$ LCons(i, l);
+~{\tiny \textcolor{mygray}{S5}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{S6}}~   return l;
+~{\tiny \textcolor{mygray}{SE}}~ }
+\end{allLangEnvScript}
+\end{center}
+\caption{\label{fig:llAllocSpecIR}(Abstracted) Spec IR}
+\end{subfigure}%
+\\
+\begin{subfigure}[b]{0.565\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{B0 }}~ typedef struct lnode {
+~{\tiny \textcolor{mygray}{B1 }}~   unsigned val; struct lnode* next; } lnode;
+~{\tiny \textcolor{mygray}{B2 }}~ 
+~{\tiny \textcolor{mygray}{B3 }}~ lnode* mk_list(unsigned n) {
+~{\tiny \textcolor{mygray}{B4 }}~   lnode* l = NULL;
+~{\tiny \textcolor{mygray}{B5 }}~   for (unsigned i = 0; i < n; ++i) {                       $\phantom{m \coloneqq \mathrm{\tt m[ \&\structPointer{\tt p}{m}{\tt lnode}{val} \leftarrow i]_{i32}};}$
+~{\tiny \textcolor{mygray}{B6 }}~     lnode* p = malloc(sizeof lnode);                       $\phantom{m \coloneqq \mathrm{\tt m[\&\structPointer{\tt p}{m}{\tt lnode}{next} \leftarrow l]_{i32}};}$
+~{\tiny \textcolor{mygray}{B7 }}~     p$\rightarrow$val = i; p$\rightarrow$next = l; l = p;
+~{\tiny \textcolor{mygray}{B8 }}~   }
+~{\tiny \textcolor{mygray}{B9}}~   return l;
+~{\tiny \textcolor{mygray}{B10}}~ }
+\end{allLangEnvScript}
+\end{center}
+\caption{\label{fig:llAllocC}C Program with {\tt malloc()}}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.435\textwidth}
+\begin{center}
+\begin{allLangEnvScript}
+~{\tiny \textcolor{mygray}{C0}}~ i32 mk_list (i32 n) {
+~{\tiny \textcolor{mygray}{C1}}~   i32 l $\coloneqq$ ${\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{C2}}~   i32 i $\coloneqq$ ${\tt 0_{i32}}$;
+~{\tiny \textcolor{mygray}{C3}}~   while ${\tt i <_{u} n}$:
+~{\tiny \textcolor{mygray}{C4}}~     i32 p $\coloneqq$ malloc$_{\tt C4}$(sizeof lnode);
+~{\tiny \textcolor{mygray}{C5}}~     m $\coloneqq$ $\mathrm{\tt m[ \&\structPointer{\tt p}{m}{\tt lnode}{val} \leftarrow i]_{i32}}$;
+~{\tiny \textcolor{mygray}{C6}}~     m $\coloneqq$ $\mathrm{\tt m[\&\structPointer{\tt p}{m}{\tt lnode}{next} \leftarrow l]_{i32}}$;
+~{\tiny \textcolor{mygray}{C7}}~     l $\coloneqq$ p;
+~{\tiny \textcolor{mygray}{C8}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C9}}~   return l;
+~{\tiny \textcolor{mygray}{CE}}~ }
+\end{allLangEnvScript}
+\end{center}
+\caption{\label{fig:llAllocCIR}(Abstracted) C IR}
+\end{subfigure}%
+\\
+\end{tabular}
+\caption{\label{fig:llAllocSpecAndC}Spec and C programs for constructing a linked list along with their corresponding abstracted intermediate representations.}
+\end{figure}

@@ -1,14 +1,15 @@
 \documentclass[a4paper,12pt]{article}
+\usepackage{geometry}
 % \usepackage[left=1.5in, right=1in, top=1in, bottom=1in, headheight=13.6pt]{geometry}
 % \usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
-
+% \usepackage[none]{hyphenat}
 % \usepackage[margin=1in]{geometry}
 % \documentclass[a4paper,twoside]{book}
 % \documentclass[a4paper,titlepage,openright,12pt]{MSThesis}
-\usepackage{graphicx}    
+\usepackage{graphicx}
 \usepackage{epsfig}   
 \usepackage[size=small,labelfont=bf,justification=centering]{caption}
-\usepackage[size=footnotesize,labelfont=bf,justification=centering]{subcaption}
+\usepackage[size=footnotesize,labelfont=bf,justification=centering,skip=-10px]{subcaption}
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{fancyhdr}                              
@@ -29,13 +30,13 @@
 \usepackage{mathtools}
 % \usepackage{captcont}
 \usepackage{verbatim}
-% \usepackage{titlesec}
+\usepackage{titlesec}
 \usepackage{url}
-\usepackage{hyperref}
 \usepackage{listings}
 \usepackage[inline]{enumitem}
 \usepackage{stmaryrd}
-%\usepackage[colorlinks=false]{hyperref}
+% \usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{lipsum}
 \usepackage{lscape}
 \usepackage{color}
@@ -60,6 +61,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \titlespacing\section{0pt}{5pt plus 5pt}{5pt plus 5pt}
+% \titlespacing\subsection{0pt}{5pt plus 5pt}{5pt plus 5pt}
+\titlespacing\subsubsection{0pt}{5pt plus 4pt minus 2pt}{5pt plus 2pt minus 2pt}
 
 \setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
 \setlength{\textheight}{8.5in}
@@ -106,6 +111,8 @@
 
 \let\cleardoublepage\clearemptydoublepage
 
+\setlength{\abovecaptionskip}{2px plus 2px}
+\setlength{\belowcaptionskip}{2px plus 2px}
 
 \date{}
 
@@ -121,7 +128,7 @@
 \makeatletter
 \renewcommand\@makefntext[1]{\leftskip=2em\hskip-2em\@makefnmark#1}
 \makeatother
-
+\sloppy\hyphenpenalty=100 \emergencystretch5em
 \input{common_macros.tex}
 
 % \hypersetup{draft}
@@ -141,21 +148,23 @@
 % \pagenumbering{roman}
 % \thispagestyle{empty}
 
+\newgeometry{right=3.5cm,left=3.5cm}
 \include{others/abstract}
 \thispagestyle{empty}
 
-\setcounter{tocdepth}{2}
+\setcounter{tocdepth}{3}
 \tableofcontents
 \newpage
 
 \setcounter{page}{1}
 \pagenumbering{arabic}
+\newgeometry{right=3cm,left=3cm}
 \input{chapters/syn-introduction.tex}
 \input{chapters/syn-examples.tex}
 \input{chapters/syn-evaluation.tex}
 \input{chapters/syn-conclusion.tex}
-\include{chapters/organization-thesis}
-\include{chapters/publications}
+\input{chapters/organization-thesis}
+% \include{chapters/publications}
 % \input{chapters/introduction}
 % \input{chapters/problem-setting}
 % \input{chapters/examples}
@@ -165,7 +174,7 @@
 % \include{chapters/organization-thesis}
 % \include{chapters/publications}
 % \begin{singlespace}
-\bibliographystyle{abbrvnat}
+\bibliographystyle{iitd}
 \bibliography{main}
 % \end{singlespace}
 % \include{chapters/Appendix}

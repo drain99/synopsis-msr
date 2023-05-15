@@ -14,34 +14,32 @@ is written in C using arrays and pointers.
 Our algorithm, based on prior work on
 counterexample guided equivalence checking,
 automatically searches for a bisimulation
-relation between the two programs. Our
-primary contribution is an algorithm to
-discharge proof obligations containing relations
+relation between the two programs.
+We formulate an algorithm for discharging
+proof obligations containing relations
 between recursive data structure values across
-the two diverse syntaxes.
+the two diverse syntaxes, which forms our first contribution.
 Our proof discharge algorithm is capable
 of generating falsifying counterexamples in case of
 a proof failure.
 As part of our proof discharge algorithm,
-we formulate an elegent program representation of
-ADT values.
+we formulate an elegant program representation of values.
 This allows us to reformulate proof obligations
 due to the top-level equivalence check
 into smaller nested equivalence checks.
-We evaluate our equivalence checker on
+Based on this algorithm,
+we implement an automatic (push-bottom) equivalence checker tool named \toolName{},
+which forms our second contribution.
+\toolName{} is evaluated on
 implementations of common string library
 functions taken from popular C library implementations,
 as well as,
-implementations of common list, tree and matrix
-operations.
+implementations of common list, tree and matrix programs.
 These implementations differ in data layout
 of recursive data structures as well as
 algorithmic strategies.
-We demonstrate that our equivalence checker,
-based on this algorithm,
-is able to compute equivalence between an abstract
-specification program and all of its diverse
-C implementations.
+We demonstrate that \toolName{} is able to establish equivalence
+between a single specification and all of its diverse C implementations.
 
 % We describe an algorithm for checking equivalence of two
 % programs that manipulate recursive data structures like

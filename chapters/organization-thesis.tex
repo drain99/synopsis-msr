@@ -1,26 +1,32 @@
-\section*{Outline of the Thesis}
+\vspace{-12px}
+\section{Outline of the Thesis}
+\vspace{-10px}
 \label{sec:outlinethesis}
-\textbf{Chapter 1} of the thesis contains a general introduction to the research problem of automatically verifying C functions against a functional specification.
-We take a C program and its analogue in a safe functional language, and contrast their differences. This helps us motivate the need to solve this problem.
-We finish by stating our contribution: a proof discharge algorithm.
+\textbf{Chapter 1} of the thesis contains a general introduction to the research problem of verification C programs against a functional specification.
+We take a C program and its analogue in a safe functional language, and contrast their differences. This helps us motivate the problem and its solution.
+We finish with our contributions.
 
-In \textbf{Chapter 2}, we constrain the programs being considered by formulating the problem statement. This helps us clearly define the
-subproblem being solved. Next we define the necessary context and terminology (e.g., equivalence) for the rest of the thesis.
+In \textbf{Chapter 2}, we constrain the programs being considered by formulating the problem statement. This helps us define the scope of our solution.
+We introduce a custom minimal functional language called `Spec' and define the necessary terminology used in the rest of the thesis.
 
-\textbf{Chapter 3} starts with some basic concepts related to equivalence such as bisimulation and product program.
-The rest of the chapter gradually introduces the proof discharge algorithm and related subprocedures while
-going through two example program pairs for demonstration.
+\textbf{Chapter 3} starts with background on program equivalence, bisimulation relation and product program.
+The rest of the chapter gradually introduces our first contribution: A Proof Discharge Algorithm and related subprocedures with the help
+of two example programs.
 
-Next, we formalize previously discussed topics in \textbf{Chapter 4}. We begin with the description of our custom language `Spec'. This is followed by
+Next, we formalize previously discussed topics in \textbf{Chapter 4}. We begin with a detailed description of our custom language `Spec'. This is followed by
 algorithms required in tandem with our proof discharge algorithm for an automatic equivalence checker such as a best-first search algorithm
 for finding a bisimulation relation and an automatic invariant inference procedure. We finish this chapter with a dataflow analysis formulation
-of our pointer analysis.
+of a pointer analysis used by our equivalence checker.
 
-In \textbf{Chapter 5}, we evaluate our automatic equivalence checker based on the proof discharge algorithm on a large variety of C programs involving
-lists, strings, trees and matrices.
+\textbf{Chapter 5} introduces a program graph representation of values, called `deconstruction procedure', similar to the one introduced in \textbf{Chapter 3}.
+We motivate it by listing its advantages and give an algorithm to convert values to this representation. We finish by reformulating our
+proof discharge algorithm using the said representation.
+
+In \textbf{Chapter 6}, we introdice our automatic equivalence checker tool named \toolName{}, based on prior work and our proof discharge algorithm.
+\toolName{} is evaluated on a large variety of C programs involving lists, strings, trees and matrices.
 This includes C programs taken from C library implementations as well as manually written programs. We show that our equivalence checker is able
 to prove equivalence of a single specification with multiple of C implementations, each varying in its data layouts and algorithmic
 strategies.
 
-Finally, \textbf{Chapter 6} concludes the research and discusses some related works. We note our major ideas and contributions finishing with
+Finally, \textbf{Chapter 7} discusses the limitations of our algorithm and compares it with some related work. We note our major ideas and finish with
 some potential future improvements to our algorithm.
