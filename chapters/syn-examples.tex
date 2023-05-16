@@ -16,7 +16,7 @@ must be one of $\phi^{1}_s$, $\phi^{2}_s$, ..., or $\phi^{k}_s$. We call
 this the {\em conjunctive \recursiveRelation{}} property of an invariant $\phi_s$.
 
 A proof obligation
-\HoareTriple{$\phi_s$}{$e$}{$\phi_d$}, where $e=(\rho_S,\rho_C)$,
+$\hoareTriple{\phi_s}{e}{\phi_d}$, where $e=(\rho_S,\rho_C)$,
 gets lowered using
 ${\tt WP}_{e}(\phi_d)$ (as shown in \cref{eqn:firstOrderFormula}) to a first-order logic formula of the following form:
 \begin{equation}
@@ -79,7 +79,7 @@ Before diving into the proof discharge algorithm, we start with decomposition of
 Decomposition is a key procedure in multiple components of our proof discharge algorithm.
 \begin{equation}
 \label{eqn:specDeconstruct}
-U_S: {\tt l\ =\ \underline{if}\ l}\ \ is\ \ {\tt LNil\ \ \underline{then}\ \ LNil\ \ \underline{else}\ \ LCons(l.val,l.tail)}
+U_S: {\tt l\ =\ \underline{if}\ l}\ is\ {\tt LNil\ \ \underline{then}\ \ LNil\ \ \underline{else}\ \ LCons(l.val,l.tail)}
 \end{equation}
 A \recursiveRelation{} of the form $l_1 \indEq{} l_2$ can be {\em decomposed} into an
 equivalent set of {\em decomposition clauses}, each of the form {\small $(P \rightarrow A = B)$ or $(P \rightarrow A \indEq{} B)$}.
@@ -89,7 +89,7 @@ as well as expansion of ADT variables using the \sumDtor{} operator as shown in 
 Unification proceeds by iteratively (1) unifying the structurs created by the ADT value constructors as well as the \sumDtor{}
 operator and (2) expanding the current subterms using the rewriting rules in $E$ as needed.
 For example, \sumDtorExpr{$c_1$}{${\tt LNil}$}{${\tt LCons}(0,l_S)$}$\indEq{}$\sumDtorExpr{$c_2$}{${\tt LNil}$}{${\tt LCons}(i_C,{\tt Clist}_m^{\tt lnode}(l_C))$}
-decomposes into $\bigwedge\{c_1=c_2, (c_1 \land c_2) \rightarrow (0=i_C), (c_1 \land c_2) \rightarrow l_S \indEq{} {\tt Clist}_m^{\tt lnode}(l_C)\}$.
+decomposes into $\bigwedge\{c_1=c_2, (c_1 \land c_2) \rightarrow 0=i_C, (c_1 \land c_2) \rightarrow l_S \indEq{} {\tt Clist}_m^{\tt lnode}(l_C)\}$.
 Similarly, the decomposition of $l_S\indEq{}{\tt LCons}(42,{\tt Clist}_m^{\tt lnode}(l_C))$ is given by
 $\bigwedge \{l_S\ {\tt is}\ {\tt LCons}, (l_S\ {\tt is}\ {\tt LCons}) \rightarrow (l.val=42), (l_S\ {\tt is}\ {\tt LCons}) \rightarrow (l.next \indEq{} {\tt Clist}_m^{\tt lnode}(l_C))\}$.
 We {\em decompose} a proof obligation $P$ by decomposing each \recursiveRelation{} in $P$.
@@ -106,7 +106,7 @@ $P': {\tt LHS} \Rightarrow l_S\ {\tt is}\ {\tt LNil}$. We categorize a proof obl
 \setlength{\itemsep}{0px}
 \item Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}
 \item Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the {\tt LHS}
-\item Type III: $k$-unrolling $P$ contains \recursiveRelations{} in the {\tt RHS}
+\item Type III: $k$-unrolling of $P$ contains \recursiveRelations{} in the {\tt RHS}
 \end{itemize}
 \vspace{-10px}
 Next, we briefly describe the key ideas for each of the three types of proof obligations in \cref{sec:syn-cat1,sec:syn-cat2,sec:syn-cat3}.
@@ -119,7 +119,7 @@ In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge ${\tt (S0:C0) \rightarrow (S3:C3)}$
 while checking if the ${\small \circled{I4}}$ invariant in \cref{tab:llproductInv}
 holds at {\tt (S3:C3)}:
-\HoareTriple{$\phi_{{\tt S0:C0}}$}{${\tt S0\rightarrow S3}, {\tt C0\rightarrow C3}$}{$l_{S}\indEq{}{\tt Clist }^{{\tt lnode}}_{m}(l_{C})$}.
+$\hoareTriple{\phi_{{\tt S0:C0}}}{{\tt S0\rightarrow S3}, {\tt C0\rightarrow C3}}{l_{S}\indEq{}{\tt Clist }^{{\tt lnode}}_{m}(l_{C})}$.
 The precondition $\phi_{{\tt S0:C0}}\equiv(n_S=n_C)$ does not contain
 a \recursiveRelation{}.
 When lowered to first-order logic through {\tt WP$_{{\tt S0\rightarrow S3},{\tt C0\rightarrow C3}}$}, this translates to
@@ -130,7 +130,7 @@ The one-unrolled form of this proof obligation yields
 $(n_S=n_C)\Rightarrow{}{\tt LNil}\indEq{}{\tt LNil}$ which trivially resolves to true.
 
 Consider another example of a proof obligation,
-\HoareTriple{$\phi_{{\tt S0:C0}}$}{${\tt S0\rightarrow S3\rightarrow S5\rightarrow S3}, \\{\tt C0\rightarrow C3}$}{$l_{S}\indEq{}{\tt Clist}^{{\tt lnode}}_{m}(l_{C})$}.
+$\hoareTriple{\phi_{{\tt S0:C0}}}{{\tt S0\rightarrow S3\rightarrow S5\rightarrow S3}, \\ {\tt C0\rightarrow C3}}{l_{S}\indEq{}{\tt Clist}^{{\tt lnode}}_{m}(l_{C})}$.
 Notice, we have changed the path in $S$ to ${\tt S0\rightarrow S3\rightarrow S5\rightarrow S3}$ here.
 In this case, the corresponding first-order logic condition evaluates
 to: ``$(n_S=n_C)\Rightarrow({\tt LCons(0, LNil)}\indEq{}{\tt Clist}^{{\tt lnode}}_{m}(0))$''.
@@ -174,7 +174,7 @@ invariants that ensure observable
 equivalence are shown in \cref{fig:llTraverseProduct,fig:llTraverseProductInv}.
 
 Consider the proof obligation originating due to \circled{\small I2} invariant across edge ({\tt S2:C2})$\rightarrow$({\tt S2:C2}) in \cref{fig:llTraverseProduct}:
-$\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$, where
+$\hoareTriple{\phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}}{um_{S} = sum_{C}}$, where
 the node invariant $\phi_{{\tt S2:C2}}$ contains
 the \recursiveRelation{} $l_{S}\indEq{}{\tt Clist}^{{\tt lnode}}_{m}(l_{C})$.
 The corresponding (simplified) first-order logic condition for this
@@ -193,7 +193,7 @@ requirement \circled{\small R1}.
 
 Now, consider the proof obligation formed by correlating two iterations
 of the loop in program $S$ with one iteration of the loop in program $C$,
-$\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$.
+$\hoareTriple{phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}}{sum_{S} = sum_{C}}$.
 Similar to the last proof obligation, its equivalent first-order logic condition contains a \recursiveRelation{} in the {\tt LHS}.
 Clearly, this proof obligation should evaluate to {\tt false}.
 % The equivalent
@@ -211,9 +211,9 @@ Recall that such counterexamples help in faster
 convergence of our invariant inference and correlation algorithms.
 
 To tackle requirements \circled{\small R1} and \circled{\small R2},
-our proof discharge algorithm converts the original proof obligation $P: \{\phi_s\} (e) \{\phi_d\}$
-into two approximated proof obligations $(P_{{\tt pre-o}}: \{\phi^{o_{d_1}}_s\} (e) \{\phi_d\})$
-and $(P_{{\tt pre-u}}: \{\phi^{u_{d_2}}_s\} (e) \{\phi_d\})$.
+our proof discharge algorithm converts the original proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$
+into two approximated proof obligations $(P_{{\tt pre-o}}: \hoareTriple{\phi^{o_{d_1}}_s}{e}{\phi_d})$
+and $(P_{{\tt pre-u}}: \hoareTriple{\phi^{u_{d_2}}_s}{e}{\phi_d})$.
 Here $\phi^{o_{d_1}}_s$ and
 $\phi^{u_{d_2}}_s$ represent the over- and under-approximated
 versions of precondition $\phi_s$ respectively, and $d_1$ and $d_2$ represent
@@ -237,15 +237,15 @@ scalar (bitvector, bool typed) expressions and can be encoded in SMT logic.
 For example, the condition $l\indEqDepth{1}{\tt Clist}^{{\tt lnode}}_{m}({\tt p})$
 reduces to the SMT-encodable predicate:
 $
-((l\ \ is\ \ {\tt LNil}) \Leftrightarrow {\tt (p = 0)}) \land (\neg(l\ \ is\ \ {\tt LNil})\Rightarrow(l{\tt.val}=\structPointer{p}{m}{{\tt lnode}}{val}))
-$
+((l\ is\ {\tt LNil}) \Leftrightarrow {\tt (p = 0)}) \land (\neg(l\ is\ {\tt LNil})\Rightarrow(l{\tt.val}=\structPointer{p}{m}{{\tt lnode}}{val}))
+$.
 Similarly, $\depthBound{2}{l}$ is equivalent to
-$(l\ \ is\ \ {\tt LNil}) \vee (\neg(l\ \ is\ \ {\tt LNil})\land(l{\tt .tail}\ \ is\ \ {\tt LNil}))$
+$(l\ is\ {\tt LNil}) \vee (\neg(l\ is\ {\tt LNil})\land(l{\tt .tail}\ is\ {\tt LNil}))$
 and $\depthBound{2}{{\tt Clist}^{{\tt lnode}}_{m}({\tt p})}$
 is equivalent to
-$({\tt p}=0) \vee (\neg({\tt p}\neq 0)\land({\tt p}\xrightarrow[]{m}_{{\tt lnode}}\mathrm{\tt next}=0))$.
+$({\tt p}=0) \vee (\neg({\tt p}\neq 0)\land(\structPointer{p}{m}{\tt lnode}{next}=0))$.
 
-Thus, for a {\em Type II} proof obligation $P: \{\phi_s\} (e) \{\phi_d\}$,
+Thus, for a {\em Type II} proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$,
 we first submit the over-approximated proof obligation $(P_{{\tt pre-o}}$
 and return true if it evaluates to true.
 Otherwise, we submit the under-approximated proof obligation $(P_{{\tt pre-u}}$.
@@ -253,7 +253,7 @@ If it returns false, then we return false with the counterexample.
 If both approximations fail, we soundly return false with no counterexamples.
 
 Revisiting our examples,
-the proof obligation $\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2},\\ {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$ is
+the proof obligation $\hoareTriple{\phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2},\\ {\tt C2\rightarrow C4\rightarrow C2}}{sum_{S} = sum_{C}}$ is
 provable using a depth-1 overapproximation of the
 precondition $\phi_{{\tt S2:C2}}$.
 % The depth-1 overapproximation retains the
@@ -262,7 +262,7 @@ precondition $\phi_{{\tt S2:C2}}$.
 % the new values of $sum_{S}$ and $sum_{C}$ are also equal (given that the
 % old values are equal, as encoded in $\phi_{{\tt S2:C2}}$).
 Similarly, the proof obligation
-$\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$
+$\hoareTriple{\phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}}{sum_{S} = sum_{C}}$
 evaluates to false (with a counterexample) using
 a depth-2 underapproximation of the precondition $\phi_{{\tt S2:C2}}$.
 The following is a possible counterexample for a depth-2 underapproximation.
@@ -359,7 +359,7 @@ In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge ${\tt (S3:C5) \rightarrow (S3:C3)}$
 while checking if the {\small $\circled{I4}$} invariant, $l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})$,
 holds at {\tt (S3:C3)}:
-$\{\phi_{{\tt S3:C5}}\} ({\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}) \{l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})\}$.
+$\hoareTriple{\phi_{{\tt S3:C5}}}{{\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}}{l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$.
 Here, a \recursiveRelation{} is present both in the precondition $\phi_{{\tt S3:C5}}$ ({\small \circled{I8}})
 and in the postcondition ({\small \circled{I4}}) and we are unable to
 remove them after $k$-unrolling.
@@ -380,7 +380,7 @@ represents the C memory state after executing the writes at lines
 i.e.,
 \begin{equation}
 \label{eqn:memstore}
-m' \equiv m[{\tt \&(p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt value}) \leftarrow {\tt i}_C]_{\tt i32}[{\tt \&(p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt next}) \leftarrow {\tt l}_C]_{\tt i32}
+m' \equiv m[\& (\structPointer{p_C}{m}{\tt lnode}{\tt val}) \leftarrow {\tt i}_C]_{\tt i32}[\& (\structPointer{p_C}{m}{\tt lnode}{next}) \leftarrow {\tt l}_C]_{\tt i32}
 \end{equation}
 Here, $m[{\tt a}\leftarrow{\tt v}]$ reprsents an array that is
 equal to $m$ everywhere except at address {\tt a} which contains the value {\tt v}.
@@ -410,8 +410,8 @@ followed by RHS-breaking. This process reduces \cref{eqn:ex1cat3} into the follo
 smaller proof obligations (showing only the
 {\tt RHS}, the {\tt LHS} is the same as in \cref{eqn:ex1cat3}):
 (1) $\neg({\tt p}_C=0)$,
-(2) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ i$_S$\ =\ (p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$value)}, and
-(3) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$next)}.
+(2) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ i$_S=(\structPointer{p_C}{m'}{\tt lnode}{\tt val})$}, and
+(3) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$($\structPointer{p_C}{m'}{\tt lnode}{\tt next}$)}.
 The first two proof obligations fall in {\em Type II} and
 are discharged through over- and under-approximation schemes (as discussed
 in \cref{sec:syn-cat2}). Note that the first proof obligation is provable due
@@ -688,9 +688,9 @@ $\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{val}$ and
 $\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{next}$ cannot
 alias with the writes (in $m'$ in \cref{eqn:memstore})
 to the newly allocated objects
-${\tt p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt val}$
+$\structPointer{p_C}{m}{\tt lnode}{\tt val}$
 and
-${\tt p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt next}$.
+$\structPointer{p_C}{m}{\tt lnode}{\tt next}$
 We capture this aliasing information by running an intraprocedual allocation-site based points-to analysis on
 the original $C$ program as well as the reconstruction programs being checked
 for equivalence. Our points-to analysis also splits each allocation site region, say {\tt C4} in \cref{fig:llAllocCIR}, into
@@ -797,7 +797,7 @@ This allows us to successfully
 complete the bisimulation proof on the recons-PCFG, and
 consequently successfully discharge the
 proof obligation
-$\{\phi_{{\tt S3:C5}}\}\\({\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}) \{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})\}$ in \cref{tab:llproductInv}.
+$\hoareTriple{\phi_{{\tt S3:C5}}} \\ {{\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}}{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})}$ in \cref{tab:llproductInv}.
 % The points-to analysis is described more formally
 % in \cref{sec:pointsToFormal}.
 \vspace{-3px}

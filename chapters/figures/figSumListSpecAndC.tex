@@ -24,8 +24,8 @@
 ~{\scriptsize \textcolor{mygray}{C0:}}~ i32 sum_list (i32 l) {
 ~{\scriptsize \textcolor{mygray}{C1:}}~   i32 sum $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{C2:}}~   while ${\tt l \neq 0_{i32}}$:
-~{\scriptsize \textcolor{mygray}{C3:}}~     sum $\coloneqq$ sum + $\structPointer{\tt l}{m}{\tt lnode}{val}$;
-~{\scriptsize \textcolor{mygray}{C4:}}~     l   $\coloneqq$ $\structPointer{\tt l}{m}{\tt lnode}{next}$;
+~{\scriptsize \textcolor{mygray}{C3:}}~     sum $\coloneqq$ sum + $\structPointer{\tt l}{m}{lnode}{val}$;
+~{\scriptsize \textcolor{mygray}{C4:}}~     l   $\coloneqq$ $\structPointer{\tt l}{m}{lnode}{next}$;
 ~{\scriptsize \textcolor{mygray}{C5:}}~   return sum;
 ~{\scriptsize \textcolor{mygray}{CE:}}~ }
 \end{allLangEnvFoot}

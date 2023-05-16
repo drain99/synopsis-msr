@@ -72,15 +72,15 @@ Henceforth, we will omit the sources and continue to refer to the IRs as \SpecL{
 Given (1) a \SpecL{} program specification $S$, (2) a C implementation $C$,
 (3) a precondition $Pre$ that relates the inputs {\tt Input}$_S$ and {\tt Input}$_C$ to $S$ and $C$
 respectively, and (4) a postcondition $Post$ that relates the final outputs {\tt Output}$_S$
-and {\tt Output}$_C$ of $S$ and $C$ respectively:\\
-$S$ and $C$ are {\em equivalent} if for all possible inputs {\tt Input}$_S$ and {\tt Input}$_C$ such that
-$Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C)$ holds,
-$S$'s execution is well-defined on {\tt Input}$_S$ i.e. $(S\ \ {\tt def})$, {\em and} C's
-memory allocation requests during its execution on {\tt Input$_C$} are successful i.e. $(C\ \ {\tt fits})$,
+and {\tt Output}$_C$ of $S$ and $C$ respectively:
+$S$ and $C$ are {\em equivalent} if for all possible inputs \sv{Input} and \cv{Input} such that
+$Pre(\sv{Input},\cv{Input})$ holds,
+$S$'s execution is well-defined on \sv{Input} i.e. \sdef{}, {\em and} C's
+memory allocation requests during its execution on \cv{Input} are successful i.e. \cfits{},
 then both programs $S$ and $C$ produce outputs
 that satisfy $Post$.
 $$
-(Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C) \land (S\ \  \mathrm{\tt def}) \land (C\ \ \mathrm{\tt fits})) \Rightarrow Post(\mathrm{\tt Output}_S, \mathrm{\tt Output}_C)
+Pre(\sv{Input},\cv{Input}) \land \sdef{} \land \cfits{} \Rightarrow Post(\sv{Output},\cv{Output})
 $$
 
 \input{chapters/figures/figSynMallocSpecAndCAndProductCFG.tex}
@@ -91,8 +91,7 @@ of the \SpecL{} and C programs in \cref{fig:llAllocSpecIR,fig:llAllocCIR} respec
 Each node represent a PC location of its corresponding program, and each edge represent
 transitions between PCs through instruction execution. For brevity, we often represent
 a sequence of instructions with a single edge, e.g., in \cref{fig:llAllocCCFG}, the edge
-{\small \tt C5$\rightarrow$C3} represents the path
-{\small \tt C5$\rightarrow$C6$\rightarrow$C7$\rightarrow$C8$\rightarrow$C3}.
+\cpath{5,3} represents the path \cpath{5,6,7,8,3}.
 A control-flow edge is associated with an {\em edge condition} (the condition under which that edge is taken),
 a {\em transfer function} (how the program state is mutated if that edge is taken),
 and a {\em UB assumption} (what condition should be true for the program
@@ -113,18 +112,17 @@ inductive invariants (labeled \circled{\small I}) and postcondition (labeled \ci
 for the product-CFG in \cref{fig:llAllocProductCFG}. The precondition and postcondition are
 provided manually by the user while the intermediate inductive invariants are inferred automatically.
 The invariant labeled \circled{\small I4} is an example of a \recursiveRelation{} and represents
-the equality between the \SpecL{} {\tt list} variable {\tt l}$_S$ and the {\tt list} represented by
-chasing {\tt lnode} pointers starting at {\tt l}$_C$.
-Semantically $l_1\indEq{}l_2$ and $l_1=l_2$ are equivalent, `$\indEq{}$' simply emphasizes the
+the equality between the \SpecL{} \type{List} variable \sv{l} and the \type{List} represented by
+chasing \type{lnode} pointers starting at \cv{l}.
+Semantically $l_1\indEq{}l_2$ and $l_1=l_2$ are equivalent, `\indEq{}' simply emphasizes the
 fact that $l_1$ and $l_2$ are values of (possibly recursive) ADT types.
-{\tt Clist}$^{{\tt lnode}}_m({\tt p})$ is called a {\em lifting constructor} that {\em lifts}
-the C pointer value {\tt p} (pointing to an object of type {\tt struct lnode}) and the C
-memory state $m$ to a \SpecL{} {\tt List} value, and is defined by:
+\lifted{list}{\mem{}}{lnode}{p} is called a {\em lifting constructor} that {\em lifts}
+the C pointer value {\tt p} (pointing to an object of type \type{struct lnode}) and the C
+memory state \mem{} to a \SpecL{} \type{List} value, and is defined by:
 \begin{equation}
 \label{eqn:clist}
 \begin{split}
-U_C: \mathrm{\tt Clist}^{{\tt lnode}}_m&\mathrm{\tt (p:i32)} = \mathrm{\tt \underline{if}\ (p==0)}\ \mathrm{\tt \underline{then}\ }{\tt LNil} \\
-                                                         & \mathrm{\tt \underline{else}\ {\tt LCons}(}\structPointer{p}{m}{{\tt lnode}}{val},\ {\tt Clist}_m^{\tt lnode}(\structPointer{p}{m}{{\tt lnode}}{next}))
+U_C:\ &\lifted{list}{\mem{}}{lnode}{p\ctype{i32}} = \sumIf{p=0} \ \sumThen{\cons{LNil}} \\ & \qquad\qquad\ \ \  \sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})}
 \end{split}
 \end{equation}
 The iterative construction of the product-CFG along with inference of inductive invariants at its nodes are based on
@@ -133,15 +131,15 @@ and inferred invariants, the equivalence checker attempts to prove each inductiv
 postcondition under the appropiate preconditions for each edge in the product-CFG. These proof
 obligations are expressed as relational Hoare triples \cite{relationalHoareLogic,hoareTriple}
 and lowered to a first order logic predicate using weakest precondition predicate transformer.
-For example, $\{\phi_s\} (\rho_S,\rho_C) \{\phi_d\}$
+For example, \hoareTriple{\phi_s}{\sv{\rho},\cv{\rho}}{\phi_d}
 represents the Hoare triple where $\phi_s$ and $\phi_d$ represents the pre- and postconditions
-and $(\rho_S,\rho_C)$ represents a product-CFG edge correlating the paths $\rho_S$ and $\rho_C$
+and (\sv{\rho},\cv{\rho}) represents a product-CFG edge correlating the paths \sv{\rho} and \cv{\rho}
 in $S$ and $C$ respectively. The above Hoare triple lowers to the following predicate:
 \begin{equation}
 \label{eqn:firstOrderFormula}
-(\phi_s \land pathcond_{\rho_S} \land pathcond_{\rho_C} \land ubfree_{\rho_S}) \Rightarrow {\tt WP}_{{\rho_S,\rho_C}}(\phi_d)
+(\phi_s \land pathcond_{\sv{\rho}} \land pathcond_{\cv{\rho}} \land ubfree_{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
 \end{equation}
-We will use `{\tt LHS}' and `{\tt RHS}' to refer to the antecedant and consequent of the
+We will use `\lhs{}' and `\rhs{}' to refer to the antecedant and consequent of the
 implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.
 These proof obligations often contains \recursiveRelations{} encoding equality between
 arbitrarily-deep recursively data structure values of $S$ and $C$ respectively.

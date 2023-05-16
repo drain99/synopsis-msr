@@ -1,26 +1,26 @@
-FILE=main
+# FILE=main
 
-TARGETS := $(FILE).pdf
+# TARGETS := $(FILE).pdf
 
-all: $(TARGETS)
+# all: $(TARGETS)
 
-FIGURES = 
+# FIGURES = 
 
-$(FILE).pdf:: $(FILE).tex $(FILE).bib $(FIGURES) common_macros.tex
+# $(FILE).pdf:: $(FILE).tex $(FILE).bib $(FIGURES) common_macros.tex
 
-%.pdf:: %.tex common_macros.tex common_tikz.tex
-	pdflatex -shell-escape $<
-	pdflatex -shell-escape $<
-	-bibtex $(FILE).aux
-	pdflatex -shell-escape $<
-	pdflatex -shell-escape $<
-	while ( grep -q '^LaTeX Warning: Label(s) may have changed' $(basename $<).log) \
-	  do pdflatex $(notdir $<); done
+# %.pdf:: %.tex common_macros.tex common_tikz.tex
+# 	pdflatex -shell-escape $<
+# 	pdflatex -shell-escape $<
+# 	-bibtex $(FILE).aux
+# 	pdflatex -shell-escape $<
+# 	pdflatex -shell-escape $<
+# 	while ( grep -q '^LaTeX Warning: Label(s) may have changed' $(basename $<).log) \
+# 	  do pdflatex $(notdir $<); done
 
-spellcheck:
-	hunspell -d en_US -t -i utf-8 ${FILE}.tex
+# spellcheck:
+# 	hunspell -d en_US -t -i utf-8 ${FILE}.tex
 
-.PHONY: all clean submission spellcheck
+# .PHONY: all clean submission spellcheck
 
 clean:
 	rm -rf *.blg
@@ -38,7 +38,6 @@ clean:
 	rm -rf *.fls
 	rm -rf *.fdb_latexmk
 	rm -rf *.synctex.gz
-	rm -f $(TARGETS)
-	rm -f $(FIGURES)
+	rm -rf *.pdf
 
 #	evince $(FILE).pdf

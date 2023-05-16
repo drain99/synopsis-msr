@@ -4,19 +4,19 @@
 \begin{footnotesize}
 \begin{tabular}{|c|llll|}
 \hline
-\tt PC-Pair & \multicolumn{4}{c|} {\tt Invariants} \\
+{\bf PC-Pair} & \multicolumn{4}{c|} {\bf Invariants} \\
 \hline
 \hline
-${\tt (S0:C0)}$ &
-\multicolumn{4}{l|} {\Tstrut ${\tt { \circled{P}}\  n_{S}=n_{C}}$} \\
-${\tt (S3:C3)}$ &
-\Tstrut  ${\tt {\scriptsize \circled{I1}}\  n_{S}=n_{C}}$ & ${\tt {\scriptsize \circled{I2}}\  i_{S}=i_{C}}$ & ${\tt {\scriptsize \circled{I3}}\  i_{S} \leq_{u} n_{S}}$ & ${\tt {\scriptsize \circled{I4}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
-${\tt (S3:C4)\ (S3:C5)}$ &
-\Tstrut  ${\tt {\scriptsize \circled{I5}}\  n_{S}=n_{C}}$ & ${\tt {\scriptsize \circled{I6}}\  i_{S}=i_{C}}$ & ${\tt {\scriptsize \circled{I7}}\  i_{S} <_{u} n_{S}}$ & ${\tt {\scriptsize \circled{I8}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
-${\tt (SE:CE)}$ &
-\multicolumn{4}{l|} {\Tstrut  ${\tt {\circled{E}}\  ret_{S}\indEq{}Clist^{lnode}_{m}(ret_{C})}$} \\
+(\scpc{0}{0}) &
+\multicolumn{4}{l|} {\Tstrut $\circled{P}\ \sv{n}=\cv{n}$} \\
+(\scpc{3}{3}) &
+\Tstrut  $\circled{\scriptsize I1}\  \sv{n}=\cv{n}$ & $\circled{\scriptsize I2}\  \sv{i}=\cv{i}$ & $\circled{\scriptsize I3}\  \sv{i} \leq_{u} \sv{n}$ & $\circled{\scriptsize I4}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\
+(\scpc{3}{4}) (\scpc{3}{5}) &
+\Tstrut  $\circled{\scriptsize I5}\  \sv{n}=\cv{n}$ & $\circled{\scriptsize I6}\  \sv{i}=\cv{i}$ & $\circled{\scriptsize I7}\  \sv{i} <_{u} \sv{n}$ & $\circled{\scriptsize I8}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\
+(\scpc{E}{E}) &
+\multicolumn{4}{l|} {\Tstrut  $\circled{E}\  \sv{ret} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{ret}}$} \\
 \hline
-\end{tabular}
+\end{tabular}   
 \end{footnotesize}
 \end{center}
 \end{table}

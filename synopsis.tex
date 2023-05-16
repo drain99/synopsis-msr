@@ -1,4 +1,5 @@
 \documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
 \usepackage{geometry}
 % \usepackage[left=1.5in, right=1in, top=1in, bottom=1in, headheight=13.6pt]{geometry}
 % \usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
@@ -16,8 +17,9 @@
 \usepackage{makeidx}
 % \usepackage[nottoc,notlot,notlof]{tocbibind}     
 \usepackage{supertabular}
-\usepackage{array}              
-\usepackage{setspace} 
+\usepackage{array}
+\usepackage{setspace}
+\usepackage{layout}
 \usepackage{enumerate}
 \usepackage{rotating}
 \usepackage{moreverb}
@@ -43,15 +45,16 @@
 \usepackage{xr}
 \usepackage{float}
 \usepackage{longtable}
+\usepackage{etoolbox}
 \usepackage{wrapfig}
 \usepackage{algorithm2e}
 \usepackage{cleveref}
+\usepackage[notext]{stix2}
 \usepackage[acronym,nomain]{glossaries}
 %\usepackage{natbib}
 \RequirePackage[numbers,square]{natbib}
 \setlength{\bibsep}{0pt plus 0.3ex}
 % \bibliographystyle{iitd}
-\usepackage{amsmath} 
 % \usepackage{indentfirst}
 %\usepackage{geometry}
 % \usepackage[algoruled]{algorithm2e}
@@ -103,11 +106,6 @@
   {\pagestyle{empty}\origdoublepage}%
 }
 \usepackage{xspace}
-\newcommand{\Guide}{Sorav Bansal}
-\newcommand{\Auth}{Indrajit Banerjee}
-\newcommand{\Entry}{(2020CSY7569)}
-
-\newcommand{\ThesisTitle}{Counterexample-Guided Verification of Imperative Programs Against Implementation Agnostic Functional Specification}
 
 \let\cleardoublepage\clearemptydoublepage
 
@@ -129,8 +127,7 @@
 \renewcommand\@makefntext[1]{\leftskip=2em\hskip-2em\@makefnmark#1}
 \makeatother
 \sloppy\hyphenpenalty=100 \emergencystretch5em
-\input{common_macros.tex}
-
+\input{common_doc.tex}
 % \hypersetup{draft}
 \begin{document}
 

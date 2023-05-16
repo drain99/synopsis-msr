@@ -1,73 +1,70 @@
+\usepackage{stackengine}
+\usepackage{backnaur}
+\usepackage{xcolor}
+
 \newcommand{\xmark}{\ding{55}}%
 \newcommand{\rulesep}{\unskip\ \vrule\ }
 
 \setlength{\textfloatsep}{6.0pt plus 1.0pt minus 1.0pt}
 \setlength{\intextsep}{3.0pt plus 0.5pt minus 0.5pt}
 
-\newfloat{Algorithm}{t!}{lop}
-
-\lstdefinelanguage{All}[]{C}{
-  morekeywords={if,then,else,match,with,let,in,fn,type,i32,i8,List,lnode,Str,clnode,u32}
-}
-
-\lstnewenvironment{allLangEnvFoot}{\lstset{language=All,basicstyle=\footnotesize\ttfamily,mathescape=true}}{}
-\lstnewenvironment{allLangEnvScript}{\lstset{language=All,basicstyle=\scriptsize\ttfamily,mathescape=true}}{}
-
-\lstnewenvironment{myexample}{\lstset{basicstyle=\ttfamily}}{}
-\lstnewenvironment{myexamplesmall}{\lstset{basicstyle=\footnotesize\ttfamily}}{}
-\lstnewenvironment{myexamplescriptsz}{\lstset{basicstyle=\scriptsize\ttfamily}}{}
-
-\lstset{%
-    language     = C,
-    keywordstyle = \color{myastral},
-    stringstyle  = \color{red},
-    breaklines = false,
-    commentstyle=\color{mygreen},
-    keepspaces=true,
-    escapeinside = ~~,
-    showlines = true,
-%    numbers=left,
-%    numberstyle=\tiny\color{mygray},
-%    numbersep=2pt,
-}
-
-\usepackage{stackengine}
-\usepackage{backnaur}
-\usepackage{xcolor}
-
-%https://tex.stackexchange.com/questions/123219/writing-above-and-below-a-symbol-simultaneously
-\newcommand\stackrqarrow[2]{%
-    \mathrel{\stackunder[2pt]{\stackon[1pt]{$\rightsquigarrow$}{$\scriptscriptstyle#1$}}{%
-            $\scriptscriptstyle#2$}}}
-\usetikzlibrary{arrows, quotes,shapes,positioning, calc}
-
 \newcommand{\toolName}{S2C}%
+\newcommand{\ite}[3]{\ensuremath{#1?#2:#3}}%
 \newcommand{\sumDtor}{\underline{\tt if}-\underline{\tt then}-\underline{\tt else}}%
-\newcommand\sumDtorExpr[3]{\underline{\tt if} #1 \underline{\tt then} #2 \underline{\tt else} #3}%
+\newcommand{\sumIf}[1]{\underline{\tt if}\ \ensuremath{#1}}
+\newcommand{\sumThen}[1]{\underline{\tt then}\ \ensuremath{#1}}
+\newcommand{\sumElif}[1]{\underline{\tt elif}\ \ensuremath{#1}}
+\newcommand{\sumElse}[1]{\underline{\tt else}\ \ensuremath{#1}}
 \newcommand{\recursiveRelations}{recursive relations}%
 \newcommand{\recursiveRelation}{recursive relation}%
 \newcommand{\SpecL}{Spec}%
-\newcommand{\indEq}{\sim}%
-\newcommand\indEqDepth[1]{\sim_#1}%
-\newcommand\indEqUapprox[1]{\approx_#1}%
-\newcommand\depthBound[2]{\Gamma_#1(#2)}%
-\newcommand\Reachable[2]{$Reachable_{#1}$(#2)}%
-\newcommand\ReachableMath[2]{Reachable_{#1}(#2)}%
-\newcommand\structPointer[4]{{\tt #1} \overset{#2}{\rightarrow}_{#3} {\tt #4}}
-\newcommand{\seriesEqual}{=}%
-\newcommand{\pointsTo}{\rightsquigarrow}
-\newcommand{\interfere}{\diamond}
-\newcommand\HoareTriple[3]{\{#1\}(#2)\{#3\}}
-\newcommand\Lift[4]{{\tt #1}_{#2}^{\tt #3}{(#4)}}
+\newcommand{\indEq}{\ensuremath{\sim}}%
+\newcommand{\indEqDepth}[1]{\ensuremath{\sim_#1}}%
+\newcommand{\indEqUapprox}[1]{\ensuremath{\approx_#1}}%
+\newcommand{\depthBound}[2]{\ensuremath{\Gamma_#1(#2)}}%
+\newcommand{\structPointer}[4]{\ensuremath{{#1} \overset{#2}{\rightarrow}_{\type{#3}} {\tt #4}}}%
+\newcommand{\arrIndex}[4]{\ensuremath{#1[#2]_{\type{#4}}^{#3}}}
+\newcommand{\pointsTo}{\ensuremath{\rightsquigarrow}}%
+\newcommand{\hoareTriple}[3]{\ensuremath{\{#1\}(#2)\{#3\}}}%
+\newcommand{\lift}[3]{\ensuremath{{{\tt C#1}_{#2}^{\tt #3}}}}%
+\newcommand{\lifted}[4]{\lift{#1}{#2}{#3}{\ensuremath{(#4)}}}%
+\newcommand{\mem}{\ensuremath{{\mathbb{m}}}}%
+\newcommand{\nonTerm}[1]{\ensuremath{\langle}#1\ensuremath{\rangle}}%
+\newcommand{\term}[1]{{\tt #1}}%
+\newcommand{\sv}[1]{\ensuremath{{\tt #1}_{S}}}%
+\newcommand{\cv}[1]{\ensuremath{{\tt #1}_{C}}}%
+\newcommand{\spc}[1]{\ensuremath{{\tt S#1}}}%
+\newcommand{\cpc}[1]{\ensuremath{{\tt C#1}}}%
+\newcommand{\rpc}[1]{\ensuremath{{\tt R#1}}}%
+\newcommand{\scpc}[2]{\ensuremath{{\tt S#1\!:\!C#2}}}%
+\newcommand{\rrpc}[2]{\ensuremath{{\tt R#1:R#2}}}%
+\newcommand{\sdef}{\ensuremath{{(S\ {\tt def})}}}%
+\newcommand{\cfits}{\ensuremath{{(C\ {\tt fits})}}}%
+\newcommand{\spath}[2][\ensuremath{\rightarrow}]{%
+  \def\nextitem{\def\nextitem{#1}}% Separator
+  \renewcommand*{\do}[1]{\nextitem{\spc{##1}}}% How to process each item
+  \docsvlist{#2}% Process list
+}
+\newcommand{\cpath}[2][\ensuremath{\rightarrow}]{%
+  \def\nextitem{\def\nextitem{#1}}% Separator
+  \renewcommand*{\do}[1]{\nextitem{\cpc{##1}}}% How to process each item
+  \docsvlist{#2}% Process list
+}
+\newcommand{\scedge}[4]{\ensuremath{{\small \scpc{#1}{#2} \! \rightarrow \! \scpc{#3}{#4}}}}%
+\newcommand{\type}[1]{{\tt #1}}%
+\newcommand{\ctype}[1]{{\ensuremath{\tt :\!\!#1}}}
+\newcommand{\cons}[1]{{\tt #1}}%
+\newcommand{\lhs}{{\tt LHS}}%
+\newcommand{\rhs}{{\tt RHS}}%
 
-\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
-            \node[shape=circle,draw,inner sep=1pt] (char) {#1};}}
-\newcommand*\inv[1]{\tikz[baseline=(char.base)]{
-\node[shape=rounded rectangle,draw,inner sep=2pt] (char) {\scriptsize {\tt #1}};}}
-\newcommand*\pred[1]{\fbox{\scriptsize {\tt #1}}}
+\newcommand{\Tstrut}{\rule{0pt}{2.7ex}}         % = `top' strut
+\newcommand{\Bstrut}{\rule[-1.2ex]{0pt}{0pt}}   % = `bottom' strut
 
-\newcommand\Tstrut{\rule{0pt}{2.7ex}}         % = `top' strut
-\newcommand\Bstrut{\rule[-1.2ex]{0pt}{0pt}}   % = `bottom' strut
+\newcommand*{\circled}[1]{\tikz[baseline=(char.base)]{
+                          \node[shape=circle,draw,inner sep=1pt] (char) {#1};}}
+\newcommand*{\inv}[1]{\tikz[baseline=(char.base)]{
+                      \node[shape=rounded rectangle,draw,inner sep=2pt] (char) {\scriptsize {\tt #1}};}}
+\newcommand*{\pred}[1]{\fbox{\scriptsize {\tt #1}}}
 
 \definecolor{myastral}{RGB}{46,116,181}
 \definecolor{myolive}{named}{olive}
@@ -75,7 +72,7 @@
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{myred}{rgb}{0.8,0,0.2}
 
-\newtheorem{theorem}{Theorem}
-
-\newcommand\NonTerm[1]{$\langle$#1$\rangle$}%
-\newcommand\Term[1]{{\tt #1}}%
+\newcommand{\Guide}{Sorav Bansal}
+\newcommand{\Auth}{Indrajit Banerjee}
+\newcommand{\Entry}{(2020CSY7569)}
+\newcommand{\ThesisTitle}{Counterexample-Guided Verification of Imperative Programs Against Implementation Agnostic Functional Specification}

@@ -1,0 +1,27 @@
+\usetikzlibrary{arrows, quotes,shapes,positioning, calc}
+
+\newfloat{Algorithm}{t!}{lop}
+\newtheorem{theorem}{Theorem}
+
+\lstdefinelanguage{All}[]{C}{
+  morekeywords={if,then,else,match,with,let,in,fn,type,i32,i8,List,lnode,Str,clnode,u32}
+}
+
+\lstnewenvironment{allLangEnvFoot}{\lstset{language=All,basicstyle=\footnotesize\ttfamily,mathescape=true}}{}
+\lstnewenvironment{allLangEnvScript}{\lstset{language=All,basicstyle=\scriptsize\ttfamily,mathescape=true}}{}
+
+\lstset{%
+    language     = C,
+    keywordstyle = \color{myastral},
+    stringstyle  = \color{red},
+    breaklines = false,
+    commentstyle=\color{mygreen},
+    keepspaces=true,
+    escapeinside = ~~,
+    showlines = true,
+%    numbers=left,
+%    numberstyle=\tiny\color{mygray},
+%    numbersep=2pt,
+}
+
+\input{common_macros.tex}
