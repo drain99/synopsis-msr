@@ -9,29 +9,19 @@
 
 % Text Node
 \draw    (41, 254.5) circle [x radius= 16.32, y radius= 16.32]   ;
-\draw (41,254.5) node [font=\scriptsize]  [align=left] {\tt S0:C0};
+\draw (41,254.5) node [font=\scriptsize]  [align=left] {\scpc{0}{0}};
 % Text Node
 \draw    (302, 254.5) circle [x radius= 16.32, y radius= 16.32]   ;
-\draw (302,254.5) node [font=\scriptsize]  [align=left] {\tt SE:CE};
+\draw (302,254.5) node [font=\scriptsize]  [align=left] {\scpc{E}{E}};
 % Text Node
 \draw    (122.5, 254.5) circle [x radius= 16.32, y radius= 16.32]   ;
-\draw (122.5,254.5) node [font=\scriptsize]  [align=left] {\tt S2:C3};
+\draw (122.5,254.5) node [font=\scriptsize]  [align=left] {\scpc{2}{3}};
 % Text Node
-\draw (77.88,242.02) node  [font=\scriptsize]  {$ \begin{array}{s}
-{\tt S0 \rightarrow S2}\\
-{\tt C0 \rightarrow C2}
-\end{array}$};
+\draw (77.88,242.02) node  [font=\scriptsize]  {$\begin{array}{c} \spath{0,2} \\ \cpath{0,2} \\ \end{array}$};
 % Text Node
-\draw (125,307) node  [font=\scriptsize]  {$ \begin{array}{s}
-{\tt S2 \rightarrow (S6 \rightarrow S2)^4}\\
-{\tt C3 {\rightarrow} C6 {\rightarrow} ( \epsilon {+} (C7 {\rightarrow} C8 {\rightarrow} C9 {\rightarrow} C10)) {\rightarrow} C11 {\rightarrow} C3}
-\end{array}$};
+\draw (125,307) node  [font=\scriptsize]  {$ \begin{array}{c} \pathset{S2,(\pathset{S6,S2})^4} \\ \pathset{C3,C6,(\pathset{\epsilon \pathpar{} (\pathset{C7,C8,C9,C10})}),C11,C3} \\ \end{array}$};
 % Text Node
-\draw (208,235.5) node  [font=\scriptsize]  {$ \begin{array}{s}
-{\tt S2 \rightarrow SE}\\
-{\tt C3 {\rightarrow} C6 {\rightarrow} C7 {\rightarrow} ( \epsilon {+} C8} {+}\\
-{\tt ( C8 {\rightarrow} C9) {+} ( C8 {\rightarrow} C9 {\rightarrow} C10)) {\rightarrow} CE}
-\end{array}$};
+\draw (208,235.5) node  [font=\scriptsize]  {$ \begin{array}{c} \spath{2,E} \\ \pathset{C3,C6,C7,(\epsilon \pathpar{} \pathset{C8} \pathpar{} (\pathset{C8,C9})} \\ \pathset{\pathpar{} (\pathset{C8,C9,C10})),CE} \end{array}$};
 % Connection
 \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (57.12,254.5) -- (106.88,254.5) ;
 % Connection

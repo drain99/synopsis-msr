@@ -12,15 +12,16 @@
 \begin{footnotesize}
 \begin{tabular}{|c|l|}
 \hline
-\tt PC-Pair & \multicolumn{1}{c|} {\tt Invariants} \\
+{\bf PC-Pair} & \multicolumn{1}{c|} {\bf Invariants} \\
 \hline
 \hline
-${\tt (S0:C0)}$ &
-\Tstrut ${\tt {\circled{P}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\
-\multirow{2}{*}{${\tt (S2:C2)}$} &
-\Tstrut \Bstrut ${\tt {\scriptsize \circled{I1}}\  l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$ \\ & ${\tt {\scriptsize \circled{I2}}\  sum_{S}=sum_{C}}$ \\
-${\tt (SE:CE)}$ &
-\Tstrut \Bstrut ${\tt {\circled{E}}\  ret_{S}=ret_{C}}$ \\
+(\scpc{0}{0}) &
+\Tstrut $\circled{P}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\
+\multirow{2}{*}{(\scpc{2}{2})} &
+\Tstrut $\circled{\scriptsize I1}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\ &
+\Tstrut $\circled{\scriptsize I2}\  \sv{sum} = \cv{sum}$ \\
+(\scpc{E}{E}) &
+\Tstrut $\circled{\scriptsize E}\  \sv{ret} = \cv{ret}$ \\
 \hline
 \end{tabular}
 \end{footnotesize}

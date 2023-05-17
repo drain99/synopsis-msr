@@ -11,42 +11,42 @@
 
 % Text Node
 \draw    (152, 55.5) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (152,55.5) node  [font=\scriptsize]  {\tt R0};
+\draw (152,55.5) node  [font=\footnotesize]  {\rpc{0}};
 % Text Node
 \draw    (152, 94.5) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (152,94.5) node  [font=\scriptsize]  {\tt R1};
+\draw (152,94.5) node  [font=\footnotesize]  {\rpc{1}};
 % Text Node
 \draw    (125, 156) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (125,156) node  [font=\scriptsize]  {\tt RE$\mathrm{\tt _1}$};
+\draw (125,156) node  [font=\footnotesize]  {\rpc{E_1}};
 % Text Node
 \draw    (180.5, 156) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (180.5,156) node  [font=\scriptsize]  {\tt RF$\mathrm{\tt _s}$};
+\draw (180.5,156) node  [font=\footnotesize]  {\rpc{F_s}};
 % Text Node
 \draw    (203.5, 211) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (203.5,211) node  [font=\scriptsize]  {\tt RF$\mathrm{\tt _e}$};
+\draw (203.5,211) node  [font=\footnotesize]  {\rpc{F_e}};
 % Text Node
 \draw    (228, 261) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (228,261) node  [font=\scriptsize]  {\tt RE$\mathrm{\tt _2}$};
+\draw (228,261) node  [font=\footnotesize]  {\rpc{E_2}};
 % Text Node
-\draw (129,107.5) node  [font=\scriptsize]  {${\tt l_{C}=0}$};
+\draw (126,107.5) node  [font=\footnotesize]  {$\comv{l} = 0$};
 % Text Node
-\draw (184,105.5) node  [font=\scriptsize]  {${\tt l_{C}\neq 0}$};
+\draw (184,107.5) node  [font=\footnotesize]  {$\comv{l} \neq 0$};
 % Text Node
-\draw (79,156.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{return\ \tt LNil}$}};
+\draw (76,156.5) node  [font=\footnotesize]  {\tfbox{\mathbf{output}\ \cons{LNil}}};
 % Text Node
-\draw (222.5,121) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{val \coloneqq \structPointer{l_{C}}{m}{lnode}{val}}$}};
+\draw (222.5,124) node  [font=\footnotesize]  {\tfbox{\comv{val} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{\comv{val}}}};
 % Text Node
-\draw (277,176.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{tail \coloneqq Clist_{m}^{lnode}(\structPointer{l_{C}}{m}{lnode}{next})}$}};
+\draw (283,176.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \lifted{list}{\mem{}}{lnode}{\structPointer{\comv{l}}{\mem{}}{lnode}{next}}}};
 % Text Node
-\draw (300,260.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{return\ \tt LCons( val,tail)}$}};
+\draw (307,260.5) node  [font=\footnotesize]  {\tfbox{\mathbf{output}\ \cons{LCons}(\comv{val}, \comv{tail})}};
 % Text Node
-\draw (313.5,60) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{{\tt l_{C}} \coloneqq \structPointer{l_{C}}{m}{lnode}{next}}$}};
+\draw (313.5,60) node  [font=\footnotesize]  {\tfbox{\comv{l} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{next}}};
 % Text Node
-\draw (117,193.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{tail\ \coloneqq LNil}$}};
+\draw (114,193.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \cons{LNil}}};
 % Text Node
-\draw (108,236.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{tail\ \coloneqq LCons( val,tail)}$}};
+\draw (90,236.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \cons{LCons}(\comv{val}, \comv{tail})}};
 % Text Node
-\draw (110,55.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{input\ \tt l_{C},m}$}};
+\draw (110,55.5) node  [font=\footnotesize]  {\tfbox{\mathbf{input}\ \comv{l}, \mem{}}};
 % Connection
 \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (152,66.6) -- (152,83.5) ;
 % Connection

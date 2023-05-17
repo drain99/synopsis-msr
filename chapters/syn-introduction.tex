@@ -3,7 +3,7 @@
 
 The problem of equivalence checking between a functional specification and an
 implementation written in a low level imperative language such as C
-has been of immense research interest
+has been of major research interest
 and has several important applications such as (a) program verification, where
 the equivalence checker is used to verify that the C implementation
 behaves according to the specification and (b) translation validation, where
@@ -111,7 +111,7 @@ A bisimulation relation between two programs can be represented using a {\em pro
 inductive invariants (labeled \circled{\small I}) and postcondition (labeled \circled{\small E})
 for the product-CFG in \cref{fig:llAllocProductCFG}. The precondition and postcondition are
 provided manually by the user while the intermediate inductive invariants are inferred automatically.
-The invariant labeled \circled{\small I4} is an example of a \recursiveRelation{} and represents
+The invariant labeled \circled{\small I4} is an example of a {\em \recursiveRelation{}} and represents
 the equality between the \SpecL{} \type{List} variable \sv{l} and the \type{List} represented by
 chasing \type{lnode} pointers starting at \cv{l}.
 Semantically $l_1\indEq{}l_2$ and $l_1=l_2$ are equivalent, `\indEq{}' simply emphasizes the

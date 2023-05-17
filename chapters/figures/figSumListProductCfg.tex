@@ -9,28 +9,19 @@
 
 % Text Node
 \draw    (31.5, 152) circle [x radius= 16.32, y radius= 16.32]   ;
-\draw (31.5,152) node [font=\scriptsize]  [align=left] {\tt S0:C0};
+\draw (31.5,152) node [font=\scriptsize]  [align=left] {\scpc{0}{0}};
 % Text Node
 \draw    (221, 152) circle [x radius= 16.32, y radius= 16.32]   ;
-\draw (221,152) node  [font=\scriptsize] [align=left] {\tt SE:CE};
+\draw (221,152) node  [font=\scriptsize] [align=left] {\scpc{E}{E}};
 % Text Node
 \draw    (124.5, 152) circle [x radius= 16.32, y radius= 16.32]   ;
-\draw (124.5,152) node  [font=\scriptsize] [align=left] {\tt S2:C2};
+\draw (124.5,152) node  [font=\scriptsize] [align=left] {\scpc{2}{2}};
 % Text Node
-\draw (73.38,138.52) node [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S0 \rightarrow S2}\\
-{\tt C0 \rightarrow C2}
-\end{array}$};
+\draw (73.38,138.52) node [font=\scriptsize]  {$ \begin{array}{c} \spath{0,2} \\ \cpath{0,2} \\ \end{array} $};
 % Text Node
-\draw (124.9,206.52) node  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S2 \rightarrow S5 \rightarrow S2}\\
-{\tt C2 \rightarrow C4 \rightarrow C2}
-\end{array}$};
+\draw (124.9,206.52) node  [font=\scriptsize]  {$ \begin{array}{c} \spath{2,5,2} \\ \cpath{2,4,2} \\ \end{array} $};
 % Text Node
-\draw (166.25,138.52) node  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S2 \rightarrow SE}\\
-{\tt C2 \rightarrow CE}
-\end{array}$};
+\draw (166.25,138.52) node  [font=\scriptsize]  {$ \begin{array}{c} \spath{2,E} \\ \cpath{2,E} \\ \end{array} $};
 % Connection
 \draw   [-{Straight Barb[length=2.2mm, width=1.5mm]}] (48,152) -- (108.5,152) ;
 % Connection

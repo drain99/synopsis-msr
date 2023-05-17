@@ -68,7 +68,3 @@ Evaluation : put a lot of focus, try to almost everything in including the table
 Conclusion : limitations (scaling for size of SMT queries, non-bisimilar specification and implementation), then whatevers is in conclusion (1 pages)
 
 TODOS:
-fix lifting cons tables for tree & matrix
-add {} around all \newcommands to avoid leak
-fix all programs with the new operators
-then do a full pass over syn-examples, already done with all the newcommands, should be doable in a day max

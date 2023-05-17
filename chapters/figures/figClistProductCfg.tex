@@ -9,33 +9,33 @@
 
 % Text Node
 \draw    (107, 375.5) circle [x radius= 19, y radius= 19]   ;
-\draw (107,375.5) node  [font=\scriptsize]  {\tt R0:R0};
+\draw (107,375.5) node  [font=\scriptsize]  {\rrpc{0}{0}};
 % Text Node
 \draw    (107, 431.5) circle [x radius= 19, y radius= 19]   ;
-\draw (107,431.5) node  [font=\scriptsize]  {\tt R1:R1};
+\draw (107,431.5) node  [font=\scriptsize]  {\rrpc{1}{1}};
 % Text Node
 \draw    (149, 491) circle [x radius= 19, y radius= 19]   ;
-\draw (149,491) node  [font=\scriptsize]  {\tt RF:RF};
+\draw (149,491) node  [font=\scriptsize]  {\rrpc{F}{F}};
 % Text Node
 \draw    (73, 491.5) circle [x radius= 19, y radius= 19]   ;
-\draw (73,491.5) node  [font=\scriptsize]  {\tt RE$_{1}$:RE$_{1}$};
+\draw (73,491.5) node  [font=\scriptsize]  {\rrpc{E_1}{E_1}};
 % Text Node
 \draw    (191, 552) circle [x radius= 19, y radius= 19]   ;
-\draw (191,552) node  [font=\scriptsize]  {\tt RE$_{2}$:RE$_{2}$};
+\draw (191,552) node  [font=\scriptsize]  {\rrpc{E_2}{E_2}};
 % Text Node
-\draw (235,380.5) node  [font=\scriptsize]  {
+\draw (220,378) node  [font=\scriptsize]  {
 \begin{tabular}{|ll|}
 \hline
-\Tstrut $\mathrm{\tt \circled{1}\ l_{C}^{fst} = l_{C}^{snd}}$ & $\mathrm{\tt \circled{2}\ i_{C} \rightsquigarrow \emptyset}$ \\
-\Tstrut $\mathrm{\tt \circled{3}\ p_{C} \rightsquigarrow \{ C4_{1} \}}$ & $\mathrm{\tt \circled{4}\ l_{C} \rightsquigarrow \{ C4_{2+} \}}$ \\
-\Tstrut \Bstrut $\mathrm{\tt \circled{5}\ C4_{1} \rightsquigarrow \{ C4_{2+} \} }$ & $\mathrm{\tt \circled{6}\ C4_{2+} \rightsquigarrow \{ C4_{2+} \}}$ \\
+\Tstrut $\circled{1}\ \fstv{l} = \sndv{l}$ & $\circled{2}\ \cv{i} \pointsTo{} \emptyset$ \\
+\Tstrut $\circled{3}\ \cv{p} \pointsTo{} \{ \mlrf{C4} \}$ & $\circled{4}\ \comv{l} \pointsTo{} \{ \mlrs{C4} \}$ \\
+\Tstrut \Bstrut $\circled{5}\ \mlrf{C4} \pointsTo{} \{ \mlrs{C4} \}$ & $\circled{6}\ \mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ \\
 \hline
 \end{tabular}
 };
 % Text Node
-\draw (245,450) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{check\ \structPointer{l_C^{fst}}{m}{lnode}{next} = \structPointer{l_C^{snd}}{m'}{lnode}{next}}$}};
+\draw (225,453) node  [font=\scriptsize]  {\tfbox{\mathbf{prove}\ \structPointer{\fstv{l}}{\mem{}}{lnode}{\!next} \! = \! \structPointer{\sndv{l}}{\mem{}'}{lnode}{\!next}}};
 % Text Node
-\draw (241,513.5) node  [font=\scriptsize]  {\setlength{\fboxsep}{2pt}\fbox{$\mathrm{assume\ \tt tail^{fst}=tail^{snd}}$}};
+\draw (230,513.5) node  [font=\scriptsize]  {\tfbox{\mathbf{assume}\ \fstv{tail} = \sndv{tail}}};
 % Connection
 \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (97.56,448.15) -- (81,474.4) ;
 % Connection

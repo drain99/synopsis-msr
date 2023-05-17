@@ -24,30 +24,15 @@
 \draw    (424, 76.5) circle [x radius= 16.32, y radius= 16.32]   ;
 \draw (424,76.5) node  [font=\scriptsize] [align=left] {\scpc{E}{E}};
 % Text Node
-\draw (257,52) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S0\rightarrow S3}\\
-{\tt C0\rightarrow C3}
-\end{array}$};
+\draw (257,52) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c} \spath{0,3} \\ \cpath{0,3} \\ \end{array} $};
 % Text Node
-\draw (345,52) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S3\rightarrow SE}\\
-{\tt C3\rightarrow CE}
-\end{array}$};
+\draw (345,52) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c} \spath{3,E} \\ \cpath{3,E} \\ \end{array} $};
 % Text Node
-\draw (365,90) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt \epsilon}\\
-{\tt C3\rightarrow C4}
-\end{array}$};
+\draw (365,90) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c} \epsilon \\ \cpath{3,4} \\ \end{array} $};
 % Text Node
-\draw (304,134) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt \epsilon}\\
-{\tt C4\rightarrow C5}
-\end{array}$};
+\draw (304,134) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c} \epsilon \\ \cpath{4,5} \\ \end{array} $};
 % Text Node
-\draw (228,94) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S3\rightarrow S5\rightarrow S3}\\
-{\tt C5\rightarrow C3}
-\end{array}$};
+\draw (228,94) node [anchor=north west][inner sep=0.75pt]  [font=\scriptsize]  {$ \begin{array}{c} \spath{3,5,3} \\ \cpath{5,3} \\ \end{array} $};
 % Connection
 \draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]   (260.82,76.5) -- (317.18,76.5) ;
 % Connection

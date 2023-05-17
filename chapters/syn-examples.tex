@@ -35,9 +35,9 @@ To simplify proof obligation discharge,
 we break a first-order logic proof obligation $P$ of the form in \cref{eqn:proofObligationShape}
 into multiple smaller proof obligations
 of the form
-$P_j:({\tt LHS}\Rightarrow{\tt \eta^{r}_j})$, for $j=1..n$. Each proof obligation
+$P_j:(\lhs{} \Rightarrow{\tt \eta^{r}_j})$, for $j=1..n$. Each proof obligation
 $P_j$ is then discharged separately.  We call this conversion from
-a bigger query to multiple smaller queries, {\em RHS-breaking}.
+a bigger query to multiple smaller queries, {\em \rhs{}-breaking}.
 
 %We say that two relations $\eta_1$ and $\eta_2$ {\em interfere}, written
 %$\eta_1 \interfere{} \eta_2$,
@@ -79,34 +79,34 @@ Before diving into the proof discharge algorithm, we start with decomposition of
 Decomposition is a key procedure in multiple components of our proof discharge algorithm.
 \begin{equation}
 \label{eqn:specDeconstruct}
-U_S: {\tt l\ =\ \underline{if}\ l}\ is\ {\tt LNil\ \ \underline{then}\ \ LNil\ \ \underline{else}\ \ LCons(l.val,l.tail)}
+U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCons}(l.\field{val}, l.\field{next})}
 \end{equation}
 A \recursiveRelation{} of the form $l_1 \indEq{} l_2$ can be {\em decomposed} into an
-equivalent set of {\em decomposition clauses}, each of the form {\small $(P \rightarrow A = B)$ or $(P \rightarrow A \indEq{} B)$}.
+equivalent set of {\em decomposition clauses}, each of the form $(P\! \rightarrow\! A\! =\! B)$ or $(P\! \rightarrow\! A\! \indEq{}\! B)$.
 The primary algorithm behind decomposition is a specialized unification procedure under a term rewriting
 system $E$. $E$ allows rewriting of top-level lifting constructors by their definitions (e.g., \cref{eqn:clist})
 as well as expansion of ADT variables using the \sumDtor{} operator as shown in \cref{eqn:specDeconstruct}.
 Unification proceeds by iteratively (1) unifying the structurs created by the ADT value constructors as well as the \sumDtor{}
 operator and (2) expanding the current subterms using the rewriting rules in $E$ as needed.
-For example, \sumDtorExpr{$c_1$}{${\tt LNil}$}{${\tt LCons}(0,l_S)$}$\indEq{}$\sumDtorExpr{$c_2$}{${\tt LNil}$}{${\tt LCons}(i_C,{\tt Clist}_m^{\tt lnode}(l_C))$}
-decomposes into $\bigwedge\{c_1=c_2, (c_1 \land c_2) \rightarrow 0=i_C, (c_1 \land c_2) \rightarrow l_S \indEq{} {\tt Clist}_m^{\tt lnode}(l_C)\}$.
-Similarly, the decomposition of $l_S\indEq{}{\tt LCons}(42,{\tt Clist}_m^{\tt lnode}(l_C))$ is given by
-$\bigwedge \{l_S\ {\tt is}\ {\tt LCons}, (l_S\ {\tt is}\ {\tt LCons}) \rightarrow (l.val=42), (l_S\ {\tt is}\ {\tt LCons}) \rightarrow (l.next \indEq{} {\tt Clist}_m^{\tt lnode}(l_C))\}$.
+For example, \sumIf{c_1} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(0,l_1)} \indEq{} \sumIf{c_2} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}
+decomposes into $\bigwedge\big\{c_1=c_2, (c_1 \land c_2) \rightarrow 0=i, (c_1 \land c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \big\}$.
+Similarly, the decomposition of $l_1\indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
+$\bigwedge \big\{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \big\}$.
 We {\em decompose} a proof obligation $P$ by decomposing each \recursiveRelation{} in $P$.
 
 We {\em unroll an expression $e$} with respect to $E$ containing rules of the form $r_i \Rightarrow s_i$ by substituting
 all occurances of $r_i$ in $e$ with $s_i$ for each $i$ and decomposing it. More generally, the $k$-unrolling of $e$ is found
-by unrolling the $(k-1)$-unrolling of $e$ recursively. For a first order logic proof obligation $P:{\tt LHS}\Rightarrow{\tt RHS}$,
+by unrolling the $(k-1)$-unrolling of $e$ recursively. For a first order logic proof obligation $P:\lhs{} \Rightarrow \rhs{}$,
 we identify its $k$-unrolling (for a fixed unrolling parameter $k$). After unrolling, we eliminate those
-decomposition clauses $(P_i \rightarrow X_i)$ whose $P_i$ evaluates to {\tt false} under the {\tt LHS} ignoring all \recursiveRelations{}.
-For example, the one-unrolling of $P:{\tt LHS} \Rightarrow l_S \indEq{} {\tt Clist}_m^{\tt lnode}(0)$, after simplification, yields
-$P': {\tt LHS} \Rightarrow l_S\ {\tt is}\ {\tt LNil}$. We categorize a proof obligation $P$ based on this $k$-unrolled form of $P$ as follows:
+decomposition clauses $(P_i\! \rightarrow\! X_i)$ whose $P_i$ evaluates to false under the \lhs{} ignoring all \recursiveRelations{}.
+For example, the one-unrolling of $P: \lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{0}$, after simplification, yields
+$P': \lhs{} \Rightarrow \sumIs{l}{LNil}$. We categorize a proof obligation $P$ based on this $k$-unrolled form of $P$ as follows:
 \vspace{-10px}
 \begin{itemize}
 \setlength{\itemsep}{0px}
 \item Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}
-\item Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the {\tt LHS}
-\item Type III: $k$-unrolling of $P$ contains \recursiveRelations{} in the {\tt RHS}
+\item Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the \lhs{}
+\item Type III: $k$-unrolling of $P$ contains \recursiveRelations{} in the \rhs{}
 \end{itemize}
 \vspace{-10px}
 Next, we briefly describe the key ideas for each of the three types of proof obligations in \cref{sec:syn-cat1,sec:syn-cat2,sec:syn-cat3}.
@@ -116,30 +116,26 @@ Next, we briefly describe the key ideas for each of the three types of proof obl
 \subsection{Handling Type I Proof Obligations}
 \label{sec:syn-cat1}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
-across the product-CFG edge ${\tt (S0:C0) \rightarrow (S3:C3)}$
-while checking if the ${\small \circled{I4}}$ invariant in \cref{tab:llproductInv}
-holds at {\tt (S3:C3)}:
-$\hoareTriple{\phi_{{\tt S0:C0}}}{{\tt S0\rightarrow S3}, {\tt C0\rightarrow C3}}{l_{S}\indEq{}{\tt Clist }^{{\tt lnode}}_{m}(l_{C})}$.
-The precondition $\phi_{{\tt S0:C0}}\equiv(n_S=n_C)$ does not contain
-a \recursiveRelation{}.
-When lowered to first-order logic through {\tt WP$_{{\tt S0\rightarrow S3},{\tt C0\rightarrow C3}}$}, this translates to
-``$(n_S=n_C)\Rightarrow({\tt LNil}\indEq{}{\tt Clist^{{\tt lnode}}_{m}(0)})$''.
-Here, {\tt LNil} is obtained for {\tt l$_{S}$} and {\tt 0} (null) is
-obtained for {\tt l$_C$}.
+across the product-CFG edge \scedge{0}{0}{3}{3}
+while checking if the {\circled{\footnotesize I4}} invariant in \cref{tab:llproductInv} holds at (\scpc{3}{3}):
+\hoareTriple{\phi_\scpc{0}{0}}{\spath{0,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+The precondition $\phi_\scpc{0}{0} \equiv (\sv{n} = \cv{n})$ does not contain a \recursiveRelation{}.
+When lowered to first-order logic through {\tt WP}$_{\spath{0,3},\cpath{0,3}}$, this translates to
+$\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
+Here, \cons{LNil} is obtained for \sv{l} and {\tt 0} (null) is obtained for \cv{l}.
 The one-unrolled form of this proof obligation yields
-$(n_S=n_C)\Rightarrow{}{\tt LNil}\indEq{}{\tt LNil}$ which trivially resolves to true.
+$\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \cons{LNil}$ which trivially resolves to true.
 
 Consider another example of a proof obligation,
-$\hoareTriple{\phi_{{\tt S0:C0}}}{{\tt S0\rightarrow S3\rightarrow S5\rightarrow S3}, \\ {\tt C0\rightarrow C3}}{l_{S}\indEq{}{\tt Clist}^{{\tt lnode}}_{m}(l_{C})}$.
-Notice, we have changed the path in $S$ to ${\tt S0\rightarrow S3\rightarrow S5\rightarrow S3}$ here.
-In this case, the corresponding first-order logic condition evaluates
-to: ``$(n_S=n_C)\Rightarrow({\tt LCons(0, LNil)}\indEq{}{\tt Clist}^{{\tt lnode}}_{m}(0))$''.
-One-unrolling of this proof obligation converts
-${\tt Clist^{{\tt lnode}}_{m}(0)}$ to {\tt LNil}, and
-decomposes {\tt RHS} into {\tt false}.
+\hoareTriple{\phi_\scpc{0}{0}}{\spath{0,3,5,3}, \cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+Notice, we have changed the path in $S$ to \spath{0,3,5,3} here.
+In this case, the corresponding first-order logic condition evaluates to
+$\sv{n} = \cv{n} \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
+One-unrolling of this proof obligation converts \lifted{list}{\mem{}}{lnode}{0} to \cons{LNil} and
+decomposes \rhs{} into false due to failed unification of \cons{LCons} and \cons{LNil}.
 The proof obligation is further discharged using an SMT solver
 which provides a counterexample (model) that evaluates the
-formula to false. For example, the counterexample {\tt \{ n$_S$ $\mapsto$ 42, n$_C$ $\mapsto$ 42 \} }
+formula to false. For example, the counterexample $\{ \mapping{\sv{n}}{42}, \mapping{\cv{n}}{42} \}$
 evaluates this formula to false.
 % because
 % this fails to unify (during decomposition), it evaluates to false.
@@ -173,49 +169,43 @@ The corresponding product-CFG and its node
 invariants that ensure observable
 equivalence are shown in \cref{fig:llTraverseProduct,fig:llTraverseProductInv}.
 
-Consider the proof obligation originating due to \circled{\small I2} invariant across edge ({\tt S2:C2})$\rightarrow$({\tt S2:C2}) in \cref{fig:llTraverseProduct}:
-$\hoareTriple{\phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}}{um_{S} = sum_{C}}$, where
-the node invariant $\phi_{{\tt S2:C2}}$ contains
-the \recursiveRelation{} $l_{S}\indEq{}{\tt Clist}^{{\tt lnode}}_{m}(l_{C})$.
-The corresponding (simplified) first-order logic condition for this
-proof obligation is:
-($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C}) \land {\tt sum}_S={\tt sum}_C \land \neg({\tt l_S}\ is\ {\tt LNil}) \land {\tt l_C\neq0}) \Rightarrow (({\tt sum}_S + l_S.val) = (sum_C + \structPointer{l}{m}{{\tt lnode}}{val}))$.
-We fail to remove the \recursiveRelation{} on the {\tt LHS} even after
-$k$-unrolling for any finite depth $k$ because both sides of $\indEq{}$
+Consider the proof obligation originating due to \circled{\small I2} invariant across edge \scedge{2}{2}{2}{2} in \cref{fig:llTraverseProduct}:
+\hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
+the node invariant \scpc{2}{2} contains the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
+The corresponding (simplified) first-order logic condition for this proof obligation is:
+$(\sv{l} \indEq \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \neg(\sumIs{\sv{l}}{LNil}) \land \cv{l}\neq0) \Rightarrow (\sv{sum} + \sv{l}.\field{val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
+We fail to remove the \recursiveRelation{} on the \lhs{} even after
+$k$-unrolling for any finite depth $k$ because both sides of \indEq{}
 represent list values of arbitrary length.
 In such a scenario, we do not know of an efficient
-SMT encoding for the \recursiveRelation{} ($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$).
+SMT encoding for the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
 Ignoring this \recursiveRelation{} will incorrectly (although soundly) evaluate
-the proof obligation to {\tt false}; however, for a successful equivalence
-proof, we need
-the proof discharge algorithm to evaluate it to true. Let's call this
-requirement \circled{\small R1}.
+the proof obligation to false; however, for a successful equivalence
+proof, we need the proof discharge algorithm to evaluate it to true. Let's call this
+requirement \circled{\footnotesize R1}.
 
 Now, consider the proof obligation formed by correlating two iterations
 of the loop in program $S$ with one iteration of the loop in program $C$,
-$\hoareTriple{phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}}{sum_{S} = sum_{C}}$.
-Similar to the last proof obligation, its equivalent first-order logic condition contains a \recursiveRelation{} in the {\tt LHS}.
-Clearly, this proof obligation should evaluate to {\tt false}.
+\hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}.
+Similar to the last proof obligation, its equivalent first-order logic condition contains a \recursiveRelation{} in the \lhs{}.
+Clearly, this proof obligation should evaluate to false.
 % The equivalent
 % first-order logic condition is:
 % ($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C}) \land {\tt sum}_S={\tt sum}_C \land \neg({\tt l_S}\ is\ {\tt LNil}) \land \neg({\tt l_S.tail}\ is\ {\tt LNil})) \Rightarrow (({\tt sum}_S + l_S.val + l_S.tail.val) = (sum_C + \structPointer{l}{m}{{\tt lnode}}{val}))$.  After one unrolling
 % of $l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$,
 % this proof obligation evaluates to false.
-Whenever a proof
-obligation evaluates to {\tt false}, we
+Whenever a proof obligation evaluates to false, we
 expect an ideal proof discharge algorithm to generate a
 counterexample that falsifies the proof obligation.
-Let's call this
-requirement \circled{\small R2}.
+Let's call this requirement \circled{\footnotesize R2}.
 Recall that such counterexamples help in faster
 convergence of our invariant inference and correlation algorithms.
 
-To tackle requirements \circled{\small R1} and \circled{\small R2},
+To tackle requirements \circled{\footnotesize R1} and \circled{\footnotesize R2},
 our proof discharge algorithm converts the original proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$
-into two approximated proof obligations $(P_{{\tt pre-o}}: \hoareTriple{\phi^{o_{d_1}}_s}{e}{\phi_d})$
-and $(P_{{\tt pre-u}}: \hoareTriple{\phi^{u_{d_2}}_s}{e}{\phi_d})$.
-Here $\phi^{o_{d_1}}_s$ and
-$\phi^{u_{d_2}}_s$ represent the over- and under-approximated
+into two approximated proof obligations $(P_{pre-o}: \hoareTriple{\phi^{o_{d_1}}_s}{e}{\phi_d})$
+and $(P_{pre-u}: \hoareTriple{\phi^{u_{d_2}}_s}{e}{\phi_d})$.
+Here $\phi^{o_{d_1}}_s$ and $\phi^{u_{d_2}}_s$ represent the over- and under-approximated
 versions of precondition $\phi_s$ respectively, and $d_1$ and $d_2$ represent
 {\em depth} parameters that indicate the degree of over- and
 under-approximation. We over (under) approximate a predicate by over (under)
@@ -226,45 +216,41 @@ To define these two operators, we start with the notion of {\em depth of an ADT 
 For each node in the tree representation of the term representing a value $v$,
 we assign a depth value equal to the number of ADT value constructors in the path
 to the root node. The depth of an ADT value is the maximum of the depths of all nodes in
-its term. For example, the value ${\tt LCons}(2, {\tt LCons}(4, {\tt LNil}))$ has a depth
-of 2. $l_1\indEqDepth{d}l_2$ asserts equality of the corresponding structures and values
+its term. For example, the value \cons{LCons}(2, \cons{LCons}(4, \cons{LNil})) has a depth of 2.
+$l_1\indEqDepth{d}l_2$ asserts equality of the corresponding structures and values
 up to a depth of $d$. $l_1\indEqUapprox{d}l_2$ asserts equality of the corresponding structures
 and values up to a depth of $d$ and bounds the depths of $l_1$ and $l_2$ to a maximum of $d$.
 $l_1\indEqUapprox{d}l_2$ is equivalent to $l_1\indEqDepth{d}l_2 \land \depthBound{d}{l_1} \land \depthBound{d}{l_2}$,
 where $\depthBound{d}{l}$ asserts that $l$ has a maximum depth of $d$.
 Unlike \recursiveRelations{}, these operators only equate
 scalar (bitvector, bool typed) expressions and can be encoded in SMT logic.
-For example, the condition $l\indEqDepth{1}{\tt Clist}^{{\tt lnode}}_{m}({\tt p})$
+For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$
 reduces to the SMT-encodable predicate:
-$
-((l\ is\ {\tt LNil}) \Leftrightarrow {\tt (p = 0)}) \land (\neg(l\ is\ {\tt LNil})\Rightarrow(l{\tt.val}=\structPointer{p}{m}{{\tt lnode}}{val}))
-$.
+$(\sumIs{l}{LNil} = (p = 0)) \land (\neg(\sumIs{l}{LNil}) \rightarrow (l.\field{val} = \structPointer{p}{\mem{}}{lnode}{val}))$.
 Similarly, $\depthBound{2}{l}$ is equivalent to
-$(l\ is\ {\tt LNil}) \vee (\neg(l\ is\ {\tt LNil})\land(l{\tt .tail}\ is\ {\tt LNil}))$
-and $\depthBound{2}{{\tt Clist}^{{\tt lnode}}_{m}({\tt p})}$
-is equivalent to
-$({\tt p}=0) \vee (\neg({\tt p}\neq 0)\land(\structPointer{p}{m}{\tt lnode}{next}=0))$.
+$(\sumIs{l}{LNil}) \vee (\neg(\sumIs{l}{LNil}) \land (\sumIs{l.\field{tail}}{LNil}))$
+and $\depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
+$(p = 0) \vee (\neg(p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$.
 
 Thus, for a {\em Type II} proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$,
-we first submit the over-approximated proof obligation $(P_{{\tt pre-o}}$
+we first submit the over-approximated proof obligation $P_{pre-o}$
 and return true if it evaluates to true.
-Otherwise, we submit the under-approximated proof obligation $(P_{{\tt pre-u}}$.
+Otherwise, we submit the under-approximated proof obligation $P_{pre-u}$.
 If it returns false, then we return false with the counterexample.
 If both approximations fail, we soundly return false with no counterexamples.
 
 Revisiting our examples,
-the proof obligation $\hoareTriple{\phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2},\\ {\tt C2\rightarrow C4\rightarrow C2}}{sum_{S} = sum_{C}}$ is
-provable using a depth-1 overapproximation of the
-precondition $\phi_{{\tt S2:C2}}$.
+the proof obligation \hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
+is provable using a depth-1 overapproximation of the precondition $\phi_\scpc{2}{2}$.
 % The depth-1 overapproximation retains the
 % information that the first value in lists ${\tt l}_S$
 % and ${\tt l}_C$ are equal, and that is sufficient to prove that
 % the new values of $sum_{S}$ and $sum_{C}$ are also equal (given that the
 % old values are equal, as encoded in $\phi_{{\tt S2:C2}}$).
 Similarly, the proof obligation
-$\hoareTriple{\phi_{{\tt S2:C2}}}{{\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}}{sum_{S} = sum_{C}}$
+\hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
 evaluates to false (with a counterexample) using
-a depth-2 underapproximation of the precondition $\phi_{{\tt S2:C2}}$.
+a depth-2 underapproximation of the precondition $\phi_\scpc{2}{2}$.
 The following is a possible counterexample for a depth-2 underapproximation.
 % In the depth-2 underapproximate version, we try to prove that
 % if the equal lists $l_S$ and ${\tt Clist}^{{\tt lnode}}_{m}(l_C)$
@@ -322,14 +308,14 @@ The following is a possible counterexample for a depth-2 underapproximation.
 \begin{small}
 \begin{center}
 \begin{tabular}{ll@{ $\mapsto$ }l}
-\{ & {\tt sum$_S$} & {\tt 3},\\
-   & {\tt sum$_C$} & {\tt 3},\\
-   & ${\tt l}_S$ & {\tt LCons(42,LCons(43,LNil))},\\
-   & ${\tt l}_C$ & {\tt 0x123},\\
-   & $m$ & $\Bigg\{$
+\{ & \sv{sum} & {\tt 3},\\
+   & \cv{sum} & {\tt 3},\\
+   & \sv{l} & {\tt LCons(42,LCons(43,LNil))},\\
+   & \cv{l} & {\tt 0x123},\\
+   & \mem{} & $\Bigg\{$
            \begin{tabular}{ll}
-             & {\tt 0x123} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 42, .next $\mapsto$ {\tt 0x456}),\\
-              & {\tt 0x456} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 43, .next $\mapsto$ 0),\\
+             & {\tt 0x123} $ \mapsto_\type{lnode}$ (.\field{value} $\mapsto$ {\tt 42}, .\field{next} $\mapsto$ {\tt 0x456}),\\
+              & {\tt 0x456} $\mapsto_\type{lnode}$ (.\field{value} $\mapsto$ {\tt 43}, .\field{next} $\mapsto$ {\tt 0}),\\
               & () $\mapsto$ {\tt 77}\\
            \end{tabular}$\Bigg\}$ \\
 \}\\
@@ -356,44 +342,36 @@ The following is a possible counterexample for a depth-2 underapproximation.
 \subsection{Handling Type III Proof Obligations}
 \label{sec:syn-cat3}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
-across the product-CFG edge ${\tt (S3:C5) \rightarrow (S3:C3)}$
-while checking if the {\small $\circled{I4}$} invariant, $l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})$,
-holds at {\tt (S3:C3)}:
-$\hoareTriple{\phi_{{\tt S3:C5}}}{{\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}}{l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})}$.
-Here, a \recursiveRelation{} is present both in the precondition $\phi_{{\tt S3:C5}}$ ({\small \circled{I8}})
-and in the postcondition ({\small \circled{I4}}) and we are unable to
-remove them after $k$-unrolling.
+across the product-CFG edge \scedge{3}{5}{3}{3} while checking if the
+\circled{\small I4} invariant, $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$, holds at \scpc{3}{3}:
+\hoareTriple{\phi_\scpc{3}{5}}{\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+Here, a \recursiveRelation{} is present both in the precondition $\phi_\scpc{3}{5}$ (\circled{\small I8})
+and in the postcondition (\circled{\small I4}) and we are unable to remove them after $k$-unrolling.
 When lowered to first-order logic
-through {\tt WP$_{{\tt S3\rightarrow S5\rightarrow S3},{\tt C5\rightarrow C3}}$}, this translates to (showing only relevant
-relations):
+through {\tt WP}$_{\spath{3,5,3}, \cpath{5,3}}$, this translates to (showing only relevant relations):
 \begin{equation}
 \begin{split}
 \label{eqn:ex1cat3}
-({\tt i}_S={\tt i}_C \land {\tt p}_C={\tt malloc()} \land {\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \\ \Rightarrow ({\tt LCons}({\tt i}_S, {\tt l}_S) \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt p}_C))
+(\sv{i}=\cv{i} \land \cv{p}={\tt malloc()} \land \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}) \\ \Rightarrow (\cons{LCons}(\sv{i}, \sv{l}) \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{p}})
 \end{split}
 \end{equation}
-On the {\tt RHS} of this first-order logic formula, {\tt LCons(i$_S$, l$_S$)} is compared for
-equality with {\tt Clist$_{m'}^{{\tt lnode}}$(p$_C$)}; here {\tt p$_C$}
-represents the address of the newly allocated {\tt lnode} object (through {\tt malloc}) and $m'$
-represents the C memory state after executing the writes at lines
-{\tt C5} and {\tt C6} on the path {\tt C5$\rightarrow$C3},
-i.e.,
+On the \rhs{} of this first-order logic formula, $\cons{LCons}{\sv{i}, \sv{l}}$ is compared for
+equality with $\lifted{list}{\mem{}'}{lnode}{\cv{p}}$; here \cv{p}
+represents the address of the newly allocated \type{lnode} object (through {\tt malloc}) and $\mem{}'$
+represents the C memory state after executing the writes at lines \cpc{5} and \cpc{6} on the path \cpath{5,3}, i.e.,
 \begin{equation}
 \label{eqn:memstore}
-m' \equiv m[\& (\structPointer{p_C}{m}{\tt lnode}{\tt val}) \leftarrow {\tt i}_C]_{\tt i32}[\& (\structPointer{p_C}{m}{\tt lnode}{next}) \leftarrow {\tt l}_C]_{\tt i32}
+\mem{}' \equiv \mem[\& (\structPointer{\cv{p}}{\mem{}}{lnode}{val}) \leftarrow \cv{i}]_\type{i32}[\& (\structPointer{\cv{p}}{\mem{}}{lnode}{next}) \leftarrow \cv{l}]_\type{i32}
 \end{equation}
-Here, $m[{\tt a}\leftarrow{\tt v}]$ reprsents an array that is
-equal to $m$ everywhere except at address {\tt a} which contains the value {\tt v}.
-We also refer to
-these memory writes that distinguish $m$ from $m'$, the {\em distinguishing writes}.
+Here, $\mem{}[a \leftarrow v]$ reprsents an array that is
+equal to \mem{} everywhere except at address $a$ which contains the value $v$.
+We also refer to these memory writes that distinguish \mem{} and $\mem{}'$, the {\em distinguishing writes}.
 
 \subsubsection{LHS-to-RHS Substitution and RHS Decomposition}
 We start by utilizing
-the $\indEq{}$ relationships in the {\tt LHS} (antecedant) of ``$\Rightarrow$''
-to rewrite \cref{eqn:ex1cat3}
-so that the recursive {\tt List} values in its {\tt RHS} (consequent)
-are substituted with the lifted $C$ values (lifted using
-the {\tt Clist} constructor). Thus, we
+the \indEq{} relationships in the \lhs{} (antecedant) of `$\Rightarrow$'
+to rewrite \cref{eqn:ex1cat3} so that the ADT variables (e.g., \sv{l}) in its \rhs{} (consequent)
+are substituted with the lifted $C$ values (e.g., lifted using \lift{list}{\mem{}}{lnode}). Thus, we
 rewrite \cref{eqn:ex1cat3} to:
 %\begin{equation}\label{eqn:clistsEqualUnder}
 %({\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \Rightarrow
@@ -402,23 +380,21 @@ rewrite \cref{eqn:ex1cat3} to:
 \begin{equation}
 \label{eqn:ex2cat3}
 \begin{split}
-({\tt i}_S={\tt i}_C \land {\tt p}_C={\tt malloc()} \land {\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \\ \Rightarrow ({\tt LCons}({\tt i}_S, {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt p}_C))
+(\sv{i}=\cv{i} \land \cv{p}={\tt malloc()} \land \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}) \\ \Rightarrow (\cons{LCons}(\sv{i}, \lifted{list}{\mem{}}{lnode}{\cv{l}}) \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{p}})
 \end{split}
 \end{equation}
-Next, we decompose the {\tt RHS} by decomposing the \recursiveRelation{} in the {\tt RHS}
-followed by RHS-breaking. This process reduces \cref{eqn:ex1cat3} into the following
-smaller proof obligations (showing only the
-{\tt RHS}, the {\tt LHS} is the same as in \cref{eqn:ex1cat3}):
-(1) $\neg({\tt p}_C=0)$,
-(2) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ i$_S=(\structPointer{p_C}{m'}{\tt lnode}{\tt val})$}, and
-(3) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$($\structPointer{p_C}{m'}{\tt lnode}{\tt next}$)}.
+Next, we decompose the \rhs{} by decomposing the \recursiveRelation{} in the \rhs{}
+followed by \rhs{}-breaking. This process reduces \cref{eqn:ex2cat3} into the following
+smaller proof obligations (showing only the \rhs{}, the \lhs{} is the same as in \cref{eqn:ex2cat3}):
+(a) $\neg(\cv{p} = 0)$,
+(b) $\neg(\cv{p} = 0) \rightarrow (\sv{i} = \structPointer{\cv{p}}{\mem{}'}{lnode}{val})$, and
+(c) $\neg(\cv{p} = 0) \rightarrow (\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\structPointer{\cv{p}}{\mem{}'}{lnode}{next}})$
 The first two proof obligations fall in {\em Type II} and
 are discharged through over- and under-approximation schemes (as discussed
 in \cref{sec:syn-cat2}). Note that the first proof obligation is provable due
-to the $(C\ \  \mathrm{\tt fits})$ assumption which implies
-that pointer returned by {\tt malloc} must be non-null.
+to the \cfits{} assumption which implies that pointer returned by {\tt malloc} must be non-null.
 For ease of exposition, we simplify the postcondition of the third proof obligation
-using the $(C\ \  \mathrm{\tt fits})$ assumption and \cref{eqn:memstore} to:
+using the \cfits{} assumption and \cref{eqn:memstore} to:
 % from
 % {\small \tt $\neg({\tt p}_C=0)$ $\rightarrow$ (Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$next))}
 % to
@@ -431,14 +407,15 @@ using the $(C\ \  \mathrm{\tt fits})$ assumption and \cref{eqn:memstore} to:
 % shown that $\neg({\tt p}_C=0)$ holds.
 % Thus, the third proof obligation can be rewritten as
 % a \recursiveRelation{} between two lifted expressions:
-\begin{equation}\label{eqn:clistPreserved}
-{\tt Clist}_m^{\tt lnode}({\tt l}_C) \indEq{} {\tt Clist}_{m'}^{\tt lnode}({{\tt l}_C})
+\begin{equation}
+\label{eqn:clistPreserved}
+\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}
 \end{equation}
 
 Hence, we are interested in proving equality
-between two {\tt List} values in $C$ under different memory states $m$ and $m'$.
+between two \type{List} values in $C$ under different memory states \mem{} and $\mem{}'$.
 %Note that in general this \recursiveRelation{} may be under an precondition.
-Next, we show how the above can be reformulated as a bisimilarity check between
+Next, we show how the above can be posed as a bisimilarity check between
 two programs.
 
 % Thus,
@@ -462,20 +439,16 @@ two programs.
 \subsubsection{Equality of Values to Equivalence of Programs}
 \label{sec:recursiveEqToBisim}
 Consider a program that recursively calls the definition (body) of
-${\tt Clist}^{\tt lnode}$ to deconstruct
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$.
-For example,
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-may yield a recursive call
-to ${\tt Clist}_m^{{\tt lnode}}(\structPointer{{\tt l}_C}{m}{\tt lnode}{next})$
+\lift{list}{}{lnode} to deconstruct \lifted{list}{\mem{}}{lnode}{\cv{l}}.
+For example, \lifted{list}{\mem{}}{lnode}{\cv{l}} may yield a recursive call
+to \lifted{list}{\mem{}}{lnode}{\structPointer{\cv{l}}{\mem{}}{lnode}{next}}
 and so on, until the argument becomes zero.
-This program essentially deconstructs ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
+This program essentially deconstructs \lifted{list}{\mem{}}{lnode}{\cv{l}}
 into its terminal (scalar) values and reconstructs
-a {\tt List} value equal to the value
-represented by ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$.
+a \type{List} value equal to the value
+represented by \lifted{list}{\mem{}}{lnode}{\cv{l}}.
 We call this program a {\em reconstruction program} based
-on the lifting constructor
-${\tt Clist}^{{\tt lnode}}$.
+on the lifting constructor \lift{list}{}{lnode}.
 % We call this program that deconstructs
 % ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
 % into its components and reconstructs an output
@@ -594,10 +567,9 @@ ${\tt Clist}^{{\tt lnode}}$.
 
 \input{chapters/figures/figReconsCFGAndPCFG.tex}
 
-To check if ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
-\indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$, we instead
+To check if $\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$, we instead
 check if a bisimulation relation exists
-between the two respective reconstruction programs (assuming {\tt LHS} as the precondition at entries).
+between the two respective reconstruction programs (assuming \lhs{} as the precondition at entries).
 Similar to the top-level bisimulation search, we use a product-CFG to represent this bisimulation relation.
 To distinguish this product-CFG from the top-level product-CFG that relates $S$ and $C$, we call
 this product-CFG that relates two reconstruction programs, a {\em reconstruction product-CFG}
@@ -623,82 +595,51 @@ or {\em recons-PCFG} for short.
 %lockstep execution; for
 %a successful bisimulation check, these invariants must ensure equal observables.
 The reconstruction
-program and the recons-PCFG for our {\tt Clist} example
-are shown in \cref{fig:recons}.
-Since both ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-and ${\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$ use the same
-lifting constructor ${\tt Clist}^{\tt lnode}$, the PC-transition correlations of both programs
-are trivially obtained
-by unifying the program structure with itself. A node
-is created in the recons-PCFG that
+program and the recons-PCFG for our \lift{list}{}{lnode} example are shown in \cref{fig:recons}.
+We distinguish states between the first and second programs using superscripts: $fst$ and $snd$ respectively.
+However, these are omitted in case the states are equal in both programs (e.g., \cv{p}).
+Since both \lifted{list}{\mem{}}{lnode}{\cv{l}}
+and \lifted{list}{\mem{}'}{lnode}{\cv{l}} use the same
+lifting constructor \lift{list}{}{lnode}, the PC-transition correlations of both programs
+are trivially obtained by unifying the program structures.
+A node is created in the recons-PCFG that
 encodes the correlation of the entries to both programs,
-we call this node the {\em recursive-node} in the
-recons-PCFG, e.g., the
-recursive node in \cref{fig:reconsPCFG} is {\tt R0:R0}. A recursive
-call becomes a back-edge in the recons-PCFG that terminates at the
-recursive-node.
-A candidate
-invariant at the recursive-node
-is obtained by equating the pair of corresponding
-{\tt l}$_C$ variables across the first and second
-programs, i.e.,
-${\tt l}^{fst}_C={\tt l}^{snd}_C$.
-At the start of
-both reconstruction
-programs, ${\tt l}^{fst}_C={\tt l}^{snd}_C={\tt l}^{start}_C$
---- the
-same ${\tt l}^{start}_C$ is passed to both reconstruction
-programs, only the memory states $m$ and $m'$ are different.
-The bisimulation check thus involves checking that
-if the invariant
-${\tt l}^{fst}_C={\tt l}^{snd}_C$
-holds at the recursive-node,
-then during one iteration of the static programs:
+we call this node the {\em recursive-node} in the recons-PCFG (e.g., \rrpc{0}{0} in \cref{fig:reconsPCFG}).
+A recursive call becomes a back-edge in the recons-PCFG that terminates at the recursive-node.
+% A candidate invariant at the recursive-node is obtained by equating the pair of corresponding $l$
+% variables across the first (superscripted with $fst$) and second (superscripted with $snd$) programs.
+At the start of both reconstruction programs, $\fstv{l} = \sndv{l} = \cv{l}$ --- the same \cv{l} is passed to
+both reconstruction programs, only the memory states \mem{} and $\mem{}'$ are different.
+The bisimulation check thus involves checking that if the invariant $\fstv{l} = \sndv{l}$
+holds at the recursive-node, then during one iteration of the static programs:
 \vspace{-10px}
 \begin{enumerate}
 \setlength{\itemsep}{0px}
-\item The \underline{if} condition
-({\tt l$^{fst}_C=0$}) in the first program
-is equal to the corresponding \underline{if}
-condition ({\tt l$^{snd}_C=0$}) in the
-second program.
-\item If the \underline{if} condition
-evaluates to false in both programs, then
-the observable values (that are used in the
-construction of the list) are equal, i.e.,
-$(({\tt l}^{fst}_C\neq 0)\land({\tt l}^{snd}_C\neq 0))\Rightarrow (\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{val}=
-\structPointer{{\tt l}^{snd}_C}{m'}{\tt lnode}{val})$.
-\item If the \underline{if} condition
-evaluates to false in both programs, then
-the invariant holds at the beginning
-of the programs invoked through the
-recursive call.
-This involves checking equality
-of the arguments to the recursive call, i.e.,
-$(({\tt l}^{fst}_C\neq 0)\land({\tt l}^{snd}_C\neq 0))\Rightarrow \structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{next}
-=
-\structPointer{{\tt l}^{snd}_C}{m'}{\tt lnode}{next}$.
+\item The \sumIf{} condition $(\fstv{l} = 0)$ in the first program is equal to the corresponding
+\sumIf{} condition $(\sndv{l} = 0)$ in the second program.
+\item If the \sumIf{} condition evaluates to false in both programs, then
+the observable values (that are used in the construction of the list) are equal, i.e.,
+$((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{val} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{val})$.
+\item If the \sumIf{} condition evaluates to false in both programs, then
+the invariant holds at the beginning of the programs invoked through the
+recursive call. This involves checking equality of the arguments to the recursive call, i.e.,
+$((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{next} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{next})$.
 \end{enumerate}
 \vspace{-7px}
-The first check succeeds due to the invariant
-${\tt l}^{fst}_C={\tt l}^{snd}_C$.
+The first check succeeds due to the invariant $\fstv{l} = \sndv{l}$.
 For the second and third checks, we additionally
 need to reason that the memory objects
-$\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{val}$ and
-$\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{next}$ cannot
-alias with the writes (in $m'$ in \cref{eqn:memstore})
-to the newly allocated objects
-$\structPointer{p_C}{m}{\tt lnode}{\tt val}$
-and
-$\structPointer{p_C}{m}{\tt lnode}{\tt next}$
+$\structPointer{\comv{l}}{\mem{}}{lnode}{val}$ and $\structPointer{\comv{l}}{\mem{}}{lnode}{next}$ cannot
+alias with the writes (in $\mem{}'$ in \cref{eqn:memstore}) to the newly allocated objects
+$\structPointer{\cv{p}}{\mem{}}{lnode}{val}$ and $\structPointer{\cv{p}}{\mem{}}{lnode}{next}$.
 We capture this aliasing information by running an intraprocedual allocation-site based points-to analysis on
 the original $C$ program as well as the reconstruction programs being checked
-for equivalence. Our points-to analysis also splits each allocation site region, say {\tt C4} in \cref{fig:llAllocCIR}, into
-two regions {\tt C4}$_1$ and {\tt C4}$_2$, where {\tt C4}$_1$ represents the region of the most recent allocation and {\tt C4}$_2$
+for equivalence. Our points-to analysis also splits each allocation site region, say \mlr{C4} in \cref{fig:llAllocCIR}, into
+two regions \mlrf{C4} and \mlrs{C4}, where \mlrf{C4} represents the region of the most recent allocation and \mlrs{C4}
 represents the region of all other allocations through ${\tt malloc_{C4}}$ respectively.
-We write $p\pointsTo\{R_1,R_2\}$ to represent the condition that value $p$ {\em may point to}
-an object belonging to one of the region labels $R_1$ or $R_2$ (but
-may not point to any object outside of $R_1$ and $R_2$). We compute may-point-to information for
+We write $p \pointsTo{} \{\mlr{R_1}, \mlr{R_2}\}$ to represent the condition that value $p$ {\em may point to}
+an object belonging to one of the region labels \mlr{R_1} or \mlr{R_2}
+(but may not point to any object outside of $R_1$ and $R_2$). We compute may-point-to information for
 all program variables as well as the region labels themselves.
 % For example, at the start of PC {\tt C7} in \cref{fig:llAllocCIR},
 % {\tt i}$_C\pointsTo{}\emptyset$,
@@ -749,36 +690,32 @@ all program variables as well as the region labels themselves.
 % distinguish $m$ from $m'$.
 
 Our points-to analysis on
-the C program determines that at PC {\tt C5} of \cref{fig:llAllocCIR} (the start of
-the product-CFG edge {\tt (S3:C5)$\rightarrow$(S3:C3)} across which the proof
-condition is being evaluated),
-the pointer to the {\em head}
-of the list, i.e., ${\tt l}^{start}_C$
-points to {\tt C4}$_{2+}$. It also determines that the distinguishing
-writes modify memory regions belonging to {\tt C4}$_1$. 
-Further, we get ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$ at PC {\tt C5}.
-However,
-notice that these determinations only rule out aliasing of the list-head with
+the C program determines that at PC \cpc{5} of \cref{fig:llAllocCIR} (the start of
+the product-CFG edge \scedge{3}{5}{3}{3} across which the proof
+condition is being evaluated), the pointer to the {\em head}
+of the list, i.e., $\cv{l} \pointsTo{} \{ \mlrs{C4} \}$.
+It also determines that the distinguishing
+writes modify memory regions belonging to \mlrf{C4} only.
+Further, we get $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ at PC \cpc{5}.
+However, notice that these determinations only rule out aliasing of the list-head with
 the distinguishing writes. We also need to confirm non-aliasing
-of the internal nodes of the linked list with the distinguishing
-writes.
+of the internal nodes of the linked list with the distinguishing writes.
 For this, we need to identify a points-to invariant,
-{\tt l}$_C^{snd}\pointsTo{}\{{\tt C4}_{2+}\}$, at the recursive-node
-of the recons-PCFG
-(shown in \cref{fig:reconsPCFG}).
+$\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$, at the recursive-node
+of the recons-PCFG (shown in \cref{fig:reconsPCFG}).
 To identify such points-to invariant, we run our points-to analysis
 on the reconstruction programs (\cref{fig:reconsProg}) before comparing them for equivalence.
+To model procedure calls, a {\em supergraph} is created with control flow to and from the entry and exit
+of the program (e.g., dashed edges in \cref{fig:recons}).
 We use the results of the points-to analysis on $C$ at the PC where the proof obligation
-is being discharged (e.g., {\tt C5} in \cref{fig:llAllocC}).
-To see why {\tt l}$_C^{snd}\pointsTo{}\{{\tt C4}_{2+}\}$ is
+is being discharged (\cpc{5} of \cref{fig:llAllocC} in our case).
+To see why $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ is
 an inductive invariant at the recursive-node:
-(base case) The invariant holds
-at entry to the recons-PCFG (because it holds for ${\tt l}^{start}_C$),
-(induction step) If ${\tt l}_C^{snd}\pointsTo{}\{{\tt C4}_{2+}\}$
-holds at the entry node,
-it also holds at the start of a recursive call. This
-follows from ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$ (points-to information at PC {\tt C5}),
-which ensures that $\structPointer{\tt l_C}{m'}{\tt lnode}{next}$ may point to only ${\tt C4}_{2+}$ objects.
+(base case) the invariant holds at entry to the recons-PCFG since it holds for \cv{l} and
+(induction step) if $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ holds at the entry node,
+it also holds at the start of a recursive call.
+This follows from $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ (points-to information at PC \cpc{5}),
+which ensures that $\structPointer{\cv{l}}{\mem{}'}{lnode}{next}$ may point to only \mlrs{C4} objects.
 % \vspace{-10px}
 % \begin{itemize}
 % \setlength{\itemsep}{0px}  
@@ -791,30 +728,28 @@ which ensures that $\structPointer{\tt l_C}{m'}{\tt lnode}{next}$ may point to o
 % which ensures that $\structPointer{\tt l_C}{m'}{\tt lnode}{next}$ may point to only ${\tt C4}_{2+}$ objects.
 % \end{itemize}
 % \vspace{-10px}
-During proof obligation discharge (e.g., during the bisimulation
-check on recons-PCFG), the points-to invariants are encoded as SMT constraints.
-This allows us to successfully
-complete the bisimulation proof on the recons-PCFG, and
-consequently successfully discharge the
-proof obligation
-$\hoareTriple{\phi_{{\tt S3:C5}}} \\ {{\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}}{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})}$ in \cref{tab:llproductInv}.
+During proof obligation discharge (e.g., during the bisimulation check on recons-PCFG),
+the points-to invariants are encoded as SMT constraints.
+This allows us to successfully complete the bisimulation proof on the recons-PCFG, and
+consequently successfully discharge the proof obligation
+\hoareTriple{\phi_\scpc{3}{5}} {\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}
+generated due to \circled{\small I4} invariant in \cref{tab:llproductInv}.
 % The points-to analysis is described more formally
 % in \cref{sec:pointsToFormal}.
 \vspace{-3px}
 \subsection{Summary of Proof Discharge Algorithm}
 \vspace{-3px}
 \label{sec:syn-algosummary}
-Let $Solve({\tt LHS}, {\tt RHS}, k, d_o, d_u)$ be the top-level procedure for discharging proof obligations.
-${\tt LHS}\Rightarrow{\tt RHS}$ represents the proof obligation, where $k$, $d_o$ and $d_u$ are the categorization parameter,
+Let $Solve(\lhs{}, \rhs{}, k, d_o, d_u)$ be the top-level procedure for discharging proof obligations.
+$\lhs{} \Rightarrow \rhs{}$ represents the proof obligation, where $k$, $d_o$ and $d_u$ are the categorization parameter,
 over- and under-approximation depths respectively.
-$Solve$ returns either {\tt T} or {\tt F}(${\tt \Gamma}$) signifying proven and disproven respectively
-where ${\tt \Gamma}$ is a set of counterexamples.
-Without loss of generality, let {\tt RHS} be a single conjunctive
-clause. Otherwise, it is broken into smaller queries through RHS-breaking as previously discussed. \Cref{algo:proofSummary}
-gives a broad overview of our proof discharge algorithm.
+$Solve$ returns either {\tt T} or {\tt F}($\Gamma$) signifying proven and disproven respectively
+where $\Gamma$ is a set of counterexamples.
+Without loss of generality, \rhs{} is assumed to be a single conjunctive clause.
+Otherwise, it is broken into smaller queries through \rhs{}-breaking as previously discussed.
+\Cref{algo:proofSummary} gives a broad overview of our proof discharge algorithm.
 
 \input{chapters/figures/figProofSummary.tex}
-
 
 %Thus, as a part of the invariant inference procedure on the product-CFG
 %for the decomposition programs, we also run our points-to analysis on the

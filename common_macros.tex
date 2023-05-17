@@ -8,13 +8,21 @@
 \setlength{\textfloatsep}{6.0pt plus 1.0pt minus 1.0pt}
 \setlength{\intextsep}{3.0pt plus 0.5pt minus 0.5pt}
 
+\makeatletter
+\newcommand{\oset}[3][0ex]{%
+  \mathrel{\mathop{#3}\limits^{
+    \vbox to#1{\kern-2\ex@
+    \hbox{$\scriptstyle#2$}\vss}}}}
+\makeatother
+
 \newcommand{\toolName}{S2C}%
 \newcommand{\ite}[3]{\ensuremath{#1?#2:#3}}%
 \newcommand{\sumDtor}{\underline{\tt if}-\underline{\tt then}-\underline{\tt else}}%
-\newcommand{\sumIf}[1]{\underline{\tt if}\ \ensuremath{#1}}
-\newcommand{\sumThen}[1]{\underline{\tt then}\ \ensuremath{#1}}
-\newcommand{\sumElif}[1]{\underline{\tt elif}\ \ensuremath{#1}}
-\newcommand{\sumElse}[1]{\underline{\tt else}\ \ensuremath{#1}}
+\newcommand{\sumIs}[2]{\ensuremath{#1\ \mathrm{is}\ \cons{#2}}}%
+\newcommand{\sumIf}[1]{\underline{\tt if}\ \ensuremath{#1}}%
+\newcommand{\sumThen}[1]{\underline{\tt then}\ \ensuremath{#1}}%
+\newcommand{\sumElif}[1]{\underline{\tt elif}\ \ensuremath{#1}}%
+\newcommand{\sumElse}[1]{\underline{\tt else}\ \ensuremath{#1}}%
 \newcommand{\recursiveRelations}{recursive relations}%
 \newcommand{\recursiveRelation}{recursive relation}%
 \newcommand{\SpecL}{Spec}%
@@ -22,12 +30,13 @@
 \newcommand{\indEqDepth}[1]{\ensuremath{\sim_#1}}%
 \newcommand{\indEqUapprox}[1]{\ensuremath{\approx_#1}}%
 \newcommand{\depthBound}[2]{\ensuremath{\Gamma_#1(#2)}}%
-\newcommand{\structPointer}[4]{\ensuremath{{#1} \overset{#2}{\rightarrow}_{\type{#3}} {\tt #4}}}%
+\newcommand{\structPointer}[4]{\ensuremath{{#1} \oset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
 \newcommand{\arrIndex}[4]{\ensuremath{#1[#2]_{\type{#4}}^{#3}}}
 \newcommand{\pointsTo}{\ensuremath{\rightsquigarrow}}%
 \newcommand{\hoareTriple}[3]{\ensuremath{\{#1\}(#2)\{#3\}}}%
 \newcommand{\lift}[3]{\ensuremath{{{\tt C#1}_{#2}^{\tt #3}}}}%
 \newcommand{\lifted}[4]{\lift{#1}{#2}{#3}{\ensuremath{(#4)}}}%
+\newcommand{\mapping}[2]{\ensuremath{#1 \! \mapsto \! #2}}%
 \newcommand{\mem}{\ensuremath{{\mathbb{m}}}}%
 \newcommand{\nonTerm}[1]{\ensuremath{\langle}#1\ensuremath{\rangle}}%
 \newcommand{\term}[1]{{\tt #1}}%
@@ -37,23 +46,36 @@
 \newcommand{\cpc}[1]{\ensuremath{{\tt C#1}}}%
 \newcommand{\rpc}[1]{\ensuremath{{\tt R#1}}}%
 \newcommand{\scpc}[2]{\ensuremath{{\tt S#1\!:\!C#2}}}%
-\newcommand{\rrpc}[2]{\ensuremath{{\tt R#1:R#2}}}%
+\newcommand{\rrpc}[2]{\ensuremath{{\tt R#1\!:\!R#2}}}%
+\newcommand{\comv}[1]{\ensuremath{{\tt #1}}}%
+\newcommand{\fstv}[1]{\ensuremath{{\tt #1}^{fst}}}%
+\newcommand{\sndv}[1]{\ensuremath{{\tt #1}^{snd}}}%
 \newcommand{\sdef}{\ensuremath{{(S\ {\tt def})}}}%
 \newcommand{\cfits}{\ensuremath{{(C\ {\tt fits})}}}%
-\newcommand{\spath}[2][\ensuremath{\rightarrow}]{%
+\newcommand{\spath}[2][\ensuremath{{\rightarrow}}]{%
   \def\nextitem{\def\nextitem{#1}}% Separator
   \renewcommand*{\do}[1]{\nextitem{\spc{##1}}}% How to process each item
   \docsvlist{#2}% Process list
 }
-\newcommand{\cpath}[2][\ensuremath{\rightarrow}]{%
+\newcommand{\cpath}[2][\ensuremath{{\rightarrow}}]{%
   \def\nextitem{\def\nextitem{#1}}% Separator
   \renewcommand*{\do}[1]{\nextitem{\cpc{##1}}}% How to process each item
+  \docsvlist{#2}% Process list
+}%
+\newcommand{\pathpar}{\ensuremath{+}}%
+\newcommand{\pathset}[2][\ensuremath{{\rightarrow}}]{%
+  \def\nextitem{\def\nextitem{#1}}% Separator
+  \renewcommand*{\do}[1]{\nextitem{{\tt ##1}}}% How to process each item
   \docsvlist{#2}% Process list
 }
 \newcommand{\scedge}[4]{\ensuremath{{\small \scpc{#1}{#2} \! \rightarrow \! \scpc{#3}{#4}}}}%
 \newcommand{\type}[1]{{\tt #1}}%
-\newcommand{\ctype}[1]{{\ensuremath{\tt :\!\!#1}}}
+\newcommand{\ctype}[1]{{{\tt :\!\!#1}}}
 \newcommand{\cons}[1]{{\tt #1}}%
+\newcommand{\field}[1]{{{\tt #1}}}%
+\newcommand{\mlr}[1]{{\ensuremath{\tt #1}}}%
+\newcommand{\mlrf}[1]{{\ensuremath{\tt #1_1}}}%
+\newcommand{\mlrs}[1]{{\ensuremath{\tt #1_{2+}}}}%
 \newcommand{\lhs}{{\tt LHS}}%
 \newcommand{\rhs}{{\tt RHS}}%
 
@@ -65,6 +87,7 @@
 \newcommand*{\inv}[1]{\tikz[baseline=(char.base)]{
                       \node[shape=rounded rectangle,draw,inner sep=2pt] (char) {\scriptsize {\tt #1}};}}
 \newcommand*{\pred}[1]{\fbox{\scriptsize {\tt #1}}}
+\newcommand*{\tfbox}[1]{\fbox{\ensuremath{#1}}}
 
 \definecolor{myastral}{RGB}{46,116,181}
 \definecolor{myolive}{named}{olive}
