@@ -1,4 +1,4 @@
-\begin{table}[t]
+\begin{table}[H]
 \begin{center}
 \caption{\label{tab:LiftingConsStr}String lifting constructors and their definitions.}
 \begin{scriptsize}
@@ -10,16 +10,16 @@
 \multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T1} {\tt Str = SInvalid | SNil | SCons(i8, Str)}} \\
 \hline
 \lifted{str}{\mem{}}{u8[]}{p\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{SInvalid}} \\
-                                                        \Tstrut \sumElif{\arrIndex{p}{0_\type{i32}}{i8}{\mem{}}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
-                                                \Tstrut \Bstrut \sumElse{\cons{SCons}(\arrIndex{p}{0_\type{i32}}{i8}{\mem{}}, \lifted{str}{\mem{}}{u8[]}{p+1_\type{i32}})}} \\
+                                                        \Tstrut \sumElif{\arrIndex{p}{0_\type{i32}}{\mem{}}{i8}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
+                                                \Tstrut \Bstrut \sumElse{\cons{SCons}(\arrIndex{p}{0_\type{i32}}{\mem{}}{i8}, \lifted{str}{\mem{}}{u8[]}{p+1_\type{i32}})}} \\
 \hline
 \lifted{str}{\mem{}}{lnode(u8)}{p\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{SInvalid}} \\
                                                              \Tstrut \sumElif{\structPointer{p}{\mem{}}{lnode}{val}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
                                                      \Tstrut \Bstrut \sumElse{\cons{SCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{str}{\mem{}}{lnode(u8)}{\structPointer{p}{\mem{}}{lnode}{next}})}} \\
 \hline
 \lifted{str}{\mem{}}{clnode(u8)}{p\ctype{i32},i\ctype{i2}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{SInvalid}} \\
-                                                                          \Tstrut \sumElif{\arrIndex{\structPointer{p}{\mem{}}{lnode}{chunk}}{i}{i8}{\mem{}}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
-                                                                  \Tstrut \Bstrut \sumElse{\cons{SCons}(\arrIndex{\structPointer{p}{\mem{}}{lnode}{chunk}}{i}{i8}{\mem{}}, \lifted{str}{\mem{}}{clnode(u8)}{\ite{i=3_\type{i2}}{\structPointer{p}{\mem{}}{clnode}{next}}{p}, i+1_\type{i2}})}} \\
+                                                                          \Tstrut \sumElif{\arrIndex{\structPointer{p}{\mem{}}{lnode}{chunk}}{i}{\mem{}}{i8}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
+                                                                  \Tstrut \Bstrut \sumElse{\cons{SCons}(\arrIndex{\structPointer{p}{\mem{}}{lnode}{chunk}}{i}{\mem{}}{i8}, \lifted{str}{\mem{}}{clnode(u8)}{\ite{i=3_\type{i2}}{\structPointer{p}{\mem{}}{clnode}{next}}{p}, i+1_\type{i2}})}} \\
 \hline
 \end{tabular}
 \end{scriptsize}

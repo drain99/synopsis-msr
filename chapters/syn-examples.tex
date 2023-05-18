@@ -19,9 +19,11 @@ A proof obligation
 $\hoareTriple{\phi_s}{e}{\phi_d}$, where $e=(\rho_S,\rho_C)$,
 gets lowered using
 ${\tt WP}_{e}(\phi_d)$ (as shown in \cref{eqn:firstOrderFormula}) to a first-order logic formula of the following form:
+\vspace{-5px}
 \begin{equation}
 \label{eqn:proofObligationShape}
-({\tt \eta^{l}_1 \land \eta^{l}_2 \land ... \land \eta^{l}_m}) \Rightarrow ({\tt \eta^{r}_1 \land \eta^{r}_2 \land ... \land \eta^{r}_n})
+(\eta^{l}_1 \land \eta^{l}_2 \land ... \land \eta^{l}_m) \Rightarrow (\eta^{r}_1 \land \eta^{r}_2 \land ... \land \eta^{r}_n)
+\vspace{-5px}
 \end{equation}
 % In this formula,
 % the {\tt LHS} and {\tt RHS} are
@@ -77,9 +79,11 @@ a bigger query to multiple smaller queries, {\em \rhs{}-breaking}.
 \label{sec:syn-cat-decomp}
 Before diving into the proof discharge algorithm, we start with decomposition of \recursiveRelations{}.
 Decomposition is a key procedure in multiple components of our proof discharge algorithm.
+\vspace{-5px}
 \begin{equation}
 \label{eqn:specDeconstruct}
 U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCons}(l.\field{val}, l.\field{next})}
+\vspace{-5px}
 \end{equation}
 A \recursiveRelation{} of the form $l_1 \indEq{} l_2$ can be {\em decomposed} into an
 equivalent set of {\em decomposition clauses}, each of the form $(P\! \rightarrow\! A\! =\! B)$ or $(P\! \rightarrow\! A\! \indEq{}\! B)$.
@@ -89,9 +93,9 @@ as well as expansion of ADT variables using the \sumDtor{} operator as shown in 
 Unification proceeds by iteratively (1) unifying the structurs created by the ADT value constructors as well as the \sumDtor{}
 operator and (2) expanding the current subterms using the rewriting rules in $E$ as needed.
 For example, \sumIf{c_1} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(0,l_1)} \indEq{} \sumIf{c_2} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}
-decomposes into $\bigwedge\big\{c_1=c_2, (c_1 \land c_2) \rightarrow 0=i, (c_1 \land c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \big\}$.
+decomposes into $\bigwedge\{c_1=c_2, (c_1 \land c_2) \rightarrow 0=i, (c_1 \land c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \}$.
 Similarly, the decomposition of $l_1\indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
-$\bigwedge \big\{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \big\}$.
+$\bigwedge \{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \}$.
 We {\em decompose} a proof obligation $P$ by decomposing each \recursiveRelation{} in $P$.
 
 We {\em unroll an expression $e$} with respect to $E$ containing rules of the form $r_i \Rightarrow s_i$ by substituting
@@ -100,10 +104,11 @@ by unrolling the $(k-1)$-unrolling of $e$ recursively. For a first order logic p
 we identify its $k$-unrolling (for a fixed unrolling parameter $k$). After unrolling, we eliminate those
 decomposition clauses $(P_i\! \rightarrow\! X_i)$ whose $P_i$ evaluates to false under the \lhs{} ignoring all \recursiveRelations{}.
 For example, the one-unrolling of $P: \lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{0}$, after simplification, yields
-$P': \lhs{} \Rightarrow \sumIs{l}{LNil}$. We categorize a proof obligation $P$ based on this $k$-unrolled form of $P$ as follows:
-\vspace{-10px}
+$P': \lhs{} \Rightarrow \sumIs{l}{LNil}$.
+We categorize a proof obligation $P$ based on this $k$-unrolled form of $P$ as follows:
+\vspace{-5px}
 \begin{itemize}
-\setlength{\itemsep}{0px}
+\setlength{\itemsep}{-3px}
 \item Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}
 \item Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the \lhs{}
 \item Type III: $k$-unrolling of $P$ contains \recursiveRelations{} in the \rhs{}
@@ -118,16 +123,16 @@ Next, we briefly describe the key ideas for each of the three types of proof obl
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge \scedge{0}{0}{3}{3}
 while checking if the {\circled{\footnotesize I4}} invariant in \cref{tab:llproductInv} holds at (\scpc{3}{3}):
-\hoareTriple{\phi_\scpc{0}{0}}{\spath{0,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
-The precondition $\phi_\scpc{0}{0} \equiv (\sv{n} = \cv{n})$ does not contain a \recursiveRelation{}.
+\hoareTriple{\scpcinv{0}{0}}{\spath{0,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+The precondition $\scpcinv{0}{0} \equiv (\sv{n} = \cv{n})$ does not contain a \recursiveRelation{}.
 When lowered to first-order logic through {\tt WP}$_{\spath{0,3},\cpath{0,3}}$, this translates to
 $\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
 Here, \cons{LNil} is obtained for \sv{l} and {\tt 0} (null) is obtained for \cv{l}.
 The one-unrolled form of this proof obligation yields
 $\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \cons{LNil}$ which trivially resolves to true.
 
-Consider another example of a proof obligation,
-\hoareTriple{\phi_\scpc{0}{0}}{\spath{0,3,5,3}, \cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+Consider the following example of a proof obligation:
+\hoareTriple{\scpcinv{0}{0}}{\spath{0,3,5,3}, \\ \cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
 Notice, we have changed the path in $S$ to \spath{0,3,5,3} here.
 In this case, the corresponding first-order logic condition evaluates to
 $\sv{n} = \cv{n} \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
@@ -170,7 +175,7 @@ invariants that ensure observable
 equivalence are shown in \cref{fig:llTraverseProduct,fig:llTraverseProductInv}.
 
 Consider the proof obligation originating due to \circled{\small I2} invariant across edge \scedge{2}{2}{2}{2} in \cref{fig:llTraverseProduct}:
-\hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
+\hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
 the node invariant \scpc{2}{2} contains the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
 The corresponding (simplified) first-order logic condition for this proof obligation is:
 $(\sv{l} \indEq \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \neg(\sumIs{\sv{l}}{LNil}) \land \cv{l}\neq0) \Rightarrow (\sv{sum} + \sv{l}.\field{val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
@@ -186,7 +191,7 @@ requirement \circled{\footnotesize R1}.
 
 Now, consider the proof obligation formed by correlating two iterations
 of the loop in program $S$ with one iteration of the loop in program $C$,
-\hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}.
+\hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}.
 Similar to the last proof obligation, its equivalent first-order logic condition contains a \recursiveRelation{} in the \lhs{}.
 Clearly, this proof obligation should evaluate to false.
 % The equivalent
@@ -239,18 +244,17 @@ Otherwise, we submit the under-approximated proof obligation $P_{pre-u}$.
 If it returns false, then we return false with the counterexample.
 If both approximations fail, we soundly return false with no counterexamples.
 
-Revisiting our examples,
-the proof obligation \hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
-is provable using a depth-1 overapproximation of the precondition $\phi_\scpc{2}{2}$.
+Revisiting our proof obligations, \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
+is provable using a depth-1 overapproximation of the precondition $\scpcinv{2}{2}$.
 % The depth-1 overapproximation retains the
 % information that the first value in lists ${\tt l}_S$
 % and ${\tt l}_C$ are equal, and that is sufficient to prove that
 % the new values of $sum_{S}$ and $sum_{C}$ are also equal (given that the
 % old values are equal, as encoded in $\phi_{{\tt S2:C2}}$).
 Similarly, the proof obligation
-\hoareTriple{\phi_\scpc{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
+\hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
 evaluates to false (with a counterexample) using
-a depth-2 underapproximation of the precondition $\phi_\scpc{2}{2}$.
+a depth-2 underapproximation of the precondition $\scpcinv{2}{2}$.
 The following is a possible counterexample for a depth-2 underapproximation.
 % In the depth-2 underapproximate version, we try to prove that
 % if the equal lists $l_S$ and ${\tt Clist}^{{\tt lnode}}_{m}(l_C)$
@@ -343,9 +347,9 @@ The following is a possible counterexample for a depth-2 underapproximation.
 \label{sec:syn-cat3}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge \scedge{3}{5}{3}{3} while checking if the
-\circled{\small I4} invariant, $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$, holds at \scpc{3}{3}:
-\hoareTriple{\phi_\scpc{3}{5}}{\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
-Here, a \recursiveRelation{} is present both in the precondition $\phi_\scpc{3}{5}$ (\circled{\small I8})
+\circled{\small I4} invariant, $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$, holds at (\scpc{3}{3}):
+\hoareTriple{\scpcinv{3}{5}}{\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+Here, a \recursiveRelation{} is present both in the precondition $\scpcinv{3}{5}$ (\circled{\small I8})
 and in the postcondition (\circled{\small I4}) and we are unable to remove them after $k$-unrolling.
 When lowered to first-order logic
 through {\tt WP}$_{\spath{3,5,3}, \cpath{5,3}}$, this translates to (showing only relevant relations):
@@ -612,20 +616,20 @@ At the start of both reconstruction programs, $\fstv{l} = \sndv{l} = \cv{l}$ ---
 both reconstruction programs, only the memory states \mem{} and $\mem{}'$ are different.
 The bisimulation check thus involves checking that if the invariant $\fstv{l} = \sndv{l}$
 holds at the recursive-node, then during one iteration of the static programs:
-\vspace{-10px}
+\vspace{-13px}
 \begin{enumerate}
-\setlength{\itemsep}{0px}
+\setlength{\itemsep}{-3px}
 \item The \sumIf{} condition $(\fstv{l} = 0)$ in the first program is equal to the corresponding
 \sumIf{} condition $(\sndv{l} = 0)$ in the second program.
 \item If the \sumIf{} condition evaluates to false in both programs, then
-the observable values (that are used in the construction of the list) are equal, i.e.,
+the observable values (that are used in the construction of the list) are equal: \\
 $((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{val} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{val})$.
 \item If the \sumIf{} condition evaluates to false in both programs, then
 the invariant holds at the beginning of the programs invoked through the
-recursive call. This involves checking equality of the arguments to the recursive call, i.e.,
+recursive call. This involves checking equality of the arguments to the recursive call: \\
 $((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{next} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{next})$.
 \end{enumerate}
-\vspace{-7px}
+\vspace{-10px}
 The first check succeeds due to the invariant $\fstv{l} = \sndv{l}$.
 For the second and third checks, we additionally
 need to reason that the memory objects
@@ -688,7 +692,7 @@ all program variables as well as the region labels themselves.
 % To successfully discharge these proof obligations, it suffices
 % to show ${\tt l}_C$ cannot alias with the memory writes that
 % distinguish $m$ from $m'$.
-
+\vspace{-5px}
 Our points-to analysis on
 the C program determines that at PC \cpc{5} of \cref{fig:llAllocCIR} (the start of
 the product-CFG edge \scedge{3}{5}{3}{3} across which the proof
@@ -732,21 +736,20 @@ During proof obligation discharge (e.g., during the bisimulation check on recons
 the points-to invariants are encoded as SMT constraints.
 This allows us to successfully complete the bisimulation proof on the recons-PCFG, and
 consequently successfully discharge the proof obligation
-\hoareTriple{\phi_\scpc{3}{5}} {\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}
+\hoareTriple{\scpcinv{3}{5}} {\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}
 generated due to \circled{\small I4} invariant in \cref{tab:llproductInv}.
 % The points-to analysis is described more formally
 % in \cref{sec:pointsToFormal}.
-\vspace{-3px}
+\vspace{-10px}
 \subsection{Summary of Proof Discharge Algorithm}
-\vspace{-3px}
+\vspace{-5px}
 \label{sec:syn-algosummary}
 Let $Solve(\lhs{}, \rhs{}, k, d_o, d_u)$ be the top-level procedure for discharging proof obligations.
 $\lhs{} \Rightarrow \rhs{}$ represents the proof obligation, where $k$, $d_o$ and $d_u$ are the categorization parameter,
 over- and under-approximation depths respectively.
 $Solve$ returns either {\tt T} or {\tt F}($\Gamma$) signifying proven and disproven respectively
 where $\Gamma$ is a set of counterexamples.
-Without loss of generality, \rhs{} is assumed to be a single conjunctive clause.
-Otherwise, it is broken into smaller queries through \rhs{}-breaking as previously discussed.
+We perform \rhs{}-breaking on the lowered proof obligations and invoke $Solve$ for each smaller proof obligations.
 \Cref{algo:proofSummary} gives a broad overview of our proof discharge algorithm.
 
 \input{chapters/figures/figProofSummary.tex}

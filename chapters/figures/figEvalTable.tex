@@ -1,9 +1,10 @@
-\begin{figure}[H]
+\begin{table}[H]
 \begin{center}
+\caption{\label{tab:results}Equivalence checking times and minimum under- and over- \\ approximation depth values at which equivalence checks succeeded.}
 \begin{scriptsize}
 \begin{tabular}{@{}l@{\hspace{5px}}l@{\hspace{5px}}l@{\hspace{5px}}cl@{\hspace{5px}}l@{\hspace{5px}}l@{\hspace{5px}}c@{}}
 \toprule
-{\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf (${\tt \bf d_u,d_o}$)} & {\bf Data Layout} & {\bf Variant} & {\bf Time(s)} & {\bf (${\tt \bf d_u,d_o}$)} \\
+{\bf Data Layout} & {\bf Variant} & {\bf Time($s$)} & {($\mathbf{d}_u,\mathbf{d}_o$)} & {\bf Data Layout} & {\bf Variant} & {\bf Time($s$)} & {($\mathbf{d}_u,\mathbf{d}_o$)} \\
 \midrule
 \multicolumn{4}{c}{\bf list} &                               \multicolumn{4}{c}{\bf tree} \\
 u32[] & sum naive & 16 & (1,2) &                             u32[] & sum & 264 & (1,2) \\
@@ -57,6 +58,5 @@ clnode(u8),clnode(u8) & opt & 254 & (4,1) &                  & & & \\
 \bottomrule
 \end{tabular}
 \end{scriptsize}
-\caption{\label{tab:results}Equivalence checking times and minimum under- and over-approximation depth values at which equivalence checks succeeded.}
 \end{center}
-\end{figure}
+\end{table}

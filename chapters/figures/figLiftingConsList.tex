@@ -10,13 +10,13 @@
 \multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T2} {\tt List = LNil | LCons(i32, List)}} \\
 \hline
 \lifted{list}{\mem{}}{u32[]}{p\ i\ n\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{i\geq_{u}n} \  \sumThen{\cons{LNil}} \\
-                                                        \Tstrut \Bstrut \sumElse{\cons{LCons}(\arrIndex{p}{i}{i32}{\mem{}}, \lifted{list}{\mem{}}{u32[]}{p,i+1_\type{i32},n})}} \\
+                                                        \Tstrut \Bstrut \sumElse{\cons{LCons}(\arrIndex{p}{i}{\mem{}}{i32}, \lifted{list}{\mem{}}{u32[]}{p,i+1_\type{i32},n})}} \\
 \hline
 \lifted{list}{\mem{}}{lnode(u32)}{p\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \  \sumThen{\cons{LNil}} \\
                                                        \Tstrut \Bstrut \sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})}} \\
 \hline
 \lifted{list}{\mem{}}{clnode(u32)}{p\ctype{i32},i\ctype{i2}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \  \sumThen{\cons{LNil}} \\
-                                                                    \Tstrut \Bstrut \sumElse{\cons{LCons}(\arrIndex{\structPointer{p}{\mem{}}{clnode}{chunk}}{i}{i32}{\mem{}}, \lifted{list}{\mem{}}{clnode}{\ite{i=3_\type{i2}}{\structPointer{p}{\mem{}}{clnode}{next}}{p},i+1_\type{i2}})}} \\
+                                                                    \Tstrut \Bstrut \sumElse{\cons{LCons}(\arrIndex{\structPointer{p}{\mem{}}{clnode}{chunk}}{i}{\mem{}}{i32}, \lifted{list}{\mem{}}{clnode}{\ite{i=3_\type{i2}}{\structPointer{p}{\mem{}}{clnode}{next}}{p},i+1_\type{i2}})}} \\
 \hline
 \end{tabular}
 \end{scriptsize}

@@ -11,14 +11,14 @@ We introduce a custom minimal functional language called `Spec' and define the n
 
 \textbf{Chapter 3} starts with background on program equivalence, bisimulation relation and product program.
 The rest of the chapter gradually introduces our first contribution: A Proof Discharge Algorithm and related subprocedures with the help
-of two example programs.
+of two example programs. We also introduce a program representation of values, called `reconstruction program'.
 
 Next, we formalize previously discussed topics in \textbf{Chapter 4}. We begin with a detailed description of our custom language `Spec'. This is followed by
 algorithms required in tandem with our proof discharge algorithm for an automatic equivalence checker such as a best-first search algorithm
 for finding a bisimulation relation and an automatic invariant inference procedure. We finish this chapter with a dataflow analysis formulation
 of a pointer analysis used by our equivalence checker.
 
-\textbf{Chapter 5} introduces a program graph representation of values, called `deconstruction procedure', similar to the one introduced in \textbf{Chapter 3}.
+\textbf{Chapter 5} introduces a program graph representation of values, called `deconstruction procedure', similar to `reconstruction procedure' as introduced in \textbf{Chapter 3}.
 We motivate it by listing its advantages and give an algorithm to convert values to this representation. We finish by reformulating our
 proof discharge algorithm using the said representation.
 

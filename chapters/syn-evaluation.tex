@@ -1,8 +1,9 @@
+% \input{chapters/figures/figLiftingCons.tex}
+\input{chapters/figures/figLiftingConsStr.tex}
+\vspace{-10px}
 \section{Evaluation}
 \label{sec:syn-eval}
-
-\input{chapters/figures/figLiftingCons.tex}
-
+\vspace{-5px}
 We have implemented \toolName{} on top of the
 Counter tool \cite{oopsla20}.
 We use {\em four} SMT solvers running in parallel for solving
@@ -43,8 +44,6 @@ and \inv{\small T4} \type{Matrix}.
 % postcondition, and invariants may relate \SpecL{} ADT variables with the
 % values lifted (through a lifting constructor) from C variables (and current
 % memory state).
-
-\input{chapters/figures/figLiftingConsStr.tex}
 
 \subsection{Experiments}
 For each \SpecL{} program specification, we consider multiple
@@ -110,17 +109,6 @@ On the other hand, \lift{str}{\mem{}}{clnode(u8)} requires two arguments $p$
 and $i$, where $p$ represents the pointer to the chunked linked list node
 and $i$ represents the position of the initial character in the chunk.
 
-Usually, we name a lifting constructor based on its underlying data layout.
-For example, \lift{str}{\mem{}}{lnode(u8)} represents a lifting constructor
-for a chunked linked list of characters as its underlying data layout.
-In general, we use the following naming convension for different data layouts.
-\type{T[]} represents an array of type \type{T} (e.g., \type{u8[]}).
-\type{lnode(T)} represents a  linked list node type which encapsulates a value of type \type{T}.
-Similarly, \type{clnode(T)} and \type{tnode(T)} represent a chunked linked list and a tree node
-containing values of type \type{T} respectively.
-
-\input{chapters/figures/figStrlenCfgsWithInvs.tex}
-
 \Cref{fig:strlenSpecAndC} shows the {\tt strlen} specification and two vastly
 different $C$ implementations. \Cref{fig:llStrlenCArrIR} is a generic implementation
 using a null character terminated array to represent a string similar to a C-style string.
@@ -131,9 +119,22 @@ and (b) it uses specialized bit manipulations to identify a null character in a 
 for both implementations against the unaltered specification.
 \Cref{fig:StrlenProductCFGsAndInvs} shows the product-CFG and invariants for each implementation.
 
+\input{chapters/figures/figStrlenCfgsWithInvs.tex}
+
+Lifting constructors are named based on their underlying data layout.
+For example, \lift{str}{}{u8[]} represents a \type{String} lifting constructor
+for an array layout.
+In general, we use the following naming convension for different data layouts:
+\type{T[]} represents an array of type \type{T} (e.g., \type{u8[]}).
+\type{lnode(T)} represents a linked list node type containing a value of type \type{T}.
+Similarly, \type{clnode(T)} and \type{tnode(T)} represent a chunked linked list and a tree node
+with values of type \type{T} respectively.
+
 \input{chapters/figures/figLiftingConsList.tex}
-\vspace{-10px}
-\subsubsection{List} We wrote a \SpecL{} program specification that creates a list, a
+\vspace{-15px}
+\subsubsection{List}
+\vspace{-5px}
+We wrote a \SpecL{} program specification that creates a list, a
 program that traverses a list to compute the sum of its elements and a program
 that computes the dot product of two lists. We use three different
 data layouts for a list in C: character array (\lift{list}{\mem{}}{u32[]}),
@@ -151,12 +152,14 @@ lists (\cons{LNil}) using {\em null pointers}. These encodings are in contrast t
 encode the empty string.
 
 \input{chapters/figures/figLiftingConsTree.tex}
-\vspace{-10px}
-\subsubsection{Tree} We wrote a \SpecL{} program that sums all the nodes in a tree
+\vspace{-15px}
+\subsubsection{Tree}
+\vspace{-5px}
+We wrote a \SpecL{} program that sums all the nodes in a tree
 through an inorder traversal using recursion. We use two different data layouts for a tree: 
 (1) a flat array where a
 complete binary tree is laid out in breadth-first search order commonly used for heaps (\lift{tree}{\mem{}}{u32[]}),
-and (2) a linked tree node with two pointers for the left and right children (\lift{tree}{\mem{}}{tnode(u32)}).
+and (2) a linked tree node with two pointers for the left and right children (\lift{tree}{\mem{}}{tnode(u32)}) (shown in \cref{tab:LiftingConsTree}).
 Both \SpecL{} and C programs contain non-tail recursive procedure calls for left and right children.
 \toolName{} is able to correlate these recursive calls using user-provided $Pre$ and $Post$.
 At the entry of the recursive calls, \toolName{} is required to prove that $Pre$ holds for the arguments
@@ -164,7 +167,8 @@ and at the exit of the recursive calls, \toolName{} assumes $Post$ on the return
 
 \input{chapters/figures/figLiftingConsMatrix.tex}
 \vspace{-10px}
-\subsubsection{Matrix} We wrote a
+\subsubsection{Matrix}
+We wrote a
 \SpecL{} program to count the frequency of a value appearing in a 2D matrix.
 A matrix is represented as an ADT that resembles a \type{List} of \type{List}s (\inv{\small T4} in \cref{tab:LiftingConsMatrix}).
 The C implementations for a \type{Matrix} object include
@@ -176,18 +180,29 @@ emphasizes that these arrays are used to represent matrices in row-major and col
 We also introduce two auxiliary lifting constructors, \lift{list}{\mem{}}{u32[r]} and \lift{list}{\mem{}}{u32[c]}
 for lifting each row of matrices lifted using the corresponding \lift{mat}{\mem{}}{u32[r]} and \lift{mat}{\mem{}}{u32[c]} \type{Matrix} lifting
 constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
-
-\input{chapters/figures/figEvalTable.tex}
-\vspace{-12px}
+% \vspace{-10px}
 \subsection{Results}
-\vspace{-10px}
+% We evaluate \toolName{} on the C implementations discussed above. For functions that
+% take two or more data structure values as arguments, we evaluate it for different combinations of
+% data layouts for each argument.
+% For each program pair, we also \input{chapters/figures/figEvalTable.tex} \vspace{-5px} note the minimum
+% under-approximation ($d_u$) and over-approximation ($d_o$) depths at which
+% the equivalence proof completed (keeping all other parameters to their default values).
+% \Cref{tab:results} lists these program pairs along with the time it took
+% to compute equivalence, $d_o$ and $d_u$.
+
 \Cref{tab:results} lists the various C implementations and the time it took
 to compute equivalence with their specifications. For functions that
 take two or more data structures as arguments, we show
-results for different combinations of data layouts for each argument.
+results for different combinations of data layouts for {\parfillskip=0pt\par}
+\input{chapters/figures/figEvalTable.tex}
+\noindent each argument.
 We also show the minimum under-approximation ($d_u$) and over-approximation ($d_o$) depths
 at which the equivalence proof completed (keeping all other parameters to their
 default values).
+
+% \vspace{15px}
+
 
 % During the verification of {\tt strchr} and {\tt strpbrk} implementations,
 % we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}

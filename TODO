@@ -67,4 +67,6 @@ Proof Discharge Algorithm (10 pages)
 Evaluation : put a lot of focus, try to almost everything in including the table except the lifting constructor : MUST SHOW THE STRLEN EXAMPLE (5 pages)
 Conclusion : limitations (scaling for size of SMT queries, non-bisimilar specification and implementation), then whatevers is in conclusion (1 pages)
 
-TODOS:
+TODO:
+draft synopsis mail
+start transfering all changes to thesis

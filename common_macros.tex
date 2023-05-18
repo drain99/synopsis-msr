@@ -30,14 +30,16 @@
 \newcommand{\indEqDepth}[1]{\ensuremath{\sim_#1}}%
 \newcommand{\indEqUapprox}[1]{\ensuremath{\approx_#1}}%
 \newcommand{\depthBound}[2]{\ensuremath{\Gamma_#1(#2)}}%
-\newcommand{\structPointer}[4]{\ensuremath{{#1} \oset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
-\newcommand{\arrIndex}[4]{\ensuremath{#1[#2]_{\type{#4}}^{#3}}}
+% \newcommand{\structPointer}[4]{\ensuremath{{#1} \oset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
+\newcommand{\structPointer}[4]{\ensuremath{{#1} \overset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
+\newcommand{\arrIndex}[4]{\ensuremath{#1[#2]_{\type{#3}}^{#4}}}
 \newcommand{\pointsTo}{\ensuremath{\rightsquigarrow}}%
 \newcommand{\hoareTriple}[3]{\ensuremath{\{#1\}(#2)\{#3\}}}%
 \newcommand{\lift}[3]{\ensuremath{{{\tt C#1}_{#2}^{\tt #3}}}}%
 \newcommand{\lifted}[4]{\lift{#1}{#2}{#3}{\ensuremath{(#4)}}}%
 \newcommand{\mapping}[2]{\ensuremath{#1 \! \mapsto \! #2}}%
-\newcommand{\mem}{\ensuremath{{\mathbb{m}}}}%
+\newcommand{\mem}{\ensuremath{\textnormal{\fontspec{STIX Two Math}\symbol{"1D55E}}}}%
+% \newcommand{\mem}{\ensuremath{m}}%
 \newcommand{\nonTerm}[1]{\ensuremath{\langle}#1\ensuremath{\rangle}}%
 \newcommand{\term}[1]{{\tt #1}}%
 \newcommand{\sv}[1]{\ensuremath{{\tt #1}_{S}}}%
@@ -46,6 +48,7 @@
 \newcommand{\cpc}[1]{\ensuremath{{\tt C#1}}}%
 \newcommand{\rpc}[1]{\ensuremath{{\tt R#1}}}%
 \newcommand{\scpc}[2]{\ensuremath{{\tt S#1\!:\!C#2}}}%
+\newcommand{\scpcinv}[2]{\ensuremath{{\phi_{\tt S#1:C#2}}}}%
 \newcommand{\rrpc}[2]{\ensuremath{{\tt R#1\!:\!R#2}}}%
 \newcommand{\comv}[1]{\ensuremath{{\tt #1}}}%
 \newcommand{\fstv}[1]{\ensuremath{{\tt #1}^{fst}}}%
@@ -68,9 +71,9 @@
   \renewcommand*{\do}[1]{\nextitem{{\tt ##1}}}% How to process each item
   \docsvlist{#2}% Process list
 }
-\newcommand{\scedge}[4]{\ensuremath{{\small \scpc{#1}{#2} \! \rightarrow \! \scpc{#3}{#4}}}}%
+\newcommand{\scedge}[4]{\ensuremath{{\small (\scpc{#1}{#2}) \! \rightarrow \! (\scpc{#3}{#4})}}}%
 \newcommand{\type}[1]{{\tt #1}}%
-\newcommand{\ctype}[1]{{{\tt :\!\!#1}}}
+\newcommand{\ctype}[1]{{{\,\tt :\!#1}}}
 \newcommand{\cons}[1]{{\tt #1}}%
 \newcommand{\field}[1]{{{\tt #1}}}%
 \newcommand{\mlr}[1]{{\ensuremath{\tt #1}}}%

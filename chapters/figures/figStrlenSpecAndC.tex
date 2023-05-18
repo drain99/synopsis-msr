@@ -22,7 +22,7 @@
 ~{\tiny \textcolor{mygray}{\ \ \ }}~ size_t strlen(char* s);
 ~{\tiny \textcolor{mygray}{C0:}}~ i32 strlen (i32 s) {
 ~{\tiny \textcolor{mygray}{C1:}}~   i32 i $\coloneqq$ ${\tt 0_{i32}}$;
-~{\tiny \textcolor{mygray}{C2:}}~   while $\arrIndex{\tt s}{0_{i32}}{i8}{\mem{}} \neq 0_{i8}$:
+~{\tiny \textcolor{mygray}{C2:}}~   while $\arrIndex{\tt s}{0_{i32}}{\mem{}}{i8} \neq 0_{i8}$:
 ~{\tiny \textcolor{mygray}{C3:}}~     s $\coloneqq$ s + ${\tt 1_{i32}}$;
 ~{\tiny \textcolor{mygray}{C4:}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
 ~{\tiny \textcolor{mygray}{C5:}}~   return i;
@@ -43,17 +43,19 @@
 ~{\tiny \textcolor{mygray}{C2\phantom{ }:}}~   i32 i  $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\tiny \textcolor{mygray}{C3\phantom{ }:}}~   while ${\tt true}$:
 ~{\tiny \textcolor{mygray}{C4\phantom{ }:}}~     i32 dword_ptr $\coloneqq$ ${\tt \& \structPointer{\tt cl}{\mem{}}{clnode}{chunk}}$;
-~{\tiny \textcolor{mygray}{C5\phantom{ }:}}~     i32 dword     $\coloneqq$ $\arrIndex{\tt dword\_ptr}{0_{i32}}{i32}{\mem{}}$;
+~{\tiny \textcolor{mygray}{C5\phantom{ }:}}~     i32 dword     $\coloneqq$ $\arrIndex{\tt dword\_ptr}{0_{i32}}{\mem{}}{i32}$;
 ~{\tiny \textcolor{mygray}{C6\phantom{ }:}}~     if ${\tt ((dword - lo)\ \&\ (\sim dword)\ \&\ hi) \neq 0_{i32}}$:
-~{\tiny \textcolor{mygray}{C7\phantom{ }:}}~       if $\arrIndex{\tt dword\_ptr}{0_{i32}}{i8}{\mem{}} = 0_{i8}$: return i;
-~{\tiny \textcolor{mygray}{C8\phantom{ }:}}~       if $\arrIndex{\tt dword\_ptr}{1_{i32}}{i8}{\mem{}} = 0_{i8}$: return ${\tt i + 1_{i32}}$;
-~{\tiny \textcolor{mygray}{C9\phantom{ }:}}~       if $\arrIndex{\tt dword\_ptr}{2_{i32}}{i8}{\mem{}} = 0_{i8}$: return ${\tt i + 2_{i32}}$;
-~{\tiny \textcolor{mygray}{C10:}}~       if $\arrIndex{\tt dword\_ptr}{3_{i32}}{i8}{\mem{}} = 0_{i8}$: return ${\tt i + 3_{i32}}$;
+~{\tiny \textcolor{mygray}{C7\phantom{ }:}}~       if $\arrIndex{\tt dword\_ptr}{0_{i32}}{\mem{}}{i8} = 0_{i8}$: return i;
+~{\tiny \textcolor{mygray}{C8\phantom{ }:}}~       if $\arrIndex{\tt dword\_ptr}{1_{i32}}{\mem{}}{i8} = 0_{i8}$: return ${\tt i + 1_{i32}}$;
+~{\tiny \textcolor{mygray}{C9\phantom{ }:}}~       if $\arrIndex{\tt dword\_ptr}{2_{i32}}{\mem{}}{i8} = 0_{i8}$: return ${\tt i + 2_{i32}}$;
+~{\tiny \textcolor{mygray}{C10:}}~       if $\arrIndex{\tt dword\_ptr}{3_{i32}}{\mem{}}{i8} = 0_{i8}$: return ${\tt i + 3_{i32}}$;
 ~{\tiny \textcolor{mygray}{C11:}}~     cl $\coloneqq$ $\structPointer{\tt cl}{\mem{}}{clnode}{next}$; i  $\coloneqq$ ${\tt i + 4_{i32}}$;
 ~{\tiny \textcolor{mygray}{CE\phantom{ }:}}~ }
 \end{allLangEnvFoot}
 \end{center}
 \caption{\label{fig:llStrlenCClistIR}Optimized Strlen Implementation using Chunked Linked List}
 \end{subfigure}%
-\caption{\label{fig:strlenSpecAndC}Specification of Strlen along with two possible C implementations. \Cref{fig:llStrlenCArrIR,fig:llStrlenCClistIR} uses a null-terminated array and a chunked linked list for {\tt String} respectively.}
+\caption{\label{fig:strlenSpecAndC}Specification of Strlen along with two possible C implementations.\\
+\Cref{fig:llStrlenCArrIR} is a generic implementation using a null-terminated array for \type{String}.
+\Cref{fig:llStrlenCClistIR} is an optimized implementation using a chunked linked list for \type{String}.}
 \end{figure}

@@ -122,7 +122,7 @@ memory state \mem{} to a \SpecL{} \type{List} value, and is defined by:
 \begin{equation}
 \label{eqn:clist}
 \begin{split}
-U_C:\ &\lifted{list}{\mem{}}{lnode}{p\ctype{i32}} = \sumIf{p=0} \ \sumThen{\cons{LNil}} \\ & \qquad\qquad\ \ \  \sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})}
+U_C:\ &\lifted{list}{\mem{}}{lnode}{p \ctype{i32}} = \sumIf{p=0} \ \sumThen{\cons{LNil}} \\ & \qquad\qquad\ \ \ \sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})}
 \end{split}
 \end{equation}
 The iterative construction of the product-CFG along with inference of inductive invariants at its nodes are based on
@@ -176,7 +176,7 @@ incremental construction of a product-CFG and (b) counterexample-guided invarian
 for inference of inductive invariants at correlated PCs in the (partially constructed) product-CFG.
 \toolName{} discharges required verification conditions (i.e. proof obligations) using our Proof Discharge Algorithm.
 \end{itemize}
-
+\vspace{-5px}
 \Cref{sec:syn-examples} walks through our proof discharge algorithm by demonstrating each of its
 components using examples. We evaluate our equivalence checking tool \toolName{} in \cref{sec:syn-eval}.
 Finally, \cref{sec:syn-limitations} gives an overview of its limitations and \cref{sec:syn-conclusion} concludes our discussion.
