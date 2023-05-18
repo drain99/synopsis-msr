@@ -93,7 +93,7 @@ as well as expansion of ADT variables using the \sumDtor{} operator as shown in 
 Unification proceeds by iteratively (1) unifying the structurs created by the ADT value constructors as well as the \sumDtor{}
 operator and (2) expanding the current subterms using the rewriting rules in $E$ as needed.
 For example, \sumIf{c_1} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(0,l_1)} \indEq{} \sumIf{c_2} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}
-decomposes into $\bigwedge\{c_1=c_2, (c_1 \land c_2) \rightarrow 0=i, (c_1 \land c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \}$.
+decomposes into $\bigwedge\{c_1=c_2, (\neg c_1 \land \neg c_2) \rightarrow 0=i, (\neg c_1 \land \neg c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \}$.
 Similarly, the decomposition of $l_1\indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
 $\bigwedge \{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \}$.
 We {\em decompose} a proof obligation $P$ by decomposing each \recursiveRelation{} in $P$.
@@ -235,7 +235,7 @@ $(\sumIs{l}{LNil} = (p = 0)) \land (\neg(\sumIs{l}{LNil}) \rightarrow (l.\field{
 Similarly, $\depthBound{2}{l}$ is equivalent to
 $(\sumIs{l}{LNil}) \vee (\neg(\sumIs{l}{LNil}) \land (\sumIs{l.\field{tail}}{LNil}))$
 and $\depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
-$(p = 0) \vee (\neg(p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$.
+$(p = 0) \vee ((p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$.
 
 Thus, for a {\em Type II} proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$,
 we first submit the over-approximated proof obligation $P_{pre-o}$
