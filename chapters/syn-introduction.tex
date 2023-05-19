@@ -1,6 +1,7 @@
+\vspace{-7px}
 \section{Introduction}
 \label{sec:syn-intro}
-
+\vspace{-7px}
 The problem of equivalence checking between a functional specification and an
 implementation written in a low level imperative language such as C
 has been of major research interest
@@ -39,7 +40,7 @@ where \toolName{} can be used to automate verification across software updates t
 data structures and algorithms.
 We start by formulating the problem statement and define equivalence in this context.
 Next, we shortly introduce bisimulation in the context of program equivalence and list our primary contributions.
-
+\vspace{-7px}
 \subsection{Problem Setting and Bisimulation}
 \label{sec:syn-setting-bisimulation}
 We restrict our attention to programs that construct, read, and write
@@ -49,6 +50,7 @@ Similar recursive data structures are also available in safer functional languga
 where algebraic data types (ADTs) \cite{hope} ensure several safety properties.
 We define a minimal functional language, called \SpecL{}, that enables the safe
 and succint specification of programs manipulating and traversing recursive data structures.
+\SpecL{} is equipped with ADTs as well as boolean and bitvector (\type{i<N>}) types.
 
 \input{chapters/figures/figSynMallocSpecAndC.tex}
 

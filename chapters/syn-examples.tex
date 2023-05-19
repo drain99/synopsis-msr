@@ -87,18 +87,18 @@ U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCon
 \end{equation}
 A \recursiveRelation{} of the form $l_1 \indEq{} l_2$ can be {\em decomposed} into an
 equivalent set of {\em decomposition clauses}, each of the form $(P\! \rightarrow\! A\! =\! B)$ or $(P\! \rightarrow\! A\! \indEq{}\! B)$.
-The primary algorithm behind decomposition is a specialized unification procedure under a term rewriting
-system $E$. $E$ allows rewriting of top-level lifting constructors by their definitions (e.g., \cref{eqn:clist})
-as well as expansion of ADT variables using the \sumDtor{} operator as shown in \cref{eqn:specDeconstruct}.
-Unification proceeds by iteratively (1) unifying the structurs created by the ADT value constructors as well as the \sumDtor{}
-operator and (2) expanding the current subterms using the rewriting rules in $E$ as needed.
+The primary algorithm behind decomposition is an iterative unification and rewriting procedure under a set of rewriting rules $E$.
+$E$ allows rewriting of top-level lifting constructors by their definitions (e.g., \cref{eqn:clist}),
+and expansion of ADT variables using \sumDtor{} as shown in \cref{eqn:specDeconstruct}.
+Unification proceeds by (a) recursively unifying the structures created by the top-level ADT constructors (e.g., \cons{LCons}) as well as the \sumDtor{}
+operator and (b) rewriting the top-level expressions using rules in $E$, as necessary.
 For example, \sumIf{c_1} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(0,l_1)} \indEq{} \sumIf{c_2} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}
 decomposes into $\bigwedge\{c_1=c_2, (\neg c_1 \land \neg c_2) \rightarrow 0=i, (\neg c_1 \land \neg c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \}$.
 Similarly, the decomposition of $l_1\indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
 $\bigwedge \{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \}$.
-We {\em decompose} a proof obligation $P$ by decomposing each \recursiveRelation{} in $P$.
+We {\em decompose} an expression $e$ and a proof obligation $P$ by decomposition each \recursiveRelation{} in $e$ and $P$ respectively.
 
-We {\em unroll an expression $e$} with respect to $E$ containing rules of the form $r_i \Rightarrow s_i$ by substituting
+We {\em unroll an expression $e$ with respect to $E$} (containing rules of the form $r_i \Rightarrow s_i$) by substituting
 all occurances of $r_i$ in $e$ with $s_i$ for each $i$ and decomposing it. More generally, the $k$-unrolling of $e$ is found
 by unrolling the $(k-1)$-unrolling of $e$ recursively. For a first order logic proof obligation $P:\lhs{} \Rightarrow \rhs{}$,
 we identify its $k$-unrolling (for a fixed unrolling parameter $k$). After unrolling, we eliminate those
@@ -218,17 +218,19 @@ approximating each of its constituent \recursiveRelation{}.
 The $d$-depth over- and under-approximations of a \recursiveRelation{} $l_1\indEq{}l_2$
 are written as $l_1\indEqDepth{d}l_2$ and $l_1\indEqUapprox{d}l_2$ respectively.
 To define these two operators, we start with the notion of {\em depth of an ADT value}.
-For each node in the tree representation of the term representing a value $v$,
-we assign a depth value equal to the number of ADT value constructors in the path
-to the root node. The depth of an ADT value is the maximum of the depths of all nodes in
-its term. For example, the value \cons{LCons}(2, \cons{LCons}(4, \cons{LNil})) has a depth of 2.
-$l_1\indEqDepth{d}l_2$ asserts equality of the corresponding structures and values
+The {\em depth} of an ADT value is simply the depth in its expression tree representation.
+We also assign a depth to each node in the said representation.
+The depth of the root node is defined to be zero.
+For example, the \type{List} value \cons{LCons}(2, \cons{LCons}(4, \cons{LNil})) has a depth of 2.
+
+
+$l_1\indEqDepth{d}l_2$ asserts equality of the corresponding structures and scalar values (i.e. boolean and bitvector values)
 up to a depth of $d$. $l_1\indEqUapprox{d}l_2$ asserts equality of the corresponding structures
-and values up to a depth of $d$ and bounds the depths of $l_1$ and $l_2$ to a maximum of $d$.
+and scalar values up to a depth of $d$ and bounds the depths of $l_1$ and $l_2$ to a maximum of $d$.
 $l_1\indEqUapprox{d}l_2$ is equivalent to $l_1\indEqDepth{d}l_2 \land \depthBound{d}{l_1} \land \depthBound{d}{l_2}$,
 where $\depthBound{d}{l}$ asserts that $l$ has a maximum depth of $d$.
 Unlike \recursiveRelations{}, these operators only equate
-scalar (bitvector, bool typed) expressions and can be encoded in SMT logic.
+scalar expressions and can be encoded in SMT logic.
 For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$
 reduces to the SMT-encodable predicate:
 $(\sumIs{l}{LNil} = (p = 0)) \land (\neg(\sumIs{l}{LNil}) \rightarrow (l.\field{val} = \structPointer{p}{\mem{}}{lnode}{val}))$.
