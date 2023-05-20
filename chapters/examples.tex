@@ -981,7 +981,7 @@ these memory writes that distinguish $m$ from $m'$, the {\em distinguishing writ
 
 \subsubsection{LHS-to-RHS Substitution and RHS Decomposition}
 \toolName{} utilizes
-the $\indEq{}$ relationships in the {\tt LHS} (antecedant) of ``$\Rightarrow$''
+the $\indEq{}$ relationships in the {\tt LHS} (antecedent) of ``$\Rightarrow$''
 to rewrite \cref{eqn:ex1cat3}
 so that the recursive {\tt List} values in its {\tt RHS} (consequent)
 are substituted with the lifted $C$ values (lifted using
@@ -1013,7 +1013,7 @@ postcondition $\neg({\tt p}_C=0)$
 evaluates to true because the {\tt LHS} ensures that {\tt p$_C$} is the
 return value of an allocation function ({\tt malloc}) which must be
 non-null due to the $(C\ \  \mathrm{\tt fits})$ assumption.
-%Henceforth, we omit $\neg({\tt p}_C=0)$ from the antecedant of postconditions (2) and (3)
+%Henceforth, we omit $\neg({\tt p}_C=0)$ from the antecedent of postconditions (2) and (3)
 %since in either case they evaluate to true because of $(C\ \  \mathrm{\tt fits})$ assumption.
 \item The second proof obligation with
 postcondition {\tt (i$_S$=(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$value))}
@@ -1055,7 +1055,7 @@ Next, we show how the above can be reformulated to the problem of
 showing equivalence between two procedures through bisimulation.
 
 % Thus,
-% under an antecedant that ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
+% under an antecedent that ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
 % is recursively equal to a {\tt List} value {\tt l}$_S$ in \SpecL{},
 % we are interested in proving
 % ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C) \indEq{}
@@ -1158,7 +1158,7 @@ ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$.
 %\end{proof}
 
 \begin{theorem}\label{theorem:clistsEqual}
-Under the antecedant
+Under the antecedent
 $({\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$:
 
 $({\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
@@ -1182,7 +1182,7 @@ successful bisimulation
 check ensures equal
 {\tt List}
 values upon termination. Termination
-follows from the antecedant because
+follows from the antecedent because
 \SpecL{} values (such as $l_S$) must be finite.
 
 The ``only if'' case
@@ -1214,7 +1214,7 @@ Thus, to check if ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
 \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$, we
 check if a bisimulation exists
 between the two respective reconstruction programs (potentially
-under an antecedant).  \Cref{theorem:clistsEqual} generalizes
+under an antecedent).  \Cref{theorem:clistsEqual} generalizes
 to equality of arbitrary lifted expressions constructed from potentially
 different $C$ values and memory states.
 

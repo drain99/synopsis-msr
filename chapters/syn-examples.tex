@@ -99,7 +99,7 @@ $\bigwedge \{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{va
 We {\em decompose} an expression $e$ and a proof obligation $P$ by decomposition each \recursiveRelation{} in $e$ and $P$ respectively.
 
 We {\em unroll an expression $e$ with respect to $E$} (containing rules of the form $r_i \Rightarrow s_i$) by substituting
-all occurances of $r_i$ in $e$ with $s_i$ for each $i$ and decomposing it. More generally, the $k$-unrolling of $e$ is found
+all occurrences of $r_i$ in $e$ with $s_i$ for each $i$ and decomposing it. More generally, the $k$-unrolling of $e$ is found
 by unrolling the $(k-1)$-unrolling of $e$ recursively. For a first order logic proof obligation $P:\lhs{} \Rightarrow \rhs{}$,
 we identify its $k$-unrolling (for a fixed unrolling parameter $k$). After unrolling, we eliminate those
 decomposition clauses $(P_i\! \rightarrow\! X_i)$ whose $P_i$ evaluates to false under the \lhs{} ignoring all \recursiveRelations{}.
@@ -369,13 +369,13 @@ represents the C memory state after executing the writes at lines \cpc{5} and \c
 \label{eqn:memstore}
 \mem{}' \equiv \mem[\& (\structPointer{\cv{p}}{\mem{}}{lnode}{val}) \leftarrow \cv{i}]_\type{i32}[\& (\structPointer{\cv{p}}{\mem{}}{lnode}{next}) \leftarrow \cv{l}]_\type{i32}
 \end{equation}
-Here, $\mem{}[a \leftarrow v]$ reprsents an array that is
+Here, $\mem{}[a \leftarrow v]$ represents an array that is
 equal to \mem{} everywhere except at address $a$ which contains the value $v$.
 We also refer to these memory writes that distinguish \mem{} and $\mem{}'$, the {\em distinguishing writes}.
 
 \subsubsection{LHS-to-RHS Substitution and RHS Decomposition}
 We start by utilizing
-the \indEq{} relationships in the \lhs{} (antecedant) of `$\Rightarrow$'
+the \indEq{} relationships in the \lhs{} (antecedent) of `$\Rightarrow$'
 to rewrite \cref{eqn:ex1cat3} so that the ADT variables (e.g., \sv{l}) in its \rhs{} (consequent)
 are substituted with the lifted $C$ values (e.g., lifted using \lift{list}{\mem{}}{lnode}). Thus, we
 rewrite \cref{eqn:ex1cat3} to:
@@ -425,7 +425,7 @@ Next, we show how the above can be posed as a bisimilarity check between
 two programs.
 
 % Thus,
-% under an antecedant that ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
+% under an antecedent that ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
 % is recursively equal to a {\tt List} value {\tt l}$_S$ in \SpecL{},
 % we are interested in proving
 % ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C) \indEq{}
@@ -519,7 +519,7 @@ on the lifting constructor \lift{list}{}{lnode}.
 %\end{proof}
 
 % \begin{theorem}\label{theorem:clistsEqual}
-% Under the antecedant
+% Under the antecedent
 % $({\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$:
 
 % $({\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
@@ -543,7 +543,7 @@ on the lifting constructor \lift{list}{}{lnode}.
 % check ensures equal
 % {\tt List}
 % values upon termination. Termination
-% follows from the antecedant because
+% follows from the antecedent because
 % \SpecL{} values (such as $l_S$) must be finite.
 
 % The ``only if'' case
@@ -638,7 +638,7 @@ need to reason that the memory objects
 $\structPointer{\comv{l}}{\mem{}}{lnode}{val}$ and $\structPointer{\comv{l}}{\mem{}}{lnode}{next}$ cannot
 alias with the writes (in $\mem{}'$ in \cref{eqn:memstore}) to the newly allocated objects
 $\structPointer{\cv{p}}{\mem{}}{lnode}{val}$ and $\structPointer{\cv{p}}{\mem{}}{lnode}{next}$.
-We capture this aliasing information by running an intraprocedual allocation-site based points-to analysis on
+We capture this aliasing information by running an interprocedural allocation-site based points-to analysis on
 the original $C$ program as well as the reconstruction programs being checked
 for equivalence. Our points-to analysis also splits each allocation site region, say \mlr{C4} in \cref{fig:llAllocCIR}, into
 two regions \mlrf{C4} and \mlrs{C4}, where \mlrf{C4} represents the region of the most recent allocation and \mlrs{C4}

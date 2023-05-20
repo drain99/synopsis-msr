@@ -124,7 +124,7 @@ for both implementations against the unaltered specification.
 Lifting constructors are named based on their underlying data layout.
 For example, \lift{str}{}{u8[]} represents a \type{String} lifting constructor
 for an array layout.
-In general, we use the following naming convension for different data layouts:
+In general, we use the following naming convention for different data layouts:
 \type{T[]} represents an array of type \type{T} (e.g., \type{u8[]}).
 \type{lnode(T)} represents a linked list node type containing a value of type \type{T}.
 Similarly, \type{clnode(T)} and \type{tnode(T)} represent a chunked linked list and a tree node
@@ -142,14 +142,14 @@ linked list (\lift{list}{\mem{}}{lnode(u32)}), and
 a chunked linked list (\lift{list}{\mem{}}{clnode(u32)}).
 The lifting constructors are shown in \cref{tab:LiftingConsList}.
 Although similar to the String lifting constructors, these lifting
-constructors differ widely in their data encodings. For example,
+constructors differ widely in their data encoding. For example,
 \lifted{list}{\mem{}}{u32[]}{p,i,n} represents a \type{List} value constructed
 from a C array $p$ of size $n$ starting at the $i^{th}$ index. The list becomes empty
 when we are at the end of the array. (\lift{list}{\mem{}}{lnode(u32)})
 and (\lift{list}{\mem{}}{clnode(u32)}), on the other hand, encodes empty
-lists (\cons{LNil}) using {\em null pointers}. These encodings are in contrast to the
+lists (\cons{LNil}) using {\em null pointers}. These layouts are in contrast to the
 \type{String} lifting constructors, all of which uses a {\em null character} to
-encode the empty string.
+indicate the empty string.
 
 \input{chapters/figures/figLiftingConsTree.tex}
 \vspace{-15px}

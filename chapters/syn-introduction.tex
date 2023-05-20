@@ -46,7 +46,7 @@ Next, we shortly introduce bisimulation in the context of program equivalence an
 We restrict our attention to programs that construct, read, and write
 to recursive data structures. In languages like C, pointer and array based
 implementations of these data-structures are prone to safety and liveness bugs.
-Similar recursive data structures are also available in safer functional langugaes like Haskell,
+Similar recursive data structures are also available in safer functional languages like Haskell,
 where algebraic data types (ADTs) \cite{hope} ensure several safety properties.
 We define a minimal functional language, called \SpecL{}, that enables the safe
 and succinct specification of programs manipulating and traversing recursive data structures.
@@ -130,7 +130,7 @@ U_C:\ &\lifted{list}{\mem{}}{lnode}{p \ctype{i32}} = \sumIf{p=0} \ \sumThen{\con
 The iterative construction of the product-CFG along with inference of inductive invariants at its nodes are based on
 prior work \cite{oopsla20} and discussed briefly in \cref{sec:syn-contribs}. Given a product-CFG
 and inferred invariants, the equivalence checker attempts to prove each inductive invariant and
-postcondition under the appropiate preconditions for each edge in the product-CFG. These proof
+postcondition under the appropriate preconditions for each edge in the product-CFG. These proof
 obligations are expressed as relational Hoare triples \cite{relationalHoareLogic,hoareTriple}
 and lowered to a first order logic predicate using weakest precondition predicate transformer.
 For example, \hoareTriple{\phi_s}{\sv{\rho},\cv{\rho}}{\phi_d}
@@ -141,7 +141,7 @@ in $S$ and $C$ respectively. The above Hoare triple lowers to the following pred
 \label{eqn:firstOrderFormula}
 (\phi_s \land pathcond_{\sv{\rho}} \land pathcond_{\cv{\rho}} \land ubfree_{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
 \end{equation}
-We will use `\lhs{}' and `\rhs{}' to refer to the antecedant and consequent of the
+We will use `\lhs{}' and `\rhs{}' to refer to the antecedent and consequent of the
 implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.
 These proof obligations often contains \recursiveRelations{} encoding equality between
 arbitrarily-deep recursively data structure values of $S$ and $C$ respectively.
@@ -174,7 +174,7 @@ and discharge these proof queries using a nested (albeit much simpler) bisimulat
 \item Spec-to-C Equivalence Checker Tool: Our second contribution is \toolName{}, an equivalence checker tool
 capable of proving equivalence between a \SpecL{} and a C program automatically. \toolName{} is based on
 the Counter tool\cite{oopsla20} and uses an modification of (a) counterexample-guided correlation algorithm for
-incremental construction of a product-CFG and (b) counterexample-guided invariant inference algortihm
+incremental construction of a product-CFG and (b) counterexample-guided invariant inference algorithm
 for inference of inductive invariants at correlated PCs in the (partially constructed) product-CFG.
 \toolName{} discharges required verification conditions (i.e. proof obligations) using our Proof Discharge Algorithm.
 \end{itemize}
