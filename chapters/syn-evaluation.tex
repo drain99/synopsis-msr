@@ -148,7 +148,7 @@ from a C array $p$ of size $n$ starting at the $i^{th}$ index. The list becomes 
 when we are at the end of the array. (\lift{list}{\mem{}}{lnode(u32)})
 and (\lift{list}{\mem{}}{clnode(u32)}), on the other hand, encodes empty
 lists (\cons{LNil}) using {\em null pointers}. These layouts are in contrast to the
-\type{String} lifting constructors, all of which uses a {\em null character} to
+\type{String} layouts, all of which uses a {\em null character} to
 indicate the empty string.
 
 \input{chapters/figures/figLiftingConsTree.tex}
