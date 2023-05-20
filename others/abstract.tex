@@ -13,17 +13,17 @@ The second program, called implementation,
 is written in C using arrays and pointers.
 Our algorithm, based on prior work on
 counterexample guided equivalence checking,
-automatically searches for a bisimulation
-relation between the two programs.
-We formulate an algorithm for discharging
+automatically searches for a sound equivalence proof
+between the two programs.
+
+\noindent We formulate an algorithm for discharging
 proof obligations containing relations
 between recursive data structure values across
 the two diverse syntaxes, which forms our first contribution.
-
-\noindent Our proof discharge algorithm is capable
+Our proof discharge algorithm is capable
 of generating falsifying counterexamples in case of
 a proof failure.
-These counterexamples help guide the search for a bisimulation relation
+These counterexamples help guide the search for a sound equivalence proof
 and aid in inference of invariants.
 As part of our proof discharge algorithm,
 we formulate a program representation of values.
@@ -37,7 +37,7 @@ which forms our second contribution.
 \noindent \toolName{} is evaluated on
 implementations of common string library
 functions taken from popular C library implementations,
-as well as,
+as well as
 implementations of common list, tree and matrix programs.
 These implementations differ in data layout
 of recursive data structures as well as
