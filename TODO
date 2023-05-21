@@ -1,71 +1,43 @@
 Thesis Contents:
 
-Introduction
-Problem Setting and Equivalence Definition
-Algorithm through Examples
-  CFG Representation
-  Product-CFG and Bisimulation
-  Lifting Constructors and Recursive Relations
-  Proof Obligations
-  Unrolling and Unification
-  Decomposition of Recursive Relations
-  Category I
-  Category II
-    d-depth Under- and Over-Approximation
-  Category III
-    LHS to RHS Rewriting
-    RHS Decomposition
-    Conversion of Recursive Relations to Bisimulation
-    Reconstruction Program
-    Points-to Information in C
-  SMT Encoding of Expressions and Reconstruction of Counterexamples
+Introduction : Synopsis Intro
+  Motivation through Examples : show the Spec and C mk_list, mention bisimulation and the 3 major steps
+  Our Contributions
+Problem Setting and Bisimulation : intro' IR
+  Equivalence Definition : define our scope
+  Control-Flow-Graph Representation : intro' CFG representation
+  Bisimulation Relation : intro' product program, product-CFG, invariants table
+  Recursive Relations : focus on the invariants table and discuss it
+Proof Discharge Algorithm through Examples : talk about being the third step, hoare triples and its lowering
+  Proof Discharge Algorithm and its Soundness : big talk about its soundness
+  Decomposition of Recursive Relations : intro' the basic concept and its significance
+    Iterative Unification and Unrolling Procedure : intro' the algorithm and related algorithms (canonicalization)
+  Categorization of Proof Obligations : intro' k-Decomposition (decompose * expand it out)
+  Type I
+  Type II
+  Type III
   Proof Discharge Algorithm Summary
-Formalism
-  Spec Language
-  Modelling Procedure Calls
+Spec to C Equivalence Checker Algorithm
+  The Spec Language
+  Counterexample Guided Correlation Algorithm
+  Counterexample Guided Invariant Inference Algorithm
   Points-to Analysis
-  Counterexample-guided Best First Search Algorithm for Product-CFG
-  Counterexample-guided Invariant Inference And Counterexample Generation
-    Predicate Grammar
-    Inference of Bitvector Relations
-    Inference of Recursive Relations
-Deconstruction Program : Alternate Representation of ADT Values
-  Introduction
-  Scalability : Handling Pathsets
-  Conversion Algorithm
-  Unrolling and Unification
-  Deomposition of Deconstruction Program Pairs
-  d-depth Under- and Over-Approximation
-  Points-to Information in C
-  General Proof Discharge Algorithm
+  Modelling Procedure Calls
+Value Graph Representation
+  Motivation
+  Expression to Value Graph Conversion Algorithm
+  Decomposition of Recursive Relations
+  Approximation of Recursive Relations
+  Proof Discharge Algorithm using Value Graphs
 Evaluation
-  Lifting Constructors and Specifications
-  A String Example : strchr
-  A Matrix Example : matfreq
+  Experiments
+    String
+    List
+    Tree
+    Matrix
   Results
-Conclusion and Future Scope
-
-Sunday: finalize formalism, evaluation, conclusion sections
-list, tree, matrix sections : add subtables, edit text and refer to table
-add figure for matrix data layouts along with the c function signatures
-
-Monday: fully finish the examples and send to sir with the following points:
-how I plan to introduce the program graph concept, should i put it in synopsis?
-
-Synopsis Contents:
-
-Introduction (5 pages)
-  Introduce the top-level problem : taken from intro + related work
-  Take the example and define the constrains of the problem we are setting to solve : intro with example
-  Shortly on IRs, CFGs and product program : existing text
-  Our contributions : proof discharge algorithm + recovery of counterexamples to aid in our algorithm
-Proof Discharge Algorithm (10 pages)
-  Shortly describe lifting constructors and recursive relations
-  Introduce decomposition archieved through partial unification under a rewriting system
-  Go through each of the 3 types in vague detail taking examples for each and writing about them
-  Talk on the usefulness of the counterexamples : counterexample-guided correlation and invariant inference procedures (borrow heavily from Counter, state shortly on what differs)
-Evaluation : put a lot of focus, try to almost everything in including the table except the lifting constructor : MUST SHOW THE STRLEN EXAMPLE (5 pages)
-Conclusion : limitations (scaling for size of SMT queries, non-bisimilar specification and implementation), then whatevers is in conclusion (1 pages)
+Limitations
+Conclusion
 
 PPT Contents:
 

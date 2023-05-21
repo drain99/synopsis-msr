@@ -77,18 +77,18 @@ a bigger query to multiple smaller queries, {\em \rhs{}-breaking}.
 %our categorization.
 \subsection[Categorization of Proof Obligations]{Categorization of Proof Obligations based on \\Decomposition of Recursive Relations}
 \label{sec:syn-cat-decomp}
-Before diving into the proof discharge algorithm, we start with decomposition of \recursiveRelations{}.
-Decomposition is a key procedure in multiple components of our proof discharge algorithm.
+Before diving into the proof discharge algorithm, we start with a key procedure in our proof discharge algorithm called `decomposition of \recursiveRelations{}'.
 \vspace{-5px}
 \begin{equation}
 \label{eqn:specDeconstruct}
 U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCons}(l.\field{val}, l.\field{next})}
 \vspace{-5px}
 \end{equation}
+Firstly, an expression $e$ whose top-level operator is a lifting constructor, (e.g., \lifted{list}{\mem{}}{lnode}{\cv{l}}), is called a {\em lifted expression}.
 A \recursiveRelation{} of the form $l_1 \indEq{} l_2$ can be {\em decomposed} into an
 equivalent set of {\em decomposition clauses}, each of the form $(P\! \rightarrow\! A\! =\! B)$ or $(P\! \rightarrow\! A\! \indEq{}\! B)$.
 The primary algorithm behind decomposition is an iterative unification and rewriting procedure under a set of rewriting rules $E$.
-$E$ allows rewriting of top-level lifting constructors by their definitions (e.g., \cref{eqn:clist}),
+$E$ allows rewriting of lifted expressions by their corresponding definitions (e.g., \cref{eqn:clist}),
 and expansion of ADT variables using \sumDtor{} as shown in \cref{eqn:specDeconstruct}.
 Unification proceeds by (a) recursively unifying the structures created by the top-level ADT constructors (e.g., \cons{LCons}) as well as the \sumDtor{}
 operator and (b) rewriting the top-level expressions using rules in $E$, as necessary.
@@ -96,15 +96,14 @@ For example, \sumIf{c_1} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(0,l_1)}
 decomposes into $\bigwedge\{c_1=c_2, (\neg c_1 \land \neg c_2) \rightarrow 0=i, (\neg c_1 \land \neg c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \}$.
 Similarly, the decomposition of $l_1\indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
 $\bigwedge \{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \}$.
-We {\em decompose} an expression $e$ and a proof obligation $P$ by decomposition each \recursiveRelation{} in $e$ and $P$ respectively.
+The {\em decomposition} of an expression $e$ is found by decomposing each \recursiveRelation{} in $e$.
 
-We {\em unroll an expression $e$ with respect to $E$} (containing rules of the form $r_i \Rightarrow s_i$) by substituting
-all occurrences of $r_i$ in $e$ with $s_i$ for each $i$ and decomposing it. More generally, the $k$-unrolling of $e$ is found
-by unrolling the $(k-1)$-unrolling of $e$ recursively. For a first order logic proof obligation $P:\lhs{} \Rightarrow \rhs{}$,
-we identify its $k$-unrolling (for a fixed unrolling parameter $k$). After unrolling, we eliminate those
-decomposition clauses $(P_i\! \rightarrow\! X_i)$ whose $P_i$ evaluates to false under the \lhs{} ignoring all \recursiveRelations{}.
-For example, the one-unrolling of $P: \lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{0}$, after simplification, yields
-$P': \lhs{} \Rightarrow \sumIs{l}{LNil}$.
+We {\em unroll a \recursiveRelation{} $l_1 \indEq{} l_2$ with respect to $E$} by rewriting the top-level expressions $l_1$ and $l_2$ through $E$ (if possible) and decomposing it.
+We {\em unroll an expression $e$} by unrolling each \recursiveRelation{} in $e$ with respect to $E$.
+More generally, the $k$-unrolling of $e$ is found by unrolling the $(k-1)$-unrolling of $e$ recursively.
+For a first order logic proof obligation $P:\lhs{} \Rightarrow \rhs{}$, we identify its $k$-unrolling (for a fixed unrolling parameter $k$).
+After unrolling, we eliminate those decomposition clauses $(P_i\! \rightarrow\! X_i)$ whose $P_i$ evaluates to false under the \lhs{} ignoring all \recursiveRelations{}.
+For example, the one-unrolling of $P: \lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{0}$, after elimination, yields $P': \lhs{} \Rightarrow \sumIs{l}{LNil}$.
 We categorize a proof obligation $P$ based on this $k$-unrolled form of $P$ as follows:
 \vspace{-5px}
 \begin{itemize}
