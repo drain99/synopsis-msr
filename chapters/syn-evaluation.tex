@@ -115,7 +115,7 @@ using a null character terminated array to represent a string similar to a C-sty
 The second implementation in \cref{fig:llStrlenCClistIR} differs from \cref{fig:llStrlenCArrIR}
 in the following: (a) it uses a chunked linked list data layout for the input string
 and (b) it uses specialized bit manipulations to identify a null character in a chunk at a time.
-\toolName{} is able to automatically find a bisimulation relation showing equivalence
+\toolName{} is able to automatically find a bisimulation relation
 for both implementations against the unaltered specification.
 \Cref{fig:StrlenProductCFGsAndInvs} shows the product-CFG and invariants for each implementation.
 

@@ -128,31 +128,30 @@
 \begin{document}
 
 \include{others/syn-titlepage}
-% \onehalfspacing
 \thispagestyle{empty}
 \normalfont
 
+\begin{onehalfspace}
 % \include{others/certificate}
 % \thispagestyle{empty}
 
 % \include{others/acknowledgement}
-
 % \thispagestyle{empty}
 % \setcounter{page}{1}
 % \pagenumbering{roman}
 % \thispagestyle{empty}
 
-\newgeometry{right=3.5cm,left=3.5cm}
 \include{others/abstract}
 \thispagestyle{empty}
+\end{onehalfspace}
 
 \setcounter{tocdepth}{3}
 \tableofcontents
 \newpage
 
+\newgeometry{right=3cm,left=3cm}
 \setcounter{page}{1}
 \pagenumbering{arabic}
-\newgeometry{right=3cm,left=3cm}
 \input{chapters/syn-introduction}
 \input{chapters/syn-examples}
 \input{chapters/syn-evaluation}
