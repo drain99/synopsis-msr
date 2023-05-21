@@ -13,16 +13,18 @@ We introduce a custom minimal functional language called `Spec' and define the n
 The rest of the chapter gradually introduces our first contribution: A Proof Discharge Algorithm and related sub-procedures with the help
 of two example programs. We also introduce a program representation of values, called `reconstruction program'.
 
-Next, we formalize previously discussed topics in \textbf{Chapter 4}. We begin with a detailed description of our custom language `Spec'. This is followed by
-algorithms required in tandem with our proof discharge algorithm for an automatic equivalence checker such as a best-first search algorithm
-for finding a bisimulation relation and an automatic invariant inference procedure. We finish this chapter with a dataflow analysis formulation
-of a pointer analysis used by our equivalence checker.
+Next, we formalize previously discussed topics in \textbf{Chapter 4}. We begin with the specification of our custom language `Spec'.
+We give a detailed description of (a) a counterexample-guided search algorithm for finding a bisimulation relation and (b) a counterexample-guided
+invariant inference procedure. There two procedures with our proof discharge algorithm allow automatic end-to-end equivalence checking.
+We formalize handling of procedure calls in `Spec' as well as C, and finish with a dataflow analysis formulation of a pointer analysis
+used by our equivalence checker.
 
 \textbf{Chapter 5} introduces a program graph representation of values, called `deconstruction procedure', similar to `reconstruction procedure' as introduced in \textbf{Chapter 3}.
-We motivate it by listing its advantages and give an algorithm to convert values to this representation. We finish by reformulating our
-proof discharge algorithm using the said representation.
+We motivate it by listing its advantages and give an algorithm to convert expressions to this representation.
+This helps us simplify our proof discharge algorithm.
 
-In \textbf{Chapter 6}, we introduce our automatic equivalence checker tool named \toolName{}, based on prior work and our proof discharge algorithm.
+In \textbf{Chapter 6}, we introduce our automatic equivalence checker tool named \toolName{}, based on our proof discharge algorithm
+and counterexample-guided search procedures.
 \toolName{} is evaluated on a large variety of C programs involving lists, strings, trees and matrices.
 This includes C programs taken from C library implementations as well as manually written programs. We show that our equivalence checker is able
 to prove equivalence of a single specification with multiple of C implementations, each varying in its data layouts and algorithmic
