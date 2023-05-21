@@ -122,10 +122,6 @@
 \DeclareGraphicsExtensions{.pdf,.png,.jpg,.ps}
 \restylefloat{figure}
 \graphicspath{{./figures/}}
-
-\makeatletter
-\renewcommand\@makefntext[1]{\leftskip=2em\hskip-2em\@makefnmark#1}
-\makeatother
 \sloppy\hyphenpenalty=100 \emergencystretch5em
 \input{common_doc}
 % \hypersetup{draft}
@@ -162,19 +158,9 @@
 \input{chapters/syn-evaluation}
 \input{chapters/syn-conclusion}
 \input{chapters/organization-thesis}
-% \include{chapters/publications}
-% \input{chapters/introduction}
-% \input{chapters/problem-setting}
-% \input{chapters/examples}
-% \input{chapters/formalism}
-% \input{chapters/evaluation}
-% \input{chapters/conclusion}
-% \include{chapters/organization-thesis}
-% \include{chapters/publications}
 \begin{singlespace}
 \bibliographystyle{iitd}
 \bibliography{main}
 \end{singlespace}
-% \include{chapters/Appendix}
 
 \end{document}	
