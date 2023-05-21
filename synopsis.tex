@@ -1,21 +1,21 @@
 \documentclass[a4paper,12pt]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{geometry}
 % \usepackage[left=1.5in, right=1in, top=1in, bottom=1in, headheight=13.6pt]{geometry}
 % \usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
 % \usepackage[none]{hyphenat}
 % \usepackage[margin=1in]{geometry}
 % \documentclass[a4paper,twoside]{book}
 % \documentclass[a4paper,titlepage,openright,12pt]{MSThesis}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
 \usepackage{graphicx}
-\usepackage{epsfig}   
+\usepackage{epsfig}
 \usepackage[size=small,labelfont=bf,justification=centering]{caption}
 \usepackage[size=footnotesize,labelfont=bf,justification=centering,skip=-10px]{subcaption}
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{fancyhdr}
 \usepackage{makeidx}
-% \usepackage[nottoc,notlot,notlof]{tocbibind}     
+% \usepackage[nottoc,notlot,notlof]{tocbibind}
 \usepackage{supertabular}
 \usepackage{array}
 \usepackage{setspace}
@@ -37,7 +37,6 @@
 \usepackage{listings}
 \usepackage[inline]{enumitem}
 \usepackage{stmaryrd}
-% \usepackage{hyperref}
 \usepackage[hidelinks]{hyperref}
 \usepackage{lipsum}
 \usepackage{lscape}
@@ -128,11 +127,12 @@
 \renewcommand\@makefntext[1]{\leftskip=2em\hskip-2em\@makefnmark#1}
 \makeatother
 \sloppy\hyphenpenalty=100 \emergencystretch5em
-\input{common_doc.tex}
+\input{common_doc}
 % \hypersetup{draft}
 \begin{document}
 
-\include{others/titlepage}
+\include{others/syn-titlepage}
+% \onehalfspacing
 \thispagestyle{empty}
 \normalfont
 
@@ -157,10 +157,10 @@
 \setcounter{page}{1}
 \pagenumbering{arabic}
 \newgeometry{right=3cm,left=3cm}
-\input{chapters/syn-introduction.tex}
-\input{chapters/syn-examples.tex}
-\input{chapters/syn-evaluation.tex}
-\input{chapters/syn-conclusion.tex}
+\input{chapters/syn-introduction}
+\input{chapters/syn-examples}
+\input{chapters/syn-evaluation}
+\input{chapters/syn-conclusion}
 \input{chapters/organization-thesis}
 % \include{chapters/publications}
 % \input{chapters/introduction}
@@ -171,10 +171,10 @@
 % \input{chapters/conclusion}
 % \include{chapters/organization-thesis}
 % \include{chapters/publications}
-% \begin{singlespace}
+\begin{singlespace}
 \bibliographystyle{iitd}
 \bibliography{main}
-% \end{singlespace}
+\end{singlespace}
 % \include{chapters/Appendix}
 
 \end{document}	

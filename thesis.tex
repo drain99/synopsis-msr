@@ -1,22 +1,25 @@
 \documentclass[twoside,a4paper,titlepage,openright,12pt]{article}
 % \usepackage[left=1.5in, right=1in, top=1in, bottom=1in, headheight=13.6pt]{geometry}
 % \usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
-
+% \usepackage[none]{hyphenat}
 % \usepackage[margin=1in]{geometry}
 % \documentclass[a4paper,twoside]{book}
 % \documentclass[a4paper,titlepage,openright,12pt]{MSThesis}
-\usepackage{graphicx}    
-\usepackage{epsfig}   
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{epsfig}
 \usepackage[size=small,labelfont=bf,justification=centering]{caption}
-\usepackage[size=footnotesize,labelfont=bf,justification=centering]{subcaption}
+\usepackage[size=footnotesize,labelfont=bf,justification=centering,skip=-10px]{subcaption}
 \usepackage{booktabs}
 \usepackage{float}
-\usepackage{fancyhdr}                              
+\usepackage{fancyhdr}
 \usepackage{makeidx}
-% \usepackage[nottoc,notlot,notlof]{tocbibind}     
+% \usepackage[nottoc,notlot,notlof]{tocbibind}
 \usepackage{supertabular}
-\usepackage{array}              
-\usepackage{setspace} 
+\usepackage{array}
+\usepackage{setspace}
+\usepackage{layout}
 \usepackage{enumerate}
 \usepackage{rotating}
 \usepackage{moreverb}
@@ -29,27 +32,29 @@
 \usepackage{mathtools}
 % \usepackage{captcont}
 \usepackage{verbatim}
-% \usepackage{titlesec}
+\usepackage{titlesec}
 \usepackage{url}
-\usepackage{hyperref}
 \usepackage{listings}
 \usepackage[inline]{enumitem}
 \usepackage{stmaryrd}
-%\usepackage[colorlinks=false]{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{lipsum}
 \usepackage{lscape}
 \usepackage{color}
 \usepackage{xr}
 \usepackage{float}
 \usepackage{longtable}
+\usepackage{etoolbox}
 \usepackage{wrapfig}
 \usepackage{algorithm2e}
 \usepackage{cleveref}
+\usepackage{fontspec}
+\usepackage{arydshln}
 \usepackage[acronym,nomain]{glossaries}
 %\usepackage{natbib}
-\RequirePackage[numbers,square]{natbib} 
+\RequirePackage[numbers,square]{natbib}
+% \setlength{\bibsep}{0pt plus 0.3ex}
 % \bibliographystyle{iitd}
-\usepackage{amsmath} 
 % \usepackage{indentfirst}
 %\usepackage{geometry}
 % \usepackage[algoruled]{algorithm2e}
@@ -59,6 +64,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \titlespacing\section{0pt}{5pt plus 5pt}{5pt plus 5pt}
+% \titlespacing\subsection{0pt}{5pt plus 5pt}{5pt plus 5pt}
+% \titlespacing\subsubsection{0pt}{5pt plus 4pt minus 2pt}{5pt plus 2pt minus 2pt}
 
 \setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
 \setlength{\textheight}{8.5in}
@@ -102,6 +111,8 @@
 
 \let\cleardoublepage\clearemptydoublepage
 
+% \setlength{\abovecaptionskip}{2px plus 2px}
+% \setlength{\belowcaptionskip}{2px plus 2px}
 
 \date{}
 
@@ -117,27 +128,27 @@
 \makeatletter
 \renewcommand\@makefntext[1]{\leftskip=2em\hskip-2em\@makefnmark#1}
 \makeatother
-
-\input{common_doc.tex}
-
+% \sloppy\hyphenpenalty=100 \emergencystretch5em
+\input{common_doc}
 % \hypersetup{draft}
 \begin{document}
 
-\include{others/titlepage}
+\include{others/the-titlepage}
 \onehalfspacing
 \thispagestyle{empty}
 \normalfont
 
-% \include{others/certificate}
-% \thispagestyle{empty}
+\include{others/certificate}
+\thispagestyle{empty}
 
-% \include{others/acknowledgement}
+\include{others/acknowledgement}
+\thispagestyle{empty}
 
-% \thispagestyle{empty}
-% \setcounter{page}{1}
-% \pagenumbering{roman}
-% \thispagestyle{empty}
+\setcounter{page}{1}
+\pagenumbering{roman}
+\thispagestyle{empty}
 
+% \newgeometry{right=3.5cm,left=3.5cm}
 \include{others/abstract}
 \thispagestyle{empty}
 
@@ -158,8 +169,8 @@
 \include{chapters/organization-thesis}
 \include{chapters/publications}
 \begin{singlespace}
-	\bibliographystyle{abbrvnat}
-	\bibliography{main}
+\bibliographystyle{iitd}
+\bibliography{main}
 \end{singlespace}
 % \include{chapters/Appendix}
 
