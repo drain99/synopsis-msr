@@ -104,7 +104,7 @@ More generally, the $k$-unrolling of $e$ is found by unrolling the $(k-1)$-unrol
 For a first order logic proof obligation $P:\lhs{} \Rightarrow \rhs{}$, we identify its $k$-unrolling (for a fixed unrolling parameter $k$).
 After unrolling, we eliminate those decomposition clauses $(P_i\! \rightarrow\! X_i)$ whose $P_i$ evaluates to false under the \lhs{} ignoring all \recursiveRelations{}.
 For example, the one-unrolling of $P: \lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{0}$, after elimination, yields $P': \lhs{} \Rightarrow \sumIs{l}{LNil}$.
-We categorize a proof obligation $P$ based on this $k$-unrolled form of $P$ as follows:
+We categorize a proof obligation $P: \lhs{} \Rightarrow \rhs{}$ based on this $k$-unrolled form of decomposition of $P$ as follows:
 \vspace{-5px}
 \begin{itemize}
 \setlength{\itemsep}{-3px}

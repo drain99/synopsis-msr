@@ -41,29 +41,28 @@ Conclusion
 
 PPT Contents:
 
-Titlecard
-intro : the problem and its uses
-background : related works
-intro : spec and c language
-example : spec and c programs
-what : showing equivalence between both
-contributions : bisimulation based algorithm + proof discharge algorithm
-how : bisimulation
-unified representation : IR and its CFG representation
-product program : show the product-CFG
-problem : comparing values between spec and IR
-invariants : recursive relations
-proof discharge algorithm : hoare triples with recursive relations
-Unification and decomposition : example => LCons(x,y) = LCons(a,b) <=> x=a and y=b
+Title slide
+Intro to the problem and its possible applications
+Background on different approaches to its solution
+Example spec and c programs : introduce spec in a line or two, then contrast their differences
+Objective : show equivalence between both automatically through bisimulation
+Bisimulation : Intro shortly
+Contributions : bisimulation based algorithm with 3 steps + focus on the proof discharge algorithm + if time permits, a bit more on the other 2 steps
+Introduce the unified IR and CFG representations for the spec and c programs
+Product program and show the example with invariants table
+Recursive relations
+Proof Discharge Algorithm
+Decomposition of recursive relations
+Unrolling of recursive relations
 Categorization
-Type I : 2 slides max : pretty easy
-Type II : 1 slide for depth, 1 slide for meaning of equality, 1 slide for approximation, 2 slides for each proof obligation examples
-Type III : 1 slide for example, 1 slide for rewriting and decompositon, 1 slide for the 3 subproblems and solution of first 2, 1 slide for the third, 1 slide for reconstruction programs, 1 slide for bisimulation, 2 slides for points-to analysis and finalize, DONE
-Other parts : 1 slide for invariants, 1 slide for correlation algorithm
-evaluation : use the simplified String type (with no SInvalid), focus on the 1 example!!! very important
-briefly discuss the other ones, 2 slides for each
-a bit more focus on the matrix example
-conclude with 2 slides : 1 for limitations (bisimilar, exponential number of equalities due to decomposition), 1 for key ideas : program representation of values + pointer analysis
-Thankyou
+Type I : 2 slides, 1 for each example
+Type II : 2 slides, 1 for each example, then 1 slide for the approximation schemes, 2 slides for the 2 examples again
+Type III : 1 slide for example, 1 slide for rewriting and decomposition, 1 slide for 3 subproblems and simplification of each, 1 slide to introduce reconstruction program, 1 slide for bisimulation, 1 slide for points-to analysis, 1 slide for points-to results for C and then on the reconstruction programs
+Proof Discharge Summary
+Evaluation : Introduce the tool and write the benchmarks considered
+Show the 3 layouts for a string and their lifting constructors
+Show the strlen programs and their product CFG with invariants
+List the other ADTs and their layouts considered
+Thank you slide
 
 TODO:
