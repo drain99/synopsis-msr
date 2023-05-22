@@ -4,7 +4,7 @@
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$Solve(\lhs{}, \rhs{}, k, d_o, d_u)$}{
-  $(\lhs{}_k, \rhs{}_k) \mapsfrom Unroll(\lhs{}, \rhs{}, k)$;\\
+  $(\lhs{}_k, \rhs{}_k) \mapsfrom DecomposeAndUnroll(\lhs{}, \rhs{}, k)$;\\
   \Switch{$Categorize(\lhs{}_k, \rhs{}_k)$}{
     \lCase{${\tt Type\ I}$}{\Return{$SMTSolve(\lhs{}_k \Rightarrow \rhs{}_k)$}}
     \uCase{${\tt Type\ II}$}{
