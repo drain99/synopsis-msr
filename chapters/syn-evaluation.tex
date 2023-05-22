@@ -137,7 +137,7 @@ with values of type \type{T} respectively.
 We wrote a \SpecL{} program specification that creates a list, a
 program that traverses a list to compute the sum of its elements and a program
 that computes the dot product of two lists. We use three different
-data layouts for a list in C: character array (\lift{list}{\mem{}}{u32[]}),
+data layouts for a list in C: array (\lift{list}{\mem{}}{u32[]}),
 linked list (\lift{list}{\mem{}}{lnode(u32)}), and
 a chunked linked list (\lift{list}{\mem{}}{clnode(u32)}).
 The lifting constructors are shown in \cref{tab:LiftingConsList}.
