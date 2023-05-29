@@ -8,7 +8,9 @@ the equivalence checker is used to verify that the C implementation
 behaves according to the specification and (b) translation validation, where
 the equivalence checker attempts to generate a proof of equivalence across
 the transformations (and translations) performed by an optimizing compiler
-and more. The verification of a C implementation against its manually written
+and more.
+
+The verification of a C implementation against its manually written
 functional specification through manually-coded refinement proofs has been
 performed extensively in the seL4 microkernel \cite{seL4}.
 Frameworks for program equivalence proofs have been developed in interactive
@@ -18,7 +20,7 @@ On the other hand, programming languages like Dafny \cite{dafny} offer automated
 reasoning for imperative languages with abstract data types such as sets and arrays.
 Such languages perform automatic compile-time checks for manually-specified
 correctness predicates through SMT solvers.
-Also, there exists significant prior work on translation validation
+Additionally, there exists significant prior work on translation validation
 \cite{tvi,tristan_tv_eqsat11,stepp_eqsat_llvm11,eqsat,pec,zuck03,zuck05,heffter05,covac,c_to_verilog,kanade09,lopes16,tvoc_cav05,ddec,semalign,oopsla20,tv_oskernel,namjoshi13}
 across low level programming languages such as C and assembly.
 In most of these applications, soundness in critial,
@@ -26,8 +28,18 @@ i.e., if the equivalence checker determines the programs to be equivalent, then 
 and evidently has equivalent observable behaviour. On the other hand, a sound equivalence checker may be incomplete
 and fail to prove the programs to be equivalent, even if they were equivalent.
 
+\subsection{Problem Setting}
+We restrict our attention to programs that construct, read, and write
+to recursive data structures. In languages like C, pointer and array based
+implementations of these data-structures are prone to safety and liveness bugs.
+Similar recursive data structures are also available in safer functional languages like Haskell,
+where algebraic data types (ADTs) \cite{hope} ensure several safety properties.
+We define a minimal functional language, called \SpecL{}, that enables the safe
+and succinct specification of programs manipulating and traversing recursive data structures.
+\SpecL{} is equipped with ADTs as well as boolean and bitvector (\type{i<N>}) types.
+
 We present \toolName{}, a {\em sound} algorithm to automatically (push-button) search
-for a proof of equivalence between a functional specification and its
+for a proof of equivalence between a functional specification (written in \SpecL{}) and its
 optimized C implementation. We will demonstrate how \toolName{} is capable of
 proving equivalence of multiple equivalent C implementations with vastly
 different (a) data layouts (e.g. array, linked list representations of a {\em list})
@@ -36,18 +48,18 @@ a {\em single} functional specification.
 This opens the possibility of regression verification \cite{strichman_regressverify,felsing14},
 where \toolName{} can be used to automate verification across
 software updates that change memory layouts for data structures.
-Next, we shortly motivate our approach to this problem and list the subgoals needed to be solved.
+Next, we shortly describe our approach with examples and list the major subgoals.
 We finish this section by listing our primary contributions.
 
-\section{Approach and Objectives}
+\subsection{Our Contributions}
 
-finish our this section, then link directly to the contributions of synopsis finishing this section
-let's put mk_list and sum_list programs in both Spec and C here 
+% finish our this section, then link directly to the contributions of synopsis finishing this section
+% let's put mk_list and sum_list programs in both Spec and C here 
 
-next section goes into the IR, show the IRs of all 4 programs!!
-then the CFG representation of the IR
-then introduce bisimulation and product-CFG
-also introduce the invariants table
+% next section goes into the IR, show the IRs of all 4 programs!!
+% then the CFG representation of the IR
+% then introduce bisimulation and product-CFG
+% also introduce the invariants table
 
 % Recursive data structures like lists, strings, and trees
 % are the building blocks of many algorithms and
