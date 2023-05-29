@@ -1,71 +1,50 @@
-\section{Related Work and Conclusion}
-\label{sec:relwork}
-The verification of a C implementation against
-its functional specification through manually-coded
-refinement proofs has been performed
-extensively in the seL4 microkernel \cite{seL4}.
-While the size of programs
-considered in our work is much smaller,
+\section{Limitations}
+\label{sec:limitations}
+Our proof discharge algorithm is not without limitations.
+For a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree}, a $d$-depth
+approximation results in $\sim 2^d$ smaller equalities. This is a major cause of inefficiency due to
+generation of large queries which slows down SMT solvers and counterexample-guided algorithms for large values of $d$.
+
+\toolName{} is only interested in finding a bisimulation relation and hence
+equivalence of non-bisimilar programs is beyond our scope.
+\toolName{} currently only supports bitvector affine and inequality relations
+along with \recursiveRelations{} provided as part of $Pre$ and $Post$.
+Consequently, non-linear bitvector invariants (e.g. polynomial invariants)
+as well as custom \recursiveRelations{} are not supported.
+While our correlation and invariant inference algorithms based on the Counter tool \cite{oopsla20}
+are designed for translation validation between (C-like) unoptimized IR and assembly, we found them
+to be surprisingly good for \SpecL{} to (C-like) IR as well. Rather unsurprisingly, \toolName{}
+suffers from the same limitations of these algorithms. For example, \toolName{} supports path
+specializations from \SpecL{} to C, it does not search for path merging correlations.
+
+\section{Conclusion}
+\label{sec:conclusion}
+As introduced in \cref{sec:syn-intro}, most of the current solutions
+to the problem of equivalence checking between a functional specification
+and a C program relies heavily on manually provided correlation, inductive
+invariants as well as proof assistants for discharging said obligations.
+While the size of programs considered in our work is quite small,
 we hope the ideas in \toolName{} will help
 automate the proofs for such systems to some degree.
 
-There exists significant prior work on automatic
-equivalence checking in the context of
-translation
-validation \cite{tvi,tristan_tv_eqsat11,stepp_eqsat_llvm11,eqsat,pec,zuck03,zuck05,heffter05,covac,c_to_verilog,kanade09,lopes16,tvoc_cav05,ddec,semalign,oopsla20,tv_oskernel,namjoshi13}.
-\toolName{} is perhaps most applicable in the context of
-regression verification \cite{strichman_regressverify,felsing14}, where
-the specification to verify the absence of regressions may be written
-in a higher-level functional syntax. Using
-a higher-level functional syntax for the specification
-allows automatic regression verification across software updates
-that change
-data layouts and algorithms.
-
-Frameworks for program equivalence proofs have been developed
-in interactive theorem provers like Coq \cite{programEquivalenceInCoq}
-where correlations and invariants are identified manually during
-proof codification.
-Programming languages like Dafny \cite{dafny} offer automated program
-reasoning facilities for imperative languages with
-abstract data types such as sets and arrays.
-Such languages perform automatic
-compile-time checks
-for manually-specified safety
-and liveness predicates. Prior work on push-button
-verification of specific
+Prior work on push-button verification of specific
 systems \cite{fscq,hyperkernel,serval,verifiedBPF}
-involves a combination
-of careful system design and
+involves a combination of careful system design and
 automatic verification tools like SMT solvers.
 Constrained Horn Clause (CHC) Solvers \cite{CHCeq}
-encode verification
-conditions of programs containing loops and recursion,
+encode verification conditions of programs containing loops and recursion,
 and raise the level of abstraction for automatic proofs.
-Compared to prior work, \toolName{} further raises the level
+Comparatively, \toolName{} further raises the level
 of abstraction for automatic verification from
 SMT queries and CHC queries to automatic discharge of
 proof obligations involving \recursiveRelations{}.
-Our equivalence checking tool based on
-our proof discharge algorithm requires the user
-to only specify the precondition and
-postcondition --- all
-correlations and invariants involving \recursiveRelations{}
-are identified automatically.
 
-A key idea in \toolName{}
-is the conversion of proof
+A key idea in \toolName{} is the conversion of proof
 obligations involving \recursiveRelations{} to
-bisimulation checks. Thus, \toolName{}
-performs {\em nested}
-bisimulation checks as part
-of a ``higher-level''
+bisimulation checks. Thus, \toolName{} performs {\em nested}
+bisimulation checks as part of a `higher-level'
 bisimulation search. This approach of
 identifying \recursiveRelations{} as invariants and using
 bisimulation to discharge the associated
 proof obligations may have applications
 beyond equivalence checking.
-
-TODO: talk about future scope? improvement to the invariant inference algorithm, equivalence in the presence of local allocation
-and more scalable encodings for data types such as tree where the number of clauses in the d-depth over-approximation is exponential
-in d.

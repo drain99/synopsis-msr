@@ -26,7 +26,7 @@ As introduced in \cref{sec:syn-intro}, most of the current solutions
 to the problem of equivalence checking between a functional specification
 and a C program relies heavily on manually provided correlation, inductive
 invariants as well as proof assistants for discharging said obligations.
-While the size of programs considered in our work is much smaller,
+While the size of programs considered in our work is quite small,
 we hope the ideas in \toolName{} will help
 automate the proofs for such systems to some degree.
 
@@ -41,12 +41,6 @@ Comparatively, \toolName{} further raises the level
 of abstraction for automatic verification from
 SMT queries and CHC queries to automatic discharge of
 proof obligations involving \recursiveRelations{}.
-% Our equivalence checking tool based on
-% our proof discharge algorithm requires the user
-% to only specify the precondition and
-% postcondition --- all
-% correlations and invariants involving \recursiveRelations{}
-% are identified automatically.
 
 A key idea in \toolName{} is the conversion of proof
 obligations involving \recursiveRelations{} to

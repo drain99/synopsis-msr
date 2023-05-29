@@ -20,13 +20,6 @@ On the other hand, programming languages like Dafny \cite{dafny} offer automated
 reasoning for imperative languages with abstract data types such as sets and arrays.
 Such languages perform automatic compile-time checks for manually-specified correctness predicates through
 SMT solvers.
-% Also, there exists significant prior work on translation validation
-% \cite{tvi,tristan_tv_eqsat11,stepp_eqsat_llvm11,eqsat,pec,zuck03,zuck05,heffter05,covac,c_to_verilog,kanade09,lopes16,tvoc_cav05,ddec,semalign,oopsla20,tv_oskernel,namjoshi13}
-% across low level programming languages such as C and assembly.
-% In most of these applications, soundness in critial,
-% i.e., if the equivalence checker determines the programs to be equivalent, then the programs are indeed equivalent
-% and evidently has equivalent observable behaviour. On the other hand, a sound equivalence checker may be incomplete
-% and fail to prove the programs to be equivalent, even if they were equivalent.
 
 We present \toolName{}, an algorithm to automatically (push-button) search
 for a proof of equivalence between a functional specification and its
@@ -36,8 +29,8 @@ different (a) data layouts (e.g. array, linked list representations of a {\em li
 and (b) algorithmic strategies (e.g. alternate algorithms, optimizations) against
 a {\em single} functional specification.
 This opens the possibility of regression verification \cite{strichman_regressverify,felsing14},
-where \toolName{} can be used to automate verification across software updates that change memory layouts for
-data structures and algorithms.
+where \toolName{} can be used to automate verification across
+software updates that change memory layouts for data structures.
 We start by formulating the problem statement and define equivalence in this context.
 Next, we shortly introduce bisimulation in the context of program equivalence and list our primary contributions.
 \vspace{-7px}

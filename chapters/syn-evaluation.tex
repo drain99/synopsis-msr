@@ -1,4 +1,3 @@
-% \input{chapters/figures/figLiftingCons.tex}
 \input{chapters/figures/figLiftingConsStr.tex}
 \vspace{-10px}
 \section{Evaluation}
@@ -23,27 +22,6 @@ at intermediate nodes in the product-CFG are inferred automatically.
 We consider programs involving four distinct ADTs, namely,
 \inv{\small T1} \type{String}, \inv{\small T2} \type{List}, \inv{\small T3} \type{Tree}
 and \inv{\small T4} \type{Matrix}.
-% For example, the {\tt String} ADT is a sum-type formed by constructors
-% {\tt Invalid} (to
-% encode the well-formedness condition of a string, e.g., it should be non-null),
-% {\tt Nil} (representing an empty string) and {\tt Cons} (representing
-% a recursive construction formed through a product of a character byte and a string).
-
-% For each C implementation, an equivalence check requires the identification of
-% lifting constructors that relate C values to the ADT values in \SpecL{}.
-% The relations between a \SpecL{} value and a lifted value derived from C values (and current memory state)
-% may be required at the entry of both programs (i.e., in the precondition $Pre$),
-% in the middle of both programs (i.e., in the inferred invariants at intermediate product-CFG
-% nodes), and at the exit of both programs (i.e., in the postcondition $Post$).
-% $Pre$ and $Post$ are user-specified, but the inductive invariants are inferred
-% automatically by our algorithm.
-% Our invariant inference algorithm derives
-% the shape of the lifting constructors from the user-specified $Pre$ and $Post$,
-% and uses these shapes in enumerating relational guesses at product-CFG nodes.
-% The \recursiveRelations{} in the precondition,
-% postcondition, and invariants may relate \SpecL{} ADT variables with the
-% values lifted (through a lifting constructor) from C variables (and current
-% memory state).
 
 \subsection{Experiments}
 For each \SpecL{} program specification, we consider multiple
@@ -55,35 +33,18 @@ of an inner-most loop. Next, we consider each ADT in more detail. For each,
 we discuss (a) its corresponding programs, (b) C memory layouts and their lifting
 constructors, and (c) varying algorithmic strategies.
 
-% The required lifting constructor may be different for different data layouts.
-% \Cref{tab:LiftingConsTable} shows the various lifting constructors used for validating
-% the benchmarks we describe below. In this table,
-% we use {\tt lnode(T)} to represent a linked list node
-% which encapsulates a value of type {\tt T}.
-% Similarly, {\tt clnode(T)} and {\tt tnode(T)} represent
-% a chunked linked list node and a tree node respectively
-% that encapsulate
-% value(s) of type {\tt T}. {\tt u32} represents
-% the 32-bit unsigned integer type.
-% We use a ternary {\tt ite(c,x,y)} operator which
-% returns {\tt x} if {\tt c} evaluates to true and {\tt y} otherwise.
-% The syntax {\tt T[]} represents an array of type {\tt T}.
-% {\tt T[r]} and {\tt T[c]} represent flattened
-% arrays of type {\tt T}, flattened using row-major and column-major
-% formats respectively.
-
 \input{chapters/figures/figStrlenSpecAndC.tex}
 
-\subsubsection{String} We wrote a single specification in \SpecL{} for each of the
-following
-common string library functions: {\tt strlen}, {\tt strchr}, {\tt strcmp}, {\tt strspn},
+\subsubsection{String}
+We wrote a single specification in \SpecL{} for each of the
+following common string library functions: {\tt strlen}, {\tt strchr}, {\tt strcmp}, {\tt strspn},
 {\tt strcspn}, and {\tt strpbrk}.  For each specification
 program, we took multiple C implementations of that program, drawn from popular
 libraries like {\tt glibc} \cite{glibc}, {\tt klibc} \cite{klibc}, {\tt newlib} \cite{newlib},
 {\tt openbsd} \cite{openbsdlibc}, {\tt uClibc} \cite{uclibc},
 {\tt dietlibc} \cite{dietlibc}, {\tt musl} \cite{musl}, and {\tt netbsd} \cite{netbsd}.
 Some of these libraries implement the same function in two ways: one that is optimized
-for code size (subscripted with $s$) and another that is optimized for runtime (subscripted with $f$).
+for code size and another that is optimized for runtime.
 All these library implementations use a {\em null character} terminated array to represent
 a string, and the
 corresponding lifting constructor is \lift{str}{\mem{}}{u8[]}.
@@ -121,10 +82,11 @@ for both implementations against the unaltered specification.
 
 \input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
-Lifting constructors are named based on their underlying data layout.
+Lifting constructors are named based on the C data layout being lifted
+and the \SpecL{} ADT type of the lifted value.
 For example, \lift{str}{}{u8[]} represents a \type{String} lifting constructor
 for an array layout.
-In general, we use the following naming convention for different data layouts:
+In general, we use the following naming convention for different C data layouts:
 \type{T[]} represents an array of type \type{T} (e.g., \type{u8[]}).
 \type{lnode(T)} represents a linked list node type containing a value of type \type{T}.
 Similarly, \type{clnode(T)} and \type{tnode(T)} represent a chunked linked list and a tree node
@@ -182,15 +144,6 @@ for lifting each row of matrices lifted using the corresponding \lift{mat}{\mem{
 constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
 % \vspace{-10px}
 \subsection{Results}
-% We evaluate \toolName{} on the C implementations discussed above. For functions that
-% take two or more data structure values as arguments, we evaluate it for different combinations of
-% data layouts for each argument.
-% For each program pair, we also \input{chapters/figures/figEvalTable.tex} \vspace{-5px} note the minimum
-% under-approximation ($d_u$) and over-approximation ($d_o$) depths at which
-% the equivalence proof completed (keeping all other parameters to their default values).
-% \Cref{tab:results} lists these program pairs along with the time it took
-% to compute equivalence, $d_o$ and $d_u$.
-
 \Cref{tab:results} lists the various C implementations and the time it took
 to compute equivalence with their specifications. For functions that
 take two or more data structures as arguments, we show
@@ -200,25 +153,4 @@ results for different combinations of data layouts for {\parfillskip=0pt\par}
 We also show the minimum under-approximation ($d_u$) and over-approximation ($d_o$) depths
 at which the equivalence proof completed (keeping all other parameters to their
 default values).
-
 % \vspace{15px}
-
-
-% During the verification of {\tt strchr} and {\tt strpbrk} implementations,
-% we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
-% return null pointers to signify absence of the required character(s) in the input string,
-% we additionally need to model the UB assumption that the zero
-% address does not belong to the null-terminated array representing the string. This
-% is modeled as a UB assumption $\neg${\tt ($s_S$ is SInvalid)} in the loop body that traverses the string
-% using the {\tt assuming-do} statement discussed in \cref{sec:speclang}.
-% This constraints the inputs to only valid string values in $S$ (that do not contain the {\tt SInvalid} constructor)
-% during equivalence check.
-% The string lifting constructors {\tt Cstr}$_m^{\tt T}\mathrm{(p:i32,...)}$
-% relate the {\tt SInvalid} constructor to the condition {\tt (p == 0$_{\tt i32}$)} (as defined in \cref{tab:LiftingConsList}).
-% This ensures that the zero address cannot belong to the null-terminated array.
-% Furthermore, these lifting constructors are used to assert equality of lists in the $S$ and $C$ programs as
-% part of the precondition $Pre$.
-% This constrains the inputs of $C$ also to valid strings only (that do not contain a character at the null address)
-% during equivalence check due to the $(S\ \  \mathrm{\tt def})$ assumption.
-% This is an example where $(S\ \  \mathrm{\tt def})$
-% and $Pre$ are used in combination to constrain the inputs of $S$ and $C$ to only well-formed values.
