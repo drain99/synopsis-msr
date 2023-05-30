@@ -81,7 +81,7 @@ Before diving into the proof discharge algorithm, we start with a key procedure 
 \vspace{-5px}
 \begin{equation}
 \label{eqn:specDeconstruct}
-U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCons}(l.\field{val}, l.\field{next})}
+U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCons}(\prodAccess{l}{val}, \prodAccess{l}{next})}
 \vspace{-5px}
 \end{equation}
 Firstly, an expression $e$ whose top-level operator is a lifting constructor, (e.g., \lifted{list}{\mem{}}{lnode}{\cv{l}}), is called a {\em lifted expression}.
@@ -95,7 +95,7 @@ operator and (b) rewriting the top-level expressions using rules in $E$, as nece
 For example, \sumIf{c_1} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(0,l_1)} \indEq{} \sumIf{c_2} \ \sumThen{\cons{LNil}} \ \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}
 decomposes into $\bigwedge\{c_1=c_2, (\neg c_1 \land \neg c_2) \rightarrow 0=i, (\neg c_1 \land \neg c_2) \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2} \}$.
 Similarly, the decomposition of $l_1\indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
-$\bigwedge \{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (l_1.\field{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \}$.
+$\bigwedge \{\sumIs{l_1}{LCons}, (\sumIs{l_1}{LCons}) \rightarrow (\prodAccess{l_1}{val}=42), (\sumIs{l_1}{LCons}) \rightarrow (\prodAccess{l_1}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2}) \}$.
 The {\em decomposition} of an expression $e$ is found by decomposing each \recursiveRelation{} in $e$.
 
 We {\em unroll a \recursiveRelation{} $l_1 \indEq{} l_2$ with respect to $E$} by rewriting the top-level expressions $l_1$ and $l_2$ through $E$ (if possible) and decomposing it.
@@ -177,7 +177,7 @@ Consider the proof obligation originating due to \circled{\small I2} invariant a
 \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
 the node invariant \scpc{2}{2} contains the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
 The corresponding (simplified) first-order logic condition for this proof obligation is:
-$(\sv{l} \indEq \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \neg(\sumIs{\sv{l}}{LNil}) \land \cv{l}\neq0) \Rightarrow (\sv{sum} + \sv{l}.\field{val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
+$(\sv{l} \indEq \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \neg(\sumIs{\sv{l}}{LNil}) \land \cv{l}\neq0) \Rightarrow (\sv{sum} + \prodAccess{\sv{l}}{val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
 We fail to remove the \recursiveRelation{} on the \lhs{} even after
 $k$-unrolling for any finite depth $k$ because both sides of \indEq{}
 represent list values of arbitrary length.
@@ -232,9 +232,9 @@ Unlike \recursiveRelations{}, these operators only equate
 scalar expressions and can be encoded in SMT logic.
 For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$
 reduces to the SMT-encodable predicate:
-$(\sumIs{l}{LNil} = (p = 0)) \land (\neg(\sumIs{l}{LNil}) \rightarrow (l.\field{val} = \structPointer{p}{\mem{}}{lnode}{val}))$.
+$(\sumIs{l}{LNil} = (p = 0)) \land (\neg(\sumIs{l}{LNil}) \rightarrow (\prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val}))$.
 Similarly, $\depthBound{2}{l}$ is equivalent to
-$(\sumIs{l}{LNil}) \vee (\neg(\sumIs{l}{LNil}) \land (\sumIs{l.\field{tail}}{LNil}))$
+$(\sumIs{l}{LNil}) \vee (\neg(\sumIs{l}{LNil}) \land (\sumIs{\prodAccess{l}{tail}}{LNil}))$
 and $\depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
 $(p = 0) \vee ((p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$.
 
