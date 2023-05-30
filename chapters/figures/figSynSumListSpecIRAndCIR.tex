@@ -3,6 +3,7 @@
 \begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{   }}~   
 ~{\scriptsize \textcolor{mygray}{S0:}}~ i32 sum_list (List l) {
 ~{\scriptsize \textcolor{mygray}{S1:}}~   i32 sum $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{S2:}}~   while $\neg$(l is LNil):
@@ -19,6 +20,7 @@
 \begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{\ \ \ }}~ unsigned sum_list (lnode* l);
 ~{\scriptsize \textcolor{mygray}{C0:}}~ i32 sum_list (i32 l) {
 ~{\scriptsize \textcolor{mygray}{C1:}}~   i32 sum $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{C2:}}~   while ${\tt l \neq 0_{i32}}$:
@@ -27,7 +29,6 @@
 ~{\scriptsize \textcolor{mygray}{C5:}}~   return sum;
 ~{\scriptsize \textcolor{mygray}{CE:}}~ }
 \end{allLangEnvFoot}
-\vspace{7px}
 \end{center}
 \caption{\label{fig:llTraverseCIR}(Abstracted) C IR}
 \end{subfigure}%

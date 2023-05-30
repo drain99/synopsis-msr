@@ -1,0 +1,25 @@
+\begin{figure}[H]
+\begin{small}
+\begin{tabular}{rcl}
+\nonTerm{expr} & $\rightarrow$ & \term{if} \nonTerm{expr} \term{then} \nonTerm{expr} \term{else} \nonTerm{expr} \\
+& $|$ & \term{let} \nonTerm{id} \term{=} \nonTerm{expr} \term{in} \nonTerm{expr} \\
+& $|$ & \term{match} \nonTerm{expr} \term{with} \nonTerm{match-clause-list} \\
+& $|$ & \term{assuming} \nonTerm{expr} \term{do} \nonTerm{expr} \\
+& $|$ & \nonTerm{id} \term{(} \nonTerm{expr-list} \term{)} \\
+& $|$ & \nonTerm{data-cons} \term{(} \nonTerm{expr-list} \term{)} \\
+& $|$ & \nonTerm{expr} \term{is} \nonTerm{data-cons} \\
+& $|$ & \nonTerm{expr} \nonTerm{scalar-op} \nonTerm{expr} \\
+& $|$ & \nonTerm{literal$_{\mathrm{Unit}}$} $|$ \nonTerm{literal$_{\mathrm{Bool}}$} $|$ \nonTerm{literal$_{\mathrm{i<N>}}$} \\
+\\
+\nonTerm{match-clause-list} & $\rightarrow$ & \nonTerm{match-clause}$^*$ \\
+\nonTerm{match-clause} & $\rightarrow$ & \term{$|$} \nonTerm{data-cons} \term{(} \nonTerm{id-list} \term{)} \term{$\Rightarrow$} \nonTerm{expr} \\
+\nonTerm{expr-list} & $\rightarrow$ & \term{$\epsilon$} \term{$|$} \nonTerm{expr} \term{,} \nonTerm{expr-list} \\
+\nonTerm{id-list} & $\rightarrow$ & \term{$\epsilon$} \term{$|$} \nonTerm{id} \term{,} \nonTerm{id-list} \\
+\\
+\nonTerm{literal$_{\mathrm{Unit}}$} & $\rightarrow$ & \term{()} \\
+\nonTerm{literal$_{\mathrm{Bool}}$} & $\rightarrow$ & \term{false} $|$ \term{true} \\
+\nonTerm{literal$_{\mathrm{i<N>}}$} & $\rightarrow$ & [\term{0$\dots$2$^{\mathrm{N}}$-1}] \\
+\end{tabular}
+\end{small}
+\caption{\label{fig:specgrammar}Simplified expression grammar of \SpecL{} language}
+\end{figure}

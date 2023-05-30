@@ -19,6 +19,7 @@
 \newcommand{\ite}[3]{\ensuremath{#1?#2:#3}}%
 \newcommand{\sumDtor}{\underline{\tt if}-\underline{\tt then}-\underline{\tt else}}%
 \newcommand{\sumIs}[2]{\ensuremath{#1\ \mathrm{is}\ \cons{#2}}}%
+\newcommand{\prodAccess}[2]{\ensuremath{#1.{\field{#2}}}}%
 \newcommand{\sumIf}[1]{\underline{\tt if}\ \ensuremath{#1}}%
 \newcommand{\sumThen}[1]{\underline{\tt then}\ \ensuremath{#1}}%
 \newcommand{\sumElif}[1]{\underline{\tt elif}\ \ensuremath{#1}}%
@@ -32,7 +33,8 @@
 \newcommand{\depthBound}[2]{\ensuremath{\Gamma_#1(#2)}}%
 % \newcommand{\structPointer}[4]{\ensuremath{{#1} \oset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
 \newcommand{\structPointer}[4]{\ensuremath{{#1} \overset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
-\newcommand{\arrIndex}[4]{\ensuremath{#1[#2]_{\type{#3}}^{#4}}}
+\newcommand{\arrIndex}[4]{\ensuremath{#1[#2]_{#3}^{\type{#4}}}}%
+\newcommand{\memWrite}[4]{\ensuremath{#1[#2 \leftarrow #3]_{\type{#4}}}}%
 \newcommand{\pointsTo}{\ensuremath{\rightsquigarrow}}%
 \newcommand{\hoareTriple}[3]{\ensuremath{\{#1\}(#2)\{#3\}}}%
 \newcommand{\lift}[3]{\ensuremath{{{\tt C#1}_{#2}^{\tt #3}}}}%
@@ -81,6 +83,9 @@
 \newcommand{\mlrs}[1]{{\ensuremath{\tt #1_{2+}}}}%
 \newcommand{\lhs}{{\tt LHS}}%
 \newcommand{\rhs}{{\tt RHS}}%
+\newcommand{\typeof}[1]{{\tt typeof(#1)}}%
+\newcommand{\sizeof}[1]{{\tt sizeof(#1)}}%
+\newcommand{\offsetof}[2]{{\tt offsetof(#1,#2)}}%
 
 \newcommand{\Tstrut}{\rule{0pt}{2.7ex}}         % = `top' strut
 \newcommand{\Bstrut}{\rule[-1.2ex]{0pt}{0pt}}   % = `bottom' strut

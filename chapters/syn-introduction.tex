@@ -47,7 +47,7 @@ and succinct specification of programs manipulating and traversing recursive dat
 
 \input{chapters/figures/figSynMallocSpecAndC.tex}
 
-\Cref{fig:llAllocSpec,fig:llAllocC} show construction of lists in \SpecL{} and C respectively.
+\Cref{fig:llAllocSpec,fig:llAllocC} show the construction of lists in \SpecL{} and C respectively.
 The inputs to a \SpecL{} procedure are its well-typed arguments, which may include recursive data structure
 values. The inputs to a C procedure are its explicit arguments and the implicit state of program memory
 at procedure entry. We lower both \SpecL{} and C programs to a
@@ -58,7 +58,7 @@ as shown in \cref{fig:llAllocSpecIR,fig:llAllocCIR}. For a \SpecL{} program,
 For a C program, (a) the sizes and memory layouts of both scalar (e.g., {\tt int})
 and compound (e.g., {\tt struct}) types are concretized in IR and
 (b) all allocation functions (e.g., {\tt malloc}) are annotated with their
-allocation site i.e. IR PC (e.g., {\tt malloc$_{\tt C4}$} in \cref{fig:llAllocCIR}).
+call-site i.e. IR PC (e.g., {\tt malloc$_\cpc{4}$} in \cref{fig:llAllocCIR}).
 
 \subsubsection{Equivalence Definition}
 \label{sec:syn-equivalence}
@@ -81,7 +81,7 @@ $$
 \input{chapters/figures/figSynMallocSpecAndCAndProductCFG.tex}
 \input{chapters/figures/figMallocInvs.tex}
 \vspace{-5px}
-\Cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} shows the Control-Flow Graph (CFG) representation
+\Cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} show the Control-Flow Graph (CFG) representation
 of the \SpecL{} and C programs in \cref{fig:llAllocSpecIR,fig:llAllocCIR} respectively.
 Each node represent a PC location of its corresponding program, and each edge represent
 transitions between PCs through instruction execution. For brevity, we often represent
@@ -107,13 +107,13 @@ inductive invariants (labeled \circled{\small I}) and postcondition (labeled \ci
 for the product-CFG in \cref{fig:llAllocProductCFG}. The precondition and postcondition are
 provided manually by the user while the intermediate inductive invariants are inferred automatically.
 The invariant labeled \circled{\small I4} is an example of a {\em \recursiveRelation{}} and represents
-the equality between the \SpecL{} \type{List} variable \sv{l} and the \type{List} represented by
+equality between the \SpecL{} \type{List} variable \sv{l} and the \type{List} represented by
 chasing \type{lnode} pointers starting at \cv{l}.
 Semantically $l_1\indEq{}l_2$ and $l_1=l_2$ are equivalent, `\indEq{}' simply emphasizes the
 fact that $l_1$ and $l_2$ are values of (possibly recursive) ADT types.
 \lifted{list}{\mem{}}{lnode}{p} is called a {\em lifting constructor} that {\em lifts}
 the C pointer value {\tt p} (pointing to an object of type \type{struct lnode}) and the C
-memory state \mem{} to a \SpecL{} \type{List} value, and is defined by:
+memory state \mem{} to a \SpecL{} \type{List} value, and is defined as follows:
 \begin{equation}
 \label{eqn:clist}
 \begin{split}
@@ -149,12 +149,11 @@ requires three major steps:
 program executions across the \SpecL{} and C programs respectively,
 \circled{\small 2} An algorithm for identification of inductive invariants at correlated PCs and
 \circled{\small 3} A proof discharge algorithm for discharging proof obligations containing \recursiveRelations{}.
-We base algorithms \circled{\small 1} and \circled{\small 2} on modified versions of counterexample-guided correlation
-and invariant inference algorithms\cite{oopsla20}. Our major contributions are as follows:
+Our major contributions are as follows:
 
 \begin{itemize}
 \setlength{\itemsep}{0px}
-\item Proof Discharge Algorithm: Discharging proof obligations (algorithm \circled{\small 3})
+\item Proof Discharge Algorithm: Discharging proof obligations (\circled{\small 3})
 involving \recursiveRelations{} is rather challenging and forms our primary contribution.
 We describe a {\em sound} proof discharge algorithm capable of tackling proof obligations involving
 \recursiveRelations{} using off-the-shelf SMT solvers. Our proof discharge algorithm is also capable of
@@ -166,7 +165,7 @@ and discharge these proof queries using a nested (albeit much simpler) bisimulat
 
 \item Spec-to-C Equivalence Checker Tool: Our second contribution is \toolName{}, an equivalence checker tool
 capable of proving equivalence between a \SpecL{} and a C program automatically. \toolName{} is based on
-the Counter tool\cite{oopsla20} and uses an modification of (a) counterexample-guided correlation algorithm for
+the Counter tool\cite{oopsla20} and uses modified versions of (a) counterexample-guided correlation algorithm for
 incremental construction of a product-CFG and (b) counterexample-guided invariant inference algorithm
 for inference of inductive invariants at correlated PCs in the (partially constructed) product-CFG.
 \toolName{} discharges required verification conditions (i.e. proof obligations) using our Proof Discharge Algorithm.

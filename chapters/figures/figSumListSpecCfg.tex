@@ -1,0 +1,38 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,293); %set diagram left start at 0, and has height of 293
+
+
+% Text Node
+\draw   (26.5, 33.5) circle [x radius= 10.61, y radius= 10.61]   ;
+\draw (26.5,33.5) node  [font=\footnotesize] [align=left] {\spc{0}};
+% Text Node
+\draw    (83.5, 33.5) circle [x radius= 10.61, y radius= 10.61]   ;
+\draw (83.5,33.5) node  [font=\footnotesize] [align=left] {\spc{2}};
+% Text Node
+\draw    (160, 33.5) circle [x radius= 10.61, y radius= 10.61]   ;
+\draw (160,33.5) node  [font=\footnotesize] [align=left] {\spc{E}};
+% Text Node
+\draw    (83.5, 76.5) circle [x radius= 10.61, y radius= 10.61]   ;
+\draw (83.5,76.5) node  [font=\footnotesize] [align=left] {\spc{5}};
+% Text Node
+\draw (118,24) node  [font=\footnotesize]  {\sumIs{\tt l}{LNil}};
+% Text Node
+\draw (126.2,51) node  [font=\footnotesize]  {\sumIs{\tt l}{LCons}};
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (94.11,33.5) -- (149.5,33.5) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (37.11,33.5) -- (72.89,33.5) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (92.51,39.1) .. controls (100.05,47.39) and (100.48,56.98) .. (92.15,70.36) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (74.39,71.06) .. controls (66.53,62.89) and (66.14,53.19) .. (74.81,39.58) ;
+
+\end{tikzpicture}
+
+\end{document}

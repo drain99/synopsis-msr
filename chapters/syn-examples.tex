@@ -115,7 +115,7 @@ We categorize a proof obligation $P: \lhs{} \Rightarrow \rhs{}$ based on this $k
 \vspace{-10px}
 Next, we briefly describe the key ideas for each of the three types of proof obligations in \cref{sec:syn-cat1,sec:syn-cat2,sec:syn-cat3}.
 
-\input{chapters/figures/figSumListSpecIRAndCIR.tex}
+\input{chapters/figures/figSynSumListSpecIRAndCIR.tex}
 \vspace{-10px}
 \subsection{Handling Type I Proof Obligations}
 \label{sec:syn-cat1}
@@ -368,8 +368,8 @@ represents the C memory state after executing the writes at lines \cpc{5} and \c
 \label{eqn:memstore}
 \mem{}' \equiv \mem[\& (\structPointer{\cv{p}}{\mem{}}{lnode}{val}) \leftarrow \cv{i}]_\type{i32}[\& (\structPointer{\cv{p}}{\mem{}}{lnode}{next}) \leftarrow \cv{l}]_\type{i32}
 \end{equation}
-Here, $\mem{}[a \leftarrow v]$ represents an array that is
-equal to \mem{} everywhere except at address $a$ which contains the value $v$.
+Here, \memWrite{\mem{}}{a}{v}{T} represents an array that is
+equal to \mem{} everywhere except at addresses starting at $a$ which contains the value $v$ of type \type{T}.
 We also refer to these memory writes that distinguish \mem{} and $\mem{}'$, the {\em distinguishing writes}.
 
 \subsubsection{LHS-to-RHS Substitution and RHS Decomposition}

@@ -2,7 +2,21 @@
 \begin{tabular}{cc}
 \begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
-{\includegraphics[scale=1.1]{chapters/figures/figSumListProductCfg.pdf}}
+{\includegraphics[scale=1.3]{chapters/figures/figSumListSpecCfg.pdf}}
+\end{center}
+\caption{\label{fig:llTraverseSpecCFG}CFG of \SpecL{} Program}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.45\textwidth}
+\begin{center}
+{\includegraphics[scale=1.3]{chapters/figures/figSumListCCfg.pdf}}
+\end{center}
+\caption{\label{fig:llTraverseCCFG}CFG of C Program}
+\end{subfigure}%
+\\
+\begin{subfigure}[b]{0.45\textwidth}
+\begin{center}
+{\includegraphics[scale=1.2]{chapters/figures/figSumListProductCfg.pdf}}
 \end{center}
 \caption{\label{fig:llTraverseProduct}Product-CFG}
 \end{subfigure}%
@@ -31,5 +45,7 @@
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:llTraverseProductCFGInvs} Product-CFG between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}. The inductive invariants of the Product-CFG are given in \cref{fig:llTraverseProductInv}.}
+\caption{\label{fig:llTraverseSpecCProductCFGInvs} CFG representation for \SpecL{} and C IRs shown in \cref{fig:llTraverseSpec,fig:llTraverseC}.
+\Cref{fig:llTraverseProduct} shows the product-CFG between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}.
+The inductive invariants of the Product-CFG are given in \cref{fig:llTraverseProductInv}.}
 \end{figure}
