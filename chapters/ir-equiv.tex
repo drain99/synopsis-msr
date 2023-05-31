@@ -1,4 +1,4 @@
-\section{Exposition of Languages and Equivalence Definition}
+\section{Languages and Equivalence}
 \label{sec:lang-eqdef}
 
 \subsection{The \SpecL{} Language}
@@ -84,7 +84,8 @@ conditionally deconstructs the sum type into its variants \cons{LNil} and \cons{
 \Cref{eqn:specDeconstruct} is called the {\em unrolling procedure} for the \type{List} variable $l$.
 We can similarly define the unrolling procedure for any ADT variable.
 
-The C memory is modeled as a byte-addressable array \mem{} in the IR.
+Pointers are converted to bitvectors and the C memory 
+is modeled as a byte-addressable array \mem{} in the IR.
 Memory reads are represented using the following two C-like syntaxes:
 (a) ``\structPointer{p}{\mem{}}{T}{f}'' is equivalent to ``*(\typeof{T.f}*)(\&\mem{}[$p$+\offsetof{T}{f}])''
 i.e., it returns the bytes in the memory array \mem{} starting at address `$p$+\offsetof{T}{f}'
@@ -99,7 +100,7 @@ and interpreted as an object of type `\type{T}'.
 of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
 Each CFG node represents a IR PC location of the program and edges represent
 transitions through execution of instructions.
-Each edge is associated with
+Each edge is associated with:
 (a) a {\em edge condition} (the condition under which that edge is taken),
 (b) a {\em transfer function} (how the program state is mutated if that edge is taken) and
 (c) a {\em UB assumption} (what condition should be true for the program execution
@@ -109,204 +110,195 @@ form the UB assumptions.
 For brevity, we often represent a sequence of instructions with a single edge, e.g.,
 in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7,8,3}.
 In such a case, the transfer function of the edge is the composition of the sequence of instructions.
+Henceforth, We refer to the IR programs as \SpecL{} and C directly unless a distinction is necessary.
 
+\subsection{Equivalence Definition}
+\label{sec:eqdef}
+Given (1) a \SpecL{} program specification $S$, (2) a C implementation $C$,
+(3) a precondition $Pre$ that relates the initial inputs \sv{Input} and \cv{Input} to
+$S$ and $C$ respectively, and (4) a postcondition $Post$ that relates the final outputs
+\sv{Output} and \cv{Output} of $S$ and $C$ respectively\footnote{\cv{Input} and \cv{Output}
+include the initial and final memory state of $C$ respectively.}:
+$S$ and $C$ are {\em equivalent} if for all possible inputs \sv{Input} and \cv{Input} such that
+$Pre(\sv{Input},\cv{Input})$ holds,
+$S$'s execution is well-defined on \sv{Input}, {\em and}
+$C$'s memory allocation requests during its execution on \cv{Input} are successful,
+then both programs $S$ and $C$ produce outputs such that $Post(\sv{Output},\cv{Output})$ holds.
+$$
+Pre(\sv{Input},\cv{Input}) \land \sdef{} \land \cfits{} \Rightarrow Post(\sv{Output},\cv{Output})
+$$
+
+The \sdef{} antecedent states that we are only interested in proving equivalence for
+well-defined executions of $S$, i.e., executions that satisfy all assertions expressed
+using the {\tt assuming-do} statement.
+Sometimes, the user may be interested in constraining the nature of inputs to $C$
+for the purpose of checking equivalence only for {\em well-defined} inputs.
+In these cases, we use a combination of $Pre$ and \sdef{} to constrain
+the execution of $C$ to inputs for which we are interested in proving equivalence.
+For example, the C library function {\tt strlen(\type{char}* \cv{str})} is well-defined only if \cv{str}
+represents a valid null character terminated string.
+This includes the assumption that the pointer \cv{str} may not be null.
+Since \SpecL{} has no notion of pointers, we expose this conditional well-definedness of C strings
+through an explicit constructor e.g. \cons{SInvalid} for the \type{String} ADT defined as
+$\type{String}=\cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{String})$.
+\sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ and
+the precondition $Pre$ contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
+Hence, \sdef{} and $Pre$ ensures that we compute equivalence only for those
+executions of $S$ and $C$ where the input strings are well-defined.
+A similar strategy is employed for other functions as detailed in \cref{sec:results}.
+
+The \cfits{} antecedent states that we prove equivalence under the assumption that $C$'s memory
+requirements fit within the available system memory i.e., only for those executions of $C$
+in which all memory allocation requests (through {\tt malloc} calls) are successful.
+
+The returned values of $S$ and $C$ procedures form their observable outputs.
+For $S$, the returned values are explicit and may include ADT values.
+For $C$, observables include the returned value along with the implicit memory state
+at program exit.
+The postcondition $Post$ relates these outputs of the two programs.
+In general, the \SpecL{} and C sources may contain multiple procedures and these
+procedures may have calls to each other.
+In that scenario, we are interested in proving equivalence of each $S$ and $C$ procedure pair.
 
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
 
-
-% In this section, we give a much more detailed overview of the intermediate representation.
-% Show the Spec and C of sum_list and their IRs and discuss in detail what they means.
-% Also introduce the deconstruction of a variable, say l and how we model ADT variables as maps with keys.
-% Also talk about the well-formedness condition for accessing these keys.
-
-% Now talk about the C program and its conversion. Fully define the operators -> and [].
-% Also define the operator m[a <- b]!!
-
-% Then talk about the CFG representation
-% explicitly provide what is associated with the nodes and edges
-
-\subsection{Bisimulation}
+\subsection{Bisimulation Relation}
 \label{sec:bisim}
-% discuss the bisimulation for the sum_list example in more detail
-% put the bisim and recursive relation all missed content here
+We construct a {\em bisimulation relation} to identify equivalence between two programs.
+A bisimulation relation correlates the transitions of $S$ and $C$ in lockstep, such that the
+lockstep execution ensures identical observable behavior.
+A bisimulation relation between two programs can be represented using a {\em product program}
+\cite{covac} and the CFG representation of a product program is called a {\em product-CFG}.
+\Cref{fig:llTraverseProduct} shows a product-CFG, that encodes the lockstep execution
+(bisimulation relation) between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}.
+
+A node in the product-CFG is formed by pairing nodes of $S$ and $C$ CFGs,
+e.g., \scpc{2}{2} is formed by pairing \spc{2} and \cpc{2}.
+If the lockstep execution of both programs is at node \scpc{2}{2} in the product-CFG,
+then $S$'s execution is at \spc{2} and $C$'s execution is at \cpc{2}.
+The start node \scpc{0}{0} of the product-CFG correlates the start nodes of CFGs of $S$ and $C$.
+Similarly, the exit node \scpc{E}{E} correlates the exit nodes of both programs.
+
+An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edges) in $S$
+with a path in $C$.
+A product-CFG edge encodes the lockstep execution of its correlated paths.
+For example, the product-CFG edge \scedge{2}{2}{2}{2} is formed by pairing
+\spath{2,5,2} and \cpath{2,4,2} in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG},
+and represents that when $S$ makes the transition \spath{2,5,2}, $C$ makes the transition \cpath{2,4,2}
+in lockstep.
+In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in $S$ with a finite path
+\cv{\rho} in $C$, written $e=(\sv{\rho},\cv{\rho})$.
+The empty path $\epsilon$ in $S$ may be correlated with a finite path in $C$
+However, a product-CFG is only well-formed (i.e. represents a valid bisimulation relation)
+if no loop path in $C$ is correlated with $\epsilon$ in $S$.
+For example, \cref{fig:llAllocProductCFG} shows the correlation of
+$\epsilon$ with the paths \cpath{3,4} and \cpath{4,5}.
+Since the loop path \cpath{3,4,5,3} in $C$ is still correlated with
+the non-empty path \spath{3,5,3} in $S$, it represents a valid bisimulation relation.
+
+At the start node \scpc{0}{0} of the product-CFG in \cref{fig:llAllocProductCFG},
+the precondition $Pre$ (labeled \circled{\small P})
+ensures equality of input arguments \sv{n} and \cv{n} at programs' entry.
+{\em Inductive invariants} (labeled \circled{\small I}) are inferred
+at each intermediate product-CFG node that relate
+the values of $S$ with values and memory state of $C$.
+The inductive invariants are identified by running an invariant inference algorithm
+on the product-CFG, which is further discussed in \cref{sec:invinference}.
+At the exit node \scpc{E}{E} of the product-CFG, the postcondition $Post$ (labeled \circled{\small P})
+represents equality of observable outputs and forms our primary proof obligation.
+Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node \scpc{0}{0},
+a bisimulation check involves checking that the inductive invariants (\circled{\small I}) hold too,
+and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit node \scpc{E}{E}.
+
+\subsection{Recursive Relation}
+\label{sec:recrel}
+In \cref{fig:llTraverseProductInv}, the precondition (\circled{\small P}) is an example
+of a {\em \recursiveRelation{}}:
+``\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}'' where \sv{l} and \cv{l}
+represent the input variables to the \SpecL{} and C programs respectively,
+\type{lnode} is the C \type{struct} type that contains the \field{val} and \field{next} fields,
+and \mem{} is the byte-addressable array representing the current memory state of the C program.
+$l_1 \indEq{} l_2$ is read {\em $l_1$ is recursively equal to $l_2$} and is semantically equivalent
+to $l_1 = l_2$. The `\indEq{}' simply emphasizes that $l_1$ and $l_2$ are (possibly recursive) ADT values.
+\lift{list}{}{lnode} is called a {\em lifting constructor} that `lifts' a C pointer value $p$
+(pointing to an object of type \type{struct lnode}) and
+a C memory state \mem{} to a \type{List} value, and is defined through its {\em unrolling procedure}
+as follows:
+
+\begin{equation}
+\label{eqn:clist}
+\begin{split}
+U_C:\ &\lifted{list}{\mem{}}{lnode}{p \ctype{i32}} = \sumIf{p=0} \ \sumThen{\cons{LNil}} \\ & \qquad\qquad\ \ \ \sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})}
+\end{split}
+\end{equation}
+
+Note the recursive nature of the lifting constructor \lift{list}{}{lnode}: if the pointer $p$ is zero
+(i.e. $p$ is a null pointer), then it represents the empty list \cons{LNil};
+otherwise it represents the list formed by \cons{LCons}-ing the value stored at
+\structPointer{p}{\mem{}}{lnode}{val} in memory \mem{} and the list formed by recursively
+lifting \structPointer{p}{\mem{}}{lnode}{next} through \lift{list}{}{lnode}.
+\lifted{list}{\mem{}}{lnode}{p} allows us to adapt a C linked list (formed by chasing a pointer $p$
+in the memory \mem{}) to a \type{List} value and compare it with a \SpecL{} \type{List}
+value for equality.
 
 \subsection{Proof Obligations}
 \label{sec:proofobl}
-% define hoare triples, its lowerings and all the properties of the proof obligations
-% finish with a continuation that next we will show the proof discharge algorithm through examples
-% based on mk_list and sum_list programs.
+The counterexample-guided algorithms for construction of the product-CFG and inference of inductive
+invariants are discussed later in \cref{sec:algo}.
+For now, we discuss the proof obligations that arise from a given product-CFG.
+Consider the product-CFG in \cref{fig:llAllocProductCFG}.
+Recall that a bisimulation check involves checking that all inductive invariants
+and the postcondition $Post$ hold at each product-CFG node.
 
-\subsection{Equivalence Definition}
-\label{sec:eqdef}
-% pretty much copy-paste the equivalence definition
+We use relational Hoare triples to express these proof obligations \cite{relationalHoareLogic,hoareTriple}.
+If $\phi$ denotes a predicate relating the machine states of $S$ and $C$, then
+for a product-CFG edge $e=(\sv{\rho},\cv{\rho})$, \hoareTriple{\phi_s}{e}{\phi_d}
+denotes the condition:
+if any machine states \sv{\sigma} and \cv{\sigma} of programs $S$ and $C$ are related through
+precondition $\phi_s(\sv{\sigma},\cv{\sigma})$ and the paths \sv{\rho} and \cv{\rho}
+are executed in $S$ and $C$ respectively,
+then execution terminates normally in states $\sv{\sigma}^{'}$ (for $S$) and
+$\cv{\sigma}^{'}$ (for $C$) and postcondition $\phi_d(\sv{\sigma}^{'},\cv{\sigma}^{'})$ holds.
 
+For every product-CFG edge $e = (s \rightarrow d) = (\sv{\rho}, \cv{\rho})$,
+we are interested in proving: \hoareTriple{\phi_s}{\sv{\rho},\cv{\rho}}{\phi_d},
+where $\phi_s$ and $\phi_d$ are the node invariants at the product-CFG nodes $s$ and $d$
+respectively.
+The weakest-precondition transformer is used to translate a Hoare triple
+\hoareTriple{\phi_s}{\sv{\rho},\cv{\rho}}{\phi_d} to the following
+first-order logic formula:
 
-We restrict
-our attention to programs that construct, read, and write to recursive
-data structures in \SpecL{} and C.
-If a \SpecL{} or C program contains multiple procedures, we first
-convert all tail-recursive calls to loops, and then inline
-all non-recursive procedure calls to obtain a single top-level procedure which is
-compared for equivalence.
-% The top-level procedures in $S$ and $C$
-%must have the same name for our tool
-%to compare them for equivalence.
-A top-level procedure
-may make recursive calls to itself (which are not tail recursive).
-The C program
-may also contain calls to memory allocation library functions
-like {\tt malloc} whose
-abstract semantics are available.
+\begin{equation}
+\label{eqn:firstOrderFormula}
+(\phi_s \land pathcond_{\sv{\rho}} \land pathcond_{\cv{\rho}} \land ubfree_{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
+\end{equation}
 
-The inputs to
-a \SpecL{} procedure
-are its explicit program arguments, which may include
-recursive data-structure values.  The inputs to a
-C procedure include the explicit arguments passed to the C procedure (e.g., pointers)
-and the implicit state of program memory at procedure entry.
-Notice the difference in the nature of inputs to the two programs: while
-\SpecL{} inputs are explicit well-typed values, C procedure's
-inputs may be
-derived from the state of the input memory (e.g., linked list formed by chasing the
-{\tt next} pointer).
-For checking equivalence, we require
-the user to specify a precondition (at the entry of both
-programs) that relates these two different
-types of program inputs.
-%The user may
-%employ a
-%\recursiveInvariant{} shape for specifying a precondition.
+Here, $pathcond_{\rho_X}$ represent the condition that path $\rho$ is taken in program $X$
+and $ubfree_{\sv{\rho}}$ represents the condition that execution of $S$ along path $\sv{\rho}$
+is free of undefined behaviour.
+${\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)$ represents the weakest-precondition
+of the predicate $\phi_d$ across the product-CFG edge $e = (\sv{\rho},\cv{\rho})$.
+We will use `\lhs{}' and `\rhs{}' to refer to the antecedent and consequent of
+the implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.
 
-\Cref{fig:llAllocSpecIR} shows the Three-Address-Code (3AC) style
-intermediate representation (IR) of the linked-list construction \SpecL{}
-program in \cref{fig:llAllocSpec}.
-We often omit intermediate registers in the intermediate representation
-for brevity and ease of exposition, and refer to this as {\em abstracted} IR.
-The primary differences between
-the \SpecL{} source and IR are: (a) tail-recursive calls
-are converted to loops in IR, and (b) {\tt match} statements
-are converted to \sumDtor{} in IR,
-where each branch of an \sumDtor{}
-expression represents a distinct constructor.
+For example, checking that the loop invariant \circled{\small I2}
+$\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ holds at \scpc{2}{2} in \cref{fig:llTraverseProduct}
+requires us to prove the following two proof obligations:
+\circled{1} \hoareTriple{\scpcinv{0}{0}}{\spath{0,2},\cpath{0,2}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}} and
+\circled{2} \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2},\cpath{2,4,2}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+The proof obligation \circled{2} reduces to the following first-order logic proof obligation:
 
-Similarly, the C implementation is also lowered to a 3AC IR
-that resembles LLVM IR \cite{llvm_langref_home}. The primary differences between a C
-source and its IR are: (a) the sizes and
-memory-layouts of both scalar (e.g., {\tt int}) and
-compound (e.g., {\tt struct}) types are concretized in the IR,
-and (b) we annotate any {\tt malloc} calls with
-the IR PC at which that call appears
-(e.g., {\tt malloc$_{\tt C4}$} in \cref{fig:llAllocCIR}).
-%, and (c) the IR models only three types of UB
-%present in the C source, namely out-of-bounds
-%memory accesses (OOB), division-by-zero (DBZ), and alignment-related (Align)
-%UB assumptions.
-%We ignore the other types of
-%UB for simplicity. If the user is interested in
-%end-to-end verification of the executable code (compiled from
-%the C implementation), then she must ensure that the
-%the C compiler does not leverage these ignored UB types for
-%optimizing the generated executable. This can be achieved, for example,
-%by disabling compiler optimizations. Thus, we model only
-%those essential types of UB (OOB, DBZ, Align) which may cause
-%traps or errors during machine code execution, even in the absence
-%of compiler optimization.
+\begin{equation}
+\label{eqn:firstOrderFormulaExample}
+\begin{split}
+\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum}
+\land (\sumIs{\sv{l}}{LCons}) \land (\cv{l} \neq 0) \\ \Rightarrow
+\prodAccess{\sv{l}}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{\structPointer{\cv{l}}{\mem{}}{lnode}{next}}
+\end{split}
+\end{equation}
 
-\toolName{} computes equivalence between the IR
-of the \SpecL{} and C source programs.
-Henceforth, we will omit the source
-representation and only show the IR of
-both \SpecL{} and C programs.
-We will continue to refer to these IRs
-as \SpecL{} and C respectively.
-
-\subsection{Equivalence Definition}
-\label{sec:eqdef}
-Given (1) a \SpecL{} program specification $S$, (2) a C implementation
-$C$,
-(3) a precondition $Pre$ that
-relates the initial inputs {\tt Input}$_S$
-and {\tt Input}$_C$ to
-$S$ and $C$ respectively, and (4) a postcondition
-$Post$ that relates the final outputs {\tt Output}$_S$
-and {\tt Output}$_C$ of $S$ and $C$ respectively\footnote{{Input}$_C$ and {Output}$_C$ include the initial and final memory state of $C$ respectively.}:\\
-$S$ and $C$ are equivalent under precondition $Pre$ if
-for all possible inputs {\tt Input}$_S$
-and {\tt Input}$_C$,
-such that $Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C)$
-holds,
-$S$'s execution is
-well-defined on {\tt Input}$_S$, {\em and} C's
-memory allocation requests during its execution on
-{\tt Input$_C$} are successful,
-then both programs $S$ and $C$ produce outputs
-that satisfy $Post$.
-$$
-(Pre(\mathrm{\tt Input}_S, \mathrm{\tt Input}_C) \land (S\ \  \mathrm{\tt def}) \land (C\ \ \mathrm{\tt fits})) \Rightarrow Post(\mathrm{\tt Output}_S, \mathrm{\tt Output}_C)
-$$
-
-The $(S\ \  \mathrm{\tt def})$ antecedent states that we are only
-interested in proving equivalence for well-defined
-executions of $S$, i.e., executions that are
-free of undefined
-behaviour (UB). For example, division-by-zero is UB
-in $S$.
-Sometimes
-the user may be interested in constraining the nature of
-inputs to the C program, e.g., the {\tt strlen(char* s$_C$)} function
-is well-defined only if {\tt s$_C$} is not null.
-Thus,
-for {\tt strlen}, we are only interested in computing
-equivalence for non-null input pointers. \SpecL{} has
-no notion of pointers and so this condition cannot be encoded
-in $S$ alone.
-In these cases, we use a combination of
-$Pre$ and $(S\ \  \mathrm{\tt def})$
-to constrain the executions of $C$ for which we
-are interested in proving equivalence. In the {\tt strlen} example,
-$(S\ \  \mathrm{\tt def})$
-is encoded as an
-abstract condition that the input string {\tt s}$_S$ is ``not invalid'',
-written $\neg$({\tt s$_S$ {\em is} SInvalid}), where {\tt SInvalid} is
-a constructor for the \SpecL{} {\tt String} type.
-The precondition $Pre$ then contains the relation {\tt (s$_S$ {\em is} SInvalid)$\Leftrightarrow$({\tt s$_C$}=0)}.
-This ensures that we compute equivalence only for those executions
-of $C$ where the input pointer {\tt s$_C$} is non-null.
-The use of an explicit constructor for expressing ill-formedness
-of \SpecL{} input values along with a cleverly chosen $Pre$ allows us
-to constrain the executions to $Spec$ and $C$ to well-formed inputs
-only during equivalence check.
-Please refer to {\tt Chapter \ThesisChapterEval{}} of thesis for
-a more detailed explaination of this strategy for
-the function {\tt strchr}.
-
-The $(C\ \  \mathrm{\tt fits})$ antecedent states that we
-prove equivalence only if the C program's memory requirements
-fit within the available system memory, i.e.,
-only for those executions of $C$ in which all
-memory allocation requests (through {\tt malloc} calls)
-are successful.
-
-The returned values of $S$ and
-$C$ procedures form their observable outputs.
-For $S$, the returned values are
-explicit and may include well-typed
-recursive data-structure objects.
-For $C$,
-observable returned values also include portions
-of the implicit memory state at
-program exit. The postcondition relates these outputs of
-the two programs.
-%, potentially through \recursiveRelations{}.
-%, potentially through the use of
-%\recursiveInvariant{} shapes.
-
-%Our proof search procedure involves the automatic inference
-%of invariants relating the intermediate values of the two
-%programs at correlated program points.
-%As we will
-%see through examples, these intermediate relations
-%can often be derived from the
-%relations between the programs' inputs ($Pre$)
-%or between the programs' outputs ($Post$) supplied
-%by the user.
+Due to the presence of \recursiveRelations{}, these proof queries
+(e.g., \cref{eqn:firstOrderFormulaExample}) cannot be solved directly by
+off-the-shelf solvers and require special handling.
+The next chapter illustrates our proof discharge algorithm for solving proof queries
+involving \recursiveRelations{}.

@@ -65,9 +65,9 @@ call-site i.e. IR PC (e.g., {\tt malloc$_\cpc{4}$} in \cref{fig:llAllocCIR}).
 \toolName{} computes equivalence between the IRs of the \SpecL{} and C sources respectively.
 Henceforth, we will omit the sources and continue to refer to the IRs as \SpecL{} and C directly.
 Given (1) a \SpecL{} program specification $S$, (2) a C implementation $C$,
-(3) a precondition $Pre$ that relates the inputs {\tt Input}$_S$ and {\tt Input}$_C$ to $S$ and $C$
-respectively, and (4) a postcondition $Post$ that relates the final outputs {\tt Output}$_S$
-and {\tt Output}$_C$ of $S$ and $C$ respectively:
+(3) a precondition $Pre$ that relates the inputs \sv{Input} and \cv{Input} to $S$ and $C$
+respectively, and (4) a postcondition $Post$ that relates the final outputs
+\sv{Output} and \cv{Output} of $S$ and $C$ respectively:
 $S$ and $C$ are {\em equivalent} if for all possible inputs \sv{Input} and \cv{Input} such that
 $Pre(\sv{Input},\cv{Input})$ holds,
 $S$'s execution is well-defined on \sv{Input} i.e. \sdef{}, {\em and} C's
@@ -112,7 +112,7 @@ chasing \type{lnode} pointers starting at \cv{l}.
 Semantically $l_1\indEq{}l_2$ and $l_1=l_2$ are equivalent, `\indEq{}' simply emphasizes the
 fact that $l_1$ and $l_2$ are values of (possibly recursive) ADT types.
 \lifted{list}{\mem{}}{lnode}{p} is called a {\em lifting constructor} that {\em lifts}
-the C pointer value {\tt p} (pointing to an object of type \type{struct lnode}) and the C
+the C pointer value $p$ (pointing to an object of type \type{struct lnode}) and the C
 memory state \mem{} to a (possibly infinite in case of a circular list)
 \SpecL{} \type{List} value, and is defined as follows:
 \begin{equation}
