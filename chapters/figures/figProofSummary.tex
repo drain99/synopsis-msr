@@ -16,8 +16,8 @@
     \Case{${\tt Type\ III}$}{
       \ForEach{${\tt P}_i \Rightarrow \rhs{}_i : DecomposeAndRHSBreak(\lhs{}, \rhs{})$}{
         \uIf{$\rhs{}_i\ \equiv\ l_1\indEq{}l_2$}{
-          $(R_1,R_2) \mapsfrom GetReconstructionPrograms(l_1,l_2)$;\\
-          \lIf{$CheckBisimilarity(\lhs{} \land {\tt P}_i,R_1,R_2) \equiv {\tt F}$}{\Return{${\tt F}(\emptyset)$}}
+          $(D_1,D_2) \mapsfrom GetDeconstructionPrograms(l_1,l_2)$;\\
+          \lIf{$CheckBisimilarity(\lhs{} \land {\tt P}_i,D_1,D_2) \equiv {\tt F}$}{\Return{${\tt F}(\emptyset)$}}
         }
         \Else{
           \lIf{$Solve(\lhs{} \land {\tt P}_i, \rhs{}_i, k, d_o, d_u) \equiv {\tt F}(\Gamma)$}{\Return{${\tt F}(\Gamma)$}}

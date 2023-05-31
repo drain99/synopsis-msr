@@ -57,7 +57,7 @@ Unrolling of recursive relations
 Categorization
 Type I : 2 slides, 1 for each example
 Type II : 2 slides, 1 for each example, then 1 slide for the approximation schemes, 2 slides for the 2 examples again
-Type III : 1 slide for example, 1 slide for rewriting and decomposition, 1 slide for 3 subproblems and simplification of each, 1 slide to introduce reconstruction program, 1 slide for bisimulation, 1 slide for points-to analysis, 1 slide for points-to results for C and then on the reconstruction programs
+Type III : 1 slide for example, 1 slide for rewriting and decomposition, 1 slide for 3 subproblems and simplification of each, 1 slide to introduce deconstruction program, 1 slide for bisimulation, 1 slide for points-to analysis, 1 slide for points-to results for C and then on the deconstruction programs
 Proof Discharge Summary
 Evaluation : Introduce the tool and write the benchmarks considered
 Show the 3 layouts for a string and their lifting constructors

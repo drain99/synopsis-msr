@@ -163,11 +163,11 @@ of our invariant inference and correlation search procedures as part of the \too
 % we can always decide whether $P$ evaluates to true or false. If it
 % evaluates to false, we also obtain a counterexample.
 
-\input{chapters/figures/figSumListProductCFGAndInvs.tex}
+\input{chapters/figures/figSynSumListProductCFGAndInvs.tex}
 
 \subsection{Handling Type II Proof Obligations}
 \label{sec:syn-cat2}
-Consider the pair of programs in \cref{fig:llTraverseSpec,fig:llTraverseC}
+Consider the pair of programs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR}
 that traverse a list to compute the sum of all elements.
 The corresponding product-CFG and its node
 invariants that ensure observable
@@ -452,7 +452,7 @@ This program essentially deconstructs \lifted{list}{\mem{}}{lnode}{\cv{l}}
 into its terminal (scalar) values and reconstructs
 a \type{List} value equal to the value
 represented by \lifted{list}{\mem{}}{lnode}{\cv{l}}.
-We call this program a {\em reconstruction program} based
+We call this program a {\em deconstruction program} based
 on the lifting constructor \lift{list}{}{lnode}.
 % We call this program that deconstructs
 % ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
@@ -574,18 +574,18 @@ on the lifting constructor \lift{list}{}{lnode}.
 
 To check if $\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$, we instead
 check if a bisimulation relation exists
-between the two respective reconstruction programs (assuming \lhs{} as the precondition at entries).
+between the two respective deconstruction programs (assuming \lhs{} as the precondition at entries).
 Similar to the top-level bisimulation search, we use a product-CFG to represent this bisimulation relation.
 To distinguish this product-CFG from the top-level product-CFG that relates $S$ and $C$, we call
-this product-CFG that relates two reconstruction programs, a {\em reconstruction product-CFG}
-or {\em recons-PCFG} for short.
+this product-CFG that relates two deconstruction programs, a {\em deconstruction product-CFG}
+or {\em decons-PCFG} for short.
 % To check bisimulation, we attempt to show that both reconstructions
 % proceed in lockstep, and the invariants at
 % each step of this lockstep execution ensure equal observables.
 % We use a product-CFG to encode this lockstep execution --- to distinguish this
 % product-CFG from the top-level product-CFG that relates $S$ and $C$, we call
 % this product-CFG that relates two reconstruction programs, a {\em reconstruction product-CFG}
-% or {\em recons-PCFG} for short.
+% or {\em decons-PCFG} for short.
 % i.e., (1) the first deconstruction procedure evaluates
 %an \underline{if} condition (e.g., {\tt l$_C$=0}) to true iff the second
 %deconstruction procedure also evaluates the
@@ -599,22 +599,22 @@ or {\em recons-PCFG} for short.
 %PCs of this
 %lockstep execution; for
 %a successful bisimulation check, these invariants must ensure equal observables.
-The reconstruction
-program and the recons-PCFG for our \lift{list}{}{lnode} example are shown in \cref{fig:recons}.
+The deconstruction
+program and the decons-PCFG for our \lift{list}{}{lnode} example are shown in \cref{fig:recons}.
 We distinguish states between the first and second programs using superscripts: $fst$ and $snd$ respectively.
 However, these are omitted in case the states are equal in both programs (e.g., \cv{p}).
 Since both \lifted{list}{\mem{}}{lnode}{\cv{l}}
 and \lifted{list}{\mem{}'}{lnode}{\cv{l}} use the same
 lifting constructor \lift{list}{}{lnode}, the PC-transition correlations of both programs
 are trivially obtained by unifying the program structures.
-A node is created in the recons-PCFG that
+A node is created in the decons-PCFG that
 encodes the correlation of the entries to both programs,
-we call this node the {\em recursive-node} in the recons-PCFG (e.g., \rrpc{0}{0} in \cref{fig:reconsPCFG}).
-A recursive call becomes a back-edge in the recons-PCFG that terminates at the recursive-node.
+we call this node the {\em recursive-node} in the decons-PCFG (e.g., \rrpc{0}{0} in \cref{fig:reconsPCFG}).
+A recursive call becomes a back-edge in the decons-PCFG that terminates at the recursive-node.
 % A candidate invariant at the recursive-node is obtained by equating the pair of corresponding $l$
 % variables across the first (superscripted with $fst$) and second (superscripted with $snd$) programs.
-At the start of both reconstruction programs, $\fstv{l} = \sndv{l} = \cv{l}$ --- the same \cv{l} is passed to
-both reconstruction programs, only the memory states \mem{} and $\mem{}'$ are different.
+At the start of both deconstruction programs, $\fstv{l} = \sndv{l} = \cv{l}$ --- the same \cv{l} is passed to
+both deconstruction programs, only the memory states \mem{} and $\mem{}'$ are different.
 The bisimulation check thus involves checking that if the invariant $\fstv{l} = \sndv{l}$
 holds at the recursive-node, then during one iteration of the static programs:
 \vspace{-13px}
@@ -638,7 +638,7 @@ $\structPointer{\comv{l}}{\mem{}}{lnode}{val}$ and $\structPointer{\comv{l}}{\me
 alias with the writes (in $\mem{}'$ in \cref{eqn:memstore}) to the newly allocated objects
 $\structPointer{\cv{p}}{\mem{}}{lnode}{val}$ and $\structPointer{\cv{p}}{\mem{}}{lnode}{next}$.
 We capture this aliasing information by running an interprocedural allocation-site based points-to analysis on
-the original $C$ program as well as the reconstruction programs being checked
+the original $C$ program as well as the deconstruction programs being checked
 for equivalence. Our points-to analysis also splits each allocation site region, say \mlr{C4} in \cref{fig:llAllocCIR}, into
 two regions \mlrf{C4} and \mlrs{C4}, where \mlrf{C4} represents the region of the most recent allocation and \mlrs{C4}
 represents the region of all other allocations through ${\tt malloc_{C4}}$ respectively.
@@ -673,7 +673,7 @@ all program variables as well as the region labels themselves.
 % may point to a {\tt C4}$_{2+}$
 % object (but not to a {\tt C4}$_1$ object).
 
-% \subsubsection{Transferring points-to information to the recons-PCFG}
+% \subsubsection{Transferring points-to information to the decons-PCFG}
 % \label{sec:pointsToAsInvariants}
 % Recall that
 % in \cref{sec:recursiveEqToBisim},
@@ -682,7 +682,7 @@ all program variables as well as the region labels themselves.
 % \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$
 % to a bisimulation check. Also, recall
 % that we discharge the bisimulation check through the construction
-% of a recons-PCFG that compares the unrolling procedure with itself (executing
+% of a decons-PCFG that compares the unrolling procedure with itself (executing
 % on memory states $m$ and $m'$).
 % During this bisimulation check, we need to prove
 % that for each execution
@@ -707,16 +707,16 @@ the distinguishing writes. We also need to confirm non-aliasing
 of the internal nodes of the linked list with the distinguishing writes.
 For this, we need to identify a points-to invariant,
 $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$, at the recursive-node
-of the recons-PCFG (shown in \cref{fig:reconsPCFG}).
+of the decons-PCFG (shown in \cref{fig:reconsPCFG}).
 To identify such points-to invariant, we run our points-to analysis
-on the reconstruction programs (\cref{fig:reconsProg}) before comparing them for equivalence.
+on the deconstruction programs (\cref{fig:reconsProg}) before comparing them for equivalence.
 To model procedure calls, a {\em supergraph} is created with control flow to and from the entry and exit
 of the program (e.g., dashed edges in \cref{fig:recons}).
 We use the results of the points-to analysis on $C$ at the PC where the proof obligation
 is being discharged (\cpc{5} of \cref{fig:llAllocC} in our case).
 To see why $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ is
 an inductive invariant at the recursive-node:
-(base case) the invariant holds at entry to the recons-PCFG since it holds for \cv{l} and
+(base case) the invariant holds at entry to the decons-PCFG since it holds for \cv{l} and
 (induction step) if $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ holds at the entry node,
 it also holds at the start of a recursive call.
 This follows from $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ (points-to information at PC \cpc{5}),
@@ -725,7 +725,7 @@ which ensures that $\structPointer{\cv{l}}{\mem{}'}{lnode}{next}$ may point to o
 % \begin{itemize}
 % \setlength{\itemsep}{0px}  
 % \item (Base case) The invariant holds
-% at entry to the recons-PCFG (because it holds for ${\tt l}^{start}_C$).
+% at entry to the decons-PCFG (because it holds for ${\tt l}^{start}_C$).
 % \item (Induction step) If ${\tt l}_C^{snd}\pointsTo{}\{{\tt C4}_{2+}\}$
 % holds at the entry node,
 % it also holds at the start of a recursive call. This
@@ -733,9 +733,9 @@ which ensures that $\structPointer{\cv{l}}{\mem{}'}{lnode}{next}$ may point to o
 % which ensures that $\structPointer{\tt l_C}{m'}{\tt lnode}{next}$ may point to only ${\tt C4}_{2+}$ objects.
 % \end{itemize}
 % \vspace{-10px}
-During proof obligation discharge (e.g., during the bisimulation check on recons-PCFG),
+During proof obligation discharge (e.g., during the bisimulation check on decons-PCFG),
 the points-to invariants are encoded as SMT constraints.
-This allows us to successfully complete the bisimulation proof on the recons-PCFG, and
+This allows us to successfully complete the bisimulation proof on the decons-PCFG, and
 consequently successfully discharge the proof obligation
 \hoareTriple{\scpcinv{3}{5}} {\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}
 generated due to \circled{\small I4} invariant in \cref{tab:llproductInv}.
@@ -795,7 +795,7 @@ We perform \rhs{}-breaking on the lowered proof obligations and invoke $Solve$ f
 % programs of the two lifted ADT values being
 % compared can be proven to be bisimilar (assuming that
 % {\tt LHS} of $P_3$ holds at the correlated entry nodes
-% in the recons-PCFG).
+% in the decons-PCFG).
 % To improve
 % the bisimulation
 % check's precision, we transfer the points-to information of the $C$ program

@@ -113,7 +113,8 @@ Semantically $l_1\indEq{}l_2$ and $l_1=l_2$ are equivalent, `\indEq{}' simply em
 fact that $l_1$ and $l_2$ are values of (possibly recursive) ADT types.
 \lifted{list}{\mem{}}{lnode}{p} is called a {\em lifting constructor} that {\em lifts}
 the C pointer value {\tt p} (pointing to an object of type \type{struct lnode}) and the C
-memory state \mem{} to a \SpecL{} \type{List} value, and is defined as follows:
+memory state \mem{} to a (possibly infinite in case of a circular list)
+\SpecL{} \type{List} value, and is defined as follows:
 \begin{equation}
 \label{eqn:clist}
 \begin{split}
