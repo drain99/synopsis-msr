@@ -133,8 +133,8 @@ $\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \cons{LNil}$ which trivially r
 Consider the following example of a proof obligation:
 \hoareTriple{\scpcinv{0}{0}}{\spath{0,3,5,3}, \\ \cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
 Notice, we have changed the path in $S$ to \spath{0,3,5,3} here.
-In this case, the corresponding first-order logic condition evaluates to
-$\sv{n} = \cv{n} \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
+In this case, the corresponding first-order logic formula evaluates to:
+$\sv{n} = \cv{n} \land 0 <_u \sv{n} \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
 One-unrolling of this proof obligation converts \lifted{list}{\mem{}}{lnode}{0} to \cons{LNil} and
 decomposes \rhs{} into false due to failed unification of \cons{LCons} and \cons{LNil}.
 The proof obligation is further discharged using an SMT solver
@@ -176,10 +176,10 @@ equivalence are shown in \cref{fig:llTraverseProduct,fig:llTraverseProductInv}.
 Consider the proof obligation originating due to \circled{\small I2} invariant across edge \scedge{2}{2}{2}{2} in \cref{fig:llTraverseProduct}:
 \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
 the node invariant \scpc{2}{2} contains the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
-The corresponding (simplified) first-order logic condition for this proof obligation is:
+The corresponding (simplified) first-order logic formula for this proof obligation is:
 $(\sv{l} \indEq \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \neg(\sumIs{\sv{l}}{LNil}) \land \cv{l}\neq0) \Rightarrow (\sv{sum} + \prodAccess{\sv{l}}{val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
 We fail to remove the \recursiveRelation{} on the \lhs{} even after
-$k$-unrolling for any finite depth $k$ because both sides of \indEq{}
+$k$-unrolling for any finite unrolling parameter $k$ because both sides of \indEq{}
 represent list values of arbitrary length.
 In such a scenario, we do not know of an efficient
 SMT encoding for the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
@@ -189,12 +189,12 @@ proof, we need the proof discharge algorithm to evaluate it to true. Let's call 
 requirement \circled{\footnotesize R1}.
 
 Now, consider the proof obligation formed by correlating two iterations
-of the loop in program $S$ with one iteration of the loop in program $C$,
+of the loop in program $S$ with one iteration of the loop in program $C$:
 \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}.
-Similar to the last proof obligation, its equivalent first-order logic condition contains a \recursiveRelation{} in the \lhs{}.
+Similar to the last proof obligation, its equivalent first-order logic formula contains a \recursiveRelation{} in the \lhs{}.
 Clearly, this proof obligation should evaluate to false.
 % The equivalent
-% first-order logic condition is:
+% first-order logic formula is:
 % ($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C}) \land {\tt sum}_S={\tt sum}_C \land \neg({\tt l_S}\ is\ {\tt LNil}) \land \neg({\tt l_S.tail}\ is\ {\tt LNil})) \Rightarrow (({\tt sum}_S + l_S.val + l_S.tail.val) = (sum_C + \structPointer{l}{m}{{\tt lnode}}{val}))$.  After one unrolling
 % of $l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$,
 % this proof obligation evaluates to false.
@@ -202,7 +202,7 @@ Whenever a proof obligation evaluates to false, we
 expect an ideal proof discharge algorithm to generate a
 counterexample that falsifies the proof obligation.
 Let's call this requirement \circled{\footnotesize R2}.
-Recall that such counterexamples help in faster
+Recall that these counterexamples help in faster
 convergence of our invariant inference and correlation algorithms.
 
 To tackle requirements \circled{\footnotesize R1} and \circled{\footnotesize R2},
@@ -211,7 +211,7 @@ into two approximated proof obligations $(P_{pre-o}: \hoareTriple{\phi^{o_{d_1}}
 and $(P_{pre-u}: \hoareTriple{\phi^{u_{d_2}}_s}{e}{\phi_d})$.
 Here $\phi^{o_{d_1}}_s$ and $\phi^{u_{d_2}}_s$ represent the over- and under-approximated
 versions of precondition $\phi_s$ respectively, and $d_1$ and $d_2$ represent
-{\em depth} parameters that indicate the degree of over- and
+{\em depth parameters} that indicate the degree of over- and
 under-approximation. We over (under) approximate a predicate by over (under)
 approximating each of its constituent \recursiveRelation{}.
 The $d$-depth over- and under-approximations of a \recursiveRelation{} $l_1\indEq{}l_2$

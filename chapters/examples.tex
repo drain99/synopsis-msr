@@ -73,6 +73,7 @@ which we describe next.
 We use an {\em unroll parameter} $k$ for our categorization.
 
 \subsection{Iterative Unification and Rewriting Procedure}
+\label{sec:unifyandrewrite}
 We begin with some definitions.
 An expression $e$ whose top-level constructor is a lifting
 constructor, e.g., $e=\lifted{list}{\mem{}}{lnode}{\cv{l}}$,
@@ -85,12 +86,12 @@ An expression $e$ in which (a) all accessors (e.g., `\prodAccess{\_}{tail}') app
 in a pseudo-variable and (b) each {\em is}-operator (e.g., `\sumIs{\_}{LCons}') operate
 on a pseudo-variable, is called a {\em canonical expression}.
 
-Consider the expression tree of a canonical expression $e$,
-formed using the ADT value constructors and the \sumDtor{}
-sum-deconstruction operator.
+Consider the expression tree of a canonical expression $e$.
+The internal nodes of $e$ represents ADT value constructors and
+the \sumDtor{} sum-deconstruction operator.
 The leaves of $e$ (also called {\em atoms} of $e$) are the
 pseudo-variables (of scalar and ADT type),
-the scalar expressions (of \type{Unit}, \type{Bool} or \type{i<N>} types),
+the scalar expressions (of \type{Unit}, \type{Bool} and \type{i<N>} types),
 and lifted expressions.
 
 The {\em expression path} to a node $v$ in $e$'s tree is the path from the root
@@ -119,10 +120,12 @@ of their children),
 If the top-level constructor of exactly one of $e_1$ and $e_2$ (say $e_1$)
 is \sumDtor{}, then $e_2$ must have a value constructor at its root.
 In such a case, we {\em rewrite} $e_2$ using \sumDtor{} such that
+one of the branches contain $e2$ under the condition {\em true}
+and all other branches have a {\em false} condition.
 the condition of the branch containing $e_2$ is {\em true}
 while all other branches have a {\em false} condition.
-For example, we can rewrite $\cons{LCons}(0, l)$ as \sumIf{false} \sumThen{LNil}
-\sumElse{LCons(0,l)}.
+For example, we can rewrite $\cons{LCons}(e_1, e_2)$ to \sumIf{false} \sumThen{\cons{LNil}}
+\sumElse{\cons{LCons}(e_1,e_2)}.
 Next, we unify each child (condition and branch expressions) of the top-level
 \sumDtor{} operators of (possibly rewritten) $e_1$ and $e_2$.
 Whenever we descend down an \sumDtor{} operator, we keep track of
@@ -213,9 +216,9 @@ We categorize a proof obligation $P: \lhs{} \Rightarrow \rhs{}$ based on the $k$
 of its decomposition (i.e. $P_E$) as follows:
 
 \begin{itemize}
-\item Type I: $P_E$ does not contain a \recursiveRelation{}
-\item Type II: $P_E$ contains a \recursiveRelation{} {\em only} in the \lhs{}
-\item Type III: $P_E$ contains a \recursiveRelation{} in the \rhs{}
+\item Type I: $P_E$ does not contain \recursiveRelations{}
+\item Type II: $P_E$ contains \recursiveRelations{} {\em only} in the \lhs{}
+\item Type III: $P_E$ contains \recursiveRelations{} in the \rhs{}
 \end{itemize}
 
 The categorization method is {\em sound} as long as the elimination of decomposition
@@ -224,417 +227,273 @@ In other words, it is possible that we are unable to eliminate a \recursiveRelat
 due to an imprecise algorithm for elimination of decomposition clauses.
 However, our proof discharge algorithm remains sound irrespective of such imprecision
 during categorization.
-Next, we describe the algorithm for each of the tree types of proof obligations
+Henceforth, we will simply use $k$-unrolling of $P$ to refer to $P_E$ directly.
+Next, we describe the algorithm for each type of proof obligations
 in \cref{sec:cat1,sec:cat2,sec:cat3}.
 
 \subsection{Handling Type I Proof Obligations}
-
-\subsection{Handling Type II Proof Obligations}
-
-\subsection{Handling Type III Proof Obligations}
-
-
-
-
-
-
-
-
-
-\subsection[Handling Type I Proof Obligations]{Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}}
 \label{sec:cat1}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
-across the product-CFG edge ${\tt (S0:C0) \rightarrow (S3:C3)}$
-while checking if the ${\small \circled{I4}}$ invariant, $l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$,
-holds at {\tt (S3:C3)}:
-$\{\phi_{{\tt S0:C0}}\} ({\tt S0\rightarrow S3}, {\tt C0\rightarrow C3}) \{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})\}$.
-The precondition $\phi_{{\tt S0:C0}}=(n_S=n_C)$ does not contain
-a \recursiveRelation{}.
-When lowered to first-order logic through {\tt WP$_{{\tt S0\rightarrow S3},{\tt C0\rightarrow C3}}$}, this translates to
-``$(n_S=n_C)\Rightarrow({\tt LNil}\indEq{}{\tt Clist^{{\tt lnode}}_{m}(0)})$''.
-Here, {\tt LNil} is obtained for {\tt l$_{S}$} and {\tt 0} (null) is
-obtained for {\tt l$_C$}.
+across the product-CFG edge \scedge{0}{0}{3}{3}
+while checking if the {\circled{\footnotesize I4}} invariant in \cref{tab:llproductInv},
+$\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ holds at (\scpc{3}{3}):
+\hoareTriple{\scpcinv{0}{0}}{\spath{0,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+The precondition $\scpcinv{0}{0} \equiv (\sv{n} = \cv{n})$ does not contain a \recursiveRelation{}.
+When lowered to first-order logic through {\tt WP}$_{\spath{0,3},\cpath{0,3}}$, this translates to
+$\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
+Here, \cons{LNil} is obtained for \sv{l} and {\tt 0} (null) is obtained for \cv{l}.
 The one-unrolled form of this proof obligation yields
-$(n_S=n_C)\Rightarrow{}{\tt LNil}\indEq{}{\tt LNil}$ which trivially resolves to true.
+$\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \cons{LNil}$ which trivially resolves to true.
 
-Consider another example of a proof obligation,
-$\{\phi_{{\tt S0:C0}}\} ({\tt S0\rightarrow S3\rightarrow S5\rightarrow S3}, \\{\tt C0\rightarrow C3}) \{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})\}$.
-Notice, we have changed the path in $S$ to ${\tt S0\rightarrow S3\rightarrow S5\rightarrow S3}$ here.
-In this case, the corresponding first-order logic condition evaluates
-to: ``$(n_S=n_C)\Rightarrow({\tt LCons(0, LNil)}\indEq{}{\tt Clist^{{\tt lnode}}_{m}(0)})$''.
-One-unrolling of this proof obligation converts
-${\tt Clist^{{\tt lnode}}_{m}(0)}$ to {\tt LNil}, and
-decomposes {\tt RHS} into {\tt false}.
+Consider the following example of a proof obligation:
+\hoareTriple{\scpcinv{0}{0}}{\spath{0,3,5,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+Notice, we have changed the path in $S$ (with CFG \cref{fig:llAllocSpecIRCFG}) to \spath{0,3,5,3} here.
+In this case, the corresponding first-order logic formula evaluates to:
+$\sv{n} = \cv{n} \land 0 <_u \sv{n} \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.,
+where $(0 <_u \sv{n})$ is the path condition for the path \spath{0,3,5,3}.
+One-unrolling of this proof obligation converts \lifted{list}{\mem{}}{lnode}{0} to \cons{LNil} and
+decomposes \rhs{} into false due to failed unification of \cons{LCons} and \cons{LNil}.
 The proof obligation is further discharged using an SMT solver
 which provides a counterexample (model) that evaluates the
-formula to false. For example, the counterexample {\tt \{ n$_S$ $\mapsto$ 42, n$_C$ $\mapsto$ 42 \} }
+formula to false. For example, the counterexample $\{ \mapping{\sv{n}}{42}, \mapping{\cv{n}}{42} \}$
 evaluates this formula to false.
-% because
-% this fails to unify (during decomposition), it evaluates to false.
-% When a
-% proof obligation evaluates to false, the SMT solver
-% provides a counterexample (model) that evaluates the condition
-% to false.  For example, the counterexample {\tt n$_S$=n$_C$=42}
-% evaluates this condition to false.
-These counterexamples
-assist in faster convergence
-of our invariant inference and correlation search procedures (as we will discuss later in \cref{sec:searchAlgoFormal,sec:invinference}).
+These counterexamples assist in faster convergence of our correlation search and invariant inference procedures
+(as we will discuss later in \cref{sec:searchalgo,sec:invinference}).
 
-Thus, we unify the structure and
-values of the \SpecL{} objects on both sides of
-the $\sim$ operator (after $k$ unrollings), and discharge the resulting
-proof obligations (that relate bitvector and array values) using an SMT solver.
-Please refer to {\tt Chapter \ThesisChapterAlgo{}} of the thesis for
-the intricacies of (a) translation of the formlua to SMT logic and (b) reconstruction
-of counterexamples from the models returned by the SMT solver.
+Thus for type I queries, $k$-unrolling reduces all \recursiveRelations{}
+in the original proof obligation into scalar equalities.
+The resulting query is further discharged using an SMT solver.
+Please refer to \cref{sec:smtencoding,sec:cerecons} for the intricacies
+of (a) translation of the formula to SMT logic and
+(b) reconstruction of counterexamples from the models returned by the SMT solver.
 Assuming a capable enough SMT solver,
-all proof obligations in Type I can be discharged precisely, i.e.,
-we can always decide whether $P$ evaluates to true or false. If it
-evaluates to false, we also obtain a counterexample.
+all proof obligations in type I can be discharged precisely, i.e., we can always
+decide whether the proof obligation evaluates to true or false.
+If it evaluates to false, we also obtain counterexamples.
 
-\input{chapters/figures/figSumListSpecAndC.tex}
-
-\subsection[Handling Type II Proof Obligations]{Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the LHS}
+\subsection{Handling Type II Proof Obligations}
 \label{sec:cat2}
-
-Consider the pair of programs in \cref{fig:llTraverseSpec,fig:llTraverseC}
-that traverse a list to compute the sum of all elements.
-The corresponding product-CFG and its node
-invariants that ensure observable
-equivalence are shown in \cref{fig:llTraverseProduct,fig:llTraverseProductInv}.
-
-Consider the proof obligation originating due to \circled{\small I2} invariant across edge ({\tt S2:C2})$\rightarrow$({\tt S2:C2}) in \cref{fig:llTraverseSpecAndC}:
-$\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$, where
-the node invariant $\phi_{{\tt S2:C2}}$ contains
-the \recursiveRelation{} $l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$.
-The corresponding (simplified) first-order logic condition for this
-proof obligation is:
-($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C}) \land {\tt sum}_S={\tt sum}_C \land \neg({\tt l_S}\ is\ {\tt LNil}) \land {\tt l_C\neq0}) \Rightarrow (({\tt sum}_S + l_S.val) = (sum_C + \structPointer{l}{m}{{\tt lnode}}{val}))$.
-We fail to remove the \recursiveRelation{} on the {\tt LHS} even after
-$k$-unrolling for any finite depth $k$ because both sides of $\sim$
-represents list values of arbitrary length.
+Consider the proof obligation originating due to \circled{\small I2} invariant $\sv{sum} = \cv{sum}$
+across edge \scedge{2}{2}{2}{2} in \cref{fig:llTraverseProduct}:
+\hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
+the node invariant \scpc{2}{2} contains the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
+The corresponding (simplified) first-order logic formula for this proof obligation is:
+$(\sv{l} \indEq \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \sumIs{\sv{l}}{LCons} \land \cv{l}\neq0) \Rightarrow (\sv{sum} + \prodAccess{\sv{l}}{val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
+We fail to remove the \recursiveRelation{} on the \lhs{} even after
+$k$-unrolling for any finite unrolling parameter $k$ because both sides of \indEq{}
+represent list values of arbitrary length.
 In such a scenario, we do not know of an efficient
-SMT encoding for the \recursiveRelation{} ($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$).
+SMT encoding for the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
 Ignoring this \recursiveRelation{} will incorrectly (although soundly) evaluate
 the proof obligation to false; however, for a successful equivalence
-proof, we need
-the proof discharge algorithm to evaluate it to true. Let's call this
-requirement \circled{\small R1}.
+proof, we need the proof discharge algorithm to evaluate it to true. Let's call this
+requirement \circled{\footnotesize R1}.
 
 Now, consider the proof obligation formed by correlating two iterations
-of the loop in program $S$ with one iteration of the loop in program $C$,
-$\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \{sum_{S} = sum_{C}\}$.
-Similar to the last proof obligation, its equivalent first-order logic condition contains a \recursiveRelation{} in the {\tt LHS}.
-Clearly, this proof obligation is false.
-% The equivalent
-% first-order logic condition is:
-% ($l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C}) \land {\tt sum}_S={\tt sum}_C \land \neg({\tt l_S}\ is\ {\tt LNil}) \land \neg({\tt l_S.tail}\ is\ {\tt LNil})) \Rightarrow (({\tt sum}_S + l_S.val + l_S.tail.val) = (sum_C + \structPointer{l}{m}{{\tt lnode}}{val}))$.  After one unrolling
-% of $l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})$,
-% this proof obligation evaluates to false.
-Whenever a proof
-obligation evaluates to false, we
-expect an ideal proof discharge algorithm to generate a
-counterexample that falsifies the proof obligation.
-Let's call this
-requirement \circled{\small R2}.
-Recall that such counterexamples help in faster
-convergence of our invariant inference and correlation algorithms.
+of the loop in program $S$ (with CFG \cref{fig:llTraverseSpecCFG}) with
+one iteration of the loop in program $C$ (with CFG \cref{fig:llTraverseCCFG}):
+\hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}.
+The equivalent first-order logic formula is:
+$\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \sumIs{\sv{l}}{LCons} \land \sumIs{\prodAccess{\sv{l}}{tail}}{LCons} \Rightarrow (\sv{sum} + \prodAccess{\sv{l}}{val} + \prodAccess{\sv{l}}{tail,val}) = (\cv{l} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
+Similar to the prior proof obligation, its equivalent first-order logic formula contains a \recursiveRelation{} in the \lhs{}.
+Clearly, this proof obligation should evaluate to false.
+Whenever a proof obligation evaluates to false, we
+expect an ideal proof discharge algorithm to generate
+counterexamples that falsify the proof obligation.
+Let's call this requirement \circled{\footnotesize R2}.
+Recall that these counterexamples help in faster
+convergence of our correlation search and invariant inference procedures.
 
-To tackle requirements \circled{\small R1} and \circled{\small R2},
-our proof discharge algorithm converts the
-original proof obligation
-$P: \{\phi_s\} (e) \{\phi_d\}$
-into two approximated proof obligations:
-$(P_{{\tt pre-o}}: \{\phi^{o_{d_1}}_s\} (e) \{\phi_d\})$
-and
-$(P_{{\tt pre-u}}: \{\phi^{u_{d_2}}_s\} (e) \{\phi_d\})$. Here
-$\phi^{o_{d_1}}_s$ and
-$\phi^{u_{d_2}}_s$ represent the over- and under-approximated
+To tackle requirements \circled{\footnotesize R1} and \circled{\footnotesize R2},
+our proof discharge algorithm converts the original proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$
+into two approximated proof obligations $(P_{pre-o}: \hoareTriple{\phi^{o_{d_1}}_s}{e}{\phi_d})$
+and $(P_{pre-u}: \hoareTriple{\phi^{u_{d_2}}_s}{e}{\phi_d})$.
+Here $\phi^{o_{d_1}}_s$ and $\phi^{u_{d_2}}_s$ represent the over- and under-approximated
 versions of precondition $\phi_s$ respectively, and $d_1$ and $d_2$ represent
-{\em depth} parameters that indicate the degree of over- and
-under-approximation.
-To explain
-our over- and under-approximation scheme, we
-first introduce the notion of the {\em depth of an ADT value}.
+{\em depth parameters} that indicate the degree of over- and under-approximation.
+To explain our over- and under-approximation scheme, we
+first introduce the notion of {\em depth of an ADT value}.
 
-\input{chapters/figures/figParseTrees.tex}
+\subsubsection{Depth of ADT Values}
+To define the depth of an ADT value $v$, we view the value as a tree $\mathcal{T}(v)$.
+This tree representation is similar to the one briefly introduced in \cref{sec:unifyandrewrite}.
+The internal nodes of $\mathcal{T}(v)$ represent ADT value constructors and
+the leafs (also called {\em terminals}) represent scalar values (i.e. boolean and bitvector literals).
+The depth of a value constructor or a scalar in $v$ is simply the depth of
+its associated node in $\mathcal{T}(v)$.
+The {\em depth of ADT value $v$} is defined as the depth of $\mathcal{T}(v)$.
+For example, the depth of $\cons{LCons}(1, \cons{LCons}(4, \cons{LNil}))$ is {\tt 2},
+where as the depth of the literal {\tt 1} is {\tt 1}.
+\Cref{fig:adttrees} shows the tree representation and depths for different values.
 
-\subsubsection{Depth of an ADT value}
-To define the depth of an ADT value,
-we view the ADT as a context-free grammar:
-\begin{itemize}
-\item The set of terminals
-consist of (a) scalar values, e.g., {\tt 42} for the {\tt i32} type, and
-(b) the ADT value constructors (e.g., {\tt LNil}, {\tt LCons}).
-\item The set of non-terminals are all the scalar type identifiers ({\tt i32}, {\tt bool}, {\tt unit})
-and all the ADT type identifiers (e.g., {\tt List}, {\tt Tree}, {\tt Matrix2D}).
-\item Productions of this context-free grammar specify the values that may be constructed for each type identifier: (a) For each basic type (e.g. {\tt i32}), we add productions from its type identifier to all values of that type, e.g., {\tt i32 $\rightarrow$ 0|1|2|...|($2^{32}-1$)};
-(b) For an ADT, each constructor represents a separate production rule,
-e.g., ADT {\tt List} has two productions: {\tt List} $\rightarrow$ {\tt LNil} $|$ {\tt LCons} {\tt i32} {\tt List}.
-% \begin{itemize}
-% \item For each basic type (e.g. {\tt i32}), we add productions from its type identifier to all values of that type, e.g., {\tt i32 $\rightarrow$ 0|1|2|...|($2^{32}-1$)},
-% \item For an ADT, each constructor represents a separate production rule,
-% e.g. ADT {\tt List} has two productions: {\tt List} $\rightarrow$ {\tt LNil} | {\tt LCons} {\tt i32} {\tt List}.
-% \end{itemize}
-\item The start non-terminal is the top-level ADT identifier (e.g., {\tt List}).
-\end{itemize}
-In this context-free grammar interpretation of an ADT, a value of this ADT type
-can be viewed as a {\em parse tree} (also called a derivation tree) of the
-grammar.
-The {\em depth} of a node in this parse tree is the number
-of ADT identifiers (but not scalar type identifiers) in the
-path from the root node to the node representing that terminal value (both inclusive).
-\Cref{fig:parseTrees} shows examples of values of the {\tt List}, {\tt Tree},
-and {\tt Matrix} ADTs, and the depth values of the parse tree nodes.
-The {\em depth of an ADT value} is the maximum depth of any node
-in the parse tree of that value.
+\subsubsection{Overapproximation and Underapproximation of Recursive Relations}
+The $d$-depth overapproximation of a \recursiveRelation{} $l_1 \indEq{} l_2$,
+denoted by $l_1 \indEqDepth{d} l_2$, represents the condition that
+$l_1$ and $l_2$ are {\em recursively equal up to depth $d$}. i.e.,
+$l_1$ and $l_2$ have identical structures and all
+{\em terminals} at depths $\leq d$ in the trees of both values
+are equal (under the precondition that the terminals exist);
+however, terminals at depths $>d$ may have different values.
+$l_1 \indEqDepth{d} l_2$ (for finite $d$) is a weaker
+condition than $l_1 \indEq{} l_2$ (i.e. overapproximation).
+The true equality i.e. $l_1 \indEq{} l_2$ can be thought of as equality of structures
+and all terminals up to an unbounded depth i.e. $l_1 \indEqDepth{\infty} l_2$.
 
-\vspace{-6px}
-\subsubsection{Overapproximation and Underapproximation}
-To overapproximate (underapproximate)
-a precondition $\phi$, each
-conjunctive \recursiveRelation{} in $\phi$ is overapproximated (underapproximated)
-individually.
-
-The $d$-depth overapproximated
-version of a \recursiveRelation{}
-$l_1\indEq{}l_2$ is written as $l_1\indEqDepth{d} l_2$, where
-$\indEqDepth{d}$ represents the condition that the two ADT values
-$l_1$ and $l_2$ are {\em recursively equal up to depth $d$}. i.e., all
-{\em terminals} at depth $\leq d$ in the parse trees of both values
-are identical; however, terminals at depths $>d$ can have
-different values.
-$l_1\indEqDepth{d}l_2$ (for finite $d$) is a weaker
-condition than $l_1\indEq{}l_2$ (overapproximation);
-$l_1\indEq{}l_2$
-is equivalent to
-$l_1\indEqDepth{\infty}l_2$.
-
-The $d$-depth underapproximated
-version of a \recursiveRelation{}
-$l_1\indEq{}l_2$ is written
-as $l_1\indEqUapprox{d}l_2$, where $\indEqUapprox{d}$ represents
-the condition that the two ADT values $l_1$ and $l_2$ are
-{\em recursively equal and bounded to depth $d$}, i.e.,
-$l_1$, $l_2$ have a maximum
-depth $\leq d$ {\em and} they are recursively equal up to depth $d$.
-Thus, $l_1\indEqUapprox{d}l_2$ is equivalent
-to
-$(l_1\indEqDepth{d} l_2)\land\depthBound{d}{l_1}\land\depthBound{d}{l_2}$,
+The $d$-depth underapproximation of a \recursiveRelation{} $l_1 \indEq{} l_2$
+is written as $l_1 \indEqUapprox{d} l_2$, where $\indEqUapprox{d}$ represents
+the condition that $l_1$ and $l_2$ are {\em recursively equal and bounded to depth $d$},
+i.e., $l_1$ and $l_2$ have a maximum depth $\leq d$ {\em and}
+they are recursively equal up to depth $d$.
+Thus, $l_1 \indEqUapprox{d} l_2$ is equivalent to
+$(\depthBound{d}{l_1} \land \depthBound{d}{l_2} \land l_1 \indEqDepth{d} l_2)$,
 where $\depthBound{d}{l}$ represents the condition that the maximum
 depth of $l$ is $d$.
-$l_1\indEqUapprox{d}l_2$ (for finite $d$)
-is a stronger condition than $l_1\indEq{}l_2$ (underapproximation)
-as it ensures both equality and max-depth of both values.
+$l_1 \indEqUapprox{d} l_2$ (for finite $d$) is a stronger condition than
+$l_1\indEq{}l_2$ (i.e. underapproximation)
+as it bounds the depth to $d$ while also ensuring equality till depth $d$.
 For arbitrary depths $a$ and $b$ ($a \leq b$),
-the approximate versions of \recursiveRelation{} are
-related as follows:
+the approximations of $l_1 \indEq{} l_2$ are related as follows:
 
-\begin{center}
-$l_1\indEqUapprox{a}l_2 \Rightarrow l_1\indEqUapprox{b}l_2 \Rightarrow l_1\indEq{}l_2 \Rightarrow l_1\indEqDepth{b}l_2 \Rightarrow l_1\indEqDepth{a}l_2$
-\end{center}
+\begin{equation}
+\label{eqn:approxrels}
+l_1 \indEqUapprox{a} l_2 \Rightarrow l_1 \indEqUapprox{b} l_2 \Rightarrow l_1 \indEq{} l_2 \Rightarrow l_1 \indEqDepth{b} l_2 \Rightarrow l_1 \indEqDepth{a} l_2
+\end{equation}
 
+\subsubsection{SMT Encoding of Approximate Recursive Relations}
+Unlike the original \recursiveRelation{} $l_1 \indEq{} l_2$,
+its approximations $l_1\indEqDepth{d}l_2$ and $l_1\indEqUapprox{d}l_2$ can be encoded in SMT logic as shown below:
 
-\subsubsection{SMT encoding of overapproximate and underapproximate proof obligations}
-\label{sec:ouapprox}
-Unlike the original \recursiveRelation{} $l_1\indEq{}l_2$,
-$l_1\indEqDepth{d}l_2$ and
-$l_1\indEqUapprox{d}l_2$ can be encoded using SMT as shown below:
 \begin{itemize}
-\item $l_1\indEqDepth{d}l_2$ is equivalent to the condition
-that the parse tree structures
-of the two values $l_1$ and $l_2$ (after $d$-unrolling)
-are isomorphic till depth $d$ {\em and} the
-corresponding values in both ($d$-depth)
-isomorphic structures
-are also equal.
-$l_1\indEqDepth{d}l_2$ can be identified through a $d$-depth bounded version of iterative unrolling and unification procedure
-described in \cref{sec:unifyAndUnroll} followed by keeping only those correlation tuples that equate scalar expressions during decomposition.
-Along with the expressions and path conditions, we also keep track of the depth parameter which is incremented by one for each successfully unified ADT value constructors. 
-We terminate early if the current depth is greater than $d$.
-In case both expressions are atoms, we eagerly unroll both sides and unify further as long as the current depth is within bounds.
+\item $l_1 \indEqDepth{d} l_2$ is equivalent to the condition that
+the tree structures of $l_1$ and $l_2$ are isomorphic till depth $d$ {\em and}
+the corresponding terminal values in both $d$-depth isomorphic structures are also equal.
+Note that these conditions only require scalar equalities.
+$l_1 \indEqDepth{d} l_2$ can be identified through a {\em $d$-depth bounded} iterative unification and rewriting
+procedure described in \cref{sec:unifyandrewrite}.
+In this modified algorithm, We eagerly expand both expressions through rewriting and collect all correlation
+tuples till depth $d$.
+Finally, we only keep those correlation tuples that relate scalar values and discard the \recursiveRelations{}.
 
-
-For example, the condition $l\indEqDepth{1}{\tt Clist}^{{\tt lnode}}_{m}({\tt p})$ can be computed
-through one-depth bounded iterative unrolling and unification.
-During decomposition, keeping only correlation tuples that equate scalar expressions,
-the condition above
+For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$ is computed
+through iterative unification and rewriting till depth one; yielding the correlation tuples:
+$(true, true, \sumIs{l}{LNil}, p = 0)$, $(\sumIs{l}{LCons} ,p \neq 0, \prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val})$
+and $(\sumIs{l}{LCons}, p \neq 0, \prodAccess{l}{tail} = \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})$.
+Keeping only those correlation tuples that relate scalar expressions, the above condition
 reduces to the SMT-encodable predicate:
-\begin{small}
 $$
-((l\ \ is\ \ {\tt LNil}) \Leftrightarrow {\tt (p == 0)}) \land (\neg(l\ \ is\ \ {\tt LNil})\Rightarrow(l{\tt.val}=\structPointer{p}{m}{{\tt lnode}}{val}))
+(\sumIs{l}{LNil}) = (p = 0) \land \sumIs{l}{LCons} \land (p \neq 0) \rightarrow \prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val}
 $$
-\end{small}
 
-%This condition relates the structure (by equating the \underline{if}-\underline{then}-\underline{else} path
-%conditions) and values (by equating the terminals if their respective path conditions evaluate to true) up to
-%depth one. It is silent on the structure and values of the parse tree nodes at depth $>1$.
-
-%Unrolling can be performed by recursively substituting any ADT values
-%with their \underline{if}-\underline{then}-\underline{else} decomposition.
-%For example, to obtain a two-unrolled version of the condition
-%$l_1\indEqDepth{1}{\tt Clist}^{{\tt lnode}}_{m}({\tt l}_C)$,
-%we take all the ADT values in the one-unrolled version,
-%namely {\tt $l_1$.tail} and ${\tt Clist}^{{\tt lnode}}_m\mathrm{(p}\xrightarrow[]{m}_{{\tt lnode}}\mathrm{\tt next})$,
-%and substitute them with their respective
-%\underline{if}-\underline{then}-\underline{else} decompositions.
-
-\item $\depthBound{d}{l}$ is equivalent to the condition
-that the parse-tree nodes at depths
-$>d$ are unreachable. This is achieved by unrolling a \recursiveRelation{}
-till depth $d$ and then asserting the unreachability
-of
-\underline{if}-\underline{then}-\underline{else}
-paths that reach nodes with depth $>d$ (by checking the
-satisfiability of their expression path conditions).
-For example, for a {\tt List} value $l$,
-the condition
-$\depthBound{2}{l}$ is equivalent to
-$(l\ \ is\ \ {\tt LNil}) \vee (\neg(l\ \ is\ \ {\tt LNil})\land(l{\tt .tail}\ \ is\ \ {\tt LNil}))$.
-Similarly,
-$\depthBound{2}{{\tt Clist}^{{\tt lnode}}_{m}({\tt p})}$
-is equivalent to
-$({\tt p}=0) \vee (\neg({\tt p}\neq 0)\land({\tt p}\xrightarrow[]{m}_{{\tt lnode}}\mathrm{\tt next}=0))$.
+\item Recall that $l_1 \indEqUapprox{d} l_2 \equiv (\depthBound{d}{l_1} \land \depthBound{d}{l_2} \land l_1 \indEqDepth{d} l_2)$.
+$\depthBound{d}{l}$ is equivalent to the condition that the tree nodes at depths $>d$ are unreachable.
+This is achieved through expanding $l$ through rewriting till depth $d$ and asserting the unreachability
+of \sumDtor{} paths that reach nodes with depths $>d$ (i.e. the negation of their expression path conditions).
+For example, for a \type{List} variable $l$, the condition $\depthBound{2}{l}$ is equivalent to
+$\sumIs{l}{LNil} \vee (\sumIs{l}{LCons} \land \sumIs{\prodAccess{l}{tail}}{LNil})$.
+Similarly, $\depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
+$(p = 0) \vee (p \neq 0 \land \structPointer{p}{\mem{}}{lnode}{next} = 0)$.
+Finally, $l \indEqUapprox{2} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \depthBound{2}{l}
+\land \depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{2} \lifted{list}{\mem{}}{lnode}{p}$.
 \end{itemize}
 
-\subsubsection{Proof discharge algorithm for Type II proof obligations}
-\label{sec:cat2algo}
-Thus, for a {\em Type II} proof obligation
-$P: \{\phi_s\} (e) \{\phi_d\}$, we first
-submit the proof obligation
-$(P_{{\tt pre-o}}: \{\phi^{o_{d_1}}_s\} (e) \{\phi_d\})$
+\subsubsection{Summary of Type II Proof Discharge Algorithm}
+\label{cat2summary}
+We over- (under-) approximate a precondition $\phi$ till depth $d$ by $d$-depth over- (under-) approximating
+each \recursiveRelation{} occuring in $\phi$.
+Due to the conjunctive \recursiveRelation{} property (\cref{sec:algoprops}),
+the over- and under-approximation of $\phi$ are also weaker and stronger conditions compared to $\phi$
+respectively.
+For a type II proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$, we first
+submit the proof obligation $(P_{pre-o}: \hoareTriple{\phi^{o_{d_1}}_s}{e}{\phi_d})$
 to the SMT solver. Recall that the precondition $\phi^{o_{d_1}}_s$
-is the overapproximated version
-of $\phi_s$.
-If the SMT solver evaluates
-$P_{{\tt pre-o}}$ to true, then we return true for
+is the $d_1$-depth overapproximated version of $\phi_s$.
+If the SMT solver evaluates $P_{{pre-o}}$ to true, then we return true for
 the original proof obligation $P$ --- if the
 Hoare triple with an overapproximate precondition
 holds, then the original Hoare triple
 also holds.
 
-If the
-SMT solver evaluates
-$P_{{\tt pre-o}}$ to false, then we submit
-the proof obligation
-$(P_{{\tt pre-u}}: \{\phi^{u_{d_2}}_s\} (e) \{\phi_d\})$
+If the SMT solver evaluates $P_{pre-o}$ to false, then we submit
+the proof obligation $(P_{pre-u}: \hoareTriple{\phi^{u_{d_2}}_s}{e}{\phi_d})$
 to the SMT solver. Recall that the precondition $\phi^{u_{d_2}}_s$
 is the underapproximated version of $\phi_s$.
-If the SMT solver evaluates
-$P_{{\tt pre-u}}$ to false, then we return false for
+If the SMT solver evaluates $P_{pre-u}$ to false, then we return false for
 the original proof obligation $P$ --- if the
 Hoare triple with an underapproximate precondition
 does not hold, then the original Hoare triple
 also does not hold. Further, a counterexample that
-falsifies $P_{{\tt pre-u}}$ would also falsify $P$,
-and is thus usable in invariant inference and correlation procedures.
-% and is thus a valid counterexample for use in invariant
-% inference and correlation procedures.
+falsifies $P_{pre-u}$ would also falsify $P$,
+and is thus a valid counterexample for use in correlation search and invariant inference procedures.
 
-Finally, if the SMT solver evaluates
-$P_{{\tt pre-u}}$ to true, then we have neither
-proven nor disproven $P$. In this case, we
-imprecisely (but soundly) return false for the
-original proof obligation $P$ (without a counterexample).
-Note that both approximations of $P$ strictly fall in Type I and are
+Finally, if the SMT solver evaluates $P_{pre-u}$ to true, then we have neither
+proven nor disproven $P$.
+In this case, we imprecisely (but soundly) return false for the
+original proof obligation $P$ (without counterexamples).
+Note that both approximations of $P$ strictly fall in type I and are
 discharged as discussed in \cref{sec:cat1}.
-Revisiting our examples,
-the proof obligation $\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \\ \{sum_{S} = sum_{C}\}$ is provable using a depth-1 overapproximation of the
-precondition $\phi_{{\tt S2:C2}}$ --- the depth-1 overapproximation retains the
-information that the first value in lists ${\tt l}_S$
-and ${\tt l}_C$ are equal, and that is sufficient to prove that
-the new values of $sum_{S}$ and $sum_{C}$ are also equal (given that the
-old values are equal, as encoded in $\phi_{{\tt S2:C2}}$).
+Revisiting our examples, the proof obligation 
+\hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
+is provable using a depth {\tt 1} overapproximation of the
+precondition $\phi_{{\tt S2:C2}}$ --- the depth {\tt 1} overapproximation retains the
+information that the first value in lists \sv{l} and \lifted{list}{\mem{}}{lnode}{\cv{l}}
+are equal, and that is sufficient to prove that
+the new values of \sv{sum} and \cv{sum} are also equal
+(given that the old values are equal, as encoded in $\phi_{{\tt S2:C2}}$).
 
-Similarly, the proof obligation
-$\{\phi_{{\tt S2:C2}}\} ({\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2}) \\ \{sum_{S} = sum_{C}\}$ evaluates to false (with a counterexample) using
-a depth-2 underapproximation of the precondition $\phi_{{\tt S2:C2}}$.
-In the depth-2 underapproximate version, we try to prove that
-if the equal lists $l_S$ and ${\tt Clist}^{{\tt lnode}}_{m}(l_C)$
-have exactly two
+Similarly, the proof obligation \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}
+evaluates to false (with counterexamples) using a depth {\tt 2} underapproximation of the precondition $\phi_{{\tt S2:C2}}$.
+In the depth {|tt 2} underapproximate version, we try to prove that
+if the equal lists \sv{l} and \lifted{list}{\mem{}}{lnode}{\cv{l}} have exactly two
 nodes\footnote{The underapproximation
 restricts both lists to have at most
-two nodes; the path condition for ${\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}$ additionally
-restricts $l_S$ to have at least two nodes; together, this is equivalent to the list having
-exactly two nodes}, then
-the sum of the values in the two nodes of $l_S$ is equal to the
-value stored in the first node in {\tt l}$_C$.
-This proof obligation will return a counterexample that
-maps program variables to their concrete values. We show a
-possible counterexample to this proof obligation below.
-%
+two nodes; the path condition for \spath{2,5,2,5,2} additionally
+restricts \sv{l} to have at least two nodes. Together, this is equivalent to the list having
+exactly two nodes}, then the sum of the two values in \sv{l} is equal to the
+value stored in the first node in \cv{l}.
+This proof obligation will return counterexample(s) that
+map program variables to their concrete values.
+The following is a possible counterexample to the depth {\tt 2} underapproximate
+proof obligation.
+
 \begin{small}
 \begin{center}
-\begin{footnotesize}
-\begin{tabular}{cc|c}
-{\tt sum$_S$ $\mapsto$ 3} & {\tt sum$_C$ $\mapsto$ 3} & \multirow{3}{*}{
-$m$ $\mapsto$ $\Bigg($
-\begin{tabular}{l}
-{\tt 0x123} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 42, .next $\mapsto$ {\tt 0x456}), \\
-{\tt 0x456} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 43, .next $\mapsto$ {\tt 0x000}), \\
-() $\mapsto$ {\tt 77} \\
+\begin{tabular}{ll@{ $\mapsto$ }l}
+\{ & \sv{sum} & {\tt 3},\\
+   & \cv{sum} & {\tt 3},\\
+   & \sv{l} & {\tt LCons(42,LCons(43,LNil))},\\
+   & \cv{l} & {\tt 0x123},\\
+   & \mem{} & $\Bigg\{$
+           \begin{tabular}{ll}
+             & {\tt 0x123} $ \mapsto_\type{lnode}$ (.\field{value} $\mapsto$ {\tt 42}, .\field{next} $\mapsto$ {\tt 0x456}),\\
+              & {\tt 0x456} $\mapsto_\type{lnode}$ (.\field{value} $\mapsto$ {\tt 43}, .\field{next} $\mapsto$ {\tt 0}),\\
+              & () $\mapsto$ {\tt 77}\\
+           \end{tabular}$\Bigg\}$ \\
+\}\\
 \end{tabular}
-$\Bigg)$
-} \\
-\multicolumn{2}{l|}{{\tt l$_S$} $\mapsto$ {\tt LCons(42,LCons(43,LNil))}} \\
-\multicolumn{2}{l|}{{\tt l$_C$} $\mapsto$ {\tt 0x123}} \\
-\end{tabular}
-\end{footnotesize}
 \end{center}
 \end{small}
-% \begin{center}
-% \begin{footnotesize}
-% \begin{tabular}{l@{ $\mapsto$ }l|l}
-% {\tt sum$_S$} & {\tt 3} &
-% \multirow{4}{*}{
-% $m$ $\mapsto$ $\Bigg($
-% \begin{tabular}{l}
-% {\tt 0x123} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 42, .next $\mapsto$ {\tt 0x456}), \\
-% {\tt 0x456} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 43, .next $\mapsto$ {\tt 0x000}), \\
-% () $\mapsto$ {\tt 77} \\
-% \end{tabular}
-% $\Bigg)$
-% }
-% \\
-% {\tt sum$_C$} & {\tt 3} \\
-% ${\tt l}_S$   & {\tt LCons(42,LCons(43,LNil))} \\
-% ${\tt l}_C$   & {\tt 0x123} \\
-% \end{tabular}
-% \end{footnotesize}
-% \end{center}
 
-% \begin{center}
-% \begin{tabular}{ll@{ $\mapsto$ }l}
-% \{ & {\tt sum$_S$} & {\tt 3},\\
-%    & {\tt sum$_C$} & {\tt 3},\\
-%    & ${\tt l}_S$ & {\tt LCons(42,LCons(43,LNil))},\\
-%    & ${\tt l}_C$ & {\tt 0x123},\\
-%    & $m$ & $\bigg($
-%            \begin{tabular}{ll}
-%              & {\tt 0x123} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 42, .next $\mapsto$ {\tt 0x456}),\\
-%               & {\tt 0x456} $\mapsto_{\tt lnode}$ (.value $\mapsto$ 43, .next $\mapsto$ 0),\\
-%               & () $\mapsto$ {\tt 77}\\
-%            \end{tabular}$\bigg)$ \\
-% \}\\
-% \end{tabular}
-% \end{center}
+This counterexample maps variables to values (e.g., \sv{sum} maps to an \type{i32} value {\tt 3}
+and \sv{l} maps to a \type{List} value \cons{LCons}(42,\cons{LCons}(43,LNil)).
+It also maps the C program's memory state \mem{} to an array that
+maps the regions starting at addresses {\tt 0x123} and {\tt 0x456} (regions of size '\sizeof{lnode}')
+to memory objects of type \type{lnode} (with the \field{value} and \field{next} fields shown for each object).
+All other addresses (except the ones for which an explicit mapping is available), \mem{} provides
+a default byte-value {\tt 77} (shown as {\tt () $\mapsto$ 77}) in this counterexample.
 
-This counterexample maps variables to values (e.g., {\tt sum}$_C$ maps to an {\tt i32} value {\tt 3}
-and {\tt l}$_S$ maps to a {\tt List} value {\tt LCons(42,LCons(43,LNil))}).
-It also maps the C program's memory state $m$ to an array that
-maps the regions starting at addresses {\tt 0x123} and {\tt 0x456} (regions of size
-`{\tt sizeof lnode}') to memory objects of type {\tt lnode} (with the
-{\tt value} and {\tt next} fields shown for each object). For all other addresses (except
-the ones for which an explicit mapping is available), $m$ maps them
-to the default byte-value {\tt 77} (shown
-as {\tt () $\mapsto$ 77}) in this counterexample.
-
-This counterexample satisfies the preconditions $l_S\indEqUapprox{2}{\tt Clist}^{{\tt lnode}}_{m}({\tt l}_C)$
-and $sum_S=sum_C$. Further, when the
-paths $({\tt S2\rightarrow S5\rightarrow S2\rightarrow S5\rightarrow S2}, {\tt C2\rightarrow C4\rightarrow C2})$
+This counterexample satisfies the preconditions $\sv{l} \indEqUapprox{2} \lifted{list}{\mem{}}{lnode}{\cv{l}}$,
+$\sv{sum = \cv{sum}}$ and the path conditions.
+Further, when the paths \spath{2,5,2,5,2} and \cpath{2,4,2}
 are executed starting at the machine state represented by this counterexample, the resulting
-values of $sum_S$ and $sum_C$ are {\tt 3+42+43=88} and {\tt 3+42=45} respectively. Evidently, the
-counterexample falsifies the proof condition because these values are not equal (as required by the postcondition).
+values of \sv{sum} and \cv{sum} are {\tt 3+42+43=88} and {\tt 3+42=45} respectively.
+Evidently, the counterexample falsifies the proof condition because these values are not equal (as required by the postcondition).
+
+\subsection{Handling Type III Proof Obligations}
+\label{sec:cat3}
+
+
+
+
 \vspace{-6px}
 \subsection[Handling Type III Proof Obligations]{Type III: $k$-unrolling $P$ contains \recursiveRelations{} in the RHS}
 \label{sec:cat3}
