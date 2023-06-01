@@ -19,7 +19,12 @@
 \newcommand{\ite}[3]{\ensuremath{#1?#2:#3}}%
 \newcommand{\sumDtor}{\underline{\tt if}-\underline{\tt then}-\underline{\tt else}}%
 \newcommand{\sumIs}[2]{\ensuremath{#1\ \mathrm{is}\ \cons{#2}}}%
-\newcommand{\prodAccess}[2]{\ensuremath{#1.{\field{#2}}}}%
+\newcommand{\fieldPath}[2][\ensuremath{.}]{%
+  \def\nextitem{\def\nextitem{#1}}% Separator
+  \renewcommand*{\do}[1]{\nextitem{\field{##1}}}% How to process each item
+  \docsvlist{#2}% Process list
+}
+\newcommand{\prodAccess}[2]{\ensuremath{#1.{\fieldPath{#2}}}}%
 \newcommand{\sumIf}[1]{\underline{\tt if}\ \ensuremath{#1}}%
 \newcommand{\sumThen}[1]{\underline{\tt then}\ \ensuremath{#1}}%
 \newcommand{\sumElif}[1]{\underline{\tt elif}\ \ensuremath{#1}}%

@@ -1,552 +1,245 @@
-\section{Algorithm through Linked List Examples}
+\section[Proof Discharge Algorithm]{Proof Discharge Algorithm through Illustative Examples}
 \label{sec:examples}
-A {\tt List} ADT in the
-\SpecL{} program is defined at line {\tt A0}
-in \cref{fig:llAllocSpec}. An empty list is represented
-by the
-constant {\tt LNil()}\footnote{{\tt LNil()} represents the application
-of the nullary constructor {\tt LNil} on the unit value {\tt ()}. For brevity,
-we will simply write {\tt LNil} for {\tt LNil()} henceforth.};
-a non-empty list uses
-the {\tt LCons} constructor to combine its first value ({\tt val:i32})
-and the remaining list ({\tt tail:List}).
-\SpecL{} supports
-{\tt i<N>} (bitvectors of length {\tt N}),
-{\tt bool}, and {\tt unit} types, also called {\em scalar types}.
-\SpecL{}'s type system prevents
-the creation of cycles in ADT values.
-If {\tt l} is
-an object of type {\tt List}, then to access its
-constituent values, we may expand (or unroll) {\tt l} to
-\begin{small}
-\begin{equation}\label{eqn:specDeconstruct}
-U_S: {\tt l\ =\ \underline{if}\ l}\ \ is\ \ {\tt LNil\ \ \underline{then}\ \ LNil\ \ \underline{else}\ \ LCons(l.val,l.tail)}
-\end{equation}
-\end{small}
-In this expanded representation of {\tt l},
-the {\em sum-deconstruction} operator\footnote{The sum-deconstruction operator `\sumDtor{}' for a sum type $T$ must contain exactly one branch for each top-level value constructor of $T$.
-For example, `\sumDtor{}' for the {\tt List} type must have exactly two branches of the form {\tt LNil} and {\tt LCons}($e_1$,$e_2$) for some expressions $e_1$ and $e_2$.}
-`\sumDtor{}'
-deconstructs a sum type where the
-\underline{if} condition `{\tt l} {\em is} {\tt Constructor}'
-checks whether the top level constructor of {\tt l} is `{\tt Constructor}'.
-If {\tt l}
-is a non-empty list constructed through {\tt LCons},
-then {\tt l.val} and {\tt l.tail}
-are used to access {\tt l}'s first value and {\tt l}'s tail respectively.
-The right-hand side of
-\cref{eqn:specDeconstruct} can also be viewed as an executable
-program that unrolls the input {\tt List} object {\tt l} once and
-outputs a {\tt List} object constructed from {\tt l}'s constituents --- we
-call \cref{eqn:specDeconstruct} the {\em unrolling procedure} $U_S$ of the {\tt List} ADT.
-We can similarly define the unrolling procedure for any ADT variable.
+This chapter demonstrates our proof discharge algorithm through examples.
+We consider proof obligations generated due to invariants shown in \cref{tab:llproductInv,fig:llTraverseProductInv}.
 
-\input{chapters/figures/figMallocSpecCFGAndCCFG.tex}
-
-\Cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} show the Control-Flow Graph (CFG) representation
-of the \SpecL{} and C programs in \cref{fig:llAllocSpecIR,fig:llAllocCIR} respectively.
-The CFG nodes represent PC locations of the program, and edges represent
-transitions through instruction execution. For brevity, we sometimes represent
-multiple program instructions with a single edge, e.g., in \cref{fig:llAllocCCFG}, the edge {\small \tt C5$\rightarrow$C3}
-represents the path {\small \tt C5$\rightarrow$C6$\rightarrow$C7$\rightarrow$C8$\rightarrow$C3}. A control-flow edge is associated
-with an {\em edge condition} (the condition under which that edge is taken),
-a {\em transfer function} (how the program state is mutated if that edge is taken),
-and a {\em UB assumption} (what condition should be true for the program
-execution to be
-well-defined across this edge). For example, the UB assumption associated with a division
-instruction in $S$ will encode that the divisor must be non-zero.
-
-\input{chapters/figures/figMallocProductCFG.tex}
-
-\subsection{Product CFG}
-\label{sec:productCFG}
-We construct
-a {\em bisimulation relation} to identify
-equivalence between two programs. 
-A bisimulation relation correlates
-the transitions of $S$ and $C$ in lockstep, such that this
-lockstep execution ensures
-identical observable behavior.
-An equivalence proof through bisimulation construction
-can be represented using a
-{\em product program} \cite{covac} and the CFG of a product program is called a {\em product-CFG}.
-\Cref{fig:llAllocProductCFG} shows a product-CFG,
-that encodes the lockstep execution (bisimulation relation) between the
-CFGs in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG}.
-
-A node in the product-CFG is formed by pairing nodes
-of $S$ and $C$ CFGs, e.g., {\tt (S3:C5)} is formed by
-pairing {\tt S3} and {\tt C5}.
-If the lockstep
-execution is at node {\tt (S3:C5)} in the product-CFG,
-then $S$'s execution is at {\tt S3} and $C$'s execution
-is at {\tt C5}.
-The start node {\tt (S0:C0)} of the product-CFG
-correlates the start nodes of the CFGs of both programs.
-Similarly, the exit node {\tt (SE:CE)}
-correlates the exit nodes of the CFGs of both programs.
-
-An edge in the product-CFG is formed by pairing a path (a sequence of edges) in $S$ with a path in $C$.
-A product-CFG edge encodes the lockstep execution of correlated
-transitions (or paths).
-For example, the product-CFG edge {\tt (S3:C5)}$\rightarrow${\tt (S3:C3)} is formed by pairing the
-{\small \tt (S3$\rightarrow$S5$\rightarrow$S3)} and {\small \tt C5$\rightarrow$C3}
-in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG},
-and represents that when $S$ makes a transition {\small \tt (S3$\rightarrow$S5$\rightarrow$S3)},
-then $C$ makes the transition {\small \tt C5$\rightarrow$C3}
-in lockstep.
-The edge {\small \tt (S3:C3)$\rightarrow$(S3:C4)}
-correlates the $\epsilon$ path (no transition) in $S$ with {\small \tt C3$\rightarrow$C4} in $C$.
-In general, a product-CFG edge $e$ may correlate a finite path $\rho_S$
-in $S$ with a finite path $\rho_C$ in $C$,
-written $e=(\rho_S,\rho_C)$.
-
-\input{chapters/figures/figMallocInvs.tex}
-
-At the start node {\tt (S0:C0)} of the product-CFG, the precondition $Pre$
-(labeled \circled{\small P})
-ensures the equality
-of input arguments ${\tt n_{S}}$ and ${\tt n_{C}}$ at programs' entry.
-Inductive invariants are inferred at each
-product-CFG node that
-relate the variables of $S$ with variables
-and memory locations of $C$.
-The inductive invariants
-are identified by running an invariant inference
-algorithm on the product-CFG, which is further discussed in \cref{sec:invinference}.
-The inductive invariants
-for our example are shown in \cref{tab:llproductInv}.
-For example, at node {\tt (S3:C5)} in \cref{fig:llAllocProductCFG},
-${\tt i}_S={\tt i}_C$ is an inductive
-invariant. If the inferred invariants ensure
-that the postcondition $Post$ holds at the
-exit node {\tt (SE:CE)} (labeled \circled{\small E}), we have shown
-equivalence of both programs.
-
-\subsection{Recursive relations}
-TODO:try to update the intro to recursive relations(first line)
-
-In \cref{tab:llproductInv}, the relation between
-programs' variables at product-CFG nodes {\tt S3:C3}, {\tt S3:C4} and {\tt S3:C5}
-is encoded as a \recursiveRelation{}:
-``{\tt l}$_{S}\indEq{}${\tt Clist}$^{{\tt lnode}}_{m}$({\tt l}$_C$)'' where {\tt l}$_{S}$ and {\tt l}$_C$ represent the {\tt l} variables in the \SpecL{} and
-C programs respectively, {\tt lnode} represents the C {\tt struct} type that contains
-the {\tt val} and {\tt next} fields, and
-$m$ represents a byte-addressable array representing
-the current memory state of
-the C program.
-$l_1\indEq{}l_2$ is read {\em $l_1$ is recursively equal to
-$l_2$}, i.e., $l_1$ and $l_2$ are isomorphic and
-have equal
-values\footnote{$l_1\indEq{}l_2$ and
-$l_1=l_2$ are equivalent --- the former emphasizes
-the recursive nature of the values being compared.}.
-The {\em lifting constructor} {\tt Clist}$^{{\tt lnode}}_m({\tt p})$ is a
-constructor that {\em lifts}
-the C pointer value {\tt p} (pointing to
-an object of {\tt struct lnode}) and the C
-memory state $m$ to a \SpecL{} {\tt List} value.
-{\tt Clist}$^{{\tt lnode}}_m({\tt p})$ is defined through its
-unrolling procedure as:
-\begin{small}
-\begin{equation}\label{eqn:clist}
-\begin{split}
-U_C: \mathrm{\tt Clist}^{{\tt lnode}}_m&\mathrm{\tt (p:i32)} = \mathrm{\tt \underline{if}\ (p==0)}\ \mathrm{\tt \underline{then}\ }{\tt LNil} \\
-                                                         & \mathrm{\tt \underline{else}\ {\tt LCons}(}\structPointer{p}{m}{{\tt lnode}}{val},\ {\tt Clist}_m^{\tt lnode}(\structPointer{p}{m}{{\tt lnode}}{next}))
-\end{split}
-\end{equation}
-\end{small}
-By construction, this unrolling procedure $U_C$ is
-isomorphic to {\tt List}'s  unrolling procedure $U_S$ in \cref{eqn:specDeconstruct}.
-``{\small $\structPointer{p}{m}{s}{f}$}'' represents the
-field `{\tt f}' of the `struct {\tt s}' object pointed-to by pointer `{\tt p}'
-in memory
-state `$m$'.  When represented
-in C-like syntax, `{\small $\structPointer{p}{m}{s}{f}$}'
-is equivalent to
-``{\small {\tt *((typeof s.f)*)(\&m[p+offsetof(s,f)])}}'',
-%.\footnote{``{\tt offsetof(s, f)}'' represents the offset in an object of type `{\tt struct s}' where field {\tt f} lives. ``{\tt typeof s.f}'' represents the type of field {\tt f} in `{\tt struct s}'.}}\\
-i.e., the expression `{\small $\structPointer{p}{m}{s}{f}$}'
-returns the bytes in the memory array `$m$' starting
-at address `{\small {\tt p+offsetof(s,f)}}' and interpreted as an object of
-type `{\small \tt typeof s.f}'.
-
-Note the recursive nature of the lifting value constructor {\tt Clist}: if the pointer {\tt p} of type {\tt i32}\footnote{The IR lowers integers and pointers in C to bitvectors of type {\tt i<N>}. e.g., {\tt i32} is a 32-bit bitvector type.}
-is zero (i.e. {\tt p} is a null pointer), then this represents the empty list ({\tt LNil}); otherwise it represents the list formed by {\tt LCons}-ing
-the value stored at {\tt p->val} in memory $m$ and the list formed by recursively lifting {\tt p->next} using
-{\tt Clist} in memory $m$.  The recursive lifting
-constructor {\tt Clist} allows us to compare C values and \SpecL{} values for equality.
-In general, an equality relation between two (possibly recursive) ADT values is called a {\em \recursiveRelation{}}.
-However in the context of bisimulation,
-we will only consider \recursiveRelations{} between \SpecL{} values (such as variables) and
-lifted C values (lifted using a lifting constructor such as {\tt Clist}).
-
-We later discuss in \cref{sec:searchAlgoFormal}
-how a product-CFG can be constructed automatically through a counterexample-guided
-search. Before that, we discuss the proof obligations that arise from a given
-product-CFG. Consider the
-product-CFG in \cref{fig:llAllocProductCFG}. Assuming that the precondition \circled{\small P} holds at the entry node
-{\tt S0:C0} of this product-CFG, a bisimulation
-check involves checking that the invariants at the other
-product-CFG nodes hold too, and consequently the postcondition \circled{\small E}
-holds at the exit node {\tt SE:CE}.
-Recall that the precondition \circled{\small P} and the postcondition \circled{\small E}
-are provided by the user, but all the other invariants are inferred automatically.
-
-\subsection{Proof Obligations}
-\label{sec:proofObligations}
-We use relational Hoare triples to express these proof obligations \cite{relationalHoareLogic,hoareTriple}.
-If $\phi$ denotes a predicate relating the machine states
-of programs $S$ and $C$, then for a product-CFG edge $e=(\rho_S,\rho_C)$,
-$\{\phi_s\} (e) \{\phi_d\}$ denotes the condition:
-if the machine states $\sigma_S$ and $\sigma_C$ of programs $S$
-and $C$ are related through precondition $\phi_s(\sigma_S,\sigma_C)$ and
-paths $\rho_S$ and $\rho_C$ are executed in $S$
-and $C$ respectively (implying the path conditions
-hold), then execution terminates normally in states $\sigma_S^{'}$ (for $S$)
-and $\sigma_C^{'}$ (for $C$) where
-postcondition $\phi_d(\sigma_S^{'}, \sigma_C^{'})$ hold.
-$\{\phi_s\} (e) \{\phi_d\}$ can also be written as
-$\{\phi_s\} (\rho_S,\rho_C) \{\phi_d\}$.
-
-For every product-CFG edge $e = (s\rightarrow d) = (\rho_S,\rho_C)$
-in \cref{fig:llAllocProductCFG}, we thus
-need to prove
-$\{\phi_s\} (\rho_S,\rho_C) \{\phi_d\}$, where $\phi_s$ and $\phi_d$
-are the node invariants
-(shown
-in \cref{tab:llproductInv})
-at nodes $s$ and $d$ of the product-CFG respectively.
-%Each set of paths (or pathset) $\xi$ is composed of multiple
-%individual paths, say $\rho_1,\rho_2,...\rho_n$.
-%The proof obligation, $P = (\{\phi_s\} \xi_S,\xi_C \{\phi_d\})$,
-%can therefore be broken down into a sequence of
-%smaller proof obligations of the form,
-%$P_{ij}=(\{\phi_s\} \rho^i_S,\rho^j_C \{\phi_d\})$, where $\rho^i_S$
-%and $\rho^j_C$ represent the $i$th and $j$th paths in
-%pathsets $\xi_S$ and $\xi_C$ respsectively. If pathsets
-%$\xi_S$ and
-%$\xi_C$ contain
-%$n_S$ and $n_C$ individual paths respectively, then we
-%create $n_S*n_C$ smaller proof obligations $P_{ij}$ (cartesian product)
-%during the discharge of $P$.
-%$P$ holds iff all $P_{ij}$s hold; a counterexample that
-%falsifies any $P_{ij}$ would also falsify $P$. As we will
-%see later, this
-%breaking down of $P$
-The weakest-precondition transformer
-is used to translate a Hoare triple $\{\phi_s\} (\rho_S,\rho_C) \{\phi_d\}$
-to the following first-order logic formula:
-\begin{equation}\label{eqn:firstOrderFormula}
-(\phi_s \land pathcond_{\rho_S} \land pathcond_{\rho_C} \land ubfree_{\rho_S}) \Rightarrow {\tt WP}_{{\rho_S,\rho_C}}(\phi_d)
-\end{equation}
-Here, $pathcond_{\rho_X}$ represents the condition that
-path $\rho_X$ is taken in program $X$.
-$ubfree_{\rho_S}$ represents the condition that
-the execution of program $S$ along path $\rho_S$ is
-free of undefined behavior.
-${\tt WP}_{{\rho_S,\rho_C}}(\phi_d)$ represents the weakest-precondition
-of the predicate $\phi_d$ across the product-CFG edge $e = (\rho_S,\rho_C)$.
-We will use ``{\tt LHS}'' and ``{\tt RHS}'' to
-refer to the left and right hand sides of the
-implication operator ``$\Rightarrow$'' in \cref{eqn:firstOrderFormula}.
-
-\subsection{Proof Discharge Algorithm and Its Soundness}
-\label{sec:proofDischarge}
-We call an algorithm that evaluates the
-truth value of a proof obligation, a {\em proof discharge algorithm}.
+\subsection{Properties of Proof Discharge Algorithm}
+\label{sec:algoprops}
+An algorithm that evaluates the truth value of a proof obligation is called a
+{\em proof discharge algorithm}.
 In case a proof discharge algorithm deems a proof obligation to be unprovable,
-it is expected to return {\em false} with a set of counterexamples that falsifies
+it is expected to return {\em false} with a set of counterexamples that falsify
 the proof obligation.
-A proof discharge algorithm is {\em precise} if for all
-proof obligations, the
-truth value evaluated by the algorithm is identical to the
-proof obligation's
+A proof discharge algorithm is {\em precise} if for all proof obligations,
+the truth value evaluated by the algorithm is identical to the proof obligation's
 {\em actual} truth value.
 A proof discharge algorithm is {\em sound} if:
-(a) whenever it evaluates a proof obligation to true, the
-actual truth value of that proof obligation is also true,
+(a) whenever it evaluates a proof obligation to true,
+the actual truth value of that proof obligation is also true,
 and (b) whenever it generates a counterexample, that counterexample
 must falsify the proof obligation.
-% \begin{itemize}
-% \item Whenever it evaluates a proof obligation to true, the
-% actual truth value of that proof obligation is also true.
-% \item Whenever it generates a counterexample, that counterexample
-% must falsify the proof obligation.
-% \end{itemize}
-However, it is possible for a sound proof discharge
-algorithm to return false (without a counterexample)
-when the proof obligation was actually true.
+However, it is possible for a sound proof discharge algorithm to return false
+(without counterexamples) when the proof obligation was actually provable.
 
-For
-the proof obligations generated by our equivalence
-procedure,
-it is always safe for a proof discharge algorithm to
-return false (without a counterexample).
-If a proof
-discharge algorithm conservatively
-evaluates a proof obligation to false (when it
-was actually true), it may
-prevent the overall equivalence proof from completing successfully;
-however, importantly, the overall equivalence procedure remains sound.
+For proof obligations generated by our equivalence checker procedure,
+it is always safe for a proof discharge algorithm to return false (without counterexamples).
+Keeping this in mind, our proof discharge algorithm is designed to be {\em sound}.
+Conservatively evaluating a proof obligation to false (when it was actually provable)
+may prevent the equivalence proof from completing successfully.
+However, importantly, the overall equivalence procedure remains sound i.e.
+(a) either it successfully finds a valid proof of equivalence (bisimulation relation)
+or (b) it conservatively returns {\em unknown}.
 
-Resolving the truth value of a proof obligation that contains
-a \recursiveRelation{} such as ${\tt l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})}$ is unclear.
-Fortunately, the shapes of the proof obligations generated
-by our equivalence checking algorithm are restricted, which
-makes it possible to soundly resolve these proof obligations.
-
-Our equivalence
-checking algorithm ensures that, for an invariant
+Resolving the truth value of a proof obligation that contains a \recursiveRelation{}
+such as $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ is unclear.
+Fortunately, the shapes of the proof obligations generated by our equivalence
+checker are restricted.
+Our equivalence checking algorithm ensures that, for an invariant
 $\phi_s=({\tt \phi^{1}_s \land \phi^{2}_s \land ... \land \phi^{k}_s})$,
-at any node $s$
-of a product-CFG,
+at any node $s$ of a product-CFG,
 if a \recursiveRelation{} appears in $\phi_s$, it
 must be one of $\phi^{1}_s$, $\phi^{2}_s$, ..., or $\phi^{k}_s$. We call
 this the {\em conjunctive \recursiveRelation{}} property of an invariant $\phi_s$.
 
 A proof obligation
-$\{\phi_s\}(e)\{\phi_d\}$, where $e=(\rho_S,\rho_C)$,
+$\hoareTriple{\phi_s}{e}{\phi_d}$, where $e=(\rho_S,\rho_C)$,
 gets lowered using
 ${\tt WP}_{e}(\phi_d)$ (as shown in \cref{eqn:firstOrderFormula}) to a first-order logic formula of the following form:
-\begin{equation}\label{eqn:proofObligationShape}
-({\tt \eta^{l}_1 \land \eta^{l}_2 \land ... \land \eta^{l}_m}) \Rightarrow ({\tt \eta^{r}_1 \land \eta^{r}_2 \land ... \land \eta^{r}_n})
+
+\begin{equation}
+\label{eqn:proofObligationShape}
+(\eta^{l}_1 \land \eta^{l}_2 \land ... \land \eta^{l}_m) \Rightarrow (\eta^{r}_1 \land \eta^{r}_2 \land ... \land \eta^{r}_n)
 \end{equation}
-In
-this formula,
-the {\tt LHS} and {\tt RHS} are
-written as conjunctions of $\eta^{l}_i$ and $\eta^{r}_j$ respectively (for $1\leq i\leq m$, $1\leq j\leq n$).
-Each $\eta^{r}_j$ relation is obtained from
-${\tt WP}_{e}(\phi^{j}_d)$, where $\phi_d=({\tt \phi^{1}_d \land \phi^{2}_d \land ... \land \phi^{n}_d})$.
+
 Thus, due to the conjunctive \recursiveRelation{} property of $\phi_s$ and $\phi_d$, any
 \recursiveRelation{} in \cref{eqn:proofObligationShape} must appear as
 one of $\eta^{l}_i$ or $\eta^{r}_j$.
-
 To simplify proof obligation discharge,
 we break a first-order logic proof obligation $P$ of the form in \cref{eqn:proofObligationShape}
 into multiple smaller proof obligations
 of the form
-$P_j:({\tt LHS}\Rightarrow{\tt \eta^{r}_j})$, for $j=1..n$. Each proof obligation
+$P_j:(\lhs{} \Rightarrow{\tt \eta^{r}_j})$, for $j=1..n$. Each proof obligation
 $P_j$ is then discharged separately.  We call this conversion from
-a bigger query to multiple smaller queries, {\em RHS-breaking}.
+a bigger query to multiple smaller queries, {\em \rhs{}-breaking}.
 
-%We say that two relations $\eta_1$ and $\eta_2$ {\em interfere}, written
-%$\eta_1 \interfere{} \eta_2$,
-%iff the intersection
-%of the sets of free variables mentioned in $\eta_1$ and $\eta_2$
-%is non-empty.  For example, $a\indEq{}b$ and $c\indEq{}d$
-%do not interfere, but $a\indEq{}b$ and $c\indEq{}{\tt LCons}(0,b)$ interfere.
-%
-%In a proof obligation of the form in \cref{eqn:proofObligationShape},
-%two relations $\eta_1$ and $\eta_2$ {\em transitively interfere} iff
-%there exists a relation $\eta_3$ in the proof
-%obligation such that $\eta_1\interfere{}\eta_3$ and $\eta_3\interfere{}\eta_2$.
-%This notion of transitive interference can be lifted
-%to Hoare triples: in a proof obligation $\{\phi_s\}(e)\{\phi_d\}$,
-%where $\phi_{s}=\phi^{1}_s\land...\phi^{k}_{s}$ and $\phi_{d}=\phi^{1}_d\land...\phi^{n}_{d}$,
-%an {\tt LHS} conjunctive clause $\phi^{i}_s$ transitively
-%interferes with an {\tt RHS} conjunctive clause $\phi^{j}_d$ iff
-%$\phi^{i}_s$
-%transitively interferes with ${\tt WP}_{e}(\phi^{j}_d)$ in
-%the lowered first-order logic formula.
+We provide a sound (but imprecise) proof discharge algorithm that converts
+a proof obligation generated by our equivalence checker into a series
+of SMT queries.
+Our algorithm begins by categorizing a proof obligation into
+one of three types; each type is discussed separately in subsequent
+sections.
+The categorization is based on an `iterative unification and rewriting' procedure,
+which we describe next.
+We use an {\em unroll parameter} $k$ for our categorization.
 
-%We provide a sound (but imprecise) proof discharge
-%algorithm that converts
-%a proof obligation generated by our equivalence
-%checker into a series of SMT queries.
-%Our
-%algorithm begins
-%by categorizing a proof obligation
-%into three categories, and each
-%category is discussed separately
-%in subsequent sections.  These categories are created
-%based on an iterative unrolling and unification
-%procedure, which we describe next.
-%We use an unroll parameter $k$ for
-%our categorization.
-
-\subsection{Iterative Unification and Unrolling}
-\label{sec:unifyAndUnroll}
-
+\subsection{Iterative Unification and Rewriting Procedure}
 We begin with some definitions.
-An expression $e$ whose top-level constructor
-is a lifting constructor, e.g., $e={\tt Clist^{{\tt lnode}}_m({\tt l}_C)}$,
+An expression $e$ whose top-level constructor is a lifting
+constructor, e.g., $e=\lifted{list}{\mem{}}{lnode}{\cv{l}}$,
 is called a {\em lifted expression}.
-An expression $e$ of the form {\tt v.a$_1$.a$_2$...a$_n$} i.e. a variable
-with {\em zero} or more {\em product deconstruction} operators applied on it, is called a {\em pseudo-variable}.
-By definition, variables are pseudo-variables.
-An expression $e$ in which (1) all product deconstructors (e.g. `.{\tt tail}') appear as part
-of a {\em pseudo-variable} and (2) each {\em sum-is} operator (e.g. `{\em is} {\tt LCons}')
-operate on a {\em pseudo-variable}, is called a {\em canonical expression}.
+An expression $e$ of the form \prodAccess{v}{a_1,a_2,.,a_n} i.e.
+a variable with {\em zero} or more {\em accessor}-operators applied on it,
+is called a {\em pseudo-variable}.
+Note that, a variable $v$ is a pseudo-variable.
+An expression $e$ in which (a) all accessors (e.g., `\prodAccess{\_}{tail}') appear
+in a pseudo-variable and (b) each {\em is}-operator (e.g., `\sumIs{\_}{LCons}') operate
+on a pseudo-variable, is called a {\em canonical expression}.
 
-Consider the expression tree of a canonical expression $e$ of ADT $T$,
+Consider the expression tree of a canonical expression $e$,
 formed using the ADT value constructors and the \sumDtor{}
 sum-deconstruction operator.
-% Consider an expression tree $e$ of ADT $T$\footnote{XXX:can contain value constructors of other ADT types as well}
-% formed using the value constructors
-% of $T$ and the `\underline{if}-\underline{then}-\underline{else}'
-% sum-deconstruction operator.
-The leaves of $e$ (also called atoms of $e$) are
-the pseudo-variables (of scalar or ADT type),
-the scalar expressions (of {\tt unit}, {\tt bool}, or {\tt i<N>} types),
+The leaves of $e$ (also called {\em atoms} of $e$) are the
+pseudo-variables (of scalar and ADT type),
+the scalar expressions (of \type{Unit}, \type{Bool} or \type{i<N>} types),
 and lifted expressions.
 
-The
-{\em expression path} to a node $v$ in $e$'s tree
-is the path from the root of $e$
-to that node $v$. The {\em expression path condition} represents
-the conjunction of all the \underline{if} conditions (if
-the \underline{then} branch is taken on the expression path), or their
-negation (if the \underline{else} branch is taken on the
-expression path) seen on the expression path.  For example,
-in expression {\tt \underline{if} (c) \underline{then} a \underline{else} b},
-the expression path condition of {\tt c} is {\tt true}, of {\tt a} is {\tt c},
-and of {\tt b} is $\neg{\tt c}$.
+The {\em expression path} to a node $v$ in $e$'s tree is the path from the root
+of $e$ to the node $v$.
+The {\em expression path condition} represents the conjunction of all the \underline{\tt if}
+conditions (if the \underline{\tt then} branch of taken along the path), or their
+negation (if the \underline{\tt else} branch is taken along the path).
+For example, in the expression \sumIf{c} \sumThen{a} \sumElse{b},
+the expression path condition of $c$ is {\tt true}, of $a$ is $c$,
+and of $b$ is $\neg c$.
 
 When we attempt to unify two expressions, we unify the
-structures created by the value constructors and the `\underline{if}-\underline{then}-\underline{else}'
-operator of their canonical forms.
-% When we attempt to unify two expressions, we unify the
-% structures created by the value constructors and
-% the \underline{if}-\underline{then}-\underline{else}
-% operator of a \SpecL{} ADT.
+structures created by the ADT value constructors and
+the \sumDtor{} operator of their canonical forms.
 The unification procedure either fails to unify, or it
 returns tuples $(p_1,p_2,a_1,e_2)$ where atom $a_1$
-at expression path condition $p_1$ in one expression is correlated with
-expression $e_2$ at expression path condition $p_2$ in the other expression.
+at expression path condition $p_1$ in one expression is correlated
+with expression $e_2$ at expression path condition $p_2$ in the other expression.
 
-For two non-atomic expressions $e_1$
-and $e_2$ to unify successfully, it must be true that
-either the top-level
-node in both $e_1$ and $e_2$ have the same
-value constructor (in which case a unification is attempted
-for each of the children of the top-level constructor),
-{\em or} the top-level node in one of $e_1$ or $e_2$
-is \underline{if}-\underline{then}-\underline{else.} If
-the top-level node of $e_1$ is ``\underline{if} (c) \underline{then} $e^{\tt then}_1$ \underline{else} $e^{\tt else}_1$,
-we attempt to unify both $e^{\tt then}_1$ and $e^{\tt else}_1$ with $e_2$ and
-return success iff any of these attempts succeed (similarly for $e_2$).
-Whenever we descend down an \underline{if}-\underline{then}-\underline{else} operator,
-we conjunct the corresponding \underline{if} condition (for $e_1^{\tt then}$) or
-its negation (for $e_1^{\tt else}$) to the respective
-expression path condition. If one of
-$e_1$ and $e_2$ (say $e_2$) is atomic, unification always succeeds and
-returns $(p_2,p_1,e_2,e_1)$.
+For two non-atomic expressions, $e_1$ and $e_2$ to unify successfully,
+it must be true that either the top-level constructor in $e_1$ and $e_2$ is
+the same value constructor (in which case an unification is attempted for each
+of their children),
+{\em or} the top-level constructor in one of $e_1$ or $e_2$ is \sumDtor{}.
 
-With each atom of an ADT type, we associate an unrolling procedure.
-By definition, an ADT atom is either a pseudo-variable or a lifted expression.
-Every (pseudo-)variable is associated with its unrolling procedure as governed by its ADT.
-For example, the unrolling procedure for a \SpecL{} variable {\tt l} of {\tt List} type
-is $U_S$ (\cref{eqn:specDeconstruct}).
-For lifted expressions, the unrolling procedure is given by
-the definition of the lifting constructor such as $U_C$ (\cref{eqn:clist})
-for the lifting constructor {\tt Clist}.
+If the top-level constructor of exactly one of $e_1$ and $e_2$ (say $e_1$)
+is \sumDtor{}, then $e_2$ must have a value constructor at its root.
+In such a case, we {\em rewrite} $e_2$ using \sumDtor{} such that
+the condition of the branch containing $e_2$ is {\em true}
+while all other branches have a {\em false} condition.
+For example, we can rewrite $\cons{LCons}(0, l)$ as \sumIf{false} \sumThen{LNil}
+\sumElse{LCons(0,l)}.
+Next, we unify each child (condition and branch expressions) of the top-level
+\sumDtor{} operators of (possibly rewritten) $e_1$ and $e_2$.
+Whenever we descend down an \sumDtor{} operator, we keep track of
+the expression path conditions for both expressions.
+Recall that the \sumDtor{} operator for an ADT $T$ must have exactly one branch
+for each value constructor of $T$.
+Moreover, the branch associated with the value constructor $V$ must contain
+an expression whose top-level constructor is $V$.
 
-Given two expressions $e_a$ and $e_b$
-of an ADT $T$ at expression path conditions $p_a$ and $p_b$
-respectively, an {\em iterative
-unrolling and unification procedure} $\Theta(e_a,e_b,p_a,p_b)$ is used
-to identify a set of correlation tuples between the
-atoms in the two expressions.
-This
-iterative procedure
-proceeds by attempting
-to unify $e_a$ and $e_b$. If this unification
-fails, we return a unification failure
-for the original expressions $e_a$ and $e_b$. Else, we obtain
-correlation between atoms and
-expressions (with their expression path conditions). If the unification
-correlates an atom $a_1$ at expression path condition $p_1$
-with another atom $a_2$ at expression path condition $p_2$, we add $(p_1,a_1,p_2,a_2)$
-to the final output.  If the unification correlates
-an atom $a_1$ at expression
-path condition $p_1$ to a non-atomic expression $e_2$ at
-expression path condition $p_2$,
-we unroll $a_1$ once using its unrolling procedure to
-obtain expression $e_1$. The unification algorithm
-then proceeds by unifying $e_1$ and $e_2$ through
-a recursive call to $\Theta(e_1,e_2,p_a\land{}p_1,p_b\land{}p_2)$.
-The maximum number of unrollings performed by
-$\Theta(e_a,e_b,p_a,p_b)$ (before converging)
-is upper bounded by the sum of number of ADT value
-constructors in $e_a$ and $e_b$.
+If one of $e_1$ and $e_2$ (say $e_2$) is atomic,
+unification always succeeds and returns $(p_2,p_1,e_2,e_1)$
+With each atom of an ADT type, we associate an {\em unrolling procedure}
+By definition, an ADT atom is either a pseudo-variable of a lifted expression.
+Every (pseudo-)variable is associated with its unrolling procedure governed by its ADT.
+For example, the unrolling procedure for \type{List} variable $l$ is $U_S$ (\cref{eqn:specDeconstruct}).
+For lifted expressions, the unrolling procedure is given by the
+its definition, e.g., $U_C$ (\cref{eqn:clist}) for the lifting constructor \lift{list}{}{lnode}.
 
-If a proof obligation involves a \recursiveRelation{}
-$e_a\sim{}e_b$, we unify $e_a$ and $e_b$
-through a call to $\Theta(e_a, e_b, {\tt true}, {\tt true})$.
-For example,
-the unification of ``{\tt \underline{if} (c$_1$) \underline{then} LNil \underline{else} LCons(0, l$_S$)}'' and
-``{\tt \underline{if} (c$_2$) \underline{then} LNil \underline{else} LCons(0, {\tt Clist$^{{\tt lnode}}_m({\tt l}_C)$})}''
-yields the correlation
-tuples: {\tt (c$_1$,(),c$_2$,())}, {\tt ($\neg$c$_1$,0,$\neg$c$_2$,0)} and {\tt ($\neg$c$_1$,l$_S$,$\neg$c$_2$,$Clist^{{\tt lnode}}_m({\tt l}_C)$)}.
+Given two expressions $e_a$ and $e_b$ at expression path conditions $p_a$ and $p_b$
+respectively, an {\em iterative unification and rewriting procedure}
+$\Theta(e_a,e_b,p_a,p_b)$ is used to identify a set of correlation tuples
+between the atoms in the two expressions.
+This iterative procedure begins with an attempt to unify $e_a$ and $e_b$.
+If this unification fails, we return a failure for the original expressions $e_a$ and $e_b$.
+Else, we obtain correlation tuples between atoms and expressions
+(with their expression path conditions).
+If the unification correlates an atom $a_1$ at expression path condition $p_1$
+with another atom $a_2$ at expression path condition $p_2$, we add
+$(p_1,a_1,p_2,a_2)$ to the final output.
+Otherwise, if the unification correlates an atom $a_1$ at expression path condition $p_1$
+to a non-atomic expression $e_2$ at expression path condition $p_2$,
+we {\em rewrite} $a_1$ using its unrolling procedure to obtain expression $e_1$.
+The unification algorithm then proceeds by unifying $e_1$ and $e_2$ through
+a recursive call to $\Theta(e_1,e_2,p_1,p_2)$.
+The maximum number of rewrites performed by $\Theta(e_a,e_b,p_a,p_b)$ (before termination)
+is upper bounded by the sum of number of ADT value constructors in $e_a$ and $e_b$.
 
-If the set of $n$ tuples obtained
-after a successful unification
-of $e_a\sim{}e_b$
-are $(p^i_1, a^i_1, p^i_2, a^i_2)$ (for $i=1\ldots{}n$), then
-$e_a\indEq{}e_b \Leftrightarrow{} \bigwedge\limits_{i=1}^n((p^i_1=p^i_2) \land ((p^i_1\land{}p^i_2)\rightarrow{}(a^i_1=a^i_2)))$\footnote{If $a^i_1$ and $a^i_2$ are ADT values, then we replace $a^i_1=a^i_2$ with $a^i_1\indEq{}a^i_2$.}.
-We call
-$\bigwedge\limits_{i=1}^n((p^i_1=p^i_2) \land ((p^i_1\land{}p^i_2)\rightarrow{}(a^i_1=a^i_2)))$
-the {\em decomposition}
-of $e_a\indEq{}e_b$.
-Each conjunctive clause of one of the forms $(p^i_1=p^i_2)$ and $((p^i_1\land{}p^i_2)\rightarrow{}(a^i_1=a^i_2))$ in
-this decomposition is called a {\em decomposition clause}.
+For a \recursiveRelation{} $l_1 \indEq{} l_2$, we unify $l_1$ and $l_2$ through a
+call to $\Theta(l_1,l_2,true,true)$.
+If the $n$ tuples obtained after a successful unification are $(p_1^i,a_1^i,p_2^i,a_2^i)$
+(for $i=1\ldots n$), then the {\em decomposition} of $l_1 \indEq{} l_2$ is defined as:
+
+\begin{equation}
+\label{eqn:decompose}
+l_1 \indEq{} l_2 \Leftrightarrow \bigwedge \limits_{i=1}^n (p_1^i \land p_2^i \rightarrow (a_1^i = a_2^i))
+\end{equation}
+
+For example, the unification of `\sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0,l_1)}'
+and `\sumIf{c_2} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}'
+yields the correlation tuples: $(true,true,c_1,c_2)$, $(\neg c_1, \neg c_2, 0, i)$ and
+$(\neg c_1, \neg c_2, l_1, \lifted{list}{\mem{}}{lnode}{l_2})$.
+Hence, the \recursiveRelation{} ``\sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0,l_1)} \indEq{}
+\sumIf{c_2} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}''
+decomposes into $(c_1 = c_2) \land (\neg c_1 \land \neg c_2 \rightarrow 0 = i)
+\land (\neg c_1 \land \neg c_2 \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$.
+Similarly, the decomposition of $l_1 \indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
+$(\sumIs{l_1}{LCons}) \land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{val}=42)
+\land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$.
+In case of a failed unification, the {\em decomposition} is defined to be {\em false},
+e.g., $\cons{LNil} \indEq{} \cons{LCons}(0, l)$ decomposes into $false$.
+
+Each conjunctive clause of the form $(p_1^i \land p_2^i \rightarrow (a_1^i = a_2^i))$\footnote{
+If $a_1^i$ and $a_2^i$ are ADT values, then we replace $a_1^i = a_2^i$ with $a_1^i \indEq{} a_2^i$.}
+in the decomposition is called a {\em decomposition clause}.
 A decomposition clause may relate only atomic values, i.e.,
-in the decomposed form, all recursive relations
-relate only ADT variables and/or lifted expressions.
-The decomposition for a failed unification is defined to be {\tt false}.
-We {\em decompose}
-a \recursiveRelation{} by replacing it with its
-decomposition.
-We {\em decompose} a proof obligation $P$ by
-decomposing all recursive relations in $P$.
-%Further, we 
+it may relate either (a) two scalars or (b) two ADT variable(s) and/or lifted expression(s).
+However, we restrict \recursiveRelation{} invariants to a shape such that each
+\recursiveRelation{} in its decomposition strictly relates ADT values to lifted expressions only.
+This is discussed in more detail along with all other invariant shapes in \cref{sec:invinference}.
+We {\em decompose} a \recursiveRelation{} by replacing it with its decomposition.
+We {\em decompose} a proof obligation $P$ to $P_D$ by decomposing all \recursiveRelations{} in $P$.
 
-\subsection{$k$-unrolling with respect to an unrolling procedure}
-We can {\em unroll an expression $e$ with respect to an unrolling
-procedure $U$}
-by substituting all occurrences
-of {\tt LHS} in $U$ by its
-unrolled version ({\tt RHS} in $U$) and decomposing it.
-An expression $e$ is unrolled (without specifying
-an unrolling procedure $U$) by unrolling it with respect
-to the unrolling procedures associated with each of its ADT atoms.
-% For example, an unrolling
-% of ${\tt LHS}\Rightarrow{}{\tt l_S\indEq{}Clist^{{\tt lnode}}_{m}(0)}$
-% with respect to $U_C$ (\cref{eqn:clist})
-% yields
-% $P: {\tt LHS}\Rightarrow{}{\tt l_S\indEq{}LNil}$.
-% Unrolling $P$ with respect to $U_S$ (\cref{eqn:specDeconstruct})
-% yields
-% ${\tt LHS}\Rightarrow{}{\tt l_S\ \ is\ \ LNil}$.
-A $k$-unrolling of an expression $e$
-is obtained by unrolling a $(k-1)$ unrolling of $e$.
+\subsection{Categorization of Proof Obligations}
+We {\em unroll a \recursiveRelation{} $l_1 \indEq{} l_2$} by rewriting the
+top-level expressions $l_1$ and $l_2$ through their unrolling procedures (if possible)
+and decomposing it.
+We {\em unroll an expression $e$} by unrolling each \recursiveRelation{} in $e$.
+More generally, the $k$-unrolling of $e$ is found by unrolling the $(k-1)$-unrolling
+of $e$ recursively.
+For a decomposed proof obligation $P_D:\lhs{} \Rightarrow \rhs{}$, we identify its $k$-unrolling (say $P_K$),
+where $k$ is a fixed parameter called the {\em unrolling parameter}.
+After $k$-unrolling, we {\em eliminate} those decomposition clauses $(p_1 \land p_2 \rightarrow (a_1 = a_2))$
+in $P_K$ whose $(p_1 \land p_2)$ evaluates to false under \lhs{} ignoring all \recursiveRelations{},
+yielding an equivalent proof obligation, say $P_E$.
+For example, the one-unrolling of $P: \lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{0}$,
+after elimination, yields $P_E: \lhs{} \Rightarrow \sumIs{l}{LNil}$.
+We categorize a proof obligation $P: \lhs{} \Rightarrow \rhs{}$ based on the $k$-unrolled form
+of its decomposition (i.e. $P_E$) as follows:
 
-For a first-order
-logic proof obligation
-$P: {\tt LHS}\Rightarrow{\tt RHS}$, we identify
-a $k$-unrolling of $P$ (for a fixed unrolling parameter $k$).
-After unrolling,
-we eliminate those decomposition clauses
-$(p^i_1\land{}p^i_2)\rightarrow{}(a^i_1=a^i_2)$ whose
-path condition $(p^i_1\land{}p^i_2)$ evaluates to {\tt false}
-under the {\tt LHS} ignoring all \recursiveRelations{}.
-For example, the one-unrolling
-of $P: {\tt LHS}\Rightarrow{}{\tt l_S\indEq{}Clist^{{\tt lnode}}_{m}(0)}$
-after simplification yields
-$P': {\tt LHS}\Rightarrow{}{\tt l_S\ \ is\ \ LNil}$.
-Note that unlike $P$, $P'$ does not contain a \recursiveRelation{} in its {\tt RHS}.
-We categorize a proof obligation $P$ based
-on this $k$-unrolled form of $P$ as follows:\footnote{TODO: make this a para, not a footnote. In general, checking whether a path condition is {\tt false} requires a proof discharge for each clause.
-Instead, we use a syntactic simplifier to identify these decomposition clauses.
-A more sophisticated approach would likely improve the completeness of the overall algorithm at the cost of performance.
-Nevertheless, this imprecise categorization is sound.
-Similarly, a higher value for the parameter $k$ would increase completeness of categorization and the overall proof discharge algorithm.}:
 \begin{itemize}
-    \item Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}
-    \item Type II: $k$-unrolling of $P$ contains \recursiveRelations{} only in the {\tt LHS}
-    \item Type III: $k$-unrolling $P$ contains \recursiveRelations{} in the {\tt RHS}
+\item Type I: $P_E$ does not contain a \recursiveRelation{}
+\item Type II: $P_E$ contains a \recursiveRelation{} {\em only} in the \lhs{}
+\item Type III: $P_E$ contains a \recursiveRelation{} in the \rhs{}
 \end{itemize}
+
+The categorization method is {\em sound} as long as the elimination of decomposition
+clauses is sound (but possibly not precise).
+In other words, it is possible that we are unable to eliminate a \recursiveRelation{} in $P_K$,
+due to an imprecise algorithm for elimination of decomposition clauses.
+However, our proof discharge algorithm remains sound irrespective of such imprecision
+during categorization.
+Next, we describe the algorithm for each of the tree types of proof obligations
+in \cref{sec:cat1,sec:cat2,sec:cat3}.
+
+\subsection{Handling Type I Proof Obligations}
+
+\subsection{Handling Type II Proof Obligations}
+
+\subsection{Handling Type III Proof Obligations}
+
+
+
+
+
+
+
+
 
 \subsection[Handling Type I Proof Obligations]{Type I: $k$-unrolling of $P$ does not contain \recursiveRelations{}}
 \label{sec:cat1}
