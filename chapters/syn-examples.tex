@@ -128,15 +128,15 @@ When lowered to first-order logic through {\tt WP}$_{\spath{0,3},\cpath{0,3}}$, 
 $\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
 Here, \cons{LNil} is obtained for \sv{l} and {\tt 0} (null) is obtained for \cv{l}.
 The one-unrolled form of this proof obligation yields
-$\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \cons{LNil}$ which trivially resolves to true.
+$\sv{n} = \cv{n} \Rightarrow true$ which trivially resolves to true.
 
 Consider the following example of a proof obligation:
 \hoareTriple{\scpcinv{0}{0}}{\spath{0,3,5,3}, \\ \cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
 Notice, we have changed the path in $S$ to \spath{0,3,5,3} here.
 In this case, the corresponding first-order logic formula evaluates to:
 $\sv{n} = \cv{n} \land 0 <_u \sv{n} \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
-One-unrolling of this proof obligation converts \lifted{list}{\mem{}}{lnode}{0} to \cons{LNil} and
-decomposes \rhs{} into false due to failed unification of \cons{LCons} and \cons{LNil}.
+One-unrolling of this proof obligation decomposes \rhs{} into false due to
+failed unification of \cons{LCons} and \cons{LNil}.
 The proof obligation is further discharged using an SMT solver
 which provides a counterexample (model) that evaluates the
 formula to false. For example, the counterexample $\{ \mapping{\sv{n}}{42}, \mapping{\cv{n}}{42} \}$
@@ -376,7 +376,7 @@ We also refer to these memory writes that distinguish \mem{} and $\mem{}'$, the 
 We start by utilizing
 the \indEq{} relationships in the \lhs{} (antecedent) of `$\Rightarrow$'
 to rewrite \cref{eqn:ex1cat3} so that the ADT variables (e.g., \sv{l}) in its \rhs{} (consequent)
-are substituted with the lifted $C$ values (e.g., lifted using \lift{list}{\mem{}}{lnode}). Thus, we
+are substituted with the lifted $C$ values (e.g., \lifted{list}{\mem{}}{lnode}{\cv{l}}). Thus, we
 rewrite \cref{eqn:ex1cat3} to:
 %\begin{equation}\label{eqn:clistsEqualUnder}
 %({\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \Rightarrow
@@ -620,12 +620,12 @@ holds at the recursive-node, then during one iteration of the static programs:
 \vspace{-13px}
 \begin{enumerate}
 \setlength{\itemsep}{-3px}
-\item The \sumIf{} condition $(\fstv{l} = 0)$ in the first program is equal to the corresponding
-\sumIf{} condition $(\sndv{l} = 0)$ in the second program.
-\item If the \sumIf{} condition evaluates to false in both programs, then
+\item The \underline{\tt if} condition $(\fstv{l} = 0)$ in the first program is equal to the corresponding
+\underline{\tt if} condition $(\sndv{l} = 0)$ in the second program.
+\item If the \underline{\tt if} condition evaluates to false in both programs, then
 the observable values (that are used in the construction of the list) are equal: \\
 $((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{val} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{val})$.
-\item If the \sumIf{} condition evaluates to false in both programs, then
+\item If the \underline{\tt if} condition evaluates to false in both programs, then
 the invariant holds at the beginning of the programs invoked through the
 recursive call. This involves checking equality of the arguments to the recursive call: \\
 $((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{next} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{next})$.
@@ -644,7 +644,7 @@ two regions \mlrf{C4} and \mlrs{C4}, where \mlrf{C4} represents the region of th
 represents the region of all other allocations through ${\tt malloc_{C4}}$ respectively.
 We write $p \pointsTo{} \{\mlr{R_1}, \mlr{R_2}\}$ to represent the condition that value $p$ {\em may point to}
 an object belonging to one of the region labels \mlr{R_1} or \mlr{R_2}
-(but may not point to any object outside of $R_1$ and $R_2$). We compute may-point-to information for
+(but may not point to any object outside of \mlr{R_1} and \mlr{R_2}). We compute may-point-to information for
 all program variables as well as the region labels themselves.
 % For example, at the start of PC {\tt C7} in \cref{fig:llAllocCIR},
 % {\tt i}$_C\pointsTo{}\emptyset$,
@@ -753,7 +753,7 @@ where $\Gamma$ is a set of counterexamples.
 We perform \rhs{}-breaking on the lowered proof obligations and invoke $Solve$ for each smaller proof obligations.
 \Cref{algo:proofSummary} gives a broad overview of our proof discharge algorithm.
 
-\input{chapters/figures/figProofSummary.tex}
+\input{chapters/figures/figSynProofSummary.tex}
 
 %Thus, as a part of the invariant inference procedure on the product-CFG
 %for the decomposition programs, we also run our points-to analysis on the

@@ -243,7 +243,7 @@ When lowered to first-order logic through {\tt WP}$_{\spath{0,3},\cpath{0,3}}$, 
 $\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.
 Here, \cons{LNil} is obtained for \sv{l} and {\tt 0} (null) is obtained for \cv{l}.
 The one-unrolled form of this proof obligation yields
-$\sv{n} = \cv{n} \Rightarrow \cons{LNil} \indEq{} \cons{LNil}$ which trivially resolves to true.
+$\sv{n} = \cv{n} \Rightarrow true$ which trivially resolves to true.
 
 Consider the following example of a proof obligation:
 \hoareTriple{\scpcinv{0}{0}}{\spath{0,3,5,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
@@ -251,8 +251,8 @@ Notice, we have changed the path in $S$ (with CFG \cref{fig:llAllocSpecIRCFG}) t
 In this case, the corresponding first-order logic formula evaluates to:
 $\sv{n} = \cv{n} \land 0 <_u \sv{n} \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$.,
 where $(0 <_u \sv{n})$ is the path condition for the path \spath{0,3,5,3}.
-One-unrolling of this proof obligation converts \lifted{list}{\mem{}}{lnode}{0} to \cons{LNil} and
-decomposes \rhs{} into false due to failed unification of \cons{LCons} and \cons{LNil}.
+One-unrolling of this proof obligation decomposes \rhs{} into false due to
+failed unification of \cons{LCons} and \cons{LNil}.
 The proof obligation is further discharged using an SMT solver
 which provides a counterexample (model) that evaluates the
 formula to false. For example, the counterexample $\{ \mapping{\sv{n}}{42}, \mapping{\cv{n}}{42} \}$
@@ -490,613 +490,321 @@ Evidently, the counterexample falsifies the proof condition because these values
 
 \subsection{Handling Type III Proof Obligations}
 \label{sec:cat3}
-
-
-
-
-\vspace{-6px}
-\subsection[Handling Type III Proof Obligations]{Type III: $k$-unrolling $P$ contains \recursiveRelations{} in the RHS}
-\label{sec:cat3}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
-across the product-CFG edge ${\tt (S3:C5) \rightarrow (S3:C3)}$
-while checking if the {\small $\circled{I4}$} invariant, $l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})$,
-holds at {\tt (S3:C3)}:
-$\{\phi_{{\tt S3:C5}}\} ({\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}) \{l_{S}\indEq{}Clist^{lnode}_{m}(l_{C})\}$.
-Here, a \recursiveRelation{} is present both in the precondition $\phi_{{\tt S3:C5}}$ ({\small \circled{I8}})
-and in the postcondition ({\small \circled{I4}}) and we are unable to
-remove them after $k$-unrolling.
+across the product-CFG edge \scedge{3}{5}{3}{3} while checking if the
+\circled{\small I4} invariant, $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$, holds at (\scpc{3}{3}):
+\hoareTriple{\scpcinv{3}{5}}{\spath{3,5,3}, \cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
+Here, a \recursiveRelation{} is present both in the precondition $\scpcinv{3}{5}$ (\circled{\small I8})
+and in the postcondition (\circled{\small I4}) and we are unable to remove them after $k$-unrolling.
 When lowered to first-order logic
-through {\tt WP$_{{\tt S3\rightarrow S5\rightarrow S3},{\tt C5\rightarrow C3}}$}, this translates to (showing only relevant
-relations):
-\vspace{-5px}
-\begin{small}
-\begin{equation}\label{eqn:ex1cat3}
-({\tt i}_S={\tt i}_C \land {\tt p}_C={\tt malloc()} \land {\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \Rightarrow ({\tt LCons}({\tt i}_S, {\tt l}_S) \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt p}_C))
+through {\tt WP}$_{\spath{3,5,3}, \cpath{5,3}}$, this translates to (showing only relevant relations):
+\begin{equation}
+\begin{split}
+\label{eqn:ex1cat3}
+(\sv{i}=\cv{i} \land \cv{p}={\tt malloc()} \land \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}) \\ \Rightarrow (\cons{LCons}(\sv{i}, \sv{l}) \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{p}})
+\end{split}
 \end{equation}
-\end{small}
-On the {\tt RHS} of this first-order logic formula, {\tt LCons(i$_S$, l$_S$)} is compared for
-equality with {\tt Clist$_{m'}^{{\tt lnode}}$(p$_C$)}; here {\tt p$_C$}
-represents the address of the newly allocated {\tt lnode} object (through {\tt malloc}) and $m'$
-represents the C memory state after executing the writes at lines
-{\tt C5} and {\tt C6} on the path {\tt C5$\rightarrow$C3},
-i.e.,
-\vspace{-5px}
-\begin{small}
-\begin{equation}\label{eqn:memstore}
-m' \equiv m[{\tt \&(p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt value}) \leftarrow {\tt i}_C]_{\tt i32}[{\tt \&(p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt next}) \leftarrow {\tt l}_C]_{\tt i32}
+On the \rhs{} of this first-order logic formula, $\cons{LCons}{\sv{i}, \sv{l}}$ is compared for
+equality with $\lifted{list}{\mem{}'}{lnode}{\cv{p}}$; here \cv{p}
+represents the address of the newly allocated \type{lnode} object (through {\tt malloc}) and $\mem{}'$
+represents the C memory state after executing the writes at lines \cpc{5} and \cpc{6} on the path \cpath{5,3}, i.e.,
+\begin{equation}
+\label{eqn:memstore}
+\mem{}' \equiv \memWrite{\memWrite{\mem{}}{\&(\structPointer{\cv{p}}{\mem{}}{lnode}{val})}{\cv{i}}{i32}}{\& (\structPointer{\cv{p}}{\mem{}}{lnode}{next})}{\cv{l}}{i32}
 \end{equation}
-\end{small}
-Here, $m[{\tt a}\leftarrow{\tt v}]$ reprsents an array that is
-equal to $m$ everywhere except at address {\tt a} which contains the value {\tt v}.
-We also refer to
-these memory writes that distinguish $m$ from $m'$, the {\em distinguishing writes}.
+Recall that ``\memWrite{\mem{}}{a}{v}{T}'' represents an array that is equal
+to \mem{} everywhere except at addresses [$a$, $a$+\sizeof{T}) which contains
+the value $v$ of type `\type{T}'.
+Consequently, $\mem{}'$ is equal to \mem{} everywhere except at the \field{val}
+and \field{next} fields of the \type{lnode} object pointed to by \cv{p}.
+We refer to these memory writes that distinguish \mem{} and $\mem{}'$, the {\em distinguishing writes}.
 
 \subsubsection{LHS-to-RHS Substitution and RHS Decomposition}
-\toolName{} utilizes
-the $\indEq{}$ relationships in the {\tt LHS} (antecedent) of ``$\Rightarrow$''
-to rewrite \cref{eqn:ex1cat3}
-so that the recursive {\tt List} values in its {\tt RHS} (consequent)
-are substituted with the lifted $C$ values (lifted using
-the {\tt Clist} constructor). Thus, we
+We start by utilizing
+the \indEq{} relationships in the \lhs{} (antecedent) of `$\Rightarrow$'
+to rewrite \cref{eqn:ex1cat3} so that the ADT variables (e.g., \sv{l}) in its \rhs{} (consequent)
+are substituted with the lifted $C$ values (e.g., \lifted{list}{\mem{}}{lnode}{\cv{l}}). Thus, we
 rewrite \cref{eqn:ex1cat3} to:
-%\begin{equation}\label{eqn:clistsEqualUnder}
-%({\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \Rightarrow
-%({\tt Clist}_m^{{\tt lnode}}({\tt l}_C) \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C))
-%\end{equation}
-\vspace{-5px}
-\begin{small}
-\begin{equation}\label{eqn:ex2cat3}
-({\tt i}_S={\tt i}_C \land {\tt p}_C={\tt malloc()} \land {\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \Rightarrow ({\tt LCons}({\tt i}_S, {\tt Clist}_m^{{\tt lnode}}({\tt l}_C)) \indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt p}_C))
+\begin{equation}
+\label{eqn:ex2cat3}
+\begin{split}
+(\sv{i}=\cv{i} \land \cv{p}={\tt malloc()} \land \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}) \\ \Rightarrow (\cons{LCons}(\sv{i}, \lifted{list}{\mem{}}{lnode}{\cv{l}}) \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{p}})
+\end{split}
 \end{equation}
-\end{small}
-Next, we decompose the {\tt RHS} by decomposing the \recursiveRelation{} in the {\tt RHS}
-followed by RHS-breaking. This process reduces \cref{eqn:ex1cat3} into the following
-smaller proof obligations (showing only the
-{\tt RHS}, the {\tt LHS} is the same as in \cref{eqn:ex1cat3}):
-(1) $\neg({\tt p}_C=0)$,
-(2) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ i$_S$\ =\ (p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$value)}, and
-(3) {\tt $\neg({\tt p}_C=0)$ $\rightarrow$ Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$next)}.
-The first two proof obligations fall in {\em Type II} and
-are discharged through over- and under-approximation schemes (as discussed
-in \cref{sec:cat2}):
+Next, we decompose the \rhs{} by decomposing the \recursiveRelation{} in the \rhs{}
+followed by \rhs{}-breaking. This process reduces \cref{eqn:ex2cat3} into the following
+smaller proof obligations
+(\lhs{} denotes the antecedent of the proof obligation in \cref{eqn:ex2cat3}):
+(a) $\lhs{} \Rightarrow \neg(\cv{p} = 0)$,
+(b) $\lhs{} \land \neg(\cv{p} = 0) \Rightarrow (\sv{i} = \structPointer{\cv{p}}{\mem{}'}{lnode}{val})$, and
+(c) $\lhs{} \land \neg(\cv{p} = 0) \Rightarrow (\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\structPointer{\cv{p}}{\mem{}'}{lnode}{next}})$
+
+The first two proof obligations fall in type II and are discharged through
+over- and under-approximation schemes as discussed in \cref{sec:cat2}:
+
 \begin{enumerate}
-\item The first proof obligation with
-postcondition $\neg({\tt p}_C=0)$
-evaluates to true because the {\tt LHS} ensures that {\tt p$_C$} is the
-return value of an allocation function ({\tt malloc}) which must be
-non-null due to the $(C\ \  \mathrm{\tt fits})$ assumption.
-%Henceforth, we omit $\neg({\tt p}_C=0)$ from the antecedent of postconditions (2) and (3)
-%since in either case they evaluate to true because of $(C\ \  \mathrm{\tt fits})$ assumption.
-\item The second proof obligation with
-postcondition {\tt (i$_S$=(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$value))}
-also evaluates to true because {\tt i$_C$} is written to address {\tt \&(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$value)}
-in $m'$ (\cref{eqn:memstore}) and the {\tt LHS} ensures that {\tt i$_S$=i$_C$}.
+\item The first proof obligation with postcondition $\neg(\cv{p} = 0)$ evaluates to {\em true}
+because the \lhs{} ensures that \cv{p} is the return value of an allocation function ({\tt malloc})
+which must be non-zero due to the \cfits{} assumption.
+\item The second proof obligation with postcondition $(\sv{i} = \structPointer{\cv{p}}{\mem{}'}{lnode}{val})$
+also evaluates to {\em true} because \cv{i} is written at
+address $\& \structPointer{\cv{p}}{\mem{}}{lnode}{val}$ in $\mem{}'$ (\cref{eqn:memstore})
+and the \lhs{} ensures that $\sv{i} = \cv{i}$.
 \end{enumerate}
 
-For ease of exposition, we simplify the postcondition of the third proof obligation
-from
-{\small \tt $\neg({\tt p}_C=0)$ $\rightarrow$ (Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$next))}
+For ease of exposition, we simply the postcondition of the third proof obligation by rewriting
+$\lifted{list}{\mem{}'}{lnode}{\structPointer{\cv{p}}{\mem{}'}{lnode}{next}})$
 to
-{\tt (Clist$_{m}^{{\tt lnode}}$(l$_C$)$\indEq{}$Clist$_{m'}^{{\tt lnode}}$(l$_C$))}.
-This simplification is valid because {\tt l$_C$}
-is written
-to address {\tt \&(p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$next)}
-in $m'$ (\cref{eqn:memstore}).
-Also, we have already
-shown that $\neg({\tt p}_C=0)$ holds.
-Thus, the third proof obligation can be rewritten as
-a \recursiveRelation{} between two lifted expressions\footnote{This
-simplification-based rewriting is only
-shown for ease of exposition,
-and has no effect on the operation
-of the algorithm.
-Even if the proof obligation is not simplified,
-the unification-based proof discharge algorithm will generate
-proof conditions of the form $\neg({\tt p}_C=0)\Rightarrow{}$((p$_C\xrightarrow[]{m'}_{\mathrm{\tt lnode}}$next)=l$_C$)
-which will be successfully discharged by the SMT solver.}:
-\begin{small}
-\begin{equation}\label{eqn:clistPreserved}
-{\tt Clist}_m^{\tt lnode}({\tt l}_C) \indEq{} {\tt Clist}_{m'}^{\tt lnode}({{\tt l}_C})
+$\lifted{list}{\mem{}'}{lnode}{\cv{l}}$.
+This simplification is valid because \cv{l} is written to
+address $\& \structPointer{\cv{p}}{\mem{}}{lnode}{next}$ in $\mem{}'$ (\cref{eqn:memstore}).
+Also, we have already shown that $\neg(\cv{p} = 0)$ holds due to the \cfits{} assumption.
+This simplification-based rewriting is only done for ease of exposition, and has no
+effect on the operation of the algoritm.
+Thus, the third proof obligation can be rewritten as a \recursiveRelation{}
+between two lifted expressions:
+
+\begin{equation}
+\label{eqn:clistPreserved}
+\lhs{} \Rightarrow \lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}
 \end{equation}
-\end{small}
 
-Hence, we are interested in proving equality
-between two {\tt List} values in $C$ under different memory states $m$ and $m'$.
-%Note that in general this \recursiveRelation{} may be under an precondition.
-Next, we show how the above can be reformulated to the problem of
-showing equivalence between two procedures through bisimulation.
+Hence, we are interested in proving equality between two \type{List} values lifted from
+$C$ values under a precondition.
+Next, we show how the above can be reposed as the problem of showing equivalence between
+two procedures through bisimulation.
 
-% Thus,
-% under an antecedent that ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-% is recursively equal to a {\tt List} value {\tt l}$_S$ in \SpecL{},
-% we are interested in proving
-% ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C) \indEq{}
-% {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$.  We next show how this
-% \recursiveRelation{} can be converted to a bisimulation proof.
-
-%Informally, this proof obligation in \cref{eqn:clistPreserved} checks
-%that the structure
-%and values of the linked list pointed-to by {\tt l}$_C$
-%in $m$ remain preserved even after the
-%memory writes to the newly allocated node (in $m'$).
-%At a minimum, such reasoning requires an alias analysis
-%that confirms that the newly allocated node is isolated from
-%the existing linked list nodes.  We discuss this in more
-%detail in the following section.
-
-\subsubsection{Conversion of recursive equality between lifted expressions to
-a bisimulation}
+\subsubsection{Equality of Values to Equivalence of Programs}
 \label{sec:recursiveEqToBisim}
-Consider a
-program that recursively calls
-the unrolling procedure in \cref{eqn:clist}
-to deconstruct
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$.
-For example,
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-may yield a recursive call
-to the unrolling procedure
-${\tt Clist}_m^{{\tt lnode}}(\structPointer{{\tt l}_C}{m}{\tt lnode}{next})$
-and so on, until the argument to
-the unrolling procedure becomes zero.
-This program essentially deconstructs ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
+Consider a program that recursively calls the definition (body) of
+\lift{list}{}{lnode} to deconstruct \lifted{list}{\mem{}}{lnode}{\cv{l}}.
+For example, \lifted{list}{\mem{}}{lnode}{\cv{l}} may yield a recursive call
+to \lifted{list}{\mem{}}{lnode}{\structPointer{\cv{l}}{\mem{}}{lnode}{next}}
+and so on, until the argument becomes zero.
+This program essentially deconstructs \lifted{list}{\mem{}}{lnode}{\cv{l}}
 into its terminal (scalar) values and reconstructs
-a {\tt List} value equal to the value
-represented by ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$.
-We call this program a {\em reconstruction program} based
-on the unrolling procedure of
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$.
-% We call this program that deconstructs
-% ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-% into its components and reconstructs an output
-% {\tt List} value,
-% a {\em reconstruction program} based on the unrolling procedure of
-% ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$.
-%(using the unrolling procedure in \cref{eqn:clist}) until
-%a null pointer is reached
-%yields a sequence of
-%${\tt Clist}_m^{{\tt lnode}}({\tt l}^0_C)$,
-%${\tt Clist}_m^{{\tt lnode}}({\tt l}^1_C)$,
-%${\tt Clist}_m^{{\tt lnode}}({\tt l}^2_C)$, ...
-%values, where each
-%{\tt l}$^i_C$ (for $i$=0,1,2,...)
-%represents a C pointer in $m$ that is lifted
-%to a {\tt List} value (using ${\tt Clist}_m^{{\tt lnode}}$)
-%during this deconstruction. If this sequence is finite,
-%its last value
-%is {\tt LNil}.
-%We call this series of C pointers
-%${\tt l}^0_C$,
-%${\tt l}^1_C$,
-%${\tt l}^2_C$, ..., the {\tt Clist}$_m^{{\tt lnode}}$-reachable
-%pointers of {\tt l}$^0_C$, or \Reachable{{\tt Clist}_m^{{\tt lnode}}}{${\tt l}^0_C$}.
+a \type{List} value equal to the value
+represented by \lifted{list}{\mem{}}{lnode}{\cv{l}}.
+We call this program a {\em deconstruction program} based
+on the lifting constructor \lift{list}{}{lnode}.
 
-%\begin{definition}
-%A lifted ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$ value
-%is {\em well-formed} iff there exists a {\tt List} value ${\tt l}_S$
-%in the \SpecL{} program $S$ such that
-%$({\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$.
-%\end{definition}
-%
-%\begin{lemma}\label{lemma:finitenessOfWellFormed}
-%For a well-formed lifted
-%value ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$,
-%\Reachable{{\tt Clist}_m^{{\tt lnode}}}{${\tt l}^0_C$} is finite.
-%\end{lemma}
-%\begin{proof}
-%\Cref{lemma:finitenessOfWellFormed} follows from the definition of well-formedness and the finiteness
-%of any ADT value in the \SpecL{} language.
-%\end{proof}
-%
-%\begin{theorem}\label{theorem:clistsEqual}
-%For a well-formed lifted value ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$:
-%\begin{gather*}
-%{\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
-%\indEq{}
-%{\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)\\
-%\Leftrightarrow\\
-%(\ReachableMath{{\tt Clist}_m^{{\tt lnode}}}{{\tt l}_C} = \ReachableMath{{\tt Clist}_{m'}^{{\tt lnode}}}{{\tt l}_C}\ \ \land\\
-%\forall_{{{\tt l}^i_C\in\ReachableMath{{\tt Clist}_m^{{\tt lnode}}}{{\tt l}_C}}}({\structPointer{l^i_C}{m}{s}{value}}={\structPointer{l^i_C}{m'}{s}{value}} \land\ {\structPointer{l^i_C}{m}{s}{next}}={\structPointer{l^i_C}{m'}{s}{next}}))
-%\end{gather*}
-%\end{theorem}
-%\begin{proof}
-%The proof proceeds by induction on the structure of the
-%well-formed value ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$.
-%The `{\tt l}$_C=0$' condition represents the base case.
-%The induction step involves unifying the expansions of
-%${\tt Clist}_m^{{\tt lnode}}$
-%and
-%${\tt Clist}_{m'}^{{\tt lnode}}$ obtained using \cref{eqn:clist}, and using the induction hypothesis.
-%\end{proof}
-
-\begin{theorem}\label{theorem:clistsEqual}
-Under the antecedent
-$({\tt l}_S \indEq{} {\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$:
-
-$({\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
-\indEq{}
-{\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C))$
-holds iff a bisimulation relation
-exists between the reconstruction programs
-based on ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-and
-${\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$.
-The bisimulation relation must ensure that the
-observables generated by both procedures are
-identical.
+\begin{theorem}
+\label{theorem:clistsEqual}
+Under an antecedent \lhs{},
+$\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$ holds
+{\em if and only if} the two deconstruction programs based on \lifted{list}{\mem{}}{lnode}{\cv{l}}
+and \lifted{list}{\mem{}'}{lnode}{\cv{l}} are equivalent.
+The equivalence must ensure that the observables generated by both programs
+(i.e. output \type{List} values) are equal, given the that inputs $(\cv{l},\mem{})$
+and $(\cv{l},\mem{}')$ are provided to both programs respectively {\em and}
+the antecedent \lhs{} holds at the program entries.
 \end{theorem}
-\begin{proof}\let\qed\relax
-The ``if'' case of this ``iff'' relation follows
-from noting that the observables of
-a reconstruction program are the
-generated {\tt List} values. Thus, a
-successful bisimulation
-check ensures equal
-{\tt List}
-values upon termination. Termination
-follows from the antecedent because
-\SpecL{} values (such as $l_S$) must be finite.
+\begin{proofsketch}
+The proof follows from noting that the only observables of the deconstruction
+programs are their output \type{List} values.
+Also, the value represented by a lifted expression is identical to the output of
+its deconstruction program.
+Thus, a successful equivalence proof ensures equal values represented by the lifting constructors
+and vice versa.
+\end{proofsketch}
 
-The ``only if'' case
-follows from the unification of the
-unrolling procedure (in \cref{eqn:clist}) for
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-and
-${\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$.
+Thus, to check if $\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$
+holds; we instead check if a bisimulation relation exists between their respective
+deconstruction programs (implying equivalence).
+\Cref{theorem:clistsEqual} generalizes to arbitrary lifting constructors
+with potentially different $C$ values and memory states.
 
-%The proof proceeds by induction on the structure of the
-%${\tt Clist}_m^{{\tt lnode}}({\tt l}_C))$.
-%The base case is
-%represented by the `{\tt l}$_C=0$' condition ---
-%both deconstruction procedures terminate in this case (irrespective
-%of the contents of $m$ and $m'$).
-%The induction step involves unifying the expansions of
-%${\tt Clist}_m^{{\tt lnode}}$
-%and
-%${\tt Clist}_{m'}^{{\tt lnode}}$ obtained using \cref{eqn:clist}, and using the induction hypothesis.
-%At the induction step, we need to show that the first procedure takes the \underline{if} branch
-%iff the second procedure takes the \underline{if} branch.  Further, we need
-%to show that whenever the {\tt value}
-%and {\tt next} fields are read
-%in the {\tt lnode} objects pointed-to by {\tt l$_C$} in $m$ and $m'$
-%respectively, they have identical contents.
-\end{proof}
-
-Thus, to check if ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
-\indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$, we
-check if a bisimulation exists
-between the two respective reconstruction programs (potentially
-under an antecedent).  \Cref{theorem:clistsEqual} generalizes
-to equality of arbitrary lifted expressions constructed from potentially
-different $C$ values and memory states.
-
-\subsubsection{Checking bisimulation between reconstruction programs}
-\label{sec:bisim}
-To check bisimulation, we attempt to show that both reconstructions
-proceed in lockstep, and the invariants at
-each step of this lockstep execution ensure equal observables.
-We use a product-CFG to encode this lockstep execution --- to distinguish this
-product-CFG from the top-level product-CFG that relates $S$ and $C$, we call
-this product-CFG that relates two reconstruction programs, a {\em reconstruction product-CFG}
-or {\em recons-PCFG} for short.
-% i.e., (1) the first deconstruction procedure evaluates
-%an \underline{if} condition (e.g., {\tt l$_C$=0}) to true iff the second
-%deconstruction procedure also evaluates the
-%corresponding \underline{if} condition to true; and (2)
-%the values observed by the first deconstruction procedure (e.g., {\tt lnode.value}
-%which is used for constructing the observable {\tt List}) are identical to the
-%ones observed by the second deconstruction procedure.
-%As we have seen earlier, this lockstep execution can be encoded
-%as a product-CFG: the invariants at the nodes of this product-CFG
-%represent the conditions that must hold at the correlated
-%PCs of this
-%lockstep execution; for
-%a successful bisimulation check, these invariants must ensure equal observables.
-
+\subsubsection{Checking Bisimulation between Deconstruction Programs}
+\label{sec:reconsbisim}
+To check bisimulation, we attempt to show that both deconstructions
+proceed in lockstep, and the invariants at each step of this lockstep execution ensure equal observables.
+We use a product-CFG to encode this lockstep execution --- to distinguish this product-CFG from
+the top-level product-CFG that relates $S$ and $C$, we can this product-CFG that relates
+two deconstruction programs, a {\em deconstruction product-CFG} or {\em decons-PCFG} for short.
 
 \input{chapters/figures/figClistCfgsAndPointstoGraph.tex}
-
-The reconstruction
-program and the recons-PCFG for our {\tt Clist} example
+The deconstruction programs and their decons-PCFG for the proof obligation \cref{eqn:clistPreserved}
 are shown in \cref{fig:recons}.
-To check bisimulation
-between the programs that deconstruct
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
-and ${\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$, the recons-PCFG
-correlates one unrolling of the first
-program
-with one
-unrolling of the second program.
-An unrolling of each reconstruction
-program is based on the unrolling procedure in \cref{eqn:clist}.
-Thus, the PC-transition correlations of both programs
-are trivially obtained
-by unifying the unrolling procedure with itself. A node
-is created in the recons-PCFG that
-encodes the correlation of the entries of the unrolling procedure in
-both programs, we call this node the {\em recursive-node} in the
-recons-PCFG, e.g., the
-recursive node in \cref{fig:reconsPCFG} is {\tt R0:R0}. A recursive
-call becomes a back-edge in the recons-PCFG that terminates at the
+We distinguish states between the first and second programs using superscripts: $fst$ and $snd$ respectively.
+However, these are omitted in case the states are equal in both programs (e.g., \cv{p}).
+To check bisimulation between the programs that deconstruct
+\lifted{list}{\mem{}}{lnode}{\cv{l}} and \lifted{list}{\mem{}'}{lnode}{\cv{l}},
+the decons-PCFG correlates one unrolling of the first program with one unrolling
+of the second program, as defined by the unrolling procedure in \cref{eqn:clist}.
+Thus, the PC-transition correlations of both programs are trivially
+obtained by unifying the static program structures.
+A node is created in the decons-PCFG that encodes the correlation of the entries
+of both programs; we call this node the {\em recursive-node} in the decons-PCFG
+(e.g., \rrpc{0}{0} in \cref{fig:reconsPCFG}).
+A recursive call becomes a back-edge in the recons-PCFG that terminates at the
 recursive-node.
-A candidate
-invariant at the recursive-node
-is obtained by equating the pair of corresponding
-{\tt l}$_C$ variables across the first and second
-programs, i.e.,
-${\tt l}^{fst}_C={\tt l}^{snd}_C$.
-At the start of
-both reconstruction
-programs, ${\tt l}^{fst}_C={\tt l}^{snd}_C={\tt l}^{start}_C$
---- the
-same ${\tt l}^{start}_C$ is passed to both reconstruction
-programs, only the memory states $m$ and $m'$ are different.
-The bisimulation check thus involves checking that
-if the invariant
-${\tt l}^{fst}_C={\tt l}^{snd}_C$
-holds at the recursive-node,
-then during one iteration of the unrolling procedure
+At the start of both deconstruction programs, $\fstv{l} = \sndv{l} = \cv{l}$ --- the same \cv{l}
+is passed to both deconstruction programs, only the memory states $\fstv{\mem{}} = \mem{}$
+and $\sndv{\mem{}} = \mem{}'$ are different.
+The bisimulation check thus involves checking that if the invariant $\fstv{l} = \sndv{l}$
+holds at the recursive-node, then during one iteration of the unrolling procedure
 in both programs:
-\begin{enumerate}
-\item The \underline{if} condition
-({\tt l$^{fst}_C=0$}) in the first program
-is equal to the corresponding \underline{if}
-condition ({\tt l$^{snd}_C=0$}) in the
-second program.
-\item If the \underline{if} condition
-evaluates to false in both programs, then
-the observable values (that are used in the
-construction of the list) are equal, i.e.,
-$(({\tt l}^{fst}_C\neq 0)\land({\tt l}^{snd}_C\neq 0))\Rightarrow (\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{val}=
-\structPointer{{\tt l}^{snd}_C}{m'}{\tt lnode}{val})$.
-\item If the \underline{if} condition
-evaluates to false in both programs, then
-the invariant holds at the beginning
-of the unrolling procedure invoked through the
-recursive call.
-This involves checking equality
-of the arguments to the recursive call, i.e.,
-$(({\tt l}^{fst}_C\neq 0)\land({\tt l}^{snd}_C\neq 0))\Rightarrow \structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{next}
-=
-\structPointer{{\tt l}^{snd}_C}{m'}{\tt lnode}{next}$.
-\end{enumerate}
-The first check succeeds due to the invariant
-${\tt l}^{fst}_C={\tt l}^{snd}_C$.
-For the second and third checks, we additionally
-need to reason that the memory objects
-$\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{val}$ and
-$\structPointer{{\tt l}^{fst}_C}{m}{\tt lnode}{next}$ cannot
-alias with the writes (in $m'$ in \cref{eqn:memstore})
-to the newly allocated objects
-${\tt p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt val}$
-and
-${\tt p}_C\xrightarrow[]{m}_{\mathrm{\tt lnode}}{\tt next}$.
-This aliasing information is captured using a points-to analysis,
-described next in \cref{sec:pointsTo}.
 
-Notice that a bisimulation check
-between the reconstruction programs is significantly
-easier than the top-level bisimulation check between \SpecL{}
-and C programs: here,
-the correlation of PC transitions is trivially
-identified by unifying the unrolling procedure with itself, and
-the candidate invariants
-are obtained by equating each corresponding pair
-of variables across
-the two programs.
+\begin{enumerate}
+\item The \underline{\tt if} condition $(\fstv{l} = 0)$ in the first program is
+equal to the corresponding \underline{\tt if} condition $(\sndv{l} = 0)$ in the second program.
+\item If the \underline{\tt if} condition evaluates to false in both programs,
+then observable values (that are used in the construction of the list) are equal: \\
+$((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{val} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{val})$.
+\item If the \underline{\tt if} condition evaluates to false in both programs, then the
+invariant holds at the beginning of the programs invoked through the recursive call.
+This involves checking equality of the arguments to the recursive call: \\
+$((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{next} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{next})$.
+\end{enumerate}
+
+The first check succeeds due to the invariant $\fstv{l} = \sndv{l}$.
+For the second and third checks, we additionally need to reason that the memory objects
+$\structPointer{\comv{l}}{\mem{}}{lnode}{val}$ and
+$\structPointer{\comv{l}}{\mem{}}{lnode}{next}$ cannot alias with
+the writes (in $\mem{}'$ in \cref{eqn:memstore}) to the newly
+allocated objects
+$\structPointer{\cv{p}}{\mem{}}{lnode}{val}$ and
+$\structPointer{\cv{p}}{\mem{}}{lnode}{next}$.
+We capture this aliasing information using a points-to analysis described next in \cref{sec:pointsTo}.
+
+Notice that a bisimulation check between the deconstruction programs is
+significantly easier than the top-level bisimulation check between \SpecL{} and C programs:
+here, the correlation of PC traisitons is trivially identified by unifying the
+unrolling procedures of both lifted expressions, and the candidate invariants
+are obtained by equating each pair of terminal values that form the observables
+of both programs.
 
 \subsubsection{Points-to Analysis}
 \label{sec:pointsTo}
-To reason about aliasing (as required during the bisimulation
-check in \cref{sec:bisim}), we conservatively compute the
-{\em may-point-to}
-information for each program value using Andersen's algorithm \cite{andersen94programanalysis}.
-The range of this computed
-may-point-to function are {\em sets of region labels}, where
-each region label identifies a set of memory objects.
-The sets of memory objects identified by two distinct region
-labels are necessarily disjoint. We write $p\pointsTo\{R_1,R_2\}$
-to represent the condition that value $p$ may point to
-an object belonging to one of the region labels $R_1$ or $R_2$ (but
-may not point to any object outside of $R_1$ and $R_2$).
+To reason about aliasing (as required during bisimulation check in \cref{sec:bisim}),
+we conservatively compute the {\em may-point-to} information for each program value using
+Andersen's algorithm \cite{andersen94programanalysis}.
+The range of this computed may-point-to function are {\em sets of region labels},
+where each region label identifies a set of memory objects.
+The sets of memory objects identified by two distinct region labels
+are necessarily disjoint.
+We write $p \pointsTo{} \{ \mlr{R_1}, \mlr{R_2} \}$ to represent the condition that value $p$
+{\em may point to} an object belonging to one of the region labels \mlr{R_1} or \mlr{R_2}
+(but may not point to any object outside of \mlr{R_1} and \mlr{R_2}).
 
-We populate the set of all region labels using the
-{\em allocation
-sites} of the program, i.e., PCs where a call to
-{\tt malloc} exists, e.g., {\tt C4}
-in \cref{fig:llAllocCIR} is an allocation site.
-For each allocation site $A$, we create
-two region labels: (1) the first region label, called $A_1$,
-identifies the set of memory
-objects that were allocated by the most recent execution of $A$. (2) The second
-region label, called $A_{2+}$, identifies
-the set of memory objects that were allocated by older (not the most
-recent) executions of $A$.
+We populate the set of all region labels using {\em allocation sites} of the $C$ program
+i.e., PCs where a call to {\tt malloc} occurs.
+For example, \cpc{4} in \cref{fig:llAllocCIR} is an allocation site.
+For each allocation site $A$, we create two region labels:
+(a) the first region label, called \mlrf{A}, identifies the set of memory objects
+that were allocated by the most recent execution of $A$, and (b) the second region
+label, called \mlrs{A}, identifies the set of memory objects that were allocated
+by older (not the most recent) executions of $A$.
+We also include a special heap region, $\mathcal{H}$ to represent
+the rest of the memory not covered by the allocation site regions.
 
-For example, at the start of PC {\tt C7} in \cref{fig:llAllocCIR},
-{\tt i}$_C\pointsTo{}\emptyset$,
-{\tt n}$_C\pointsTo{}\{{\tt C4}_1\}$,
-and {\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$.
-Because the may-point-to analysis determines the
-sets of objects pointed-to by {\tt n}$_C$ and {\tt l}$_C$ to
-be disjoint ($\{{\tt C4_{1}}\}$ vs. $\{{\tt C4_{2+}}\}$), any
-memory accesses through {\tt n}$_C$ and {\tt l}$_C$
-cannot alias at {\tt C7} (for an access
-offset that is within the bounds of
-the allocation size `{\tt sizeof lnode}').
+For example, at the start of PC \cpc{7} in \cref{fig:llAllocCIR},
+$\cv{i} \pointsTo{} \emptyset$, $\cv{p} \pointsTo{} \{ \mlrf{\cpc{4}} \}$,
+and $\cv{l} \pointsTo{} \{ \mlrs{\cpc{4}} \}$.
+Since the may-point-to analysis determines the sets of objects pointed-to
+by \cv{p} and \cv{l} to be disjoint, (\mlrf{\cpc{4}} against \mlrs{\cpc{4}}),
+any memory accessed through \cv{p} and \cv{l} cannot alias at \cpc{7}
+(for accesses within the bounds of the allocated objects).
 
-The may-point-to information is computed not
-just for scalar program values ({\tt n}$_C$,
-{\tt l}$_C$, ...) but also for each region label.
-For region labels $A1_{r1}$, $A2_{r2}$, $A3_{r3}$:
-$A1_{r1}\pointsTo{}\{A2_{r2},A3_{r3}\}$ represents
-the condition that the values (pointers) stored
-in objects identified
-by $A1_{r1}$ may point to an object identified by
-either $A2_{r2}$ or $A3_{r3}$ (but not to any object
-outside $A2_{r2}$ and $A3_{r3}$).
-In \cref{fig:llAllocCIR}, at PC {\tt C7}, we
-get
-${\tt C4}_{1}\pointsTo{}\{{\tt C4}_{2+}\}$ and
-${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$.
-The condition
-${\tt C4}_{1}\pointsTo{}\{{\tt C4}_{2+}\}$
-holds because the {\tt next} pointer of the object
-pointed-to by ${\tt n}_C$ (which
-is a ${\tt C4}_1$ object) may point to
-a {\tt C4}$_{2+}$ object (e.g., object pointed-to
-by {\tt l}$_C$).
-Similarly, ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$
-says that a pointer within a {\tt C4}$_{2+}$ object
-may point to a {\tt C4}$_{2+}$
-object (but not to a {\tt C4}$_1$ object).
+The may-point-to information is computed not just for program values (e.g., \cv{p}, \cv{l},\dots)
+but also for each region label.
+For region labels \mlr{R1}, \mlr{R2} and \mlr{R3}:
+$\mlr{R1} \pointsTo{} \{ \mlr{R2}, \mlr{R3} \}$ represents the condition that
+the values (pointers) stored in objects identified by \mlr{R1} may point to objects
+identified by either \mlr{R2} or \mlr{R3} (but not to any other object outside \mlr{R2} and \mlr{R3}).
+In \cref{fig:llAllocCIR}, at PC \cpc{7}, we get
+$\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$ and
+$\mlrs{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}}, \mathcal{H} \}$.
+The condition $\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$ holds
+because the \field{next} pointer of the object pointed-to by \cv{p}
+(which is a \mlrf{C4} object at \cpc{7}) may point to a \mlrs{\cpc{4}}
+object (e.g., object reachable from chasing the pointer \cv{l}).
+On the other hand, pointers within a \mlrs{\cpc{4}} object may not point to a \mlrf{\cpc{4}} object.
 
-\subsubsection{Transferring points-to information to the recons-PCFG}
+\subsubsection{Transferring Points-to Information to Recons-PCFG}
 \label{sec:pointsToAsInvariants}
-Recall that
-in \cref{sec:recursiveEqToBisim},
-we reduce a validity check of the condition
-${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)
-\indEq{} {\tt Clist}_{m'}^{{\tt lnode}}({\tt l}_C)$
-to a bisimulation check. Also, recall
-that we discharge the bisimulation check through the construction
-of a recons-PCFG that compares the unrolling procedure with itself (executing
-on memory states $m$ and $m'$).
-During this bisimulation check, we need to prove
-that for each execution
-of the unrolling procedure, $\structPointer{{\tt l}_C}{m}{\tt lnode}{\{val,next\}}$
-and $\structPointer{{\tt l}_C}{m'}{\tt lnode}{\{val,next\}}$\footnote{Here, we use the symbol {\tt l}$_C$ to
-refer to equal values {\tt l}$^{fst}_C$ and
-{\tt l}$^{snd}_C$.} are equal.
-To successfully discharge these proof obligations, it suffices
-to show ${\tt l}_C$ cannot alias with the memory writes that
-distinguish $m$ from $m'$.
+Recall that in \cref{sec:recursiveEqToBisim}, we reduce the condition
+$\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$
+to an equivalence check.
+Also, recall that we discharge the equivalence check through construction of a
+decons-PCFG encoding the lockstep execution between the two deconstruction programs.
+During this bisimulation check, we need to prove that,
+$\structPointer{\comv{l}}{\mem{}}{lnode}{\{val,next\}}$ and
+$\structPointer{\comv{l}}{\mem{}'}{lnode}{\{val,next\}}$ are equal.
+To successfully discharge these proof obligations, it suffices to show
+\cv{l} cannot alias with the memory writes that distinguish \mem{} and $\mem{}'$.
 
-Our points-to analysis on
-the C program determines that at PC {\tt C5} (the start of
-the product-CFG edge {\tt (S3:C5)$\rightarrow$(S3:C3)} across which the proof
-condition is being evaluated),
-the pointer to the {\em head}
-of the list, i.e., ${\tt l}^{start}_C$
-points to {\tt C4}$_{2+}$. It also determines that the distinguishing
-writes modify memory regions belonging to {\tt C4}$_1$. 
-Further, we get ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$ at PC {\tt C5}.
-However,
-notice that these determinations only rule out aliasing of the list-head with
+Our points-to analysis on the $C$ program (in \cref{fig:llAllocCIR}) determines that at PC \cpc{5}
+(i.e. start of the product-CFG edge \scedge{3}{5}{3}{3} across which the proof obligation
+is generated), the pointer to the {\em head} of the list, i.e. $\cv{l} \pointsTo{} \{ \mlrs{C4} \}$.
+It also determines that the distinguishing writes modify memory regions belonging to \mlrf{C4} only.
+Further, we get $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ at PC \cpc{5}.
+However, notice that these determinations only rule out aliasing of the list-head with
 the distinguishing writes. We also need to confirm non-aliasing
-of the internal nodes of the linked list with the distinguishing
-writes.
-For this, we need to identify a points-to invariant,
-{\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$, at the recursive-node
-of the recons-PCFG
-(shown in \cref{fig:reconsPCFG}).
-To see why {\tt l}$_C\pointsTo{}\{{\tt C4}_{2+}\}$ is
-an inductive invariant at the recursive-node:
+of the internal nodes of the linked list with the distinguishing writes.
+For this, we need to identify a points-to invariant: $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$,
+at the recursive-node of the decons-PCFG (shown in \cref{fig:reconsPCFG}).
+To identify such points-to invariant, we run our points-to analysis
+on the deconstruction programs (\cref{fig:reconsProg}) before comparing them for equivalence.
+To model procedure calls, A {\em supergraph} is created with edges representing control flow
+to (and from) the entry (and exits) of the program respectively (e.g., dashes edges in \cref{fig:recons}).
+To see why $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ is an inductive invariant at the recursive-node:
+
 \begin{itemize}
-\item (Base case) The invariant holds
-at entry to the recons-PCFG (because it holds for ${\tt l}^{start}_C$).
-\item (Induction step) If ${\tt l}_C\pointsTo{}\{{\tt C4}_{2+}\}$
-holds at the start of an unrolling procedure,
-it also holds at the start of a recursive call to the
-unrolling procedure. This
-follows from ${\tt C4}_{2+}\pointsTo{}\{{\tt C4}_{2+}\}$ (points-to information at PC {\tt C5}),
-which ensures that {\tt l$_C$->next} may point to only ${\tt C4}_{2+}$ objects.
+\item[(Base case)] The invariant holds at entry of the decons-PCFG because it holds for \cv{l}.
+\item[(Inductive step)] If $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ holds at the entry node,
+it also holds at the start of a recursive call.
+This follows from $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ (points-to information at PC \cpc{5}),
+which ensures that $\structPointer{\cv{l}}{\mem{}'}{lnode}{next}$ may point to only \mlrs{C4} objects.
 \end{itemize}
 
-To identify this points-to invariant, we run
-our points-to analysis (the same analysis that is run
-on the C program) on the reconstruction programs (\cref{fig:reconsProg})
-before
-comparing them for equivalence. The boundary
-condition for the points-to analysis at the
-entry node of the reconstruction
-program (e.g., {\tt R0} in \cref{fig:recons}) is based on
-the results of the points-to analysis
-on $C$ at the PC where the proof obligation is being discharged (e.g., {\tt C5}
-in our \cref{fig:llAllocC}). The points-to invariants
-at a node {\tt (R$^{fst}_i$,R$^{snd}_j$)} of a recons-PCFG are
-derived from the results of the points-to analysis on the individual
-reconstruction programs at nodes {\tt R}$^{fst}_i$ and {\tt R}$^{snd}_j$
-respectively.
+To identify such points-to invariants, we run our points-to analysis
+on the deconstruction programs before comparing them for equivalence.
+The same analysis is run for both $C$ and the deconstruction programs.
+For a reconsturction program, the boundary condition (at entry) for the
+points-to analysis is based on the results of the points-to analysis on $C$
+at the PC where the proof obligation is being discharged.
+For example, the points-to information of $C$ PC \cpc{5} (in \cref{fig:llAllocC})
+is used during the points-to analysis on the reconstruction programs in \cref{fig:recons}.
 
-During proof obligation discharge (e.g., during the bisimulation
-check on recons-PCFG), the points-to invariants are encoded as SMT constraints.
-This allows us to successfully
-complete the bisimulation proof on the recons-PCFG, and
-consequently successfully discharge the
-proof obligation
-$\{\phi_{{\tt S3:C5}}\}\\({\tt S3\rightarrow S5\rightarrow S3}, {\tt C5\rightarrow C3}) \{l_{S}\indEq{}Clist^{{\tt lnode}}_{m}(l_{C})\}$ in \cref{tab:llproductInv}.
-The points-to analysis is described more formally
-in \cref{sec:pointsToFormal}.
+During proof query discharge, the points-to invariants are encoded as SMT constraints.
+This allows us to complete the bisimulation proof on the decons-PCFG in \cref{fig:reconsPCFG},
+and consequently, successfully discharge the proof obligation
+\hoareTriple{\scpcinv{3}{5}}{\spath{3,5,3},\cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}
+in \cref{tab:llproductInv}.
+The points-to analysis is further discussed in \cref{sec:pointsToFormal}.
 
-%Thus, as a part of the invariant inference procedure on the product-CFG
-%for the decomposition programs, we also run our points-to analysis on the
-%product-CFG to identify points-to invariants at the product-CFG
-%nodes.  This improves precision, as shown in the example discussed
-%above.
-\vspace{-5px}
-\subsubsection{Proof discharge algorithm for Type III obligations}
+\subsubsection{Summary of Type III Proof Discharge Algorithm}
 \label{sec:cat3summary}
 
-Before the start of an equivalence check, a points-to analysis is run on the $C$ IR once.
-During the equivalence check,
-to discharge a Type III proof obligation $P: {\tt LHS}\Rightarrow{\tt RHS}$ (expressed
-in first-order logic), we first replace the recursive
-values of program $S$ in the {\tt RHS}
-with lifted C values, based on the equalities present in the {\tt LHS}, to
-obtain $P_2$.
-This is followed by decomposition and RHS-breaking of $P_2$.
+Before the start of an equivalence check, a points-to analysis is run on the $C$ program (IR) once.
+During equivalence check, to discharge a type III proof obligation $P: \lhs{} \Rightarrow \rhs{}$
+(expressed first-order logic), we substitute ADT values (in $S$) in the \rhs{} with
+lifted C values (in $C$), based on the \recursiveRelations{} represent in the \lhs{}.
+This is followed by decomposition of \rhs{} and \rhs{}-breaking.
 
-Upon successful decomposition, we
-obtain several smaller proof obligations.
-To prove $P$, we require all these smaller proof
-obligations to be provable. If any of these smaller proof obligations
-is not provable, we are unable to prove $P$.  If we obtain a counterexample
-to any of these smaller proof obligations, then that counterexample
-also falsifies $P$.
-Let $P_3$ represent any such smaller proof obligation.
-{\tt RHS} of $P_3$, being
-a decomposition clause,
-must relate atomic expressions on the {\tt RHS}.
-If $P_3$ relates two scalar values in the {\tt RHS}, then
-it is a Type II proof obligation and can be discharged
-using the algorithm in \cref{sec:cat2algo}.
+Upon \rhs{}-breaking, we obtain several smaller proof obligations,
+say $P_1^i : \lhs{}_1^i \Rightarrow \rhs{}_1^i$ (for $i=1\ldots n$).
+To prove $P$, we require {\em all} of these smaller proof obligations $P_1^i$ to be provable.
+However, a counterexample to {\em any} one of these small proof obligations would also be
+a counterexample to the original proof obligation $P$.
+Due to decomposition and \rhs{}-breaking, each $\rhs{}_1^i$ must be a decomposition clause
+and relate atomic expressions.
+If $\rhs{}_1^i$ relate two scalar values, then $P_1^i$ is a type II proof obligation and
+discharged using the algorithm in \cref{sec:cat2algo}.
 
-If $P_3$ relates two lifted
-expressions in
-the {\tt RHS},
-we check if the reconstruction
-programs of the two lifted ADT values being
-compared can be proven to be bisimilar (assuming that
-{\tt LHS} of $P_3$ holds at the correlated entry nodes
-in the recons-PCFG).
-To improve
-the bisimulation
-check's precision, we transfer the points-to information of the $C$ program
-(at the PC where the proof obligation is being discharged) to the entry
-of the reconstruction programs. The same points-to analysis is ran on the
-reconstruction programs to populate the points-to function at all PCs.
+If $\rhs{}_1^i$ relates two lifted expressions (i.e. a \recursiveRelation{}),
+we check if the deconstruction programs of the two ADT values being compared
+can be proven to be bisimilar (assuming $\lhs{}_1^i$ holds at the correlated entry nodes
+in the decons-PCFG).
+To improve the precision during bisimulation check, we transfer the points-to invariants of the $C$
+program (at the PC where the proof obligation is being discharged) to the entry of the
+deconstruction programs. Next, the same points-to analysis is run on the reconstruction
+programs to identify points-to invariants in the deconstruction programs.
 
-These queries
-generated by a bisimulation check are discharged
-by a recursive call to the proof discharge procedure.
-The depth of these recursive calls to the
-proof discharge procedure is determined by
-the maximum {\em recursion nest depth} (similar
-to loop nest depth) of the decomposition
-program.
+If the bisimilarity check succeeds, we return {\em true} for $P$;
+otherwise, we imprecisely return {\em false} (without counterexamples).
+\Cref{algo:proofSummary} gives a broad overview of the entire proof discharge algorithm.
+The proof discharge algorithm is further discussed in \cref{sec:proofalgoFormal}.
 
-If the bisimilarity check succeeds, the proof procedure returns
-true for $P$.
-If the bisimilarity check fails,
-we imprecisely return false for $P$ (without a counterexample).
-
-Finally, if $P_3$ neither
-relates two scalar values, nor relates two lifted expressions,
-we attempt to prove that {\tt LHS} of $P_3$ imply {\tt false}.
-If successfully disproven, we return false for $P$ with the counterexamples.
-Otherwise, we imprecisely return false for $P$ (without a counterexample).
-
-Please refer to {\tt Chapter \ThesisChapterAlgo{}} of the thesis for a
-detailed discussion on the algorithms introduced in this section along
-with their pseudo-code.
+\input{chapters/figures/figProofSummary.tex}

@@ -84,8 +84,8 @@ conditionally deconstructs the sum type into its variants \cons{LNil} and \cons{
 \Cref{eqn:specDeconstruct} is called the {\em unrolling procedure} for the \type{List} variable $l$.
 We can similarly define the unrolling procedure for any ADT variable.
 
-Pointers are converted to bitvectors and the C memory 
-is modeled as a byte-addressable array \mem{} in the IR.
+The C memory is modeled as a byte-addressable array \mem{} in the IR
+and pointers are converted to bitvectors.
 Memory reads are represented using the following two C-like syntaxes:
 (a) ``\structPointer{p}{\mem{}}{T}{f}'' is equivalent to ``*(\typeof{T.f}*)(\&\mem{}[$p$+\offsetof{T}{f}])''
 i.e., it returns the bytes in the memory array \mem{} starting at address `$p$+\offsetof{T}{f}'
@@ -95,6 +95,8 @@ i.e., it returns the bytes in the memory array \mem{} starting at address `$p+i\
 and interpreted as an object of type `\type{T}'.
 ``\memWrite{\mem{}}{a}{v}{T}'' represents an array that is equal to \mem{} everywhere except at addresses
 [$a$, $a$+\sizeof{T}) which contains the value $v$ of type `\type{T}'.
+Recall that the size and memory layout of each type is concretized in the IR,
+and hence the values `\offsetof{T}{f}' and `\sizeof{T}' are constants.
 
 \Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
 of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.

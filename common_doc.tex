@@ -1,7 +1,10 @@
 \usetikzlibrary{arrows, quotes,shapes,positioning, calc}
 
 \newfloat{Algorithm}{t!}{lop}
+
 \newtheorem{theorem}{Theorem}
+
+\newenvironment{proofsketch}{\renewcommand{\proofname}{Proof Sketch}\proof}{\endproof}
 
 \lstdefinelanguage{All}[]{C}{
   morekeywords={if,then,else,match,with,let,in,fn,type,i32,i8,List,lnode,Str,clnode,u32,is,assume}
