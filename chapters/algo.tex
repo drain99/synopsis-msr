@@ -1,38 +1,33 @@
 \section{Spec-to-C Equivalence Checker}
 \label{sec:spectocalgo}
-start with the correlation algo,
-then procedure calls,
-then invariant inference,
-then points-to analysis
 
 \subsection[Counterexample-guided Product-CFG Construction]{Counterexample-guided Best-First Search Algorithm for a Product-CFG}
 \label{sec:searchAlgoFormal}
-
 \toolName{} constructs a product-CFG incrementally to search for
 an observably-equivalent bisimulation relation between
 the individual CFGs of a \SpecL{} program $S$ and a C program $C$.
 Multiple candidate product-CFGs are partially constructed
 during this search; the search completes when one of these
-candidates yields an equivalence proof.
+candidates yield an equivalence proof.
 
 {\em Anchor nodes} in the CFG of the $C$ program
 are identified to ensure that every cycle in the CFG
 contains at least one anchor node. Also, for
 every procedure call in the CFG, anchor nodes
 are created just before and just after the callsite, e.g.,
-in \cref{fig:llAllocCCFG}, {\tt C4} and {\tt C5} are anchor
+in \cref{fig:llAllocCCFG}, \cpc{4} and \cpc{5} are anchor
 nodes around the call to {\tt malloc()}.
 Our algorithm
 ensures that for each anchor node in $C$, we
 identify a correlated node in $S$ --- if
 a product-CFG $\pi$
-contains a product-CFG node $(n_S,n_C)$, then $\pi$
+contains a product-CFG node $(n_S:n_C)$, then $\pi$
 correlates node $n_C$
 in $C$ with node $n_S$ in $S$.
 The
 first partially-constructed product-CFG
 contains a single entry node
-that encodes the correlation of the entry nodes ({\tt S0:C0})
+that encodes the correlation of the entry nodes (\scpc{0}{0})
 of the two input CFGs.
 
 At each step of the incremental construction algorithm,
@@ -44,9 +39,9 @@ with paths
 in $S$'s CFG are enumerated.
 For
 example, in \cref{fig:llAllocProductCFG}, at product-CFG
-node {\tt (S3:C3)}, we first select the $C$ path {\tt C3$\rightarrow$C4},
+node (\scpc{3}{3}), we first select the $C$ path \cpath{3,4},
 and its potential correlation possibilities
-with paths $\epsilon$, ${\tt S3\rightarrow{}S5}$, ${\tt S3\rightarrow{}S5\rightarrow{}S3}$, ${\tt S3\rightarrow{}S5\rightarrow{}S3\rightarrow{}S5}$, ... in $S$ are enumerated (up to an unroll factor $\mu$).
+with paths $\epsilon$, \spath{3,5}, \spath{3,5,3}, \spath{3,5,3,5},\ldots in $S$ are enumerated (up to an unroll factor $\mu$).
 
 For each enumerated correlation possibility $(\rho_S,\rho_C)$,
 a separate
@@ -57,8 +52,8 @@ The head of the product-CFG edge $e$ is the
 (potentially newly added) product-CFG node representing
 the correlation of the end-points of paths $\rho_S$
 and $\rho_C$. For example, the node {\tt (S3:C4)} is added
-to the product-CFG if it correlates paths $\epsilon$ and ${\tt C3\rightarrow{}C4}$
-starting at {\tt (S3:C3)}.
+to the product-CFG if it correlates paths $\epsilon$ and \cpath{3,4}
+starting at (\scpc{3}{3}).
 For each node $s$ in a product-CFG $\pi$, we maintain
 a small number of
 concrete machine state pairs (of $S$ and $C$) at $s$.
@@ -66,7 +61,7 @@ The concrete
 machine state pairs at $s$
 are obtained as
 counterexamples to an unsucessful proof
-obligation $\{\phi_s\} (s \rightarrow d) \{\phi_d\}$ (for
+obligation \hoareTriple{\phi_s}{s \rightarrow d}{\phi_d} (for
 some edge $s \rightarrow d$ and node $d$ in $\pi$).
 Thus, by construction, these counterexamples represent
 concrete state pairs that
@@ -154,11 +149,10 @@ repeated.
 The predicate grammar allows the automatic inference of
 affine and inequality relations between bitvector values of both
 programs, as well as, \recursiveRelations{} between an ADT value in \SpecL{} ($\alpha_S$)
-and a {\em lifted} ADT value from C (${\tt liftC}_m(p_C)$).
+and a {\em lifted} ADT value from C \lifted{lifted}{\mem{}}{}{\cv{p}}.
 We enumerate these \recursiveRelation{}
-guesses for all bitvector variables $v^{C}$ in $C$ and candidate {\tt liftC} lifting constructor.
-In our implementation, the candidate
-{\tt liftC}
+guesses for all bitvector variables $v^{C}$ in $C$ and candidate \lift{lifted}{}{} lifting constructor.
+In our implementation, the candidate \lift{lifted}{}{}
 constructors are derived from the constructors
 present in the precondition $Pre$
 and the postcondition $Post$.  More
@@ -297,16 +291,14 @@ $\Delta^{entry}_R(r)=$ & $\Delta^{n_C}_C(r)$ & $\mathrm{for\ all}\ r \in{}S_C\cu
 Hence, for a reconstruction program, we use the results of the points-to analysis on $C$ at the PC where
 the proof obligation is being discharged. This is a crucial step for proving equality of $C$ values
 under different $C$ memory state as seen in \cref{sec:pointsToAsInvariants}.
-% A deconstruction
-% program does not contain any store and malloc operations.
 
-% The allocation-site abstraction (with a bounded-depth call stack) is
-% known to be effective at disambiguating memory regions belonging to
-% different data structures
-% \cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
-% In our work, we also need to reason about non-aliasing
-% of the most-recently allocated object (through a {\tt malloc} call) and
-% the previously-allocated objects (as in the {\tt List}
-% construction example). The coarse-grained $\{1, 2+\}$
-% categorization of allocation recency is effective for such
-% disambiguation.
+The allocation-site abstraction (with a bounded-depth call stack) is
+known to be effective at disambiguating memory regions belonging to
+different data structures
+\cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
+In our work, we also need to reason about non-aliasing
+of the most-recently allocated object (through a {\tt malloc} call) and
+the previously-allocated objects (as in the {\tt List}
+construction example). The coarse-grained $\{1, 2+\}$
+categorization of allocation recency is effective for such
+disambiguation.

@@ -177,3 +177,22 @@ Due to the \sdef{} assumption, this constraints the inputs to $S$ as well as $C$
 This is an example where \sdef{} and $Pre$ can be used to model wellformedness of values in $C$.
 
 TODO: add strlen spec atleast, show the strchr also!! maybe some matrix data layouts (only layouts)
+
+\subsubsection{Limitations}
+\label{sec:limitations}
+Our proof discharge algorithm is not without limitations.
+For a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree}, a $d$-depth
+approximation results in $\sim 2^d$ smaller equalities. This is a major cause of inefficiency due to
+generation of large queries which slows down SMT solvers and counterexample-guided algorithms for large values of $d$.
+
+\toolName{} is only interested in finding a bisimulation relation and hence
+equivalence of non-bisimilar programs is beyond our scope.
+\toolName{} currently only supports bitvector affine and inequality relations
+along with \recursiveRelations{} provided as part of $Pre$ and $Post$.
+Consequently, non-linear bitvector invariants (e.g. polynomial invariants)
+as well as custom \recursiveRelations{} are not supported.
+While our correlation and invariant inference algorithms based on the Counter tool \cite{oopsla20}
+are designed for translation validation between (C-like) unoptimized IR and assembly, we found them
+to be surprisingly good for \SpecL{} to (C-like) IR as well. Rather unsurprisingly, \toolName{}
+suffers from the same limitations of these algorithms. For example, \toolName{} supports path
+specializations from \SpecL{} to C, it does not search for path merging correlations.
