@@ -1,53 +1,9 @@
-\section{Formalism}
-\label{sec:formalism}
-\subsection{The \SpecL{} Language}
-\label{sec:speclang}
-We briefly discuss the properties of the \SpecL{} language in this section.
-\SpecL{} supports recursive algebraic data types (ADT) similar to the ones available in most functional languages.
-The types in \SpecL{} can be represented in {\em first order recursive types} with {\tt Product} and {\tt Sum}
-type constructors and {\tt Unit, Bool, i<N>} types (i.e., nullary type constructors) as follows:
-
-$T \rightarrow {\tt \mu} \alpha \ |\  {\tt Product}(T,\dots,T) \ |\  {\tt Sum}(T,\dots,T) \ |\  {\tt Unit} \ |\ {\tt Bool} \ |\  {\tt i\langle N \rangle} \ |\  \alpha$
-
-For example, the {\tt List} type can be written as $\mu \alpha. Sum(Unit, Prod(i32,\alpha))$.
-
-The language also borrows its expression grammar heavily from functional languages.
-This includes the usual constructs like {\tt let-in}, {\tt if-then-else}, function application and the {\tt match} statement
-for pattern-matching (i.e. deconstructing) sum and product values.
-Unlike functional languages, \SpecL{} only supports first order functions.
-Also, \SpecL{} does not support partial function application.
-Hence, we constrain our attention to C programs containing only first order functions.
-\SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing UB conditions.
-These assumptions become part of ($S$\ \ {\tt def}) as discussed in \cref{sec:eqdef}.
-\SpecL{} also provides the typical boolean and bitvector operators for expressing computation in C succintly yet explicitly.
-This includes logical operators (e.g., {\tt and}), bitvector arithmatic operators (e.g., {\tt bvadd(+)}) and
-relational operators for comparing bitvectors interpreted as signed or unsigned integers (e.g., {\tt $\leq_{u,s}$}).
-
-\begin{figure}[H]
-\begin{small}
-\begin{tabular}{rcl}
-\nonTerm{expr} & $\rightarrow$ & \term{if} \nonTerm{expr} \term{then} \nonTerm{expr} \term{else} \nonTerm{expr} \\
-& $|$ & \term{let} \nonTerm{id} \term{=} \nonTerm{expr} \term{in} \nonTerm{expr} \\
-& $|$ & \term{match} \nonTerm{expr} \term{with} \nonTerm{match-clause-list} \\
-& $|$ & \term{assuming} \nonTerm{expr} \term{do} \nonTerm{expr} \\
-& $|$ & \nonTerm{id} \term{(} \nonTerm{expr-list} \term{)} \\
-& $|$ & \nonTerm{data-cons} \term{(} \nonTerm{expr-list} \term{)} \\
-& $|$ & \nonTerm{expr} \term{is} \nonTerm{data-cons} \\
-& $|$ & \nonTerm{expr} \nonTerm{scalar-op} \nonTerm{expr} \\
-& $|$ & \nonTerm{literal$_{\mathrm{Unit}}$} $|$ \nonTerm{literal$_{\mathrm{Bool}}$} $|$ \nonTerm{literal$_{\mathrm{i<N>}}$} \\
-\\
-\nonTerm{match-clause-list} & $\rightarrow$ & \nonTerm{match-clause}$^*$ \\
-\nonTerm{match-clause} & $\rightarrow$ & \term{$|$} \nonTerm{data-cons} \term{(} \nonTerm{id-list} \term{)} \term{$\Rightarrow$} \nonTerm{expr} \\
-\nonTerm{expr-list} & $\rightarrow$ & \term{$\epsilon$} \term{$|$} \nonTerm{expr} \term{,} \nonTerm{expr-list} \\
-\nonTerm{id-list} & $\rightarrow$ & \term{$\epsilon$} \term{$|$} \nonTerm{id} \term{,} \nonTerm{id-list} \\
-\\
-\nonTerm{literal$_{\mathrm{Unit}}$} & $\rightarrow$ & \term{()} \\
-\nonTerm{literal$_{\mathrm{Bool}}$} & $\rightarrow$ & \term{false} $|$ \term{true} \\
-\nonTerm{literal$_{\mathrm{i<N>}}$} & $\rightarrow$ & [\term{0$\dots$2$^{\mathrm{N}}$-1}] \\
-\end{tabular}
-\end{small}
-\caption{\label{fig:specgrammar}Simplified expression grammar of \SpecL{} language}
-\end{figure}
+\section{Spec-to-C Equivalence Checker}
+\label{sec:spectocalgo}
+start with the correlation algo,
+then procedure calls,
+then invariant inference,
+then points-to analysis
 
 \subsection[Counterexample-guided Product-CFG Construction]{Counterexample-guided Best-First Search Algorithm for a Product-CFG}
 \label{sec:searchAlgoFormal}
