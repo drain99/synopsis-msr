@@ -22,15 +22,15 @@ Such languages perform automatic compile-time checks for manually-specified
 correctness predicates through SMT solvers.
 Additionally, there exists significant prior work on translation validation
 \cite{tvi,tristan_tv_eqsat11,stepp_eqsat_llvm11,eqsat,pec,zuck03,zuck05,heffter05,covac,c_to_verilog,kanade09,lopes16,tvoc_cav05,ddec,semalign,oopsla20,tv_oskernel,namjoshi13}
-across low level programming languages such as C and assembly.
+across low level programming languages such as C and assembly\footnote{XXX:llvm ir also?}.
 In most of these applications, soundness in critial,
 i.e., if the equivalence checker determines the programs to be equivalent, then the programs are indeed equivalent
 and evidently has equivalent observable behaviour. On the other hand, a sound equivalence checker may be incomplete
-and fail to prove the programs to be equivalent, even if they were equivalent.
+and fail to prove equivalence of a program pair, even if they were equivalent.
 
 We present \toolName{}, a {\em sound} algorithm to automatically (push-button) search
-for a proof of equivalence between a functional specification (written in \SpecL{}) and its
-optimized C implementation. We will demonstrate how \toolName{} is capable of
+for a proof of equivalence between a functional specification and its
+optimized C implementations. We will demonstrate how \toolName{} is capable of
 proving equivalence of multiple equivalent C implementations with vastly
 different (a) data layouts (e.g. array, linked list representations of a {\em list})
 and (b) algorithmic strategies (e.g. alternate algorithms, optimizations) against
@@ -39,8 +39,8 @@ This opens the possibility of regression verification \cite{strichman_regressver
 where \toolName{} can be used to automate verification across
 software updates that change memory layouts for data structures.
 
-\subsection{Summary}
-\label{sec:summary}
+\subsection{A Motivating Example}
+\label{sec:motivatingexample}
 We restrict our attention to programs that construct, read, and write
 to recursive data structures. In languages like C, pointer and array based
 implementations of these data-structures are prone to safety and liveness bugs.
@@ -48,11 +48,11 @@ Similar recursive data structures are also available in safer functional languag
 where algebraic data types (ADTs) \cite{hope} ensure several safety properties.
 We define a minimal functional language, called \SpecL{}, that enables the safe
 and succinct specification of programs manipulating and traversing recursive data structures.
-\SpecL{} is equipped with ADTs as well as boolean and bitvector (\type{i<N>}) types.
+\SpecL{} is equipped with ADTs as well as boolean (\type{bool}) and fixed-size bitvector (\type{i<N>}) types.
 
-Next, we give a brief overview of our approach through an example.
-This allows us to introduce the major subgoals and
-we state our primary contributions in the next section.
+We motivate our approach by considering example \SpecL{} and C programs.
+We list the major hurdles of our approach and give an informal discussion of our proposed solutions.
+We finish by stating our primary contributions in \cref{sec:contribs}.
 
 \input{chapters/figures/figMallocSpecAndC.tex}
 
@@ -63,9 +63,37 @@ The \type{List} ADT in the \SpecL{} program in defined at line {\tt A0} in \cref
 An empty \type{List} is represented by the constructor \cons{LNil}, where as a non-empty list uses
 the \cons{LCons} constructor to combine its first value ({\tt val}\ctype{i32}) and
 the remaining list ({\tt tail}\ctype{List}).
-The inputs to a \SpecL{} procedure are its well-typed arguments, which may include recursive data structure
-values. The inputs to a C procedure are its explicit arguments and the implicit state of program memory
-at procedure entry.
+The inputs to a \SpecL{} procedure are its well-typed arguments, which may include recursive data structure values.
+The inputs to a C procedure are its explicit arguments and the implicit state of program memory at procedure entry.
+Similarly, the outputs of a C procedure include its explicit return value and the program memory at procedure exit.
+
+The \SpecL{} procedure {\tt mk\_list}, defined at line {\tt A6} in \cref{fig:llAllocSpec}, accepts
+a bitvector of size {\tt 32} ({\tt n}\ctype{i32}).
+It returns a \type{List} ADT value representing a linked list containing
+the values {\tt (n-1)}, {\tt (n-2)}, ..., {\tt 1}, {\tt 0} starting from the head (the first value).
+On the other hand, the C procedure {\tt mk\_list}, defined at line {\tt B3} in \Cref{fig:llAllocC},
+constructs a {\em pointer based} linked list identical to the \SpecL{} program in \cref{fig:llAllocSpec}.
+Unlike \SpecL{}, the construction of the linked list requires explicit memory allocation and writes to
+the memory in C.
+We are interested in showing that the \SpecL{} and C {\tt mk\_list} procedures are `equivalent'
+i.e. given equal {\tt n} inputs, they both construct linked lists that are `equal'.
+
+first the unified representation
+then lifting constructor and the idea of lifting
+then bisimulation as the proof of equivalence
+then invariants at internal nodes that may need lifting constructors
+
+only introduce them briefly along with the mk\_list example.
+keep it informal.
+
+finish this section tomorrow for sure, then go into the next sections...
+not much change is required in the later phases
+mainly adding new figures and bits \& pieces to the proof discharge algorithm section
+finish by 5th so I can at least send this portion to sir
+then finish up the new section, and I am done...
+hopefully enough time to carry out the merge...
+
+
 We lower both \SpecL{} and C programs to a common intermediate representation (IR)
 as shown in \cref{fig:llAllocSpecIR,fig:llAllocCIR}.
 For the \SpecL{} program in \cref{fig:llAllocSpec},
