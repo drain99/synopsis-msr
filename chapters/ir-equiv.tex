@@ -1,61 +1,81 @@
 \section{Languages and Equivalence}
 \label{sec:lang-eqdef}
 
+This section introduces the \SpecL{} language and give a detailed description of \SpecL{} along
+with the intermediate representations introduced in \cref{sec:motivatingexample}.
+Next, we formally define equivalence and bisimulation between programs written in \SpecL{} and C.
+We finish with an analysis of the proof obligations generated during the search for a bisimulation relation.
+
 \subsection{The \SpecL{} Language}
 \label{sec:speclang}
 We start with a discussion on the \SpecL{} language.
 \SpecL{} supports recursive algebraic data types (ADT) similar to the ones available in most functional languages.
-Additionally, \SpecL{} is equipped with the following scalar types: \type{Unit}, Boolean (\type{Bool}) and Bitvector of length N (\type{i<N>}).
-ADTs can be thought of as `sum of product' types where each constructor represents a variant
-and the arguments to each constructor represents its fields.
-Evidently, types in \SpecL{} can be represented in {\em first order recursive types} with {\tt Product} and {\tt Sum} type constructors and {\tt Unit, Bool, i<N>} types (i.e., nullary type constructors) as follows:
+Additionally, \SpecL{} is equipped with the following scalar types: \type{unit}, \type{bool} (boolean) and \type{i<N>} (bitvector of size {\tt N}).
+ADTs can be thought of as `sum of product' types where each {\em data constructor} represents a variant
+and the arguments to each data constructor represents its fields.
+Types in \SpecL{} can be represented in {\em first order recursive types} with \type{Product} and \type{Sum} type constructors
+and \type{unit}, \type{bool}, \type{i<N>} types (i.e., nullary type constructors) using the following grammar:
 
-$T \rightarrow {\tt \mu} \alpha.\ T \ |\  {\tt Product}(T,\dots,T) \ |\  {\tt Sum}(T,\dots,T) \ |\  {\tt Unit} \ |\ {\tt Bool} \ |\  {\tt i\langle N \rangle} \ |\  \alpha$
+$T \rightarrow \mu \alpha.\ T \ |\  \type{Product}(T,\dots,T) \ |\  \type{Sum}(T,\dots,T) \ |\  \type{unit} \ |\ \type{bool} \ |\  \type{i\langle N \rangle} \ |\  \alpha$
 
-For example, the {\tt List} type can be written as $\mu \alpha. Sum(Unit, Product(i32,\alpha))$.
-
+For example, the \type{List} type (defined at \apc{0} in \cref{fig:llAllocSpec}) can be written as $\mu \alpha. \type{Sum}(\type{unit}, \type{Product}(\type{i32},\alpha))$.
 The language also borrows its expression grammar heavily from functional languages.
-This includes the usual constructs like {\tt let-in}, {\tt if-then-else}, function application and the {\tt match} statement
-for pattern-matching (i.e. deconstructing) sum and product values.
+This includes the constructs: {\tt let-in}, {\tt if-then-else}, {\tt match-with} and function application expressions.
+Pattern matching (i.e. deconstruction) of ADT values is archieved through {\tt match-with}.
 Unlike functional languages, \SpecL{} only supports first order functions.
 Also, \SpecL{} does not support partial function application.
 Hence, we constrain our attention to C programs containing only first order functions.
 \SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing assertions.
-\SpecL{} also provides the typical boolean and bitvector operators for expressing computation in C succintly yet explicitly.
+\SpecL{} also provides intrinsic scalar operators for expressing computation in C succintly yet explicitly.
 This includes logical operators (e.g., {\tt and}), bitvector arithmatic operators (e.g., {\tt bvadd(+)}) and
-relational operators for comparing bitvectors interpreted as signed or unsigned integers (e.g., {\tt $\leq_{u,s}$}).
+relational operators for comparing bitvectors interpreted as unsigned or signed integers (e.g., {\tt $\leq_{u,s}$}).
+The equality operator ($=$) is only supported for scalar types.
 
 \input{chapters/figures/figSpecGrammar.tex}
 
+\Cref{fig:specgrammar} shows the simplified expression grammar for \SpecL{} language.
+\nonTerm{data-cons} represents a ADT data constructor.
+The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a \type{bool} and is used to test whether the top-level constructor
+of the ADT value \nonTerm{expr} is \nonTerm{data-cons}.
+\nonTerm{scalar-op} includes the logical, arithmatic and relational operators supported by \SpecL{}.
+
 \subsection{Intermediate Representations}
 \label{sec:ir}
-As summarized in \cref{sec:summary}, we lower both \SpecL{} and C programs to a common
+As outlined in \cref{sec:motivatingexample}, we lower both \SpecL{} and C programs to a common
 intermediate representation (IR) for comparison.
 IR is a Three-Address-Code (3AC) style intermediate representation.
-We often omit intermediate registers in the IR for brevity and ease of exposition,
+We often omit intermediate registers in the IR for brevity,
 and refer to this as the {\em abstracted} IR.
 
 \input{chapters/figures/figSumListSpecAndC.tex}
 \input{chapters/figures/figSumListSpecAndCIRAndCFG.tex}
 
+We have already seen the the IRs (in \cref{fig:llAllocSpecIR,fig:llAllocCIR}) for the \SpecL{} and C programs
+that construct linked lists in \cref{fig:llAllocSpec,fig:llAllocC}.
 \Cref{fig:llTraverseSpec,fig:llTraverseC} show \SpecL{} and C programs that traverse a linked list
 and return the sum of all the values in the linked list.
 The corresponding IR programs are shown in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR}.
 
-During conversion of a \SpecL{} source (\cref{fig:llAllocSpec,fig:llTraverseSpec} resp.)
-to IR (\cref{fig:llAllocSpecIR,fig:llTraverseSpecIR} resp.),
+During conversion of a \SpecL{} source to its IR,
 (a) {\tt match} statements are lowered to explicit \sumDtor{} conditionals where each branch
 represents a distinct constructor,
-(b) all tail-recursive calls are converted to loops while non-tail calls are preserved and
+(b) all tail recursive calls are converted to loops while non-tail calls are preserved and
 (c) all helper functions are inlined at their call-site.
+For example, during conversion of \SpecL{} program in \cref{fig:llTraverseSpec},
+(a) the {\tt match} statement in \apc{3} is converted to \sumDtor{},
+(b) the tail recursive procedure {\tt sum\_list\_impl} is converted to a loop,
+and (c) the helper procedure {\tt sum\_list\_impl} is inlined,
+to obtain the IR in \cref{fig:llTraverseSpecIR}.
 
-Similarly, the following is performed during conversion of a C source (\cref{fig:llAllocC,fig:llTraverseC} resp.)
-to IR (\cref{fig:llAllocCIR,fig:llTraverseCIR} resp.):
-(a) the sizes and memory layouts of both scalar (e.g., \type{unsigned})
-and compound (e.g., \type{struct lnode}) types are concretized,
+Similarly, the following is performed during conversion of a C source to its IR:
+(a) the sizes and memory layouts of both scalar (e.g., \type{int})
+and compound (e.g., \type{struct}) types are concretized,
 (b) the program memory along with reads and writes to it are made explicit and
-(c) we annotate {\tt malloc} calls with the call-site
-i.e. IR PC (e.g., {\tt malloc$_\cpc{4}$} in \cref{fig:llAllocCIR}).
+(c) we annotate {\tt malloc} calls with their call-site i.e. IR PC.
+For example, during conversion of C program in \cref{fig:llAllocC} to IR (in \cref{fig:llAllocCIR}),
+(a) the size of pointer and \type{unsigned} types are fixed to 32-bits (i.e. \type{i32}),
+(b) \mem{} is used to represent the program memory with explicit writes at \cpc{5} and \cpc{6},
+and (c) {\tt malloc$_\cpc{4}$} is annotated with its call-site \cpc{4}.
 
 The IR supports both scalar and ADT types available in \SpecL{}.
 Each ADT value is modeled as a key-value dictionary that maps
@@ -63,10 +83,11 @@ each of its field names to the constituent values.
 These key-value pairs are accessed using the {\em accessor}-operator,
 e.g., \prodAccess{l}{val} and \prodAccess{l}{next} represents the first and second
 fields of the \cons{LCons} constructor in \cref{fig:llTraverseSpecIR}.
-The IR also allows querying the top-level value constructor of an ADT value
+The IR also allows querying the top-level data constructor of an ADT value
 using the {\em is}-operator, e.g., \sumIs{l}{LNil} in \cref{fig:llTraverseSpecIR}.
-Importantly, $l.val$ is only well-formed if \sumIs{l}{LCons}.
-The construction of the \SpecL{} IR ensures the well-formedness of all expressions.
+The \field{val} field is associated with the \cons{LCons} data constructor
+and evidently, \prodAccess{l}{val} is only {\em well-formed} if \sumIs{l}{LCons}.
+Importantly, the construction of the \SpecL{} IR ensures the well-formedness of all expressions.
 Using the {\em accessor}- and {\em is}-operators, a \type{List} value $l$ can be expanded as:
 
 \begin{equation}
@@ -77,33 +98,42 @@ U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCon
 In this expanded representation of $l$,
 the {\em sum-deconstruction} operator `\sumDtor{}'
 \footnote{The sum-deconstruction operator `\sumDtor{}' for an ADT
-$T$ must contain exactly one branch for each value constructor of $T$.
+$T$ must contain exactly one branch for each data constructor of $T$.
 For example, `\sumDtor{}' for the \type{List} type must have exactly two branches
 of the form \cons{LNil} and $\cons{LCons}(e_1,e_2)$ for some expressions $e_1$ and $e_2$.}
 conditionally deconstructs the sum type into its variants \cons{LNil} and \cons{LCons}.
 \Cref{eqn:specDeconstruct} is called the {\em unrolling procedure} for the \type{List} variable $l$.
-We can similarly define the unrolling procedure for any ADT variable.
+We can similarly define the unrolling procedure for any ADT variable (based on the definition of the ADT).
 
-The C memory is modeled as a byte-addressable array \mem{} in the IR
+The C memory is modeled as a byte(\type{i8})-addressable array \mem{} in the IR
 and pointers are converted to bitvectors.
-Memory reads are represented using the following two C-like syntaxes:
-(a) ``\structPointer{p}{\mem{}}{T}{f}'' is equivalent to ``*(\typeof{T.f}*)(\&\mem{}[$p$+\offsetof{T}{f}])''
-i.e., it returns the bytes in the memory array \mem{} starting at address `$p$+\offsetof{T}{f}'
-and interpreted as an object of type `\typeof{T.f}' and
-(b) ``\arrIndex{p}{i}{\mem{}}{T}'' is equivalent to ``*(T*)(\&\mem{}[$p+i\times$\sizeof{T}])''
-i.e., it returns the bytes in the memory array \mem{} starting at address `$p+i\times$\sizeof{T}'
-and interpreted as an object of type `\type{T}'.
-``\memWrite{\mem{}}{a}{v}{T}'' represents an array that is equal to \mem{} everywhere except at addresses
-[$a$, $a$+\sizeof{T}) which contains the value $v$ of type `\type{T}'.
-Recall that the size and memory layout of each type is concretized in the IR,
-and hence the values `\offsetof{T}{f}' and `\sizeof{T}' are constants.
+``\memRead{\mem{}}{p}{T}'' represents a memory read operation and is equal to the bytes
+at addresses [$p$, $p$+\sizeof{T}) in \mem{}, interpreted as a value of type `\type{T}'.
+Similarly, ``\memWrite{\mem{}}{p}{v}{T}'' represents a memory write operation and is equal to \mem{}
+everywhere except at addresses [$p$, $p$+\sizeof{T}) which contains
+the value $v$ of type `\type{T}' (e.g., \cpc{5} in \cref{fig:llAllocCIR}).
+We use the following two C-like syntaxes to represent more complex memory reads succintly:
+
+\begin{enumerate}
+\item ``\structPointer{p}{\mem{}}{T}{f}'' is equivalent to ``\memRead{\mem}{p+\offsetof{T}{f}}{\typeof{T.f}}''
+i.e., it returns the bytes in the memory array \mem{} starting at address `$p+\offsetof{T}{f}$'
+and interpreted as a value of type `\typeof{T.f}'.
+
+\item ``\arrIndex{p}{i}{\mem{}}{T}'' is equivalent to ``\memRead{\mem}{p+i \times \sizeof{T}}{T}''
+i.e., it returns the bytes in the memory array \mem{} starting at address `$p+i \times \sizeof{T}$'
+and interpreted as a value of type `\type{T}'.
+Interestingly, $\memRead{\mem{}}{p}{T} = \arrIndex{p}{0}{\mem{}}{}$ and use the latter syntax from now on.
+\end{enumerate}
+
+\noindent Recall that the size and memory layout of each type is concretized in the IR,
+and hence the values `\offsetof{T}{f}' and `\sizeof{T}' are purely constants.
 
 \Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
 of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
 Each CFG node represents a IR PC location of the program and edges represent
 transitions through execution of instructions.
 Each edge is associated with:
-(a) a {\em edge condition} (the condition under which that edge is taken),
+(a) an {\em edge condition} (the condition under which that edge is taken),
 (b) a {\em transfer function} (how the program state is mutated if that edge is taken) and
 (c) a {\em UB assumption} (what condition should be true for the program execution
 to be well-defined across this edge).
@@ -112,6 +142,7 @@ form the UB assumptions.
 For brevity, we often represent a sequence of instructions with a single edge, e.g.,
 in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7,8,3}.
 In such a case, the transfer function of the edge is the composition of the sequence of instructions.
+We omit these transfer functions in the CFG figures and only show the edge conditions (unless they are {\em true}).
 Henceforth, We refer to the IR programs as \SpecL{} and C directly unless a distinction is necessary.
 
 \subsection{Equivalence Definition}
@@ -133,22 +164,6 @@ $$
 The \sdef{} antecedent states that we are only interested in proving equivalence for
 well-defined executions of $S$, i.e., executions that satisfy all assertions expressed
 using the {\tt assuming-do} statement.
-Sometimes, the user may be interested in constraining the nature of inputs to $C$
-for the purpose of checking equivalence only for {\em well-defined} inputs.
-In these cases, we use a combination of $Pre$ and \sdef{} to constrain
-the execution of $C$ to inputs for which we are interested in proving equivalence.
-For example, the C library function {\tt strlen(\type{char}* \cv{str})} is well-defined only if \cv{str}
-represents a valid null character terminated string.
-This includes the assumption that the pointer \cv{str} may not be null.
-Since \SpecL{} has no notion of pointers, we expose this conditional well-definedness of C strings
-through an explicit constructor e.g. \cons{SInvalid} for the \type{String} ADT defined as
-$\type{String}=\cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{String})$.
-\sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ and
-the precondition $Pre$ contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
-Hence, \sdef{} and $Pre$ ensures that we compute equivalence only for those
-executions of $S$ and $C$ where the input strings are well-defined.
-A similar strategy is employed for other functions as detailed in \cref{sec:results}.
-
 The \cfits{} antecedent states that we prove equivalence under the assumption that $C$'s memory
 requirements fit within the available system memory i.e., only for those executions of $C$
 in which all memory allocation requests (through {\tt malloc} calls) are successful.
@@ -160,21 +175,40 @@ at program exit.
 The postcondition $Post$ relates these outputs of the two programs.
 In general, the \SpecL{} and C sources may contain multiple procedures and these
 procedures may call each other.
-In that scenario, we are interested in proving equivalence of each $S$ and $C$ procedure pair.
+In that case, we are interested in proving equivalence of each $S$ and $C$ procedure pair.
+
+Sometimes, the user may be interested in constraining the nature of inputs to $C$
+for the purpose of checking equivalence only for {\em well-defined} inputs.
+In those circumstances, we use a combination of $Pre$ and \sdef{} to constrain
+the execution of $C$ to inputs for which we are interested in proving equivalence.
+For example, the C library function {\tt strlen(\type{char}* \cv{str})} is well-defined only if \cv{str}
+represents a valid null character terminated string.
+This includes the assumption that the pointer \cv{str} may not be null.
+Since \SpecL{} has no notion of pointers, we expose this conditional well-definedness of C strings
+through an explicit constructor e.g. \cons{SInvalid} for the \type{String} ADT defined as:
+$$
+\type{String}=\cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{String})
+$$
+\sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ (using {\tt assuming-do}) and
+the precondition $Pre$ contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
+Hence, \sdef{} and $Pre$ ensures that we compute equivalence only for those
+executions of $S$ and $C$ where the input strings are well-defined.
+A similar strategy is employed for other functions as explored later in \cref{sec:results}.
 
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
 
 \subsection{Bisimulation Relation}
 \label{sec:bisim}
-We construct a {\em bisimulation relation} to identify equivalence between two programs.
+Recall that,
+we construct a {\em bisimulation relation} to identify equivalence between \SpecL{} and C procedures.
 A bisimulation relation correlates the transitions of $S$ and $C$ in lockstep, such that the
 lockstep execution ensures identical observable behavior.
 A bisimulation relation between two programs can be represented using a {\em product program}
-\cite{covac} and the CFG representation of a product program is called a {\em product-CFG}.
+\cite{covac} and the CFG representation of a product program is called a {\em product}-CFG.
 \Cref{fig:llTraverseProduct} shows a product-CFG, that encodes the lockstep execution
 (bisimulation relation) between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}.
 
-A node in the product-CFG is formed by pairing nodes of $S$ and $C$ CFGs,
+A node in the product-CFG is formed by pairing nodes of $S$ and $C$,
 e.g., \scpc{2}{2} is formed by pairing \spc{2} and \cpc{2}.
 If the lockstep execution of both programs is at node \scpc{2}{2} in the product-CFG,
 then $S$'s execution is at \spc{2} and $C$'s execution is at \cpc{2}.
@@ -185,27 +219,27 @@ An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edge
 with a path in $C$.
 A product-CFG edge encodes the lockstep execution of its correlated paths.
 For example, the product-CFG edge \scedge{2}{2}{2}{2} is formed by pairing
-\spath{2,5,2} and \cpath{2,4,2} in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG},
+\spath{2,5,2} and \cpath{2,4,2} in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} respectively,
 and represents that when $S$ makes the transition \spath{2,5,2}, $C$ makes the transition \cpath{2,4,2}
 in lockstep.
 In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in $S$ with a finite path
 \cv{\rho} in $C$, written $e=(\sv{\rho},\cv{\rho})$.
-The empty path $\epsilon$ in $S$ may be correlated with a finite path in $C$
+The empty path $\epsilon$ in $S$ may be correlated with a finite path in $C$.
 However, a product-CFG is only well-formed (i.e. represents a valid bisimulation relation)
 if no loop path in $C$ is correlated with $\epsilon$ in $S$.
-For example, \cref{fig:llAllocProductCFG} shows the correlation of
-$\epsilon$ with the paths \cpath{3,4} and \cpath{4,5}.
-Since the loop path \cpath{3,4,5,3} in $C$ is still correlated with
-the non-empty path \spath{3,5,3} in $S$, it represents a valid bisimulation relation.
+For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs
+in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
+The edges \scedge{3}{3}{3}{4} and \scedge{3}{4}{3}{5} correlate the empty path $\epsilon$
+with the non-empty paths \cpath{3,4} and \cpath{4,5} respectively.
+However, the loop path \cpath{3,4,5,3} in $C$ is still correlated with the path \spath{3,5,3}
+in $S$ and thus, the product-CFG in \cref{fig:llAllocProductCFG} is indeed well-formed.
 
-At the start node \scpc{0}{0} of the product-CFG in \cref{fig:llAllocProductCFG},
+At the start node \scpc{0}{0} of the product-CFG in \cref{fig:llTraverseProduct},
 the precondition $Pre$ (labeled \circled{\small P})
-ensures equality of input arguments \sv{n} and \cv{n} at programs' entry.
-{\em Inductive invariants} (labeled \circled{\small I}) are inferred
-at each intermediate product-CFG node that relate
+ensures equality of input lists \sv{l} and \cv{l} at procedure entries.
+{\em Inductive invariants} (labeled \circled{I}) are inferred
+at each intermediate product-CFG node (e.g., \scpc{2}{2}) that relate
 the values of $S$ with values and memory state of $C$.
-The inductive invariants are identified by running an invariant inference algorithm
-on the product-CFG, which is further discussed in \cref{sec:invinference}.
 At the exit node \scpc{E}{E} of the product-CFG, the postcondition $Post$ (labeled \circled{\small P})
 represents equality of observable outputs and forms our primary proof obligation.
 Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node \scpc{0}{0},
@@ -214,15 +248,17 @@ and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit
 
 \subsection{Recursive Relation}
 \label{sec:recrel}
-In \cref{fig:llTraverseProductInv}, the precondition (\circled{\small P}) is an example
-of a {\em \recursiveRelation{}}:
+In \cref{sec:motivatingexample}, we briefly introduced a lifting constructor (\lift{list}{}{lnode})
+and \recursiveRelations{}.
+In \cref{fig:llTraverseProductInv}, the precondition (\circled{\small P}) is another example
+of a \recursiveRelation{}:
 ``\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}'' where \sv{l} and \cv{l}
-represent the input variables to the \SpecL{} and C programs respectively,
-\type{lnode} is the C \type{struct} type that contains the \field{val} and \field{next} fields,
+represent the input arguments to the \SpecL{} and C procedures respectively,
+\type{lnode} is the C \type{struct} type that contains the \field{val} and \field{next} fields (defined at \bpc{0} in \cref{fig:llTraverseC}),
 and \mem{} is the byte-addressable array representing the current memory state of the C program.
 $l_1 \indEq{} l_2$ is read {\em $l_1$ is recursively equal to $l_2$} and is semantically equivalent
 to $l_1 = l_2$. The `\indEq{}' simply emphasizes that $l_1$ and $l_2$ are (possibly recursive) ADT values.
-\lift{list}{}{lnode} is called a {\em lifting constructor} that `lifts' a C pointer value $p$
+The lifting constructor \lift{list}{}{lnode} `lifts' a C pointer value $p$
 (pointing to an object of type \type{struct lnode}) and
 a C memory state \mem{} to a (possibly infinite in case of a circular list) \type{List} value,
 and is defined through its {\em unrolling procedure} as follows:
@@ -239,25 +275,25 @@ Note the recursive nature of the lifting constructor \lift{list}{}{lnode}: if th
 otherwise it represents the list formed by \cons{LCons}-ing the value stored at
 \structPointer{p}{\mem{}}{lnode}{val} in memory \mem{} and the list formed by recursively
 lifting \structPointer{p}{\mem{}}{lnode}{next} through \lift{list}{}{lnode}.
-\lifted{list}{\mem{}}{lnode}{p} allows us to adapt a C linked list (formed by chasing a pointer $p$
+\lifted{list}{\mem{}}{lnode}{p} allows us to adapt a C linked list (formed by chasing pointers
 in the memory \mem{}) to a \type{List} value and compare it with a \SpecL{} \type{List}
 value for equality.
 
 \subsection{Proof Obligations}
 \label{sec:proofobl}
-The counterexample-guided algorithms for construction of the product-CFG and inference of inductive
-invariants are discussed later in \cref{sec:algo}.
+As previously discussed, algorithms for (a) incremental construction of a Product-CFG
+and (b) inference of invariants at intermediate PCs in the (partially constructed) product-CFG, are
+based on prior work\cite{oopsla20} and discussed subsequently in \cref{sec:searchalgo,sec:invinferalgo}.
 For now, we discuss the proof obligations that arise from a given product-CFG.
-Consider the product-CFG in \cref{fig:llAllocProductCFG}.
 Recall that a bisimulation check involves checking that all inductive invariants
-and the postcondition $Post$ hold at each product-CFG node.
+(and the postcondition $Post$) hold at their associated product-CFG nodes.
 
 We use relational Hoare triples to express these proof obligations \cite{relationalHoareLogic,hoareTriple}.
 If $\phi$ denotes a predicate relating the machine states of $S$ and $C$, then
 for a product-CFG edge $e=(\sv{\rho},\cv{\rho})$, \hoareTriple{\phi_s}{e}{\phi_d}
 denotes the condition:
 if any machine states \sv{\sigma} and \cv{\sigma} of programs $S$ and $C$ are related through
-precondition $\phi_s(\sv{\sigma},\cv{\sigma})$ and the paths \sv{\rho} and \cv{\rho}
+precondition $\phi_s(\sv{\sigma},\cv{\sigma})$ and the finite paths \sv{\rho} and \cv{\rho}
 are executed in $S$ and $C$ respectively,
 then execution terminates normally in states $\sv{\sigma}^{'}$ (for $S$) and
 $\cv{\sigma}^{'}$ (for $C$) and postcondition $\phi_d(\sv{\sigma}^{'},\cv{\sigma}^{'})$ holds.
@@ -272,15 +308,15 @@ first-order logic formula:
 
 \begin{equation}
 \label{eqn:firstOrderFormula}
-(\phi_s \land pathcond_{\sv{\rho}} \land pathcond_{\cv{\rho}} \land ubfree_{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
+(\phi_s \land {\tt pathcond}_{\sv{\rho}} \land {\tt pathcond}_{\cv{\rho}} \land {\tt ubfree}_{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
 \end{equation}
 
-Here, $pathcond_{\rho_X}$ represent the condition that path $\rho$ is taken in program $X$
-and $ubfree_{\sv{\rho}}$ represents the condition that execution of $S$ along path $\sv{\rho}$
+Here, ${\tt pathcond}_{\rho_X}$ represents the condition that path $\rho$ is taken in program $X$
+and ${\tt ubfree}_{\sv{\rho}}$ represents the condition that execution of $S$ along path $\sv{\rho}$
 is free of undefined behaviour.
 ${\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)$ represents the weakest-precondition
 of the predicate $\phi_d$ across the product-CFG edge $e = (\sv{\rho},\cv{\rho})$.
-We will use `\lhs{}' and `\rhs{}' to refer to the antecedent and consequent of
+From now on, we will use `\lhs{}' and `\rhs{}' to refer to the antecedent and consequent of
 the implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.
 
 For example, checking that the loop invariant \circled{\small I2}
@@ -288,7 +324,7 @@ $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ holds at \scpc{2}{2} in \
 requires us to prove the following two proof obligations:
 \circled{1} \hoareTriple{\scpcinv{0}{0}}{\spath{0,2},\cpath{0,2}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}} and
 \circled{2} \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2},\cpath{2,4,2}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
-The proof obligation \circled{2} reduces to the following first-order logic proof obligation:
+Using weakest precondition predicate transformer, the proof obligation \circled{2} reduces to the following first-order logic formula:
 
 \begin{equation}
 \label{eqn:firstOrderFormulaExample}

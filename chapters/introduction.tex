@@ -57,7 +57,7 @@ We finish by stating our primary contributions in \cref{sec:contribs}.
 \input{chapters/figures/figMallocSpecAndC.tex}
 
 \Cref{fig:llAllocSpec,fig:llAllocC} show the construction of lists in \SpecL{} and C respectively.
-The \type{List} ADT in the \SpecL{} program is defined at line {\tt A0} in \cref{fig:llAllocSpec}.
+The \type{List} ADT in the \SpecL{} program is defined at line \apc{0} in \cref{fig:llAllocSpec}.
 An empty \type{List} is represented by the constructor \cons{LNil}, where as a non-empty list uses
 the \cons{LCons} constructor to combine its first value ({\tt val}\ctype{i32}) and
 the remaining list ({\tt tail}\ctype{List}).
@@ -65,11 +65,11 @@ The inputs to a \SpecL{} procedure are its well-typed arguments, which may inclu
 The inputs to a C procedure are its explicit arguments and the implicit state of program memory at procedure entry.
 Similarly, the output of a C procedure consists of its explicit return value and the state of program memory at procedure exit.
 
-The \SpecL{} procedure {\tt mk\_list} (defined at line {\tt A6} in \cref{fig:llAllocSpec}), takes
+The \SpecL{} procedure {\tt mk\_list} (defined at line \apc{6} in \cref{fig:llAllocSpec}), takes
 a bitvector of size {\tt 32} ({\tt n}\ctype{i32}).
 It returns a \type{List} value representing a linked list containing
 the values {\tt (n-1)}, {\tt (n-2)}, ..., {\tt 1}, {\tt 0} starting from the head (the first value).
-On the other hand, the C procedure {\tt mk\_list} (defined at line {\tt B3} in \Cref{fig:llAllocC})
+On the other hand, the C procedure {\tt mk\_list} (defined at line \bpc{3} in \Cref{fig:llAllocC})
 constructs a {\em pointer based} linked list identical to the \SpecL{} procedure.
 Unlike \SpecL{}, the construction of the linked list in C requires explicit allocation of memory through calls to {\tt malloc}
 as well as, writes to the memory.

@@ -39,6 +39,7 @@
 % \newcommand{\structPointer}[4]{\ensuremath{{#1} \oset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
 \newcommand{\structPointer}[4]{\ensuremath{{#1} \overset{#2}{\rightarrow}_{\type{#3}} {\field{#4}}}}%
 \newcommand{\arrIndex}[4]{\ensuremath{#1[#2]_{#3}^{\type{#4}}}}%
+\newcommand{\memRead}[3]{\ensuremath{#1[#2]_{\type{#3}}}}%
 \newcommand{\memWrite}[4]{\ensuremath{#1[#2 \leftarrow #3]_{\type{#4}}}}%
 \newcommand{\pointsTo}{\ensuremath{\rightsquigarrow}}%
 \newcommand{\hoareTriple}[3]{\ensuremath{\{#1\}(#2)\{#3\}}}%
@@ -51,6 +52,8 @@
 \newcommand{\term}[1]{{\tt #1}}%
 \newcommand{\sv}[1]{\ensuremath{{\tt #1}_{S}}}%
 \newcommand{\cv}[1]{\ensuremath{{\tt #1}_{C}}}%
+\newcommand{\apc}[1]{\ensuremath{{\tt A#1}}}%
+\newcommand{\bpc}[1]{\ensuremath{{\tt B#1}}}%
 \newcommand{\spc}[1]{\ensuremath{{\tt S#1}}}%
 \newcommand{\cpc}[1]{\ensuremath{{\tt C#1}}}%
 \newcommand{\rpc}[1]{\ensuremath{{\tt R#1}}}%

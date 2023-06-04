@@ -9,16 +9,16 @@
 & $|$ & \nonTerm{data-cons} \term{(} \nonTerm{expr-list} \term{)} \\
 & $|$ & \nonTerm{expr} \term{is} \nonTerm{data-cons} \\
 & $|$ & \nonTerm{expr} \nonTerm{scalar-op} \nonTerm{expr} \\
-& $|$ & \nonTerm{literal$_{\mathrm{Unit}}$} $|$ \nonTerm{literal$_{\mathrm{Bool}}$} $|$ \nonTerm{literal$_{\mathrm{i<N>}}$} \\
+& $|$ & \nonTerm{literal$_\type{unit}$} $|$ \nonTerm{literal$_\type{bool}$} $|$ \nonTerm{literal$_\type{iN}$} \\
 \\
 \nonTerm{match-clause-list} & $\rightarrow$ & \nonTerm{match-clause}$^*$ \\
 \nonTerm{match-clause} & $\rightarrow$ & \term{$|$} \nonTerm{data-cons} \term{(} \nonTerm{id-list} \term{)} \term{$\Rightarrow$} \nonTerm{expr} \\
 \nonTerm{expr-list} & $\rightarrow$ & \term{$\epsilon$} \term{$|$} \nonTerm{expr} \term{,} \nonTerm{expr-list} \\
 \nonTerm{id-list} & $\rightarrow$ & \term{$\epsilon$} \term{$|$} \nonTerm{id} \term{,} \nonTerm{id-list} \\
 \\
-\nonTerm{literal$_{\mathrm{Unit}}$} & $\rightarrow$ & \term{()} \\
-\nonTerm{literal$_{\mathrm{Bool}}$} & $\rightarrow$ & \term{false} $|$ \term{true} \\
-\nonTerm{literal$_{\mathrm{i<N>}}$} & $\rightarrow$ & [\term{0$\dots$2$^{\mathrm{N}}$-1}] \\
+\nonTerm{literal$_\type{unit}$} & $\rightarrow$ & \term{()} \\
+\nonTerm{literal$_\type{bool}$} & $\rightarrow$ & \term{false} $|$ \term{true} \\
+\nonTerm{literal$_\type{iN}$} & $\rightarrow$ & [\term{${\tt 0 \ldots 2^{N}\!-\!1}$}] \\
 \end{tabular}
 \end{small}
 \caption{\label{fig:specgrammar}Simplified expression grammar of \SpecL{} language}
