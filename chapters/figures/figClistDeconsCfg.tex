@@ -1,0 +1,69 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\usepackage{mathtools}
+\input{common_tikz.tex}
+
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,558); %set diagram left start at 0, and has height of 558
+
+% Text Node
+\draw    (152, 55.5) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (152,55.5) node  [font=\footnotesize]  {\dpc{0}};
+% Text Node
+\draw    (152, 94.5) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (152,94.5) node  [font=\footnotesize]  {\dpc{1}};
+% Text Node
+\draw    (125, 156) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (125,156) node  [font=\footnotesize]  {\dpc{E_2}};
+% Text Node
+\draw    (180.5, 156) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (180.5,156) node  [font=\footnotesize]  {\dpc{5}};
+% Text Node
+\draw    (203.5, 211) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (203.5,211) node  [font=\footnotesize]  {\dpc{6}};
+% Text Node
+\draw    (228, 261) circle [x radius= 11.34, y radius= 11.34]   ;
+\draw (228,261) node  [font=\footnotesize]  {\dpc{E_6}};
+% Text Node
+\draw (126,107.5) node  [font=\footnotesize]  {$\comv{l} = 0$};
+% Text Node
+\draw (184,107.5) node  [font=\footnotesize]  {$\comv{l} \neq 0$};
+% Text Node
+\draw (81,156.5) node  [font=\scriptsize]  {\compacttfbox{\mathbf{output}\ \cons{LNil}}};
+% Text Node
+\draw (217,124) node  [font=\scriptsize]  {\compacttfbox{\comv{val} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{\comv{val}}}};
+% Text Node
+\draw (274,176.5) node  [font=\scriptsize]  {\compacttfbox{\comv{tail} \coloneqq \lifted{list}{\mem{}}{lnode}{\structPointer{\comv{l}}{\mem{}}{lnode}{next}}}};
+% Text Node
+\draw (298,260.5) node  [font=\scriptsize]  {\compacttfbox{\mathbf{output}\ \cons{LCons}(\comv{val}, \comv{tail})}};
+% Text Node
+\draw (300,57) node  [font=\scriptsize]  {\compacttfbox{\comv{l} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{next}}};
+% Text Node
+\draw (120,193.5) node  [font=\scriptsize]  {\compacttfbox{\comv{tail} \coloneqq \cons{LNil}}};
+% Text Node
+\draw (110,250) node  [font=\scriptsize]  {\compacttfbox{\comv{tail} \coloneqq \cons{LCons}(\comv{val}, \comv{tail})}};
+% Text Node
+\draw (112,54) node  [font=\scriptsize]  {\compacttfbox{\mathbf{input}\ \comv{l}, \mem{}}};
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (152,66.6) -- (152,83.5) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (147.54,104.67) -- (131.39,147) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (156.67,104.58) -- (174,147) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (183.7,167) -- (197.53,201.2) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (207.43,221.5) -- (222.01,251.2) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (134.22,166.39) .. controls (143.79,179.47) and (162.27,192.18) .. (194,204.5) ;
+% Connection
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (193.9,154.67) .. controls (375.75,139.13) and (281.42,46.11) .. (162.84,54.72) ;
+%Curve Lines [id:da3594688465785896] 
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (213,259) .. controls (159.61,251.02) and (156.87,221.8) .. (192.44,210.59) ;
+
+\end{tikzpicture}
+
+\end{document}

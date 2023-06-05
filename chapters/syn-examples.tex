@@ -175,7 +175,7 @@ equivalence are shown in \cref{fig:llTraverseProduct,fig:llTraverseProductInv}.
 
 Consider the proof obligation originating due to \circled{\small I2} invariant across edge \scedge{2}{2}{2}{2} in \cref{fig:llTraverseProduct}:
 \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
-the node invariant \scpc{2}{2} contains the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
+the node invariant \scpcinv{2}{2} contains the \recursiveRelation{} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$.
 The corresponding (simplified) first-order logic formula for this proof obligation is:
 $(\sv{l} \indEq \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum} \land \neg(\sumIs{\sv{l}}{LNil}) \land \cv{l}\neq0) \Rightarrow (\sv{sum} + \prodAccess{\sv{l}}{val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
 We fail to remove the \recursiveRelation{} on the \lhs{} even after
@@ -319,8 +319,8 @@ The following is a possible counterexample for a depth-2 underapproximation.
    & \cv{l} & {\tt 0x123},\\
    & \mem{} & $\Bigg\{$
            \begin{tabular}{ll}
-             & {\tt 0x123} $ \mapsto_\type{lnode}$ (.\field{value} $\mapsto$ {\tt 42}, .\field{next} $\mapsto$ {\tt 0x456}),\\
-              & {\tt 0x456} $\mapsto_\type{lnode}$ (.\field{value} $\mapsto$ {\tt 43}, .\field{next} $\mapsto$ {\tt 0}),\\
+             & {\tt 0x123} $ \mapsto_\type{lnode}$ (.\field{val} $\mapsto$ {\tt 42}, .\field{next} $\mapsto$ {\tt 0x456}),\\
+              & {\tt 0x456} $\mapsto_\type{lnode}$ (.\field{val} $\mapsto$ {\tt 43}, .\field{next} $\mapsto$ {\tt 0}),\\
               & () $\mapsto$ {\tt 77}\\
            \end{tabular}$\Bigg\}$ \\
 \}\\
@@ -360,7 +360,7 @@ through {\tt WP}$_{\spath{3,5,3}, \cpath{5,3}}$, this translates to (showing onl
 (\sv{i}=\cv{i} \land \cv{p}={\tt malloc()} \land \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}) \\ \Rightarrow (\cons{LCons}(\sv{i}, \sv{l}) \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{p}})
 \end{split}
 \end{equation}
-On the \rhs{} of this first-order logic formula, $\cons{LCons}{\sv{i}, \sv{l}}$ is compared for
+On the \rhs{} of this first-order logic formula, $\cons{LCons}(\sv{i}, \sv{l})$ is compared for
 equality with $\lifted{list}{\mem{}'}{lnode}{\cv{p}}$; here \cv{p}
 represents the address of the newly allocated \type{lnode} object (through {\tt malloc}) and $\mem{}'$
 represents the C memory state after executing the writes at lines \cpc{5} and \cpc{6} on the path \cpath{5,3}, i.e.,
@@ -370,7 +370,7 @@ represents the C memory state after executing the writes at lines \cpc{5} and \c
 \end{equation}
 Here, \memWrite{\mem{}}{a}{v}{T} represents an array that is
 equal to \mem{} everywhere except at addresses starting at $a$ which contains the value $v$ of type \type{T}.
-We also refer to these memory writes that distinguish \mem{} and $\mem{}'$, the {\em distinguishing writes}.
+We refer to these memory writes that distinguish \mem{} and $\mem{}'$, as the {\em distinguishing writes}.
 
 \subsubsection{LHS-to-RHS Substitution and RHS Decomposition}
 We start by utilizing

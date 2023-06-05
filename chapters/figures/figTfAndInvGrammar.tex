@@ -1,6 +1,6 @@
 \begin{figure}[H]
 \begin{center}
-\begin{subfigure}{.58\textwidth}
+\begin{subfigure}[b]{.58\textwidth}
 \begin{algorithm}[H]
 \begin{footnotesize}
 \SetAlgoLined
@@ -17,25 +17,24 @@
 }
 \end{footnotesize}
 \end{algorithm}
-\caption{\label{algo:tf} Transfer function $f_e$ across
-edge $e=(s\rightarrow d)$.}
+\caption{\label{algo:invinferalgotf} Transfer function $f_e$ across edge $e=(s\rightarrow d)$.}
 \end{subfigure}%
 \hfill
 \rulesep
 \hfill
-\begin{subfigure}{.40\textwidth}
+\begin{subfigure}[b]{.40\textwidth}
 \begin{center}
 \begin{footnotesize}
 \begin{tabular}{p{0.45cm}p{0.15cm}l}
 ${Inv}$ & $\rightarrow$ & $\sum_{i}{c_i v_i}=c$ $|$ $v_1 \odot v_2$  \\
 % & $|$ & $v_1 \odot v_2$ \\
-& $\ \ |$ & $\alpha_S = {\tt liftC}_m(v^C \dots)$ \\
+& $\ \ |$ & $\alpha_S \indEq{} {\tt liftC}_m(v^C \dots)$ \\
 \end{tabular}
 \end{footnotesize}
 \end{center}
-\caption{\label{fig:invGrammar}\footnotesize Predicate grammar for constructing invariants. $v$ represents a bitvector variable in either $S$ or $C$. $c$ represents a bitvector constant. $\odot$ $\in$ $\{<,\leq\}$. $\alpha_S$ represents an ADT variable in \SpecL{}. $v^{C}$ represents a bitvector variable in $C$. $m$ represents the current $C$ memory state.}
+\caption{\label{fig:invinfergrammar}\footnotesize Predicate grammar for constructing invariants. $v$ represents a bitvector variable in either $S$ or $C$. $c$ represents a bitvector constant. $\odot$ $\in$ $\{<,\leq\}$. $\alpha_S$ represents an ADT variable in \SpecL{}. $v^{C}$ represents a bitvector variable in $C$. $m$ represents the current $C$ memory state.}
 \end{subfigure}%
-\caption{Transfer function $f_e$ and Predicate grammar $Inv$ for invariant inference dataflow analysis in \cref{tab:dataflow_formulation}.
+\caption{Transfer function $f_e$ and Predicate grammar $Inv$ for invariant inference dataflow analysis in \cref{tab:invinferalgodfa}.
 Given invariants ($\phi_{s}$) and counterexamples ($\Gamma_{s}$) at node $s$,
 $f_e$ returns the updated
 invariants ($\phi_{d}$) and counterexamples ($\Gamma_{d}$) at

@@ -1,0 +1,39 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt      
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+
+% Text Node
+\draw (209.58,42.26) node  [font=\footnotesize]  {\inv{\cons{TCons}}$^0$};
+% Text Node
+\draw (246.08,74.26) node  [font=\footnotesize]  {\inv{\cons{TNil}}$^1$};
+% Text Node
+\draw (172.63,74.84) node  [font=\footnotesize]  {{\tt 12}$_\type{i32}^1$};
+% Text Node
+\draw (210.08,74.26) node  [font=\footnotesize]  {\inv{\cons{TCons}}$^1$};
+% Text Node
+\draw (209.58,105.76) node  [font=\footnotesize]  {\inv{\cons{TNil}}$^2$};
+% Text Node
+\draw (243.58,105.76) node  [font=\footnotesize]  {\inv{\cons{TNil}}$^2$};
+% Text Node
+\draw (176.13,106.34) node  [font=\footnotesize]  {{\tt 100}$_\type{i32}^2$};
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (216.71,48) -- (240.45,68.8) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (199,48) -- (176.75,68.8) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (207.7,48) -- (207.7,68.8) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (207.95,80) -- (207.74,100.6) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (215.07,80) -- (234.28,100.6) ;
+% Connection
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (201.11,80) -- (182.29,100.6) ;
+
+\end{tikzpicture}
+
+\end{document}

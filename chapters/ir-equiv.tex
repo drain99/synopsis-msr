@@ -211,11 +211,11 @@ A bisimulation relation between two programs can be represented using a {\em pro
 (bisimulation relation) between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}.
 
 A node in the product-CFG is formed by pairing nodes of $S$ and $C$,
-e.g., \scpc{2}{2} is formed by pairing \spc{2} and \cpc{2}.
-If the lockstep execution of both programs is at node \scpc{2}{2} in the product-CFG,
+e.g., (\scpc{2}{2}) is formed by pairing \spc{2} and \cpc{2}.
+If the lockstep execution of both programs is at node (\scpc{2}{2}) in the product-CFG,
 then $S$'s execution is at \spc{2} and $C$'s execution is at \cpc{2}.
-The start node \scpc{0}{0} of the product-CFG correlates the start nodes of CFGs of $S$ and $C$.
-Similarly, the exit node \scpc{E}{E} correlates the exit nodes of both programs.
+The start node (\scpc{0}{0}) of the product-CFG correlates the start nodes of CFGs of $S$ and $C$.
+Similarly, the exit node (\scpc{E}{E}) correlates the exit nodes of both programs.
 
 An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edges) in $S$
 with a path in $C$.
@@ -236,17 +236,17 @@ with the non-empty paths \cpath{3,4} and \cpath{4,5} respectively.
 However, the loop path \cpath{3,4,5,3} in $C$ is still correlated with the path \spath{3,5,3}
 in $S$ and thus, the product-CFG in \cref{fig:llAllocProductCFG} is indeed well-formed.
 
-At the start node \scpc{0}{0} of the product-CFG in \cref{fig:llTraverseProduct},
+At the start node (\scpc{0}{0}) of the product-CFG in \cref{fig:llTraverseProduct},
 the precondition $Pre$ (labeled \circled{\small P})
 ensures equality of input lists \sv{l} and \cv{l} at procedure entries.
 {\em Inductive invariants} (labeled \circled{I}) are inferred
-at each intermediate product-CFG node (e.g., \scpc{2}{2}) that relate
+at each intermediate product-CFG node (e.g., (\scpc{2}{2})) that relate
 the values of $S$ with values and memory state of $C$.
-At the exit node \scpc{E}{E} of the product-CFG, the postcondition $Post$ (labeled \circled{\small P})
+At the exit node (\scpc{E}{E}) of the product-CFG, the postcondition $Post$ (labeled \circled{\small P})
 represents equality of observable outputs and forms our primary proof obligation.
-Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node \scpc{0}{0},
+Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
 a bisimulation check involves checking that the inductive invariants (\circled{\small I}) hold too,
-and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit node \scpc{E}{E}.
+and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
 The input-output specification (i.e. $(Pre,Post)$) is manually provided by the user
 while all inductive invariants are identified by an invariant inference algorithm described in \cref{sec:invinferalgo}.
 
@@ -324,7 +324,7 @@ From now on, we will use `\lhs{}' and `\rhs{}' to refer to the antecedent and co
 the implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.
 
 For example, checking that the loop invariant \circled{\small I2}
-$\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ holds at \scpc{2}{2} in \cref{fig:llTraverseProduct}
+$\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ holds at (\scpc{2}{2}) in \cref{fig:llTraverseProduct}
 requires us to prove the following two proof obligations:
 \circled{1} \hoareTriple{\scpcinv{0}{0}}{\spath{0,2},\cpath{0,2}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}} and
 \circled{2} \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2},\cpath{2,4,2}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.

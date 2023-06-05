@@ -142,17 +142,17 @@ in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
 
 At each node of the product-CFG, {\em invariants} relate the states of the \SpecL{} and C procedures respectively.
 \Cref{tab:llproductInv} lists invariants for the product-CFG in \cref{fig:llAllocProductCFG}.
-At the start node \scpc{0}{0} of the product-CFG, the precondition $Pre$ (labeled \circled{\small P})
+At the start node (\scpc{0}{0}) of the product-CFG, the precondition $Pre$ (labeled \circled{\small P})
 ensures equality of input arguments \sv{n} and \cv{n} at the procedure entries.
 Inductive invariants (labeled \circled{I}) need to be inferred at
-each intermediate product-CFG node (e.g., \scpc{3}{3}) relating both programs' states.
-For example, at node \scpc{3}{5}, \circled{\small I6} $\sv{i} = \cv{i}$ is an inductive invariant.
+each intermediate product-CFG node (e.g., (\scpc{3}{3})) relating both programs' states.
+For example, at node (\scpc{3}{5}), \circled{\small I6} $\sv{i} = \cv{i}$ is an inductive invariant.
 The inductive invariant \circled{\small I4} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$
 is another example of a \recursiveRelation{} and asserts equality between the intermediate \SpecL{} and C lists
 at the loop heads.
-Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node \scpc{0}{0},
+Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
 a bisimulation check involves checking that the inductive invariants hold too,
-and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit node \scpc{E}{E}.
+and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
 Checking correctness of a bisimulation relation involves checking whether an invariant holds (along with many other things).
 These checks result in proof queries which must be discharged by a theorem prover (i.e. a solver).
 
