@@ -7,12 +7,11 @@
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$f_e(\phi_s, \Gamma_s)$}{
   $\Gamma^{can}_{d} \coloneqq \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
-  $\phi^{can}_{d} \coloneqq \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
-  \While{{\tt SAT$(\neg(\{\phi_s\} (e) \{\phi^{can}_{d}\}), \gamma_s)$}}
-  {
+  $\phi^{can}_{d} \coloneqq StrongestInvCover(\Gamma^{can}_{d})$;\\
+  \While{$\neg Prove(\hoareTriple{\phi_s}{e}{\phi^{can}_d}, \gamma_s)$}{
     $\gamma_{d} \ \ \ \coloneqq {\tt exec}_e(\gamma_s)$;\\
     $\Gamma^{can}_{d} \coloneqq \Gamma^{can}_{d}\cup\gamma_{d}$;\\
-    $\phi^{can}_{d} \coloneqq \mathrm{\it StrongestInvCover}(\Gamma^{can}_{d})$;\\
+    $\phi^{can}_{d} \coloneqq StrongestInvCover(\Gamma^{can}_{d})$;\\
   }
   \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$};\\
 }
@@ -34,7 +33,6 @@ ${Inv}$ & $\rightarrow$ & $\sum_{i}{c_i v_i}=c$ $|$ $v_1 \odot v_2$  \\
 \end{tabular}
 \end{footnotesize}
 \end{center}
-\vspace{-10px}
 \caption{\label{fig:invGrammar}\footnotesize Predicate grammar for constructing invariants. $v$ represents a bitvector variable in either $S$ or $C$. $c$ represents a bitvector constant. $\odot$ $\in$ $\{<,\leq\}$. $\alpha_S$ represents an ADT variable in \SpecL{}. $v^{C}$ represents a bitvector variable in $C$. $m$ represents the current $C$ memory state.}
 \end{subfigure}%
 \caption{Transfer function $f_e$ and Predicate grammar $Inv$ for invariant inference dataflow analysis in \cref{tab:dataflow_formulation}.

@@ -1,21 +1,17 @@
 \section{Evaluation}
 \label{sec:eval}
 
-We have implemented \toolName{} on top of the
-Counter tool \cite{oopsla20}.
+We have implemented \toolName{} on top of the Counter tool \cite{oopsla20}.
 We use {\em four} SMT solvers running in parallel for solving
 SMT proof obligations discharged by our proof discharge algorithm:
-{\tt z3-4.8.7}, {\tt z3-4.8.14} \cite{z3},
-{\tt Yices2-45e38fc} \cite{yices},
-and {\tt cvc4-1.7} \cite{cvc4solver}.
+{\tt z3-4.8.7}, {\tt z3-4.8.14} \cite{z3}, {\tt Yices2-45e38fc} \cite{yices}, and {\tt cvc4-1.7} \cite{cvc4solver}.
 An unroll factor of {\em four} is used to handle loop unrolling in the C implementation.
-We use a default value of {\em eight} for
-over- and under-approximation depths ($d_o$ and $d_u$).
-The default value of
-our unrolling parameter $k$ (used for categorization of proof obligations) is {\em five}.
+We use a default value of {\em eight} for over- and under-approximation depths ($d_o$ and $d_u$).
+The default value of our unrolling parameter $k$ (used for categorization of proof obligations) is {\em five}.
+We use a value of {\em five} for $\eta$ (used by {\em StrongestInvCover()} during weakening of \recursiveRelation{} invariants).
 
 \toolName{} requires the user to provide a \SpecL{} program $S$ (specification), a C implementation $C$,
-and a file that contains the precondition $Pre$ and postcondition $Post$.
+and a file that contains their input-output specifications.
 An equivalence check requires the identification of lifting constructors to relate C
 values to the ADT values in \SpecL{} through  \recursiveRelations{}.
 Such relations may be required at the entry of both programs (i.e. in the precondition $Pre$),
