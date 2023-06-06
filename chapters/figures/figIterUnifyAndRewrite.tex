@@ -1,0 +1,26 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$\Theta(p_a,e_a,p_b,e_b)$}{
+  $R \mapsfrom \emptyset$;\\
+  $S \mapsfrom \theta(p_a,e_a,p_b,e_b)$;\\
+  \lIf{$S = \cons{Fail}$}{\Return{$\cons{Fail}$}}
+  \ForEach{$\corrtuple{p_1}{a_1}{p_2}{e_2} \keyword{in} S$}{
+    \uIf{$e_2 \keyword{is} atomic$}{
+      $R \mapsfrom R \cup \{ \corrtuple{p_1}{a_1}{p_2}{e_2} \}$;\\
+    }
+    \Else{
+      $e_1 \mapsfrom rewrite(a_1)$;\\
+      $R_1 \mapsfrom \Theta(p_1,e_1,p_2,e_2)$;\\
+      \lIf{$R_1 = \cons{Fail}$}{\Return{$\cons{Fail}$}}
+      $R \mapsfrom R \cup R_1$;\\
+    }
+  }
+  \Return{$\cons{Succ}(R)$};
+}
+\end{footnotesize}
+\caption{\label{algo:unifyandrewrite}Summary of the Iterative Unification and Rewriting Procedure}
+\end{algorithm}
+\end{figure}

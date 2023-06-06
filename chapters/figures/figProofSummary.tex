@@ -3,31 +3,50 @@
 \begin{footnotesize}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
+\Fn{$Prove(\hoareTriple{\phi_s}{e}{\phi_d}, k, d_o, d_u)$}{
+  $F \mapsfrom LowerToFOL(\hoareTriple{\phi_s}{e}{\phi_d})$;\\
+  \ForEach{$\lhs{} \Rightarrow \rhs{}_i \keyword{in} RHSBreak(F)$}{
+    \If{$Solve(\lhs{}, \rhs{}_i, k, d_o, d_u) = \cons{False}(\Gamma)$}{
+      \Return{$\cons{False}(\Gamma)$};
+    }
+  }
+  \Return{$\cons{True}$};
+}
 \Fn{$Solve(\lhs{}, \rhs{}, k, d_o, d_u)$}{
   $(\lhs{}_k, \rhs{}_k) \mapsfrom DecomposeAndUnroll(\lhs{}, \rhs{}, k)$;\\
   \Switch{$Categorize(\lhs{}_k, \rhs{}_k)$}{
-    \lCase{${\tt Type\ I}$}{\Return{$SMTSolve(\lhs{}_k \Rightarrow \rhs{}_k)$}}
+    \uCase{${\tt Type\ I}$}{
+      \Return{$SMTProve(\lhs{}_k \Rightarrow \rhs{}_k)$};
+    }
     \uCase{${\tt Type\ II}$}{
-      $(\lhs{}_o, \lhs{}_u) \mapsfrom Approximate(\lhs{}, d_o, d_u)$;\\
-      \lIf{$SMTSolve(\lhs{}_o \Rightarrow \rhs{}_k) \equiv {\tt T}$}{\Return{${\tt T}$}}
-      \lIf{$SMTSolve(\lhs{}_u \Rightarrow \rhs{}_k) \equiv {\tt F}(\Gamma)$}{\Return{${\tt F}(\Gamma)$}}
-      \lElse{\Return{${\tt F}(\emptyset)$}}
+      $\lhs{}_o \mapsfrom Overapproximate(\lhs{}, d_o)$;\\
+      \If{$SMTProve(\lhs{}_o \Rightarrow \rhs{}_k) = \cons{True}$}{
+        \Return{$\cons{True}$};
+      }
+      $\lhs{}_u \mapsfrom Underapproximate(\lhs{}, d_u)$;\\
+      \If{$SMTProve(\lhs{}_u \Rightarrow \rhs{}_k) = \cons{False}(\Gamma)$}{
+        \Return{$\cons{False}(\Gamma)$};
+      }
+      \Return{$\cons{False}(\emptyset)$};
     }
     \Case{${\tt Type\ III}$}{
-      \ForEach{${\tt P}_i \Rightarrow \rhs{}_i : DecomposeAndRHSBreak(\lhs{}, \rhs{})$}{
-        \uIf{$\rhs{}_i\ \equiv\ l_1\indEq{}l_2$}{
-          $(D_1,D_2) \mapsfrom GetDeconstructionPrograms(l_1,l_2)$;\\
-          \lIf{$CheckBisimilarity(\lhs{} \land {\tt P}_i,D_1,D_2) \equiv {\tt F}$}{\Return{${\tt F}(\emptyset)$}}
+      $\rhs{}' \mapsfrom RewriteRHSUsingLHS(\lhs{}, \rhs{})$;\\
+      \ForEach{${\tt P}_i \Rightarrow \rhs{}_i \keyword{in} DecomposeAndRHSBreak(\rhs{}')$}{
+        \uIf{$\rhs{}_i = l_1\indEq{}l_2$}{
+          $(\dprog{}_1,\dprog{}_2) \mapsfrom GetDeconstructionPrograms(l_1,l_2)$;\\
+          \If{$CheckEquivalence(\lhs{} \land {\tt P}_i,\dprog{}_1,\dprog{}_2) = \cons{False}$}{
+            \Return{$\cons{False}(\emptyset)$};
+          }
         }
-        \Else{
-          \lIf{$Solve(\lhs{} \land {\tt P}_i, \rhs{}_i, k, d_o, d_u) \equiv {\tt F}(\Gamma)$}{\Return{${\tt F}(\Gamma)$}}
+        \ElseIf{$Solve(\lhs{} \land {\tt P}_i, \rhs{}_i, k, d_o, d_u) = \cons{False}(\Gamma)$}{
+          \Return{$\cons{False}(\Gamma)$};
         }
       }
-      \Return{${\tt T}$};
+      \Return{$\cons{True}$};
     }
   }
 }
 \end{footnotesize}
-\end{algorithm}
 \caption{\label{algo:proofSummary} Summary of the Proof Discharge Algorithm}
+\end{algorithm}
 \end{figure}

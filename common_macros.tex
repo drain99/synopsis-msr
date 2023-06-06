@@ -47,7 +47,6 @@
 \newcommand{\lifted}[4]{\lift{#1}{#2}{#3}{\ensuremath{(#4)}}}%
 \newcommand{\mapping}[2]{\ensuremath{#1 \! \mapsto \! #2}}%
 \newcommand{\mem}{\ensuremath{\textnormal{\fontspec{STIX Two Math}\symbol{"1D55E}}}}%
-% \newcommand{\mem}{\ensuremath{m}}%
 \newcommand{\nonTerm}[1]{\ensuremath{\langle}#1\ensuremath{\rangle}}%
 \newcommand{\term}[1]{{\tt #1}}%
 \newcommand{\sv}[1]{\ensuremath{{\tt #1}_{S}}}%
@@ -65,8 +64,8 @@
 \newcommand{\comv}[1]{\ensuremath{{\tt #1}}}%
 \newcommand{\fstv}[1]{\ensuremath{{\tt #1}^{fst}}}%
 \newcommand{\sndv}[1]{\ensuremath{{\tt #1}^{snd}}}%
-\newcommand{\sdef}{\ensuremath{{(S\ {\tt def})}}}%
-\newcommand{\cfits}{\ensuremath{{(C\ {\tt fits})}}}%
+\newcommand{\sdef}{\ensuremath{{(\sprog{}\ {\tt def})}}}%
+\newcommand{\cfits}{\ensuremath{{(\cprog{}\ {\tt fits})}}}%
 \newcommand{\spath}[2][\ensuremath{{\rightarrow}}]{%
   \def\nextitem{\def\nextitem{#1}}% Separator
   \renewcommand*{\do}[1]{\nextitem{\spc{##1}}}% How to process each item
@@ -96,6 +95,18 @@
 \newcommand{\typeof}[1]{{\tt typeof(#1)}}%
 \newcommand{\sizeof}[1]{{\tt sizeof(#1)}}%
 \newcommand{\offsetof}[2]{{\tt offsetof(#1,#2)}}%
+\newcommand{\addrof}[1]{{\tt addrof(#1)}}%
+\newcommand{\heapr}{{\ensuremath{\mathcal{H}}}}%
+\newcommand{\sprog}{{\ensuremath{\mathcal{S}}}}%
+\newcommand{\cprog}{{\ensuremath{\mathcal{C}}}}%
+\newcommand{\dprog}{{\ensuremath{\mathcal{D}}}}%
+\newcommand{\fdprog}{{\ensuremath{\mathcal{D}^{fst}}}}%
+\newcommand{\sdprog}{{\ensuremath{\mathcal{D}^{snd}}}}%
+\newcommand{\pre}{{\ensuremath{Pre}}}%
+\newcommand{\post}{{\ensuremath{Post}}}%
+\newcommand{\corrtuple}[4]{{\ensuremath{\langle #1, #2, #3, #4 \rangle}}}%
+
+\newcommand{\keyword}[1]{{\ensuremath{\ \textnormal{\textbf{#1}}\ }}}%
 
 \newcommand{\Tstrut}{\rule{0pt}{2.7ex}}         % = `top' strut
 \newcommand{\Bstrut}{\rule[-1.2ex]{0pt}{0pt}}   % = `bottom' strut

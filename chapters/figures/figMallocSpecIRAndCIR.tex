@@ -25,8 +25,8 @@
 ~{\scriptsize \textcolor{mygray}{C2:}}~   i32 i $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{C3:}}~   while ${\tt i <_{u} n}$:
 ~{\scriptsize \textcolor{mygray}{C4:}}~     i32 p $\coloneqq$ malloc$_{\tt C4}$(sizeof(lnode));
-~{\scriptsize \textcolor{mygray}{C5:}}~     $\mem{}$ $\coloneqq$ $\mem{}$[p+offsetof(lnode,val)$\leftarrow$i]$_\type{i32}$;
-~{\scriptsize \textcolor{mygray}{C6:}}~     $\mem{}$ $\coloneqq$ $\mem{}$[p+offsetof(lnode,next)$\leftarrow$l]$_\type{i32}$;
+~{\scriptsize \textcolor{mygray}{C5:}}~     $\mem{}$ $\coloneqq$ $\mem{}$[addrof($\structPointer{p}{\mem{}}{lnode}{val}$)$\leftarrow$i]$_\type{i32}$;
+~{\scriptsize \textcolor{mygray}{C6:}}~     $\mem{}$ $\coloneqq$ $\mem{}$[addrof($\structPointer{p}{\mem{}}{lnode}{next}$)$\leftarrow$l]$_\type{i32}$;
 ~{\scriptsize \textcolor{mygray}{C7:}}~     l $\coloneqq$ p;
 ~{\scriptsize \textcolor{mygray}{C8:}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
 ~{\scriptsize \textcolor{mygray}{C9:}}~   return l;

@@ -84,14 +84,14 @@ intermediate representation (IR for short).
 procedures in \cref{fig:llAllocSpec,fig:llAllocC} respectively.
 For the \SpecL{} procedure, the tail-recursive function {\tt mk\_list\_impl} is converted to a loop
 and inlined in the top-level function {\tt mk\_list} in the IR.
-For the C procedure in \cref{fig:llAllocC}, the memory state is made explicit (represented by the variable \mem{}),
-and the size and memory layout (i.e. {\tt sizeof, offsetof}) of each type is concretized in the IR.
+For the C procedure in \cref{fig:llAllocC}, the memory state is made explicit (represented by \mem{}),
+and the size and memory layout of each type is concretized in the IR.
 For example, the \type{unsigned} C type is encoded as the \type{i32} bitvector type.
 
 Hence, we are interested in showing that the \SpecL{} and C IRs are `equivalent' i.e.,
 given equal {\tt n} inputs, they both construct equal linked lists.
 Since the argument {\tt n} to both procedures have identical types (i.e. \type{i32}),
-their equality is quite trivially expressible i.e., $\sv{n} = \cv{n}$
+their equality is trivially expressible as: $\sv{n} = \cv{n}$
 \footnote{We use $S$ and $C$ subscripts to refer to variables in the \SpecL{} and C procedures respectively.}.
 The \SpecL{} procedure uses the ADT \type{List} to represent a linked list.
 However, the C procedure represents its returned linked list using a collection of \type{lnode} objects linked through
@@ -142,7 +142,7 @@ in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
 
 At each node of the product-CFG, {\em invariants} relate the states of the \SpecL{} and C procedures respectively.
 \Cref{tab:llproductInv} lists invariants for the product-CFG in \cref{fig:llAllocProductCFG}.
-At the start node (\scpc{0}{0}) of the product-CFG, the precondition $Pre$ (labeled \circled{\small P})
+At the start node (\scpc{0}{0}) of the product-CFG, the precondition (labeled \circled{\small P})
 ensures equality of input arguments \sv{n} and \cv{n} at the procedure entries.
 Inductive invariants (labeled \circled{I}) need to be inferred at
 each intermediate product-CFG node (e.g., (\scpc{3}{3})) relating both programs' states.
@@ -150,9 +150,9 @@ For example, at node (\scpc{3}{5}), \circled{\small I6} $\sv{i} = \cv{i}$ is an 
 The inductive invariant \circled{\small I4} $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$
 is another example of a \recursiveRelation{} and asserts equality between the intermediate \SpecL{} and C lists
 at the loop heads.
-Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
+Assuming that the precondition (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
 a bisimulation check involves checking that the inductive invariants hold too,
-and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
+and consequently the postcondition (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
 Checking correctness of a bisimulation relation involves checking whether an invariant holds (along with many other things).
 These checks result in proof queries which must be discharged by a theorem prover (i.e. a solver).
 

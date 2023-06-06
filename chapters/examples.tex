@@ -111,35 +111,38 @@ For example, in the expression \sumIf{c} \sumThen{a} \sumElse{b},
 the expression path condition of $c$ is {\tt true}, of $a$ is $c$,
 and of $b$ is $\neg c$.
 
-When we attempt to unify two expressions, we unify the tree structures (created by the ADT data constructors and
+When we attempt to unify two expressions (under some path conditions), we unify the tree structures (created by the ADT data constructors and
 the \sumDtor{} operator) of their canonical forms.
-The unification procedure either fails to unify, or it returns tuples $(p_1,p_2,a_1,e_2)$ where atom $a_1$
+The unification procedure either fails to unify, or it returns tuples \corrtuple{p_1}{a_1}{p_2}{e_2} where atom $a_1$
 at expression path condition $p_1$ in one expression is correlated
 with expression $e_2$ at expression path condition $p_2$ in the other expression.
 
 For two non-atomic expressions, $e_1$ and $e_2$ to unify successfully,
-it must be true that either the top-level constructor in $e_1$ and $e_2$ is
+it must be true that either the top-level operator in $e_1$ and $e_2$ is
 the same data constructor (in which case an unification is attempted for each
-of their children), {\em or} the top-level constructor in atleast one of $e_1$ or $e_2$ is \sumDtor{}.
+of their children), {\em or} the top-level operator in atleast one of $e_1$ or $e_2$ is \sumDtor{}.
 
-If the top-level constructor of exactly one of $e_1$ and $e_2$ (say $e_1$)
-is \sumDtor{}, then $e_2$ must have a data constructor at its root.
-In such a case, we {\em rewrite} $e_2$ using \sumDtor{} such that
-one of the branches contain $e_2$ under the condition {\em true}
-and all other branches have a {\em false} condition.
-For example, we can rewrite $\cons{LCons}(e_1, e_2)$ to \sumIf{false} \sumThen{\cons{LNil}}
-\sumElse{\cons{LCons}(e_1,e_2)}.
-We unify each child (condition and branch expressions) of the top-level
-\sumDtor{} operators of (possibly rewritten) $e_1$ and $e_2$.
-Whenever we descend down an \sumDtor{} operator, we keep track of
-the expression path conditions for both expressions.
-Recall that the \sumDtor{} operator for an ADT $T$ must have exactly one branch
-for each data constructor of $T$.
-Moreover, the branch associated with the data constructor $V$ must contain
-an expression whose top-level constructor is $V$.
+If the top-level operator in {\em exactly one} of $e_1$ and $e_2$ (say $e_2$) is \sumDtor{},
+then $e_1$ must have a data constructor at its root.
+Given $e_2 = $ \sumIf{c} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}},
+we first attempt to unify $e_1$ with the \underline{if} branch $e_2^{\tt th}$ --- if unification succeeds,
+we also unify $c$ (\underline{then} condition) with {\em true}.
+Otherwise, we unify $e_1$ with the \underline{else} branch $e_2^{\tt el}$ and $\neg c$ (\underline{else} condition) with {\em true}.
+
+If the top-level operator in both $e_1$ and $e_2$ is \sumDtor{},
+we unify each child (condition and branch expressions) of the corresponding
+\sumDtor{} operators.
+Recall that the \sumDtor{} operator (introduced in \cref{sec:ir}) for an ADT $T$ must have exactly one branch
+for each data constructor of $T$, and the branch associated with the data constructor $V$
+has $V$ in its top-level.
+Whenever we descend down an \sumDtor{} operator, we conjunct the \underline{\tt if} condition (if \underline{\tt then} branch is taken)
+or its negation (if \underline{\tt else} branch is taken) with its associated expression path condition.
+This allows us to keep track of the expression path conditions for both expressions
+during recursive descent to their children.
 
 If one of $e_1$ and $e_2$ (say $e_2$) is atomic,
-unification always succeeds and returns $(p_2,p_1,e_2,e_1)$.
+unification always succeeds and returns \corrtuple{p_2}{e_2}{p_1}{e_1}.
+The pseudo-code for the unification procedure is given in \cref{sec:unifalgo}.
 With each atom of an ADT type, we associate an {\em unrolling procedure}.
 By definition, an ADT atom is either a pseudo-variable or a lifted expression.
 Each (pseudo-)variable is associated with its unrolling procedure governed by its type.
@@ -149,26 +152,26 @@ for the lifting constructor \lift{list}{}{lnode}.
 
 Given two expressions $e_a$ and $e_b$ at expression path conditions $p_a$ and $p_b$
 respectively, an {\em iterative unification and rewriting procedure}
-$\Theta(e_a,e_b,p_a,p_b)$ is used to identify a set of correlation tuples
+$\Theta(p_a,e_a,p_b,e_b)$ is used to identify a set of correlation tuples
 between the atoms in the two expressions.
 This iterative procedure begins with an attempt to unify $e_a$ and $e_b$.
 If this unification fails, we return a failure for the original expressions $e_a$ and $e_b$.
 Else, we obtain correlation tuples between atoms and expressions
 (with their expression path conditions).
 If the unification correlates an atom $a_1$ at expression path condition $p_1$
-with another atom $a_2$ at expression path condition $p_2$, we add
-$(p_1,a_1,p_2,a_2)$ to the final output.
+with another atom $a_2$ at expression path condition $p_2$, we add \corrtuple{p_1}{a_1}{p_2}{a_2} to the final output.
 Otherwise, if the unification correlates an atom $a_1$ at expression path condition $p_1$
 to a non-atomic expression $e_2$ at expression path condition $p_2$,
 we {\em rewrite} $a_1$ using its unrolling procedure to obtain expression $e_1$.
 The unification algorithm then proceeds by unifying $e_1$ and $e_2$ through
-a recursive call to $\Theta(e_1,e_2,p_1,p_2)$.
-The maximum number of rewrites performed by $\Theta(e_a,e_b,p_a,p_b)$ (before termination)
-is upper bounded by the sum of number of ADT data constructors in $e_a$ and $e_b$.
+a recursive call to $\Theta(p_1,e_1,p_2,e_2)$.
+The maximum number of rewrites performed by $\Theta(p_a,e_a,p_b,e_b)$ (before termination)
+is bounded by the sum of number of ADT data constructors in $e_a$ and $e_b$.
+The pseudo-code for the iterative unification and rewriting procedure is given in \cref{sec:unifyandrewritealgo}.
 
 For a \recursiveRelation{} $l_1 \indEq{} l_2$, we unify (canonicalized) $l_1$ and $l_2$ through a
 call to $\Theta(l_1,l_2,true,true)$.
-If the $n$ tuples obtained after a successful unification are $(p_1^i,a_1^i,p_2^i,a_2^i)$
+If the $n$ tuples obtained after a successful unification are \corrtuple{p_1^i}{a_1^i}{p_2^i}{a_2^i}
 (for $i=1\ldots n$), then the {\em decomposition} of $l_1 \indEq{} l_2$ is defined as:
 
 \begin{equation}
@@ -186,7 +189,10 @@ decomposes into $(c_1 = c_2) \land (\neg c_1 \land \neg c_2 \rightarrow 0 = i)
 \land (\neg c_1 \land \neg c_2 \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$.
 Similarly, the decomposition of $l_1 \indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
 $(\sumIs{l_1}{LCons}) \land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{val}=42)
-\land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$.
+\land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$
+\footnote{(\sumIs{l_1}{LCons}) is equivalent to $\neg (\sumIs{l_1}{LNil}$).
+In general, for an ADT value $v$ of type $T$ (with data constructors $V_{\tt 1}, V_{\tt 2}, \dots, V_{\tt k}$),
+exactly one of (\sumIs{v}{\mathnormal{V}_{\tt i}}) is true.}.
 In case of a failed unification, the {\em decomposition} is defined to be {\em false},
 e.g., $\cons{LNil} \indEq{} \cons{LCons}(0, l)$ decomposes into $false$.
 
@@ -194,10 +200,10 @@ Each conjunctive clause of the form $(p_1^i \land p_2^i \rightarrow (a_1^i = a_2
 If $a_1^i$ and $a_2^i$ are ADT values, then we replace $a_1^i = a_2^i$ with $a_1^i \indEq{} a_2^i$.}
 in the decomposition is called a {\em decomposition clause}.
 A decomposition clause may relate only atomic values, i.e.,
-it may relate either (a) two scalars or (b) two ADT variable(s) and/or lifted expression(s).
-However, we restrict \recursiveRelation{} invariants to a shape such that each
-\recursiveRelation{} in its decomposition strictly relates ADT values to lifted expressions only.
-This is discussed in more detail along with all other invariant shapes in \cref{sec:invinferalgo}.
+it may relate (a) two scalars or (b) two ADT variable(s) and/or lifted expression(s).
+However, we restrict the shapes of \recursiveRelation{} invariants such that each
+\recursiveRelation{} in its decomposition {\em strictly} relates ADT values to lifted expressions.
+The invariant shapes along with the invariant inference procedure is discussed in \cref{sec:invinferalgo}.
 We {\em decompose} a \recursiveRelation{} by replacing it with its decomposition.
 We {\em decompose} a proof obligation by decomposing all \recursiveRelations{} in it.
 
@@ -250,7 +256,7 @@ $\sv{n} = \cv{n} \Rightarrow true$ which trivially resolves to true.
 
 Consider the following example of a proof obligation:
 \hoareTriple{\scpcinv{0}{0}}{\spath{0,3,5,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
-Notice, we have changed the path in $S$ (with CFG \cref{fig:llAllocSpecIRCFG}) to \spath{0,3,5,3} here.
+Notice, we have changed the path in \sprog{} (with CFG \cref{fig:llAllocSpecIRCFG}) to \spath{0,3,5,3} here.
 In this case, the corresponding first-order logic formula evaluates to:
 $(\sv{n} = \cv{n}) \land (0 <_u \sv{n}) \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$,
 where $(0 <_u \sv{n})$ is the path condition for the path \spath{0,3,5,3}.
@@ -266,8 +272,7 @@ These counterexamples assist in faster convergence of our correlation search and
 Thus for type I queries, $k$-unrolling reduces all (if any) \recursiveRelations{}
 in the original proof obligation into scalar equalities.
 The resulting query is further discharged using an SMT solver.
-\Cref{sec:proofalgo} contains a thorough analysis of our proof discharge algorithm
-along with the intricacies of:
+\Cref{sec:proofalgo} contains a deeper analysis of the following aspects of our proof discharge algorithm:
 (a) translation of formula to SMT logic (\cref{sec:smtencoding}), and
 (b) reconstruction of counterexamples from models returned by the SMT solver (\cref{sec:cerecons}).
 Assuming a capable enough SMT solver,
@@ -294,8 +299,8 @@ proof, we need the proof discharge algorithm to evaluate it to true. Let's call 
 requirement \circled{\footnotesize R1}.
 
 Now, consider the proof obligation formed by correlating two iterations
-of the loop in program $S$ (with CFG \cref{fig:llTraverseSpecCFG}) with
-one iteration of the loop in program $C$ (with CFG \cref{fig:llTraverseCCFG}):
+of the loop in program \sprog{} (with CFG \cref{fig:llTraverseSpecCFG}) with
+one iteration of the loop in program \cprog{} (with CFG \cref{fig:llTraverseCCFG}):
 \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2,5,2}, \cpath{2,4,2}}{\sv{sum} = \cv{sum}}.
 The equivalent first-order logic formula is:
 $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}} \land (\sv{sum} = \cv{sum}) \land (\sumIs{\sv{l}}{LCons}) \land (\sumIs{\prodAccess{\sv{l}}{tail}}{LCons}) \Rightarrow (\sv{sum} + \prodAccess{\sv{l}}{val} + \prodAccess{\sv{l}}{tail,val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
@@ -528,7 +533,7 @@ We refer to these memory writes that distinguish \mem{} and $\mem{}'$, as the {\
 We start by utilizing
 the \indEq{} relationships in the \lhs{} (antecedent) of `$\Rightarrow$'
 to rewrite \cref{eqn:ex1cat3} so that the ADT variables (e.g., \sv{l}) in its \rhs{} (consequent)
-are substituted with the lifted $C$ values (e.g., \lifted{list}{\mem{}}{lnode}{\cv{l}}). Thus, we
+are substituted with the lifted \cprog{} values (e.g., \lifted{list}{\mem{}}{lnode}{\cv{l}}). Thus, we
 rewrite \cref{eqn:ex1cat3} to:
 \begin{equation}
 \label{eqn:ex2cat3}
@@ -575,7 +580,7 @@ between two lifted expressions:
 \end{equation}
 
 Hence, we are interested in proving equality between two \type{List} values lifted from
-$C$ values under a precondition.
+\cprog{} values under a precondition.
 Next, we show how the above can be reposed as the problem of showing equivalence between
 two procedures through bisimulation.
 
@@ -601,65 +606,61 @@ for the lifting constructor \lift{list}{}{lnode}.
 \label{theorem:clistsEqual}
 Under an antecedent \lhs{},
 $\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$ holds
-{\em if and only if} the two deconstruction programs based on \lifted{list}{\mem{}}{lnode}{\cv{l}}
-and \lifted{list}{\mem{}'}{lnode}{\cv{l}} are equivalent.
+{\em if and only if} the two deconstruction programs $\dprog{}_1$ and $\dprog{}_2$, based on \lifted{list}{\mem{}}{lnode}{\cv{l}}
+and \lifted{list}{\mem{}'}{lnode}{\cv{l}}, are equivalent.
 The equivalence must ensure that the observables generated by both programs
 (i.e. output \type{List} values) are equal, given the that inputs $(\cv{l},\mem{})$
 and $(\cv{l},\mem{}')$ are provided to both programs respectively {\em and}
 the antecedent \lhs{} holds at the program entries.
 \end{theorem}
 \begin{proofsketch}
-The proof follows from noting that the only observables of the deconstruction
-programs are their output \type{List} values.
-Also, the value represented by a lifted expression is identical to the output of
-its deconstruction program.
-Thus, a successful equivalence proof ensures equal values represented by the lifting constructors
-and vice versa.
+The proof follows from noting that the only observables of $\dprog{}_1$ and $\dprog{}_2$ are their output \type{List} values.
+Also, the value represented by a lifted expression is equal to the output of its deconstruction program.
+Thus, a successful equivalence proof ensures equal values represented by the lifting constructors and vice versa.
 \end{proofsketch}
 
 Thus, to check if $\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$
 holds; we instead check if a bisimulation relation exists between their respective
-deconstruction programs (implying equivalence).
-\Cref{theorem:clistsEqual} generalizes to arbitrary lifting constructors
-with potentially different $C$ values and memory states.
+deconstruction programs \fdprog{} and \sdprog{} (implying equivalence).
+\Cref{theorem:clistsEqual} generalizes to arbitrary lifted expressions
+with potentially different \cprog{} values and memory states.
 
 \subsubsection{Checking Bisimulation between Deconstruction Programs}
 \label{sec:reconsbisim}
 To check bisimulation, we attempt to show that both deconstructions
 proceed in lockstep, and the invariants at each step of this lockstep execution ensure equal observables.
-We use a product-CFG to encode this lockstep execution --- to distinguish this product-CFG from
-the top-level product-CFG that relates $S$ and $C$, we call this product-CFG that relates
-two deconstruction programs, a {\em deconstruction product-CFG} or {\em decons-PCFG} for short.
+We use a product-CFG to encode this lockstep execution between \fdprog{} and \sdprog{} ---
+to distinguish this product-CFG from the top-level product-CFG that relates \sprog{} and \cprog{},
+we call this product-CFG that relates two deconstruction programs,
+a {\em deconstruction product-CFG} or {\em decons-PCFG} for short.
 
 \input{chapters/figures/figClistCfgsAndPointstoGraph.tex}
 The decons-PCFG for the proof obligation in \cref{eqn:clistPreserved} is shown in \cref{fig:recons}.
 We distinguish states between the first and second programs using superscripts: $fst$ and $snd$ respectively.
 However, these are omitted in case the states are equal in both programs (e.g., \cv{p}).
 To check bisimulation between the programs that deconstruct
-\lifted{list}{\mem{}}{lnode}{\cv{l}} and \lifted{list}{\mem{}'}{lnode}{\cv{l}},
+\lifted{list}{\mem{}}{lnode}{\cv{l}} and \lifted{list}{\mem{}'}{lnode}{\cv{l}} (i.e. \fdprog{} and \sdprog{} respectively),
 the decons-PCFG correlates one unrolling of the first program with one unrolling
 of the second program, as defined by the unrolling procedure in \cref{eqn:clist}.
-Thus, the PC-transition correlations of both programs are trivially
+Thus, the PC-transition correlations of \fdprog{} and \sdprog{} are trivially
 obtained by unifying the static program structures.
 A node is created in the decons-PCFG that encodes the correlation of the entries
-of both programs; we call this node the {\em recursive-node} in the decons-PCFG
-(e.g., \ddpc{0}{0} in \cref{fig:reconsPCFG}).
-A recursive call becomes a back-edge in the decons-PCFG that terminates at the
-recursive-node.
+of both programs; we call this node the {\em recursive-node} in the decons-PCFG (e.g., \ddpc{0}{0} in \cref{fig:reconsPCFG}).
+A recursive call becomes a back-edge in the decons-PCFG that terminates at the recursive-node.
 At the start of both deconstruction programs, $\fstv{l} = \sndv{l} = \cv{l}$ --- the same \cv{l}
-is passed to both deconstruction programs, only the memory states $\fstv{\mem{}} = \mem{}$
+is passed to both \fdprog{} and \sdprog{}, only the memory states $\fstv{\mem{}} = \mem{}$
 and $\sndv{\mem{}} = \mem{}'$ are different.
 The bisimulation check thus involves checking that if the invariant $\fstv{l} = \sndv{l}$
 holds at the recursive-node, then during one iteration of the unrolling procedure
 in both programs:
 
 \begin{enumerate}
-\item The \underline{\tt if} condition $(\fstv{l} = 0)$ in the first program is
-equal to the corresponding \underline{\tt if} condition $(\sndv{l} = 0)$ in the second program.
-\item If the \underline{\tt if} condition evaluates to false in both programs,
+\item The \underline{\tt if} condition $(\fstv{l} = 0)$ in \fdprog{} is equal to the corresponding \underline{\tt if} condition $(\sndv{l} = 0)$ in \sdprog{}:
+$(\fstv{l} = 0) = (\sndv{l} = 0)$.
+\item If the \underline{\tt if} condition evaluates to false in both \fdprog{} and \sdprog{},
 then observable values (that are used in the construction of the list) are equal: \\
 $((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{val} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{val})$.
-\item If the \underline{\tt if} condition evaluates to false in both programs, then the
+\item If the \underline{\tt if} condition evaluates to false in both \fdprog{} and \sdprog{}, then the
 invariant holds at the beginning of the programs invoked through the recursive call.
 This involves checking equality of the arguments to the recursive call: \\
 $((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{next} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{next})$.
@@ -695,7 +696,7 @@ We write $p \pointsTo{} \{ \mlr{R_1}, \mlr{R_2} \}$ to represent the condition t
 {\em may point to} an object belonging to one of the region labels \mlr{R_1} or \mlr{R_2}
 (but may not point to any object outside of \mlr{R_1} and \mlr{R_2}).
 
-We populate the set of all region labels using {\em allocation sites} of the $C$ program
+We populate the set of all region labels using {\em allocation sites} of the \cprog{} program
 i.e., PCs where a call to {\tt malloc} occurs.
 For example, \cpc{4} in \cref{fig:llAllocCIR} is an allocation site.
 For each allocation site $A$, we create two region labels:
@@ -733,7 +734,7 @@ On the other hand, pointers within a \mlrs{\cpc{4}} object may not point to a \m
 \label{sec:pointsToAsInvariants}
 Recall that in \cref{sec:reconsbisim}, we reduce the condition
 $\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$
-to an equivalence check between their deconstruction programs.
+to an equivalence check between their deconstruction programs: \fdprog{} and \sdprog{}.
 Also, recall that we discharge the equivalence check through construction of a
 decons-PCFG encoding the lockstep execution of the two deconstruction programs.
 During this bisimulation check, we need to prove that,
@@ -742,7 +743,7 @@ $\structPointer{\comv{l}}{\mem{}'}{lnode}{\{val,next\}}$ are equal.
 To successfully discharge these proof obligations, it suffices to show
 \cv{l} cannot alias with the memory writes that distinguish \mem{} and $\mem{}'$.
 
-Our points-to analysis on the $C$ program (in \cref{fig:llAllocCIR}) determines that at PC \cpc{5}
+Our points-to analysis on the \cprog{} program (in \cref{fig:llAllocCIR}) determines that at PC \cpc{5}
 (i.e. start of the product-CFG edge \scedge{3}{5}{3}{3} across which the proof obligation
 is generated), the pointer to the {\em head} of the list, i.e. $\cv{l} \pointsTo{} \{ \mlrs{C4} \}$.
 It also determines that the distinguishing writes modify memory regions belonging to \mlrf{C4} only.
@@ -753,7 +754,7 @@ of the internal nodes of the linked list with the distinguishing writes.
 For this, we need to identify a points-to invariant: $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$,
 at the recursive-node of the decons-PCFG (shown in \cref{fig:reconsPCFG}).
 To identify such points-to invariant, we run our points-to analysis
-on the deconstruction programs before comparing them for equivalence.
+on the deconstruction programs (i.e. \fdprog{} and \sdprog{}) before comparing them for equivalence.
 To model procedure calls, A {\em supergraph} is created with edges representing control flow
 to (and from) the entry (and exits) of the program respectively (e.g., dashes edges in \cref{fig:clistdeconsCFG}).
 To see why $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ is an inductive invariant at the recursive-node:
@@ -766,14 +767,12 @@ This follows from $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ (points-to information
 which ensures that $\structPointer{\cv{l}}{\mem{}'}{lnode}{next}$ may point to only \mlrs{C4} objects.
 \end{itemize}
 
-To identify such points-to invariants, we run our points-to analysis
-on the deconstruction programs before comparing them for equivalence.
-The same analysis is run for both $C$ and the deconstruction programs.
-For a deconstruction program, the boundary condition (at entry) for the
-points-to analysis is based on the results of the points-to analysis on $C$
+The same analysis is run for both \cprog{} and the deconstruction programs.
+For a deconstruction program \dprog{}, the boundary condition (at entry) for the
+points-to analysis is based on the results of the points-to analysis on \cprog{}
 at the PC where the proof obligation is being discharged.
-For example, the points-to information of $C$ PC \cpc{5} (in \cref{fig:llAllocC})
-is used during the points-to analysis on the deconstructions programs in \cref{fig:recons}.
+For example, the points-to information of \cprog{} PC \cpc{5} (in \cref{fig:llAllocC})
+is used during the points-to analysis on \fdprog{} and \sdprog{} in \cref{fig:recons}.
 
 During proof query discharge, the points-to invariants are encoded as SMT constraints.
 This allows us to complete the bisimulation proof on the decons-PCFG in \cref{fig:reconsPCFG},
@@ -785,10 +784,10 @@ The points-to analysis is further discussed in \cref{sec:pointsToFormal}.
 \subsubsection{Summary of Type III Proof Discharge Algorithm}
 \label{sec:cat3summary}
 
-Before the start of an equivalence check, a points-to analysis is run on the $C$ program (IR) once.
+Before the start of an equivalence check, a points-to analysis is run on the \cprog{} program (IR) once.
 During equivalence check, to discharge a type III proof obligation $P: \lhs{} \Rightarrow \rhs{}$
-(expressed first-order logic), we substitute ADT values (in $S$) in the \rhs{} with
-lifted C values (in $C$), based on the \recursiveRelations{} present in the \lhs{}.
+(expressed first-order logic), we substitute ADT values (in \sprog{}) in the \rhs{} with
+lifted C values (in \cprog{}), based on the \recursiveRelations{} present in the \lhs{}.
 This is followed by decomposition of \rhs{} and \rhs{}-breaking.
 
 Upon \rhs{}-breaking, we obtain several smaller proof obligations,
@@ -803,9 +802,10 @@ discharged using the algorithm summarized in \cref{sec:cat2summary}.
 
 If $\rhs{}_i$ relates two lifted expressions (i.e. a \recursiveRelation{}),
 we check if the deconstruction programs of the two ADT values being compared
-can be proven to be bisimilar (assuming $\lhs{}_i$ holds at the correlated entry nodes
+can be proven to be equivalent (assuming $\lhs{}_i$ holds at the correlated entry nodes
 in the decons-PCFG).
-To improve the precision during bisimulation check, we transfer points-to invariants of the $C$
+Similar to the top-level equivalence check, we attempt to find a bisimulation relation.
+To improve the precision during bisimilarity check, we transfer points-to invariants of the \cprog{}
 program (at the PC where the proof obligation is being discharged) to the entry of the
 deconstruction programs. The same points-to analysis is run on the deconstruction
 programs before the equivalence check begins, (through construction of decons-PCFG)
@@ -813,7 +813,44 @@ to identify points-to invariants in the deconstruction programs.
 
 If the bisimilarity check succeeds, we return {\em true} for $P$;
 otherwise, we imprecisely return {\em false} (without counterexamples).
-\Cref{algo:proofSummary} gives a broad overview of the entire proof discharge algorithm.
-The proof discharge algorithm is further discussed in \cref{sec:proofalgo}.
 
 \input{chapters/figures/figProofSummary.tex}
+
+\subsection{Overview of Proof Discharge Algorithm}
+\Cref{algo:proofSummary} gives a basic pseudo-code of our proof discharge algorithm.
+The top-level function responsible for discharging Hoare triple proof obligations is: $Prove()$.
+$Prove()$ accepts the proof obligation along with the categorization ($k$)
+and approximation ($d_o$ and $d_u$) parameters.
+$Prove()$ either returns \cons{True} representing a successful proof attempt,
+or it returns \cons{False}($\Gamma$), where $\Gamma$ is a set of counterexamples.
+Recall that our proof discharge algortihm is {\em sound} and may return \cons{False}($\emptyset$)
+to indicate a failed (proof and counterexample generation) attempt.
+As discussed in \cref{sec:proofobl}, we lower the Hoare triple into a first-order logic
+formula ($F$) using weakest-precondition predicate transformer.
+This is followed by \rhs{}-breaking (introduced in \cref{sec:proofalgoprops}),
+which results in multiple smaller proof obligations.
+$Prove{}$ attempts to prove each of these proof obligations individually through a call to $Solve()$.
+If any one of these queries fail, we immediately stop and return \cons{False} with the
+counterexamples in $\Gamma$ --- a counterexample to one of the smaller queries is also a counterexample
+to the original query.
+
+$Solve()$ is responsible for discharging these smaller queries.
+Inputs include \lhs{}, \rhs{} (representing the proof obligation $P :\lhs{} \Rightarrow \rhs{}$);
+along with the parameters: $k$, $d_o$ and $d_u$.
+$Solve()$ begins by finding the $k$-unrolled form of $P$ and categorizes it into one of the three types.
+As discussed in \cref{sec:cat1}, we simply discharge a type I query using SMT solvers (through $SMTProve()$).
+$SMTProve()$ is responsible for (a) translating the input formula (absent of \recursiveRelations{})
+to SMT logic, and (b) reconstruction of counterexamples from the models returned by the SMT solvers.
+These two topics are further explored in \cref{sec:smtencoding,sec:cerecons} respectively.
+As summarized in \cref{sec:cat2summary}, for a type II query, we attempt to prove its
+overapproximate version first.
+In case of a failure, we attempt to disprove (and generate counterexamples) its underapproximate version.
+If both attempts fail, we {\em soundly} return \cons{False} (without counterexamples).
+Lastly, a type III query $P$ is discharged as detailed in \cref{sec:cat3summary}.
+In brief, we decompose and perform \rhs{}-breaking on $P$.
+This results in smaller proof obligations; ones without a \recursiveRelation{} in its \rhs{},
+are type II queries and discharged through a recursive call to $Solve()$.
+For those containing a \recursiveRelation{} $l_1 \indEq{} l_2$ in their \rhs{}, we reformulate the query as an
+equivalence check between the deconstruction program of $l_1$ and $l_2$ respectively.
+If any one of these queries fail, we immediately return \cons{False} with the counterexamples (if available).
+Otherwise, we have successfully proven a type III query and return \cons{True}.

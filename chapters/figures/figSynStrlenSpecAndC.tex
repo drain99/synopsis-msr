@@ -20,7 +20,6 @@
 \vspace{5px}
 \begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{\ \ \ }}~ size_t strlen(char* s);
-
 ~{\tiny \textcolor{mygray}{C0:}}~ i32 strlen (i32 s) {
 ~{\tiny \textcolor{mygray}{C1:}}~   i32 i $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\tiny \textcolor{mygray}{C2:}}~   while $\arrIndex{\tt s}{0_{i32}}{\mem{}}{i8} \neq 0_{i8}$:
@@ -28,6 +27,7 @@
 ~{\tiny \textcolor{mygray}{C4:}}~     i $\coloneqq$ i + ${\tt 1_{i32}}$;
 ~{\tiny \textcolor{mygray}{C5:}}~   return i;
 ~{\tiny \textcolor{mygray}{CE:}}~ }
+
 \end{allLangEnvFoot}
 \end{center}
 \caption{\label{fig:llStrlenCArrIR}Strlen Implementation using Array}
@@ -38,12 +38,11 @@
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ typedef struct clnode {
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~   char chunk[4]; struct clnode* next; } clnode;
 ~{\tiny \textcolor{mygray}{\ \ \ \ }}~ size_t strlen(clnode* cl);
-
 ~{\tiny \textcolor{mygray}{C0\phantom{ }:}}~ i32 strlen (i32 cl) {
 ~{\tiny \textcolor{mygray}{C1\phantom{ }:}}~   i32 hi $\coloneqq$ ${\tt 0x80808080_{i32}}$; i32 lo $\coloneqq$ ${\tt 0x01010101_{i32}}$;
 ~{\tiny \textcolor{mygray}{C2\phantom{ }:}}~   i32 i  $\coloneqq$ ${\tt 0_{i32}}$;
 ~{\tiny \textcolor{mygray}{C3\phantom{ }:}}~   while ${\tt true}$:
-~{\tiny \textcolor{mygray}{C4\phantom{ }:}}~     i32 dword_ptr $\coloneqq$ addrof($\structPointer{\tt cl}{\mem{}}{clnode}{chunk}$);
+~{\tiny \textcolor{mygray}{C4\phantom{ }:}}~     i32 dword_ptr $\coloneqq$ $\& \structPointer{\tt cl}{\mem{}}{clnode}{chunk}$;
 ~{\tiny \textcolor{mygray}{C5\phantom{ }:}}~     i32 dword     $\coloneqq$ $\arrIndex{\tt dword\_ptr}{0_{i32}}{\mem{}}{i32}$;
 ~{\tiny \textcolor{mygray}{C6\phantom{ }:}}~     if ${\tt ((dword - lo)\ \&\ (\sim dword)\ \&\ hi) \neq 0_{i32}}$:
 ~{\tiny \textcolor{mygray}{C7\phantom{ }:}}~       if $\arrIndex{\tt dword\_ptr}{0_{i32}}{\mem{}}{i8} = 0_{i8}$: return i;

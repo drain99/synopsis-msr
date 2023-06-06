@@ -57,12 +57,12 @@ and return the sum of all the values in the linked list.
 The corresponding IR programs are shown in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR}.
 
 During conversion of a \SpecL{} source to its IR,
-(a) {\tt match} statements are lowered to explicit \sumDtor{} conditionals where each branch
-represents a distinct constructor,
+(a) {\tt match} statements are lowered to explicit {\tt if-else} conditionals where each branch
+is associated with a {\tt match} branch, and represents a distinct data constructor,
 (b) all tail recursive calls are converted to loops while non-tail calls are preserved and
 (c) all helper functions are inlined at their call-site.
 For example, during conversion of \SpecL{} program in \cref{fig:llTraverseSpec},
-(a) the {\tt match} statement in \apc{3} is converted to \sumDtor{},
+(a) the {\tt match} statement in \apc{3} is converted to {\tt if-else}
 (b) the tail recursive procedure {\tt sum\_list\_impl} is converted to a loop,
 and (c) the helper procedure {\tt sum\_list\_impl} is inlined,
 to obtain the IR in \cref{fig:llTraverseSpecIR}.
@@ -97,11 +97,13 @@ U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCon
 
 In this expanded representation of $l$,
 the {\em sum-deconstruction} operator `\sumDtor{}'
-\footnote{The sum-deconstruction operator `\sumDtor{}' for an ADT
-$T$ must contain exactly one branch for each data constructor of $T$.
-For example, `\sumDtor{}' for the \type{List} type must have exactly two branches
-of the form \cons{LNil} and $\cons{LCons}(e_1,e_2)$ for some expressions $e_1$ and $e_2$.}
 conditionally deconstructs the sum type into its variants \cons{LNil} and \cons{LCons}.
+The {\em underlined} \sumDtor{} operator is a stricter version of {\tt if-then-else}, and is only used for ADT values.
+A \sumDtor{} expression $e$ (for an ADT type $T$) must satisfy the following properties:
+(a) $e$ has exactly one branch for each data construction of $T$ (in the order they are defined),
+and (b) the branch associated with the data constructor $V$ has the form $V(e_1,e_2,\dots)$ i.e. its top-level operator is $V$.
+For example, an \sumDtor{} expression for the \type{List} type must be of the form:
+`\sumIf{e_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(e_2,e_3)}' for some expressions $e_1,e_2,e_3$.
 \Cref{eqn:specDeconstruct} is called the {\em unrolling procedure} for the \type{List} variable $l$.
 We can similarly define the unrolling procedure for any ADT variable (based on the definition of the ADT).
 
@@ -127,6 +129,9 @@ Interestingly, $\memRead{\mem{}}{p}{T} = \arrIndex{p}{0}{\mem{}}{}$ and use the 
 
 \noindent Recall that the size and memory layout of each type is concretized in the IR,
 and hence the values `\offsetof{T}{f}' and `\sizeof{T}' are purely constants.
+We use the `\addrof{}' operator to extract the address of a memory read expression:
+``\addrof{\memRead{\mem{}}{p}{T}}'' is equivalent to $p$.
+For example, at PC \cpc{5} in \cref{fig:llAllocCIR}, $\addrof{\structPointer{\mathnormal{p}}{\mem{}}{lnode}{val}} \Leftrightarrow p+\offsetof{lnode}{val}$.
 
 \Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
 of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
@@ -147,42 +152,42 @@ Henceforth, We refer to the IR programs as \SpecL{} and C directly unless a dist
 
 \subsection{Equivalence Definition}
 \label{sec:eqdef}
-Given (1) a \SpecL{} program specification $S$, (2) a C implementation $C$,
-(3) a precondition $Pre$ that relates the initial inputs \sv{Input} and \cv{Input} to
-$S$ and $C$ respectively, and (4) a postcondition $Post$ that relates the final outputs
-\sv{Output} and \cv{Output} of $S$ and $C$ respectively\footnote{\cv{Input} and \cv{Output}
-include the initial and final memory state of $C$ respectively.}:
-$S$ and $C$ are {\em equivalent} if for all possible inputs \sv{Input} and \cv{Input} such that
-$Pre(\sv{Input},\cv{Input})$ holds,
-$S$'s execution is well-defined on \sv{Input}, {\em and}
-$C$'s memory allocation requests during its execution on \cv{Input} are successful,
-then both programs $S$ and $C$ produce outputs such that $Post(\sv{Output},\cv{Output})$ holds.
+Given (1) a \SpecL{} program specification \sprog{}, (2) a C implementation \cprog{},
+(3) a precondition \pre{} that relates the initial inputs \sv{Input} and \cv{Input} to
+\sprog{} and \cprog{} respectively, and (4) a postcondition \post{} that relates the final outputs
+\sv{Output} and \cv{Output} of \sprog{} and \cprog{} respectively\footnote{\cv{Input} and \cv{Output}
+include the initial and final memory state of \cprog{} respectively.}:
+\sprog{} and \cprog{} are {\em equivalent} if for all possible inputs \sv{Input} and \cv{Input} such that
+$\pre{}(\sv{Input},\cv{Input})$ holds,
+\sprog{}'s execution is well-defined on \sv{Input}, {\em and}
+\cprog{}'s memory allocation requests during its execution on \cv{Input} are successful,
+then both programs \sprog{} and \cprog{} produce outputs such that $\post{}(\sv{Output},\cv{Output})$ holds.
 $$
-Pre(\sv{Input},\cv{Input}) \land \sdef{} \land \cfits{} \Rightarrow Post(\sv{Output},\cv{Output})
+\pre{}(\sv{Input},\cv{Input}) \land \sdef{} \land \cfits{} \Rightarrow \post{}(\sv{Output},\cv{Output})
 $$
 
 The \sdef{} antecedent states that we are only interested in proving equivalence for
-well-defined executions of $S$, i.e., executions that satisfy all assertions expressed
+well-defined executions of \sprog{}, i.e., executions that satisfy all assertions expressed
 using the {\tt assuming-do} statement.
-The \cfits{} antecedent states that we prove equivalence under the assumption that $C$'s memory
-requirements fit within the available system memory i.e., only for those executions of $C$
+The \cfits{} antecedent states that we prove equivalence under the assumption that \cprog{}'s memory
+requirements fit within the available system memory i.e., only for those executions of \cprog{}
 in which all memory allocation requests (through {\tt malloc} calls) are successful.
 
-The returned values of $S$ and $C$ procedures form their observable outputs.
-For $S$, the returned values are explicit and may include ADT values.
-For $C$, observables include the returned value alongside the implicit memory state
+The returned values of \sprog{} and \cprog{} procedures form their observable outputs.
+For \sprog{}, the returned values are explicit and may include ADT values.
+For \cprog{}, observables include the returned value alongside the implicit memory state
 at program exit.
-The postcondition $Post$ relates these outputs of the two programs.
-The pair $(Pre,Post)$ represents the characteristics of $C$ in terms of the specification $S$,
+The postcondition \post{} relates these outputs of the two programs.
+The pair $(\pre{},\post{})$ represents the input-output behavior of \cprog{} in terms of the specification \sprog{},
 and is called the {\em input-output specification}.
 In general, \SpecL{} and C sources may contain multiple top-level procedures, with calls to each other.
 In this case, we are interested in finding equivalence between each pair
-of $S$ and $C$ procedures with respect to their input-output specification.
+of \sprog{} and \cprog{} procedures with respect to their input-output specification.
 
-Sometimes, the user may be interested in constraining the nature of inputs to $C$
+Sometimes, the user may be interested in constraining the nature of inputs to \cprog{}
 for the purpose of checking equivalence only for {\em well-defined} inputs.
-In those circumstances, we use a combination of $Pre$ and \sdef{} to constrain
-the execution of $C$ to inputs for which we are interested in proving equivalence.
+In those circumstances, we use a combination of \pre{} and \sdef{} to constrain
+the execution of \cprog{} to inputs for which we are interested in proving equivalence.
 For example, the C library function {\tt strlen(\type{char}* \cv{str})} is well-defined only if \cv{str}
 represents a valid null character terminated string.
 This includes the assumption that the pointer \cv{str} may not be null.
@@ -192,9 +197,9 @@ $$
 \type{String}=\cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{String})
 $$
 \sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ (using {\tt assuming-do}) and
-the precondition $Pre$ contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
-Hence, \sdef{} and $Pre$ ensures that we compute equivalence only for those
-executions of $S$ and $C$ where the input strings are well-defined.
+the precondition \pre{} contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
+Hence, \sdef{} and \pre{} ensures that we compute equivalence only for those
+executions of \sprog{} and \cprog{} where the input strings are well-defined.
 A similar strategy is employed for other functions as explored later in \cref{sec:results}.
 
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
@@ -203,51 +208,51 @@ A similar strategy is employed for other functions as explored later in \cref{se
 \label{sec:bisim}
 Recall that,
 we construct a {\em bisimulation relation} to identify equivalence between \SpecL{} and C procedures.
-A bisimulation relation correlates the transitions of $S$ and $C$ in lockstep, such that the
+A bisimulation relation correlates the transitions of \sprog{} and \cprog{} in lockstep, such that the
 lockstep execution ensures identical observable behavior.
 A bisimulation relation between two programs can be represented using a {\em product program}
 \cite{covac} and the CFG representation of a product program is called a {\em product}-CFG.
 \Cref{fig:llTraverseProduct} shows a product-CFG, that encodes the lockstep execution
 (bisimulation relation) between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}.
 
-A node in the product-CFG is formed by pairing nodes of $S$ and $C$,
+A node in the product-CFG is formed by pairing nodes of \sprog{} and \cprog{},
 e.g., (\scpc{2}{2}) is formed by pairing \spc{2} and \cpc{2}.
 If the lockstep execution of both programs is at node (\scpc{2}{2}) in the product-CFG,
-then $S$'s execution is at \spc{2} and $C$'s execution is at \cpc{2}.
-The start node (\scpc{0}{0}) of the product-CFG correlates the start nodes of CFGs of $S$ and $C$.
+then \sprog{}'s execution is at \spc{2} and \cprog{}'s execution is at \cpc{2}.
+The start node (\scpc{0}{0}) of the product-CFG correlates the start nodes of CFGs of \sprog{} and \cprog{}.
 Similarly, the exit node (\scpc{E}{E}) correlates the exit nodes of both programs.
 
-An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edges) in $S$
-with a path in $C$.
+An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edges) in \sprog{}
+with a path in \cprog{}.
 A product-CFG edge encodes the lockstep execution of its correlated paths.
 For example, the product-CFG edge \scedge{2}{2}{2}{2} is formed by pairing
 \spath{2,5,2} and \cpath{2,4,2} in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} respectively,
-and represents that when $S$ makes the transition \spath{2,5,2}, $C$ makes the transition \cpath{2,4,2}
+and represents that when \sprog{} makes the transition \spath{2,5,2}, \cprog{} makes the transition \cpath{2,4,2}
 in lockstep.
-In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in $S$ with a finite path
-\cv{\rho} in $C$, written $e=(\sv{\rho},\cv{\rho})$.
-The empty path $\epsilon$ in $S$ may be correlated with a finite path in $C$.
+In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in \sprog{} with a finite path
+\cv{\rho} in \cprog{}, written $e=(\sv{\rho},\cv{\rho})$.
+The empty path $\epsilon$ in \sprog{} may be correlated with a finite path in \cprog{}.
 However, a product-CFG is only well-formed (i.e. represents a valid bisimulation relation)
-if no loop path in $C$ is correlated with $\epsilon$ in $S$.
+if no loop path in \cprog{} is correlated with $\epsilon$ in \sprog{}.
 For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs
 in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
 The edges \scedge{3}{3}{3}{4} and \scedge{3}{4}{3}{5} correlate the empty path $\epsilon$
 with the non-empty paths \cpath{3,4} and \cpath{4,5} respectively.
-However, the loop path \cpath{3,4,5,3} in $C$ is still correlated with the path \spath{3,5,3}
-in $S$ and thus, the product-CFG in \cref{fig:llAllocProductCFG} is indeed well-formed.
+However, the loop path \cpath{3,4,5,3} in \cprog{} is still correlated with the path \spath{3,5,3}
+in \sprog{} and thus, the product-CFG in \cref{fig:llAllocProductCFG} is indeed well-formed.
 
 At the start node (\scpc{0}{0}) of the product-CFG in \cref{fig:llTraverseProduct},
-the precondition $Pre$ (labeled \circled{\small P})
+the precondition \pre{} (labeled \circled{\small P})
 ensures equality of input lists \sv{l} and \cv{l} at procedure entries.
 {\em Inductive invariants} (labeled \circled{I}) are inferred
 at each intermediate product-CFG node (e.g., (\scpc{2}{2})) that relate
-the values of $S$ with values and memory state of $C$.
-At the exit node (\scpc{E}{E}) of the product-CFG, the postcondition $Post$ (labeled \circled{\small P})
+the values of \sprog{} with values and memory state of \cprog{}.
+At the exit node (\scpc{E}{E}) of the product-CFG, the postcondition \post{} (labeled \circled{\small P})
 represents equality of observable outputs and forms our primary proof obligation.
-Assuming that the precondition $Pre$ (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
+Assuming that the precondition \pre{} (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
 a bisimulation check involves checking that the inductive invariants (\circled{\small I}) hold too,
-and consequently the postcondition $Post$ (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
-The input-output specification (i.e. $(Pre,Post)$) is manually provided by the user
+and consequently the postcondition \post{} (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
+The input-output specification (i.e. $(\pre{},\post{})$) is manually provided by the user
 while all inductive invariants are identified by an invariant inference algorithm described in \cref{sec:invinferalgo}.
 
 \subsection{Recursive Relation}
@@ -290,17 +295,17 @@ and (b) inference of invariants at intermediate PCs in the (partially constructe
 based on prior work\cite{oopsla20} and discussed subsequently in \cref{sec:searchalgo,sec:invinferalgo}.
 For now, we discuss the proof obligations that arise from a given product-CFG.
 Recall that a bisimulation check involves checking that all inductive invariants
-(and the postcondition $Post$) hold at their associated product-CFG nodes.
+(and the postcondition \post{}) hold at their associated product-CFG nodes.
 
 We use relational Hoare triples to express these proof obligations \cite{relationalHoareLogic,hoareTriple}.
-If $\phi$ denotes a predicate relating the machine states of $S$ and $C$, then
+If $\phi$ denotes a predicate relating the machine states of \sprog{} and \cprog{}, then
 for a product-CFG edge $e=(\sv{\rho},\cv{\rho})$, \hoareTriple{\phi_s}{e}{\phi_d}
 denotes the condition:
-if any machine states \sv{\sigma} and \cv{\sigma} of programs $S$ and $C$ are related through
+if any machine states \sv{\sigma} and \cv{\sigma} of programs \sprog{} and \cprog{} are related through
 precondition $\phi_s(\sv{\sigma},\cv{\sigma})$ and the finite paths \sv{\rho} and \cv{\rho}
-are executed in $S$ and $C$ respectively,
-then execution terminates normally in states $\sv{\sigma}^{'}$ (for $S$) and
-$\cv{\sigma}^{'}$ (for $C$) and postcondition $\phi_d(\sv{\sigma}^{'},\cv{\sigma}^{'})$ holds.
+are executed in \sprog{} and \cprog{} respectively,
+then execution terminates normally in states $\sv{\sigma}^{'}$ (for \sprog{}) and
+$\cv{\sigma}^{'}$ (for \cprog{}) and postcondition $\phi_d(\sv{\sigma}^{'},\cv{\sigma}^{'})$ holds.
 
 For every product-CFG edge $e = (s \rightarrow d) = (\sv{\rho}, \cv{\rho})$,
 we are interested in proving: \hoareTriple{\phi_s}{\sv{\rho},\cv{\rho}}{\phi_d},
@@ -316,7 +321,7 @@ first-order logic formula:
 \end{equation}
 
 Here, ${\tt pathcond}_{\rho_X}$ represents the condition that path $\rho$ is taken in program $X$
-and ${\tt ubfree}_{\sv{\rho}}$ represents the condition that execution of $S$ along path $\sv{\rho}$
+and ${\tt ubfree}_{\sv{\rho}}$ represents the condition that execution of \sprog{} along path $\sv{\rho}$
 is free of undefined behaviour.
 ${\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)$ represents the weakest-precondition
 of the predicate $\phi_d$ across the product-CFG edge $e = (\sv{\rho},\cv{\rho})$.
