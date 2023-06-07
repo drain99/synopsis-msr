@@ -1,0 +1,30 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$Reconcile(v:T,\gamma)$}{
+  \uIf{$T \keyword{is} scalar$}{
+    \lIf{$\gamma \keyword{maps} v$}{\Return{$\gamma[v]$}}
+    \lElse{\Return{$Rand(T)$}}
+  }
+  \Else{
+    \uIf{$\gamma \keyword{maps} v \strcat{} tag$}{
+      $E^V \mapsfrom \gamma[v]$;\\
+      $args \mapsfrom []$;\\
+      ${\tt Let}\ [T_1:\field{a_1}, T_2:\field{a_2},\dots, T_n:\field{a_n}]\ {\tt be\ the\ arguments\ to}\ V$.\\
+      \ForEach{$(T':a') \keyword{in} [T_1:\field{a_1}, T_2:\field{a_2},\dots, T_n:\field{a_n}]$}{
+        $arg \mapsfrom Reconcile(v \strcat{} a' : T', \gamma)$;\\
+        $args.{\tt append}(arg)$;\\
+      }
+      \Return{$V(args)$};
+    }
+    \Else{
+      \Return{$Rand(T)$};
+    }
+  }
+}
+\end{footnotesize}
+\caption{\label{algo:reconcile}Pseudo-code for Reconciliation Procedure}
+\end{algorithm}
+\end{figure}

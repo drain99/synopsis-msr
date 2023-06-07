@@ -233,7 +233,22 @@ $l_1 \indEqDepth{\eta} l_2$ to false, where $\eta$ is a fixed parameter of the a
 \subsection{Proof Discharge Algorithm}
 \label{sec:proofalgo}
 
-\subsubsection{Pseudo-code of Unification Procedure}
+\subsubsection{Summary of Canonicalization Procedure}
+\label{sec:canonicalalgo}
+\Cref{algo:canonical} shows the pseudo-code for the canonicalization procedure.
+$Canonicalize(e)$ is responsible for converting an expression $e$ to its canonical form $\hat{e}$ (introduced in \cref{sec:unifyandrewrite}).
+Recall that a pseudo-variable is an expression of the form $\prodAccess{v}{a_1,a_2,.,a_n}$, where $v$ is a variable.
+Also recall that, an expression $e$ is canonical iff all accessors and {\em is}-operators operate on a pseudo-variable.
+An ADT expression with a data constructor, a lifting constructor or the \sumDtor{}-operator at its top-level, is called a {\em foldable} expression.
+$Canonicalize(e)$ iteratively folds each accessor and {\em is} subexpressions of $e$ that operate on a foldable argument.
+Hence, $Canonicalize(e)$ returns an expression where none of the accessor or {\em is}- subexpressions is foldable.
+This condition implies the requirements of the canonical form.
+For example, $a + \prodAccess{\cons{LCons}(b,l)}{tail,val}$ and $\sumIs{\lifted{list}{\mem{}}{lnode}{p}}{LNil}$
+canonicalizes to $a + \prodAccess{l}{val}$ and $(p = 0)$ respectively.
+
+\input{chapters/figures/figCanonical.tex}
+
+\subsubsection{Summary of Unification Procedure}
 \label{sec:unifalgo}
 \Cref{algo:unification} shows the pseudo-code for the unification algorithm introduced in \cref{sec:unifyandrewrite}.
 $\theta(p_1,e_1,p_2,e_2)$ is responsible for unifying expressions $e_1$ and $e_2$ under the expression path
@@ -247,11 +262,11 @@ and return whichever succeeds.
 If both $e_1$ and $e_2$ are \sumDtor{} expressions, $\theta$ attempts to recursively unify their children.
 $\theta$ uses the $\sqcup$-operator to combine the results of successive self-calls.
 $A \sqcup B$ is equal to $\cons{Succ}(S_1 \cup S_2)$ if $A = \cons{Succ}(S_1)$ and $B = \cons{Succ}(S_2)$;
-otherwise (one of $A$ and $B$ is \cons{Fail}) $A \sqcup B = \cons{Fail}$.
+otherwise (if one of $A$ and $B$ is \cons{Fail}), $A \sqcup B = \cons{Fail}$.
 
 \input{chapters/figures/figUnification.tex}
 
-\subsubsection{Pseudo-code for Iterative Unification and Rewriting Procedure}
+\subsubsection{Summary of Iterative Unification and Rewriting Procedure}
 \label{sec:unifyandrewritealgo}
 \Cref{algo:unifyandrewrite} shows the pseudo-code for the iterative unification and rewriting procedure
 introduced in \cref{sec:unifyandrewrite}.
@@ -268,6 +283,60 @@ A \recursiveRelation{} $l_1 \indEq{} l_2$ is decomposed through the top-level in
 
 \subsubsection{SMT Encoding of First Order Logic Formula}
 \label{sec:smtencoding}
+As summarized in \cref{algo:proofSummary}, our proof discharge algorithm solves a proof obligation $P: \lhs{} \Rightarrow \rhs{}$,
+through a sequence of queries $P_i : \lhs{}_i \Rightarrow \rhs{}_i$ to off-the-shelf SMT solvers.
+Recall that $P$ may contain \recursiveRelations{}.
+However, our algorithm ensures that each $P_i$ is free of \recursiveRelations{} and only contain
+scalar equalities.
+We encode each query $P_i$ in SMT logic with bitvector and array theories.
+In this section, we describe the process of encoding a proof obligation $P_i$ into SMT logic.
+We begin by converting $P_i : \lhs{}_i \Rightarrow \rhs{}_i$ to its canonical form $\hat{P}_i$
+(as described in \cref{sec:canonicalalgo}).
+Although $\hat{P}_i$ does not contain \recursiveRelations{}, it may still contain
+ADT variables along with the {\em accessor} and {\em is}-operators.
+The conversion of $\hat{P}_i$ to SMT logic begins with a process called {\em flattening}.
+We flatten all top-level pseudo-variables and {\em is}-expressions to variables as follows:
+
+\begin{enumerate}
+\item For each top-level pseudo-variable $e = \prodAccess{v}{a_1,a_2,.,a_n}$, we replace it with a
+variable named $v \strcat{} {\tt a_1} \strcat{} {\tt a_2} \strcat{} \dots \strcat{} {\tt a_n}$,
+where $a \strcat{} b$ concatenates the strings $a$ and $b$ with a `\strsep{}' in between i.e. $a \strsep{} b$.
+
+\item For each ADT type $T$ in \SpecL{} with data constructors $V_1,V_2,\dots,V_k$,
+we define an enumeration type $E^T$ in SMT logic with items $E^{V_1},E^{V_2},\dots,E^{V_k}$ respectively.
+In the canonical form, each {\em is} expression $e$ must operate on a pseudo-variable.
+Since all pseudo-variables are reduced to variables in the last step, $e$ must be of the form: $e = \sumIs{v}{V}$.
+We replace $e$ with the its SMT equivalent: $(v \strcat{} tag) = E^V$.
+\SpecL{} does not allow naming a field of a data constructor \field{tag}.
+\end{enumerate}
+
+\noindent For example, the canonical expression $a + \prodAccess{l}{val}$ flattens to $a + l \strsep{} val$.
+Similarly, $\sumIs{\prodAccess{l}{tail}}{LCons}$, flattens to $(l \strsep{} tail \strsep{} tag = E^{LCons})$.
+During flattening, each ADT variable $v$ gets lowered into a set of scalar variables $F(v)$.
+For example, during lowering of an expression with $\prodAccess{l}{val}$ and $\sumIs{l}{LCons}$,
+$l$ gets lowered into $F(l) = \{ l \strsep{} val, l \strsep{} tag \}$.
+Importantly, after flattening, the proof query may only contain scalars as well as memory operations
+(but not ADT values).
+
+Scalar types and their operations map one-to-one to their SMT equivalents.
+The memory element \mem{} is represented as a byte-addressable (i.e. \type{i8}) array.
+A memory load \memRead{\mem{}}{a}{T} is expanded into the concatenation of \sizeof{T} {\em array-select} operations.
+A memory write \memWrite{\mem{}}{a}{v}{T} is expanded into \sizeof{T} nested {\em array-store} operations.
 
 \subsubsection{Reconciliation of Counterexamples}
 \label{sec:cerecons}
+As detail in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
+variables $F(v)$ during SMT encoding.
+Evidently, the models returned by SMT solvers map these variables (in $F(v)$ instead of $v$)
+to constant values.
+We are interested in reconvering a counterexample for the original query from a
+model returned by the SMT solver.
+Recall that, these counterexamples help guide the product-CFG search (in \cref{sec:searchalgo})
+and invariant inference (in \cref{sec:invinferalgo}) procedures.
+The process of constructing a constant value for $v$ from the constant values returned for $F(v)$
+is called {\em reconciliation}.
+$Reconcile(v:T, \gamma)$ is responsible for performing reconciliation for variable $v$ (of type $T$)
+from the model $\gamma$ (returned by a SMT solver).
+$Rand(T)$ returns an arbitrary constant of type $T$.
+
+\input{chapters/figures/figReconcile.tex}

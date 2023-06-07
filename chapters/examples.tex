@@ -111,8 +111,8 @@ For example, in the expression \sumIf{c} \sumThen{a} \sumElse{b},
 the expression path condition of $c$ is {\tt true}, of $a$ is $c$,
 and of $b$ is $\neg c$.
 
-When we attempt to unify two expressions (under some path conditions), we unify the tree structures (created by the ADT data constructors and
-the \sumDtor{} operator) of their canonical forms.
+When we attempt to unify two expressions,
+we unify their tree structures created by data constructors and the \sumDtor{} operator.
 The unification procedure either fails to unify, or it returns tuples \corrtuple{p_1}{a_1}{p_2}{e_2} where atom $a_1$
 at expression path condition $p_1$ in one expression is correlated
 with expression $e_2$ at expression path condition $p_2$ in the other expression.
@@ -142,7 +142,6 @@ during recursive descent to their children.
 
 If one of $e_1$ and $e_2$ (say $e_2$) is atomic,
 unification always succeeds and returns \corrtuple{p_2}{e_2}{p_1}{e_1}.
-The pseudo-code for the unification procedure is given in \cref{sec:unifalgo}.
 With each atom of an ADT type, we associate an {\em unrolling procedure}.
 By definition, an ADT atom is either a pseudo-variable or a lifted expression.
 Each (pseudo-)variable is associated with its unrolling procedure governed by its type.
@@ -150,7 +149,7 @@ For example, the unrolling procedure for a \type{List} variable $l$ is given by 
 For lifted expressions, the unrolling procedure is given by its definition, e.g., $U_C$ (\cref{eqn:clist})
 for the lifting constructor \lift{list}{}{lnode}.
 
-Given two expressions $e_a$ and $e_b$ at expression path conditions $p_a$ and $p_b$
+Given two {\em canonical} expressions $e_a$ and $e_b$ at expression path conditions $p_a$ and $p_b$
 respectively, an {\em iterative unification and rewriting procedure}
 $\Theta(p_a,e_a,p_b,e_b)$ is used to identify a set of correlation tuples
 between the atoms in the two expressions.
@@ -167,7 +166,8 @@ The unification algorithm then proceeds by unifying $e_1$ and $e_2$ through
 a recursive call to $\Theta(p_1,e_1,p_2,e_2)$.
 The maximum number of rewrites performed by $\Theta(p_a,e_a,p_b,e_b)$ (before termination)
 is bounded by the sum of number of ADT data constructors in $e_a$ and $e_b$.
-The pseudo-code for the iterative unification and rewriting procedure is given in \cref{sec:unifyandrewritealgo}.
+The algorithms responsible for canonicalization, unification, and iterative unification and rewriting
+are further discussed in \cref{sec:canonicalalgo,sec:unifalgo,sec:unifyandrewritealgo} respectively.
 
 For a \recursiveRelation{} $l_1 \indEq{} l_2$, we unify (canonicalized) $l_1$ and $l_2$ through a
 call to $\Theta(l_1,l_2,true,true)$.

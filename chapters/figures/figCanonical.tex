@@ -1,0 +1,38 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$Canonicalize(e)$}{
+  $\hat{e} \mapsfrom e$;\\
+  \While{$e \keyword{contains} e' = \prodAccess{e_1}{a^i} \keyword{where} e_1 \keyword{is} foldable$}{
+    \uIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n)$}{
+      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{e_1^i}$;\\
+    }
+    \uElseIf{$e_1 = $ \sumIf{c_1} \sumThen{V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n)} \sumElse{e_1^{\tt el}}}{
+      \lIf{$V_1^{(n)} \keyword{contains} {\tt a^i}$}{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{e_1^i}$}
+      \lElse{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{e_1^{\tt el}}{a^i}}$}
+    }
+    \Else($e_1 = \lifted{lift}{\mem{}}{T}{e^1,e^2,\dots,e^n}$){
+      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{rewrite(e_1)}{a^i}}$;\\
+    }
+  }
+  \While{$e \keyword{contains} e' = \sumIs{e_1}{\mathnormal{V_2^{(m)}}} \keyword{where} e_1 \keyword{is} foldable$}{
+    \uIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n)$}{
+      \lIf{$V_1^{(n)} = V_2^{(m)}$}{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{true}$}
+      \lElse{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{false}$}
+    }
+    \uElseIf{$e_1 = $ \sumIf{c_1} \sumThen{V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n)} \sumElse{e_1^{\tt el}}}{
+      \lIf{$V_1^{(n)} = V_2^{(m)}$}{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{c_1}$}
+      \lElse{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\neg c_1 \land (\sumIs{e_1^{\tt el}}{\mathnormal{V_2^{(m)}}})}$}
+    }
+    \Else($e_1 = \lifted{lift}{\mem{}}{T}{e^1,e^2,\dots,e^n}$){
+      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{rewrite(e_1)}{a^i}}$;\\
+    }
+  }
+  \Return{$\hat{e}$};
+}
+\end{footnotesize}
+\caption{\label{algo:canonical}Pseudo-code for Canonicalization Procedure}
+\end{algorithm}
+\end{figure}
