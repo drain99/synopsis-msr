@@ -8,7 +8,7 @@ the equivalence checker is used to verify that the C implementation
 behaves according to the specification and (b) translation validation, where
 the equivalence checker attempts to generate a proof of equivalence across
 the transformations (and translations) performed by an optimizing compiler
-and more.
+and many more.
 
 The verification of a C implementation against its manually written
 functional specification through manually-coded refinement proofs has been
@@ -22,7 +22,7 @@ Such languages perform automatic compile-time checks for manually-specified
 correctness predicates through SMT solvers.
 Additionally, there exists significant prior work on translation validation
 \cite{tvi,tristan_tv_eqsat11,stepp_eqsat_llvm11,eqsat,pec,zuck03,zuck05,heffter05,covac,c_to_verilog,kanade09,lopes16,tvoc_cav05,ddec,semalign,oopsla20,tv_oskernel,namjoshi13}
-across low level programming languages such as C and assembly\footnote{XXX:llvm ir also?}.
+across low level programming languages such as C and assembly\footnote{TODO:llvm ir also?}.
 In most of these applications, soundness in critial,
 i.e., if the equivalence checker determines the programs to be equivalent, then the programs are indeed equivalent
 and evidently has equivalent observable behaviour. On the other hand, a sound equivalence checker may be incomplete
@@ -32,7 +32,7 @@ We present \toolName{}, a {\em sound} algorithm to automatically (push-button) s
 for a proof of equivalence between a functional specification and its
 optimized C implementations. We will demonstrate how \toolName{} is capable of
 proving equivalence of multiple equivalent C implementations with vastly
-different (a) data layouts (e.g. array, linked list representations of a {\em list})
+different (a) data layouts (e.g. array, linked list representations for a {\em list})
 and (b) algorithmic strategies (e.g. alternate algorithms, optimizations) against
 a {\em single} functional specification.
 This opens the possibility of regression verification \cite{strichman_regressverify,felsing14},
@@ -51,30 +51,30 @@ and succinct specification of programs manipulating and traversing recursive dat
 \SpecL{} is equipped with ADTs as well as boolean (\type{bool}) and fixed-size bitvector (\type{i<N>}) types.
 
 We motivate our approach by considering example \SpecL{} and C programs.
-We list the major hurdles of our approach and give an informal discussion on our proposed solutions.
-We finish by stating our primary contributions in \cref{sec:contribs}.
+The major hurdles of our approach are listed alongside an informal discussion of our proposed solutions.
+We state our primary contributions in \cref{sec:contribs} and finish with an outline of
+the rest of the thesis in \cref{sec:outline}.
 
 \input{chapters/figures/figMallocSpecAndC.tex}
 
 \Cref{fig:llAllocSpec,fig:llAllocC} show the construction of lists in \SpecL{} and C respectively.
 The \type{List} ADT in the \SpecL{} program is defined at line \apc{0} in \cref{fig:llAllocSpec}.
-An empty \type{List} is represented by the constructor \cons{LNil}, where as a non-empty list uses
-the \cons{LCons} constructor to combine its first value ({\tt val}\ctype{i32}) and
-the remaining list ({\tt tail}\ctype{List}).
+An empty \type{List} is represented by the {\em data constructor} \cons{LNil}, whereas a non-empty list uses
+the \cons{LCons} constructor to combine its first value $({\tt val}\ctype{i32})$ and
+the remaining list $({\tt tail}\ctype{List})$.
 The inputs to a \SpecL{} procedure are its well-typed arguments, which may include recursive data structure (i.e. ADT) values.
 The inputs to a C procedure are its explicit arguments and the implicit state of program memory at procedure entry.
 Similarly, the output of a C procedure consists of its explicit return value and the state of program memory at procedure exit.
 
 The \SpecL{} procedure {\tt mk\_list} (defined at line \apc{6} in \cref{fig:llAllocSpec}), takes
-a bitvector of size {\tt 32} ({\tt n}\ctype{i32}).
-It returns a \type{List} value representing a linked list containing
-the values {\tt (n-1)}, {\tt (n-2)}, ..., {\tt 1}, {\tt 0} starting from the head (the first value).
-On the other hand, the C procedure {\tt mk\_list} (defined at line \bpc{3} in \Cref{fig:llAllocC})
-constructs a {\em pointer based} linked list identical to the \SpecL{} procedure.
+a bitvector of size {\tt 32} $({\tt n}\ctype{i32})$.
+It returns a \type{List} value representing the list ${\tt \bm{[} (n-1),(n-2),\dots,1,0 \bm{]}}$.
+On the other hand, the C procedure {\tt mk\_list} (defined at line \bpc{4} in \Cref{fig:llAllocC})
+constructs a {\em pointer based} linked list representing the list identical to the \SpecL{} procedure.
 Unlike \SpecL{}, the construction of the linked list in C requires explicit allocation of memory through calls to {\tt malloc}
-as well as, writes to the memory.
+in addition to stores to the memory.
 We are interested in showing that the \SpecL{} and C {\tt mk\_list} procedures are `equivalent'
-i.e., given equal {\tt n} inputs, they both construct linked lists that are `equal'.
+i.e., given equal {\tt n} inputs, they both construct lists that are `equal'.
 
 \input{chapters/figures/figMallocSpecIRAndCIR.tex}
 
@@ -86,36 +86,35 @@ For the \SpecL{} procedure, the tail-recursive function {\tt mk\_list\_impl} is 
 and inlined in the top-level function {\tt mk\_list} in the IR.
 For the C procedure in \cref{fig:llAllocC}, the memory state is made explicit (represented by \mem{}),
 and the size and memory layout of each type is concretized in the IR.
-For example, the \type{unsigned} C type is encoded as the \type{i32} bitvector type.
+For example, the \type{unsigned} and pointer types are encoded as the \type{i32} bitvector type.
 
-Hence, we are interested in showing that the \SpecL{} and C IRs are `equivalent' i.e.,
-given equal {\tt n} inputs, they both construct equal linked lists.
+Hence, we are interested in showing equivalence of the \SpecL{} and C IRs.
 Since the argument {\tt n} to both procedures have identical types (i.e. \type{i32}),
 their equality is trivially expressible as: $\sv{n} = \cv{n}$
 \footnote{We use $S$ and $C$ subscripts to refer to variables in the \SpecL{} and C procedures respectively.}.
-The \SpecL{} procedure uses the ADT \type{List} to represent a linked list.
-However, the C procedure represents its returned linked list using a collection of \type{lnode} objects linked through
+The \SpecL{} procedure uses the ADT \type{List} to represent a list.
+However, the C procedure represents its list using a collection of \type{lnode} objects linked through
 their \field{next} fields, and simply returns a value of type \type{i32} (\type{lnode*} in the original C program)
-pointing to the first \type{lnode} in the list (or the null value representing an empty list).
-To express equality between these two values (of types \type{List} and \type{i32}) representing linked lists, we
-would like to `adapt' one of the values to a value matching the type of the other value.
+pointing to the first \type{lnode} in the list (or the null value in case of an empty list).
+In order to express equality between these two values (of types \type{List} and \type{i32}) representing lists, we
+would like to `adapt' one of the values so as to match their types.
 We choose to lift the C linked list (represented by the \type{i32} value and the C memory state) to a \type{List} value
 using an operator called a {\em lifting constructor}.
 Let us call this lifting constructor \lift{list}{}{lnode} and the expression
-\lifted{list}{\mem{}}{lnode}{p\ctype{i32}} represents a \type{List} linked list
+\lifted{list}{\mem{}}{lnode}{p\ctype{i32}} represents a \type{List} list
 constructed from a C pointer $p$ (pointing to a \type{lnode} object) in the memory state \mem{}.
 We will formally define \lift{list}{}{lnode} in \cref{sec:recrel}.
-This allows us to express equality between the outputs of the \SpecL{} and C procedures as:
+For now, this allows us to express equality between the outputs of the \SpecL{} and C procedures as
 $\sv{ret} = \lifted{list}{\mem{}}{lnode}{\cv{ret}}$, where \sv{ret} and \cv{ret} represents the
 values returned by the respective \SpecL{} and C procedures in \cref{fig:llAllocSpecIR,fig:llAllocCIR}.
-To further emphasize the fact that we are comparing (a) a \SpecL{} ADT value with (b) a ADT value
+To further emphasize the fact that we are comparing (a) a \SpecL{} ADT value with (b) an ADT value
 lifted from C values using a lifting constructor, we use `\indEq{}' instead of `$=$'
 and call it a \recursiveRelation{}:
 $\sv{ret} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{ret}}$.
 
 \input{chapters/figures/figMallocSpecCFGAndCCFG.tex}
 
-Hence, we are interested in proving that given $\sv{n} = \cv{n}$ at the procedure entries,
+Consequently, we are interested in proving that given $\sv{n} = \cv{n}$ at the procedure entries,
 $\sv{ret} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{ret}}$ holds at the exits of both procedures.
 Before going into the proof method,
 we first introduce an alternate representation of IR, called the Control-Flow Graph (CFG for short).
@@ -154,7 +153,7 @@ Assuming that the precondition (\circled{\small P}) holds at the entry node (\sc
 a bisimulation check involves checking that the inductive invariants hold too,
 and consequently the postcondition (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
 Checking correctness of a bisimulation relation involves checking whether an invariant holds (along with many other things).
-These checks result in proof queries which must be discharged by a theorem prover (i.e. a solver).
+These checks result in proof queries which must be discharged by a theorem prover (also known as a solver).
 
 \subsection{Our Contributions}
 \label{sec:contribs}
@@ -164,7 +163,7 @@ between a \SpecL{} and C procedure involves three major algorithms:
 across the \SpecL{} and C programs respectively.
 \circled{\footnotesize A2} An algorithm for identification of inductive invariants at intermediate correlated PCs.
 \circled{\footnotesize A3} An algorithm for solving proof obligations generated by \circled{\footnotesize A1} and \circled{\footnotesize A2} algorithms.
-Our major contributions are as follows:
+Next we list our major contributions.
 
 \begin{itemize}
 \item Proof Discharge Algorithm: Solving proof obligations (\circled{\footnotesize A3}) involving \recursiveRelations{}
@@ -172,26 +171,28 @@ Our major contributions are as follows:
 We describe a {\em sound} proof discharge algorithm capable of tackling proof obligations involving
 \recursiveRelations{} using off-the-shelf SMT solvers. Our proof discharge algorithm is also capable of
 reconstruction of counterexamples for the original proof query from models returned by the individual SMT queries.
-These counterexamples are the backbone of counterexample-guided heuristics for \circled{\footnotesize A1} and \circled{\footnotesize A2} algorithms.
+These counterexamples are the backbone of counterexample-guided heuristics for \circled{\footnotesize A1} and \circled{\footnotesize A2} algorithms
+as we will see soon.
 As part of our proof discharge algorithm,
-we reformulate equality of ADT values (i.e. \recursiveRelations{}) as equivalence of their corresponding programs
-and discharge these proof queries using a nested (albeit much simpler) bisimulation check.
+we reformulate equality of ADT values (i.e. \recursiveRelations{}) as equivalence programs
+and discharge these proof queries using a nested (albeit much simpler) equivalence check.
 
 \item Spec-to-C Automatic Equivalence Checker Tool: Our second contribution is \toolName{}, a {\em sound} equivalence checker tool
 capable of proving equivalence between a \SpecL{} and a C program automatically.
 \toolName{} either successfully finds a bisimulation relation implying equivalence or it provides a (sound but incomplete) unknown verdict.
-\toolName{} is based on the Counter tool\cite{oopsla20} and uses modified versions of (a) counterexample-guided correlation algorithm for
+\toolName{} is based on the Counter tool\cite{oopsla20} and uses specialized versions of (a) counterexample-guided correlation algorithm for
 incremental construction of a product-CFG (\circled{\footnotesize A1}) and (b) counterexample-guided invariant inference algorithm
 for inference of inductive invariants at correlated PCs in the (partially constructed) product-CFG (\circled{\footnotesize A2}).
 \toolName{} discharges required verification conditions (i.e. proof obligations) using our Proof Discharge Algorithm.
-The counterexamples generated by the proof discharge algorithms help steer the search algorithms (\circled{\footnotesize A1}) and (for \circled{\footnotesize A2}).
-\Cref{fig:diagram} gives an overview of the complete algorithm.
+The counterexamples generated by the proof discharge algorithm help steer the search algorithms \circled{\footnotesize A1} and \circled{\footnotesize A2}.
+\Cref{fig:diagram} gives an overview of \toolName{} and its interacting components.
 \end{itemize}
 
 \input{chapters/figures/figDIAGRAM.tex}
 
 \subsection{Outline of the Thesis}
 \label{sec:outline}
+TODO: needs updation after all content is fixed
 \textbf{Chapter 1} of the thesis contains a general introduction to the research problem of verification C programs against a functional specification.
 We take a C program and its analogue in a safe functional language, and contrast their differences.
 We summarize our approach and finish with the major contributions.

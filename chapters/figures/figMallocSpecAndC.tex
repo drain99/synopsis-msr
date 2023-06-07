@@ -19,16 +19,17 @@
 \begin{center}
 \begin{allLangEnvFoot}
 ~{\scriptsize \textcolor{mygray}{B0: }}~ typedef struct lnode {
-~{\scriptsize \textcolor{mygray}{B1: }}~   unsigned val; struct lnode* next; } lnode;
-~{\scriptsize \textcolor{mygray}{B2: }}~ 
-~{\scriptsize \textcolor{mygray}{B3: }}~ lnode* mk_list(unsigned n) {
-~{\scriptsize \textcolor{mygray}{B4: }}~   lnode* l = NULL;
-~{\scriptsize \textcolor{mygray}{B5: }}~   for (unsigned i = 0; i < n; ++i) {
-~{\scriptsize \textcolor{mygray}{B6: }}~     lnode* p = malloc(sizeof lnode);
-~{\scriptsize \textcolor{mygray}{B7: }}~     p$\rightarrow$val = i; p$\rightarrow$next = l; l = p;
-~{\scriptsize \textcolor{mygray}{B8: }}~   }
-~{\scriptsize \textcolor{mygray}{B9: }}~   return l;
-~{\scriptsize \textcolor{mygray}{B10:}}~ }
+~{\scriptsize \textcolor{mygray}{B1: }}~   unsigned val; struct lnode* next;
+~{\scriptsize \textcolor{mygray}{B2: }}~ } lnode;
+~{\scriptsize \textcolor{mygray}{B3: }}~ 
+~{\scriptsize \textcolor{mygray}{B4: }}~ lnode* mk_list(unsigned n) {
+~{\scriptsize \textcolor{mygray}{B5: }}~   lnode* l = NULL;
+~{\scriptsize \textcolor{mygray}{B6: }}~   for (unsigned i = 0; i < n; ++i) {
+~{\scriptsize \textcolor{mygray}{B7: }}~     lnode* p = malloc(sizeof lnode);
+~{\scriptsize \textcolor{mygray}{B8: }}~     p$\rightarrow$val = i; p$\rightarrow$next = l; l = p;
+~{\scriptsize \textcolor{mygray}{B9: }}~   }
+~{\scriptsize \textcolor{mygray}{B10:}}~   return l;
+~{\scriptsize \textcolor{mygray}{B11:}}~ }
 \end{allLangEnvFoot}
 \end{center}
 \caption{\label{fig:llAllocC}C Program with {\tt malloc()}}
