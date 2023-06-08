@@ -302,33 +302,42 @@ However, our algorithm ensures that each $P_i$ is free of \recursiveRelations{} 
 scalar equalities.
 We encode each query $P_i$ in SMT logic with bitvector and array theories.
 In this section, we describe the process of encoding a proof obligation $P_i$ into SMT logic.
-We begin by converting $P_i : \lhs{}_i \Rightarrow \rhs{}_i$ to its canonical form $\hat{P}_i$
+We begin by converting $P_i : \lhs{}_i \Rightarrow \rhs{}_i$ into its canonical form $\hat{P}_i$
 (as described in \cref{sec:canonicalalgo}).
 Although $\hat{P}_i$ does not contain \recursiveRelations{}, it may still contain
-ADT variables along with the {\em accessor} and {\em is}-operators.
-The conversion of $\hat{P}_i$ to SMT logic begins with a process called {\em flattening}.
-We flatten all top-level pseudo-variables and {\em is}-expressions to variables as follows:
+ADT variables alongside {\em accessor} and {\em sum-is} expressions.
+Due to canonicalization, all top-level {\em accessor} and {\em sum-is} expressions must be of the form
+$\prodAccess{v}{a_1,a_2,.,a_n}$ and $\sumIs{\prodAccess{v}{a_1,a_2,.,a_n}}{\textnormal{V}}$ respectively.
+We call such an expression $e$ {\em flattenable} and the ADT variable $v$ is called the {\em index} of $e$.
+$\hat{P}_i$ is lowered into an intermediate expression $P_i^f$ through a process called {\em flattening}.
+This involves `flattening' all flattenable expressions to variables such that
+$P_i^f$ only contains scalar values with scalar and memory operations (but importantly not ADT values).
+The flattening process is described below.
 
 \begin{enumerate}
-\item For each top-level pseudo-variable $e = \prodAccess{v}{a_1,a_2,.,a_n}$, we replace it with a
-variable named $v \strcat{} {\tt a_1} \strcat{} {\tt a_2} \strcat{} \dots \strcat{} {\tt a_n}$,
-where $a \strcat{} b$ concatenates the strings $a$ and $b$ with a `\strsep{}' in between i.e. $a \strsep{} b$.
+\item For each top-level {\em accessor} expression $e = \prodAccess{v}{a_1,a_2,.,a_n}$, we replace it with a
+variable named $v \strcat{} \field{a_1} \strcat{} \field{a_2} \strcat{} \dots \strcat{} \field{a_n}$,
+where \strcat{} concatenates two strings with a `\strsep{}' character in between i.e.
+$"a" \strcat{} "b" = "a \strsep{} b"$.
 
-\item For each ADT type $T$ in \SpecL{} with data constructors $V_1,V_2,\dots,V_k$,
-we define an enumeration type $E^T$ in SMT logic with items $E^{V_1},E^{V_2},\dots,E^{V_k}$ respectively.
-In the canonical form, each {\em is} expression $e$ must operate on a pseudo-variable.
-Since all pseudo-variables are reduced to variables in the last step, $e$ must be of the form: $e = \sumIs{v}{V}$.
-We replace $e$ with the its SMT equivalent: $(v \strcat{} tag) = E^V$.
-\SpecL{} does not allow naming a field of a data constructor \field{tag}.
+\item For each ADT $T$ with data constructors $V_1,V_2,\dots,V_k$,
+we define an enumeration type $\mathcal{E}(T)$ in SMT logic with items
+$\mathcal{E}(V_1),\mathcal{E}(V_2),\dots,\mathcal{E}(V_k)$ respectively.
+In the canonical form, each {\em sum-is} expression $e$ must operate on a pseudo-variable.
+The last step guarantees that $e$ must be of the form: $e = \sumIs{v}{\textnormal{V}}$.
+We replace $e$ with the its SMT equivalent: $(v \strcat{} tag) = \mathcal{E}(V)$
+\footnote{\SpecL{} does not allow naming a field of a data constructor \field{tag}.
+This prevents collision between variable names obtained due to flattening.}.
 \end{enumerate}
 
-\noindent For example, the canonical expression $a + \prodAccess{l}{val}$ flattens to $a + l \strsep{} val$.
-Similarly, $\sumIs{\prodAccess{l}{tail}}{LCons}$, flattens to $(l \strsep{} tail \strsep{} tag = E^{LCons})$.
-During flattening, each ADT variable $v$ gets lowered into a set of scalar variables $F(v)$.
-For example, during lowering of an expression with $\prodAccess{l}{val}$ and $\sumIs{l}{LCons}$,
-$l$ gets lowered into $F(l) = \{ l \strsep{} val, l \strsep{} tag \}$.
-Importantly, after flattening, the proof query may only contain scalars as well as memory operations
-(but not ADT values).
+For example, the canonical expression $a + \prodAccess{l}{val}$ flattens to $a + l \strsep{} val$.
+Similarly, $(\sumIs{\prodAccess{l}{tail}}{LCons})$ flattens to $l \strsep{} tail \strsep{} tag = \mathcal{E}(\cons{LCons})$.
+Due to flattening, each flattenable expression $e$ in $\hat{P}_i$ with index $v$ gets lowered
+into a variable in $P_i^f$ whose name begins with $v \strsep$.
+For the ADT variable $v$, let $\mathcal{F}(v)$ be the set of all such variables in $P_i^f$.
+For example, flattening of an expression with $\prodAccess{l}{val}$ and $\sumIs{l}{LCons}$
+results in $\mathcal{F}(l) = \{ l \strsep{} val, l \strsep tag \}$.
+Importantly, $P_i^j$ may only contain scalar and memory operations (but not ADT values).
 
 Scalar types and their operations map one-to-one to their SMT equivalents.
 The memory element \mem{} is represented as a byte-addressable (i.e. \type{i8}) array.
@@ -338,17 +347,28 @@ A memory write \memWrite{\mem{}}{a}{v}{T} is expanded into \sizeof{T} nested {\e
 \subsubsection{Reconciliation of Counterexamples}
 \label{sec:cerecons}
 As detailed in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
-variables $F(v)$ during SMT encoding.
-Evidently, the models returned by SMT solvers map these variables (in $F(v)$ instead of $v$)
+variables $\mathcal{F}(v)$ during SMT encoding.
+Evidently, the models returned by SMT solvers map these variables (in $\mathcal{F}(v)$ instead of $v$)
 to constant values.
-We are interested in reconvering a counterexample for the original query from a
+We are interested in recovering a counterexample for the original query from a
 model returned by the SMT solver.
-Recall that, these counterexamples help guide the product-CFG search (in \cref{sec:searchalgo})
+Recall that, these counterexamples help guide the correlation search (in \cref{sec:searchalgo})
 and invariant inference (in \cref{sec:invinferalgo}) procedures.
-The process of constructing a constant value for $v$ from the constant values returned for $F(v)$
-is called {\em reconciliation}.
+The process of constructing a constant for $v$ from the constant values returned for $\mathcal{F}(v)$
+by an SMT solver is called {\em reconciliation}.
+Obviously, the reconciled counterexample must be a valid counterexample to the original proof obligation.
 $Reconcile(v:T, \gamma)$ is responsible for performing reconciliation for variable $v$ (of type $T$)
 from the model $\gamma$ (returned by a SMT solver).
 $Rand(T)$ returns an arbitrary constant of type $T$.
+For example, consider the rather contrived proof obligation $P: {\tt true} \Rightarrow \sumIs{l}{\cons{LNil}}$.
+Clearly, any valuation of $l$ where $l$ is a non-empty list is a valid counterexample to $P$.
+However, a counterexample $\gamma$ returned by an SMT solver must contain
+the mapping $\{ l \strsep{} tag \mapsto \mathcal{E}(\cons{LCons}) \}$.
+During reconciliation, we find that $l \strsep{} tag$ is mapped to the data constructor \cons{LCons}
+and recurse for each of its fields \cons{val} and \cons{tail}.
+Since $\gamma$ do not contain a mapping for either of these fields, we soundly generate random constants
+for these instead.
+Note that $Reconcile$ correctly constructs a non-empty but otherwise arbitrary list for $l$, which
+is indeed a counterexample to $P$.
 
 \input{chapters/figures/figReconcile.tex}
