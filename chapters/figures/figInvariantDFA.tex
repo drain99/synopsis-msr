@@ -1,26 +1,33 @@
-\begin{table}[H]
+\begin{table}
 \begin{center}
-\caption{\label{tab:invinferalgodfa}Dataflow formulation for the Invariant Inference Algorithm}
+\caption{\label{tab:invinferalgodfa}Dataflow Formulation of the Invariant Inference Algorithm}
 \begin{footnotesize}
 \begin{tabular}{|l|l|}
 \hline
 Domain &
-\makecell[c]{
-\ldelim\{{2}{3mm}{\footnotesize \ \  $\phi_n$ is a conjunction of predicates drawn from\ \ }\rdelim\}{2}{3mm} \\ \ {\footnotesize grammar in \ref{fig:invinfergrammar}, $\Gamma_n$ is a set of counterexamples}} \\
+\begin{tabular}{@{}l|l@{}}
+$\begin{dcases} \\ \\ \end{dcases}$ $(\phi_n,\Gamma_n)$ &
+\makecell[c]{$\phi_n$ is a conjunction of predicates drawn \\
+from \invgrammar{}, $\Gamma_n$ is a set of counterexamples} $\begin{drcases} \\ \\ \end{drcases}$ \\
+\end{tabular} \\
 \hline
-Direction & Forward\\
+\Tstrut \Bstrut Direction & Forward \\
 \hline
-\makecell[l]{Transfer function across \\ edge $e=(s\rightarrow d)$} & $(\phi_d,\Gamma_d) = f_e(\phi_s,\Gamma_s)$ (\cref{algo:invinferalgotf})\\
+Boundary Condition &
+\makecell[l]{\Tstrut \Bstrut $(\phi_n,\Gamma_n)$ for start node :
+$\phi_n \leftarrow \pre{}, \ \  \Gamma_n \leftarrow \emptyset$} \\
 \hline
-\begin{tabular}{@{}l@{}}
-Meet operator $\otimes$\\
-{\footnotesize $(\phi_n,\Gamma_n) \leftarrow (\phi^1_n,\Gamma^1_n) \otimes (\phi^2_n,\Gamma^2_n)$}\\
-\end{tabular}
-& $\Gamma_n \leftarrow \Gamma^1_n\cup \Gamma^2_n$, \ \ $\phi_n \leftarrow \mathrm{\it StrongestInvCover}(\Gamma_n)$\\
+Initialization to $\top$ &
+\makecell[l]{\Tstrut \Bstrut $(\phi_n,\Gamma_n)$ for non-start nodes :
+$\phi_n \leftarrow {\tt false}, \ \  \Gamma_n \leftarrow \emptyset$} \\
 \hline
-Boundary condition & ${\tt Value}[n^{start}]$ = {\tt $(Pre,\Gamma_{n^{start}})$} \\
+\makecell[l]{\Tstrut Transfer function across \\
+\Bstrut edge $e = (s \rightarrow d)$} &
+$(\phi_d,\Gamma_d) = f_e(\phi_s,\Gamma_s)$ (shown in \cref{algo:invinferalgotf}) \\
 \hline
-Initialization to $\top$ & ${\tt Value}[n]$ = $({\tt false},\emptyset)$ for all non-start nodes \\
+Meet operator $\otimes$ &
+\makecell[l]{\Tstrut $(\phi_n,\Gamma_n) \leftarrow (\phi^1_n,\Gamma^1_n) \otimes (\phi^2_n,\Gamma^2_n)$ \\
+\Tstrut \Bstrut $\Gamma_n \leftarrow \Gamma^1_n \cup \Gamma^2_n, \ \  \phi_n \leftarrow StrongestInvCover(\Gamma_n)$} \\
 \hline
 \end{tabular}
 \end{footnotesize}

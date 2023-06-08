@@ -1,0 +1,35 @@
+\begin{table}[H]
+\begin{center}
+\caption{\label{tab:pointstoalgodfa}Dataflow Formulation of the Points-to Analysis}
+\begin{footnotesize}
+\begin{tabular}{|l|l|}
+\hline
+\Tstrut \Bstrut Domain &
+\begin{tabular}{@{}ll@{}}
+$\Delta^{\cprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \rightarrow 2^{\memregions{}}$ &
+$\Delta^{\dprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{} \cup \pseudoregs{}^{\dprog{}}) \rightarrow 2^{\memregions{}}$ \\
+\end{tabular} \\
+\hline
+\Tstrut \Bstrut Direction & Forward \\
+\hline
+Boundary Condition &
+\begin{tabular}{@{}ll@{}}
+\multicolumn{2}{@{}l}{\Tstrut \Bstrut $\Delta_n$ for start node :}\\
+$\Delta_n^{\cprog{}}(t) = \begin{dcases} \emptyset \ \ \  t \in \pseudoregs{}^{\cprog{}} \\ \memregions{} \ \ t \in \memregions{} \end{dcases}$ &
+$\Delta_n^{\dprog{}}(t) = \begin{dcases} \Delta_{n_C}^{\cprog{}}(t) \ \  t \in (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \\ \emptyset \ \ \ \ \ \ \ \ \ \  t \in \pseudoregs{}^{\dprog{}} \end{dcases}$ \\
+\end{tabular} \\
+\hline
+\Tstrut \Bstrut Initialization to $\top$ & $\Delta_n$ for non-start nodes : $\Delta_n(t) = \emptyset \ \  t \in {\tt Domain}(\Delta_n)$ \\
+\hline
+\makecell[l]{\Tstrut Transfer function across \\
+\Bstrut edge $e = (s \rightarrow d)$} &
+$\Delta_d = f_e(\Delta_s)$ (described in \cref{sec:pointsToFormal}) \\
+\hline
+Meet operator $\otimes$ &
+\makecell[l]{\Tstrut $\Delta_n \leftarrow \Delta^1_n \otimes \Delta^2_n$ \\
+\Tstrut \Bstrut $\Delta_n(t) = \Delta^1_n(t) \cup \Delta^2_n(t) \ \  t \in {\tt Domain}(\Delta_n)$} \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\end{table}

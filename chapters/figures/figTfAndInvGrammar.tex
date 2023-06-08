@@ -8,7 +8,7 @@
 \Fn{$f_e(\phi_s, \Gamma_s)$}{
   $\Gamma^{can}_{d} \coloneqq \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
   $\phi^{can}_{d} \coloneqq StrongestInvCover(\Gamma^{can}_{d})$;\\
-  \While{$\neg Prove(\hoareTriple{\phi_s}{e}{\phi^{can}_d}, \gamma_s)$}{
+  \While{$Prove(\hoareTriple{\phi_s}{e}{\phi^{can}_d}) = \cons{False}(\gamma_s)$}{
     $\gamma_{d} \ \ \ \coloneqq {\tt exec}_e(\gamma_s)$;\\
     $\Gamma^{can}_{d} \coloneqq \Gamma^{can}_{d}\cup\gamma_{d}$;\\
     $\phi^{can}_{d} \coloneqq StrongestInvCover(\Gamma^{can}_{d})$;\\
@@ -26,23 +26,26 @@
 \begin{center}
 \begin{footnotesize}
 \begin{tabular}{p{0.45cm}p{0.15cm}l}
-${Inv}$ & $\rightarrow$ & $\sum_{i}{c_i v_i}=c$ $|$ $v_1 \odot v_2$  \\
-% & $|$ & $v_1 \odot v_2$ \\
-& $\ \ |$ & $\alpha_S \indEq{} {\tt liftC}_m(v^C \dots)$ \\
+{\tt Inv} & $\rightarrow$ & $\sum_{i}{c^i v^i}=c$ $|$ $v^1 \odot v^2$  \\
+& $\ \ |$ & $\alpha_S \indEq{} \lifted{lift}{\mem{}}{T}{v_C \ldots}$ \\
 \end{tabular}
 \end{footnotesize}
 \end{center}
-\caption{\label{fig:invinfergrammar}\footnotesize Predicate grammar for constructing invariants. $v$ represents a bitvector variable in either $S$ or $C$. $c$ represents a bitvector constant. $\odot$ $\in$ $\{<,\leq\}$. $\alpha_S$ represents an ADT variable in \SpecL{}. $v^{C}$ represents a bitvector variable in $C$. $m$ represents the current $C$ memory state.}
+\caption{\label{fig:invinfergrammar} Predicate grammar \invgrammar{} for constructing invariants.
+$v$ represents a bitvector variable in either \sprog{} or \cprog{}.
+$c$ represents a bitvector constant.
+$\odot$ $\in$ $\{<,\leq\}$.
+$\alpha_S$ represents an ADT variable in \sprog{}. $v_C$ represents a bitvector variable in \cprog{}.
+\mem{} represents the current \cprog{} memory state.}
 \end{subfigure}%
-\caption{Transfer function $f_e$ and Predicate grammar $Inv$ for invariant inference dataflow analysis in \cref{tab:invinferalgodfa}.
-Given invariants ($\phi_{s}$) and counterexamples ($\Gamma_{s}$) at node $s$,
+\caption{Transfer function $f_e$ and Predicate grammar \invgrammar{} for invariant inference dataflow analysis in \cref{tab:invinferalgodfa}.
+Given invariants $\phi_{s}$ and counterexamples $\Gamma_{s}$ at node $s$,
 $f_e$ returns the updated
-invariants ($\phi_{d}$) and counterexamples ($\Gamma_{d}$) at
+invariants $\phi_{d}$ and counterexamples $\Gamma_{d}$ at
 node $d$.
-{\em StrongestInvCover($\Gamma$)} computes the strongest invariant cover for counterexamples $\Gamma$.
-{\tt exec$_e$($\Gamma$)} (concretely) executes
+$StrongestInvCover(\Gamma)$ computes the strongest invariant cover for counterexamples $\Gamma$.
+{\tt exec}$_e$($\Gamma$) (concretely) executes
 counterexamples $\Gamma$ over edge $e$.
-{\tt SAT($\phi$, $\gamma$)} determines
-the satisfiability of $\phi$; if satisfiable, the models (counterexamples) are returned in output parameter $\gamma$.}
+$Prove(P)$ (in \cref{algo:proofSummary}) discharges the proof obligation $P$, and returns either \cons{True} or $\cons{False}(\Gamma)$.}
 \end{center}
 \end{figure}

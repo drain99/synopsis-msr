@@ -12,9 +12,9 @@
     \uIf{$\gamma \keyword{maps} v \strcat{} tag$}{
       $E^V \mapsfrom \gamma[v]$;\\
       $args \mapsfrom []$;\\
-      ${\tt Let}\ [T_1:\field{a_1}, T_2:\field{a_2},\dots, T_n:\field{a_n}]\ {\tt be\ the\ arguments\ to}\ V$.\\
-      \ForEach{$(T':a') \keyword{in} [T_1:\field{a_1}, T_2:\field{a_2},\dots, T_n:\field{a_n}]$}{
-        $arg \mapsfrom Reconcile(v \strcat{} a' : T', \gamma)$;\\
+      ${\tt Let}\ [\field{a_1}:T_1, \field{a_2}:T_2,\dots, \field{a_n}:T_n]\ {\tt be\ the\ fields\ of}\ V$.\\
+      \ForEach{$(\field{a'}:T') \keyword{in} [\field{a_1}:T_1, \field{a_2}:T_2,\dots, \field{a_n}:T_n]$}{
+        $arg \mapsfrom Reconcile(v \strcat{} \field{a'} : T', \gamma)$;\\
         $args.{\tt append}(arg)$;\\
       }
       \Return{$V(args)$};

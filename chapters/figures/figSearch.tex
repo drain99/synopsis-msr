@@ -1,0 +1,28 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$bestFirstSearch(\sprog{},\cprog{},\mu)$}{
+  $\pi_{init} \mapsfrom createInitProductCFG(\sprog{},\cprog{})$;\\
+  $Q \mapsfrom \{ \pi_{init} \}$;\\
+  \While{$Q \keyword{is\ not} empty$}{
+    $\pi_{cur} \mapsfrom extractMostPromising(Q)$;\\
+    ${\tt InferInvariantsAndCounterexamples}(\pi_{cur})$;\\
+    \
+    \uIf{$getCPathToCorrelate(\cprog{},\pi_{cur}) = \cons{Found}(\rho_C)$}{
+      \ForEach{$\rho_S \keyword{in} enumeratePathsInS(\sprog{},\rho_C,\mu)$}{
+        $\pi_{next} \mapsfrom extendProductCFG(\pi_{cur},\rho_S,\rho_C)$;\\
+        $Q \mapsfrom Q \cup \{ \pi_{next} \}$;\\
+      }
+    }
+    \ElseIf{$productCFGRepresentsBisim(\pi_{cur})$}{
+      \Return{$\cons{Found}(\pi_{cur})$};\\
+    }
+  }
+  \Return{$\cons{NotFound}$};\\
+}
+\end{footnotesize}
+\caption{\label{algo:search}Pseudo-code for Best-First-Search Procedure for construction of Product-CFG}
+\end{algorithm}
+\end{figure}

@@ -17,57 +17,62 @@ construction of a product-CFG in \cref{sec:searchalgo}.
 This is followed by a dataflow formulation of our counterexample-guided invariant inference algorithm in \cref{sec:invinferalgo}.
 We finish with a comprehensive analysis of our proof discharge algorithm and its related subprocedures.
 
+\input{chapters/figures/figPointstoDFA.tex}
+
 \subsection{Points-to Analysis}
 \label{sec:pointsToFormal}
-We formulate our points-to analysis as a dataflow analysis as discussed below.
-We start by identifying the set $\mathcal{R}$ of all region labels representing mutually non-overlapping
+Recall that in \cref{sec:reconsbisim}, we needed to reason about aliasing to successfully discharge a type III proof obligation.
+These aliasing relationships are described in \cref{sec:pointsTo} and used in \cref{sec:pointsToAsInvariants} to
+successfully discharge the proof obligation.
+A points-to analysis is used to identify these aliasing relationships in \cprog{} as well as each deconstruction program \dprog{}.
+We present a dataflow formulation of our points-to analysis as shown in \cref{tab:pointstoalgodfa}.
+We start by identifying the set \memregions{} of all region labels representing mutually non-overlapping
 regions of the $C$ memory state \mem{}.
-For each call to {\tt malloc()} at PC $A$, we add $A_1$ and $A_{2+}$ to $\mathcal{R}$. $\mathcal{R} = \bigcup_{A} \{ A_1, A_{2+} \} \cup \{ \mathcal{H} \}$,
-where $\mathcal{H}$ represents the region of memory \mem{} not covered by the region labels associated with allocation sites.\footnote{TODO: per procedure or global?}
+For each call to {\tt malloc()} at PC $A$, we add $A_1$ and $A_{2+}$ to \memregions{}.
+Recall that $A_1$ represents the region of memory returned by the {\em most recent} execution of $A$.
+$A_{2+}$ represents the region of memory returned by older (i.e. all but most recent) executions of $A$.
+$\memregions{} = \bigcup_{A} \{ A_1, A_{2+} \} \cup \{ \heapr{} \}$,
+where \heapr{} is the region of memory \mem{} not covered by the labels associated with allocation sites.\footnote{TODO: per procedure or global?}
 
-Let $\mathcal{S}_C$ be the set of all scalar pseudo-registers (i.e. variables) in $C$'s IR.
-We use a forward dataflow analysis to identify a may-point-to Function
-$\Delta: (\mathcal{S}_C \cup \mathcal{R}) \mapsto 2^{\mathcal{R}}$ at each program point.
+Let $\pseudoregs{}^{\cprog{}}$  be the set of all scalar pseudo-registers in \cprog{}.
+We use a forward dataflow analysis to identify a may-point-to function
+$\Delta^{\cprog{}}: (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \mapsto 2^{\memregions{}}$ at each program point in \cprog{}.
+For a deconstruction program \dprog{}, we are also interested in finding the may-point-to function for
+all scalar pseudo-registers in \dprog{}, say $\pseudoregs{}^{\dprog{}}$.
+Thus, \dprog{} contains mappings for $\Delta^{\dprog{}}$ as well:
+$\Delta^{\dprog{}}: (\pseudoregs{}^{\cprog{}} \cup \memregions{} \pseudoregs{}^{\dprog{}}) \mapsto 2^{\memregions{}}$.
+The '$\pointsTo$' operator introduced in \cref{sec:pointsTo} is called the {\em element-wise} may-point-to function
+and is related to the may-point-to function $\Delta$ as follows: $p \pointsTo{} S \Leftrightarrow \Delta(p) = S$.
+
+The meet operator is element-wise set-union e.g., $p \pointsTo{} S_1$ and $p \pointsTo{} S_2$
+combines into $p \pointsTo{} S_1 \cup S_2$.
+Evidently, the $\top$ value is the constant function that returns $\emptyset$.
+At entry of \cprog{}, we conservatively assume that all memory regions may point to each other.
+However, at entry of a deconstruction program \dprog{}, created during a proof obligation at product-CFG node $(n_S\!:\!n_C)$,
+we use the precomputed \cprog{}'s may-point-to function at $n_C$ ($\Delta^{\cprog{}}_{n_C}$)
+to initialize the points-to relationships for all state elements of \cprog{} (i.e. $(\pseudoregs{}^{\cprog{}} \cup \memregions{})$).
+This is a crucial step for proving equality of \cprog{} values under different memory states as seen in \cref{sec:pointsToAsInvariants}.
+
+Next, we discuss the transfer function $f_e$ for our points-to analysis.
 For an IR instruction ${\tt x} \coloneqq {\tt c}$, for constant {\tt c}, the
 transfer function updates $\Delta({\tt x}) \coloneqq \emptyset$.
 For instruction ${\tt x} \coloneqq {\tt y\ op\ z}$ (for some arithmetic or logical operator {\tt op}),
 we update $\Delta({\tt x}) \coloneqq \Delta({\tt y}) \cup \Delta({\tt z})$.
 For a load instruction ${\tt x} \coloneqq \memRead{\mem{}}{y}{T}$, we
-update $\Delta({\tt x}) \coloneqq \bigcup_{R \in \Delta(y)} \Delta(R)$.
+update $\Delta({\tt x}) \coloneqq \bigcup_{t \in \Delta(y)} \Delta(t)$.
 For a store instruction $\mem{} \coloneqq \memWrite{\mem{}}{x}{y}{T}$, for all
-$R \in \Delta({\tt x})$, we update $\Delta(R) \coloneqq \Delta(R) \cup \Delta(y)$.
+$t \in \Delta({\tt x})$, we update $\Delta(t) \coloneqq \Delta(t) \cup \Delta(y)$.
 For a malloc instruction ${\tt x} \coloneqq {\tt malloc}_A()$
 (where $A$ represents the allocation site), we perform the following steps (in order):
 \begin{enumerate}
-\item Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $R \in \mathcal{S}_C \cup \mathcal{R}$, if $A_1 \in \Delta(R)$, then update $\Delta(R) \coloneqq (\Delta(R) \setminus \{ A_1 \}) \cup \{ A_{2+} \}$.
+\item Convert all existing occurrences of $A_1$ to $A_{2+}$, i.e., for all $t \in (\pseudoregs{}^{\cprog{}} \cup \memregions{})$,
+if $A_1 \in \Delta(t)$, then update $\Delta(t) \coloneqq (\Delta(t) \setminus \{ A_1 \}) \cup \{ A_{2+} \}$.
 \item Update $\Delta({\tt x}) \coloneqq \{ A_1 \}$.
 \item Update $\Delta(A_{2+}) \coloneqq \Delta(A_{2+}) \cup \Delta(A_1)$.
 \item Update $\Delta(A_1) \coloneqq \emptyset$.
 \end{enumerate}
 
-The meet operator is set-union.
-For a C program $C$, the boundary condition at entry is given by
-$\Delta^{start}(R) = \mathcal{R}$ for all $R \in \mathcal{R}$ ($\top$ otherwise).
-
-In case of a deconstruction program $D$, the domain of $\Delta$ is expanded to $(\mathcal{S}_C \cup \mathcal{S}_D \cup \mathcal{R})$,
-where $\mathcal{S}_D$ represents the set of all scalar pseudo-registers in $D$'s IR.
-Let $\Delta^n_P$ represent the may-point-to function for the program $P$ at node $n$.
-Then, for a deconstruction program $D$ originating from a proof obligation
-at a product-CFG node $(n_S:n_C)$, the boundary condition is given by:
-
-\begin{center}
-\begin{tabular}{rll}
-$\Delta^{start}_D(R)=$ & $\Delta^{n_C}_C(R)$ & for all $R \in \mathcal{S}_C \cup \mathcal{R}$ \\
-& $\top$ & for all $R \in \mathcal{S}_D$ \\
-\end{tabular}
-\end{center}
-
-Hence, for a deconstruction program, we use the results of the points-to analysis on $C$ at the PC where
-the proof obligation is being discharged. This is a crucial step for proving equality of $C$ values
-under different $C$ memory state as seen in \cref{sec:pointsToAsInvariants}.
-
-We run our points-to dataflow analysis on the CFGs of the C program and the deconstruction programs.
-For procedure calls, a {\em supergraph} is created by adding control flow edges
+For function calls, a {\em supergraph} is created by adding control flow edges
 from the call-site to the procedure head (copying actual arguments to the formal arguments) and
 from the procedure exit to the program point just after the
 call-site (copying returned value to the variable assigned at the callsite),
@@ -79,54 +84,55 @@ different data structures
 \cite{allocationSiteAbstraction82,allocationSiteAbstraction90,allocationSiteAbstraction06}.
 In our work, we also need to reason about non-aliasing
 of the most-recently allocated object (through a {\tt malloc} call) and
-the previously-allocated objects (as in the {\tt List}
+the previously-allocated objects (as in the \type{List}
 construction example). The coarse-grained $\{1, 2+\}$
-categorization of allocation recency is effective for such
-disambiguation.
+categorization of allocation recency is effective for such disambiguation.
 
 \subsection{Counterexample-guided Product-CFG Construction}
 \label{sec:searchalgo}
 \toolName{} constructs a product-CFG incrementally to search for an observably-equivalent
-bisimulation relation between the individual CFGs of a \SpecL{} program $S$ and a C program $C$.
+bisimulation relation between the CFGs of a \SpecL{} procedure \sprog{} and a C procedire \cprog{}.
 Multiple candidate product-CFGs are partially constructed during this search;
 the search completes when one of these candidates yield an equivalence proof.
 
-{\em Anchor nodes} are identified in the CFGs of $S$ and $C$, and represents the source and destination nodes (i.e. IR PCs)
+{\em Anchor nodes} are identified in the CFGs of \sprog{} and \cprog{}, and represents the
+source and destination nodes (i.e. IR PCs)
 of paths chosen to be correlated between the two programs.
-The algorithm ensures that every cycle in both $S$ and $C$ contains at least one anchor node.
+The algorithm ensures that every cycle in both \sprog{} and \cprog{} contains at least one anchor node.
 The start and exit nodes are always anchor nodes.
-Also, for every procedure call, the nodes just before and after its callsite are considered anchor nodes.
+Also, for every function call, the nodes just before and after its callsite are considered anchor nodes.
 For example, in \cref{fig:llAllocCCFG}, \cpc{4} and \cpc{5} are anchor nodes around the call to {\tt malloc}.
-The selected anchor nodes in the CFGs in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} are:
+The selected anchor nodes for the CFGs in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} are:
 $\{ \spc{0},\spc{3},\spc{E} \}$ and $\{ \cpc{0}, \cpc{3}, \cpc{4}, \cpc{5}, \cpc{E} \}$ respectively.
-For each anchor node in $C$, our search algorithm searches for a correlated anchor node in $S$ --- if
-a product-CFG $\pi$ contains a product-CFG node  $(n_S\!:\!n_C)$, then $\pi$
-correlates node $n_C$ in $C$ with node $n_S$ in $S$.
-The search procedure begins with a single partially-constructed product-CFG $\pi_0$.
-$\pi_0$ contains exactly one node (\scpc{0}{0}) that encodes the correlation of the entry nodes
-(i.e. \spc{0} and \cpc{0}) of the two input CFGs.
+For each anchor node in \cprog{}, our search algorithm searches for a correlated anchor node in \sprog{} --- if
+a (partially constructed) product-CFG $\pi$ contains a product-CFG node  $(n_S\!:\!n_C)$, then $\pi$
+correlates node $n_C$ in \cprog{} with node $n_S$ in \sprog{}.
+The search procedure begins with a single partially-constructed product-CFG $\pi_{init}$.
+$\pi_{init}$ contains exactly one node (\scpc{0}{0}) that encodes the correlation of the entry nodes
+(i.e. \spc{0} and \cpc{0}) of \sprog{} and \cprog{}.
 
 At each step of the incremental construction process, a node $(n_S\!:\!n_C)$ is chosen in a product-CFG $\pi$
-and a path $\rho_C$ in $C$'s CFG starting at $n_C$ (and ending at an anchor node in $C$) is selected.
-Then, we enumerate the potential correlations of the path $\rho_C$ in the $S$'s CFG.
+and a path $\rho_C$ in \cprog{} starting at $n_C$ (and ending at an anchor node in \cprog{}) is selected.
+Then, we enumerate potentially correlated paths in \sprog{} for the path $\rho_C$ in \cprog{}.
 For example, during construction of the product-CFG shown in \cref{fig:llAllocProductCFG},
 say we select the product-CFG node (\scpc{3}{3}).
-We choose the $C$ path \cpath{3,4} and enumerate its potential correlations (i.e. paths in $S$ starting at \spc{3}):
+We choose the \cprog{} path \cpath{3,4} and enumerate its potential correlations (i.e. paths in \sprog{} starting at \spc{3}):
 $\epsilon$, \spath{3,5,3}, \spath{3,5,3,5,3}, \ldots, $\pathset{S3,(\pathset{S5,S3})^\mu}$.
-The {\em unroll factor} $\mu$ is a fixed parameter of the algorithm and represents the maximum number of iterations of a loop (in $S$),
-that can be correlated with a path $\rho_C$ in $C$.
-Importantly, for paths $\rho_S$ (in $S$) and $\rho_C$ (in $C$) to be considered for correlation,
+The {\em unroll factor} $\mu$ is a fixed parameter of the algorithm and represents the maximum number of iterations of a loop (in \sprog{}),
+that may be correlated with a path $\rho_C$ in \cprog{}.
+Importantly, for paths $\rho_S$ (in \sprog{}) and $\rho_C$ (in \cprog{}) to be considered for correlation,
 they must begin and end at anchor nodes, i.e. the path \spath{3,5} is skipped during enumeration.
-Moreoever, the path $\rho_C$ may not contain anchor nodes in the middle.
-Hence, the path \cpath{3,4,5} is not considered for correlation.
+Moreover, the path $\rho_C$ may not contain anchor nodes in the middle.
+Hence, the path \cpath{3,4,5} is not considered for $\rho_C$,
+instead we attempt to correlate the subpaths \cpath{3,4} and \cpath{4,5} individually.
 
 For each enumerated correlation possibility $(\rho_S,\rho_C)$, a separate product-CFG $\pi'$ is
 created (by cloning $\pi$) and a new product-CFG edge $e=(\rho_S,\rho_C)$ is added to $\pi'$.
 The head of the product-CFG edge $e$ is the (potentially newly added) product-CFG node representing
-the correlation of the end-points of paths $\rho_S$ and $\rho_C$. For example, the node {\tt (S3:C4)} is added
+the correlation of the end-points of paths $\rho_S$ and $\rho_C$. For example, the node (\scpc{3}{4}) is added
 to the product-CFG if it correlates paths $\epsilon$ and \cpath{3,4} starting at (\scpc{3}{3}).
 For each node $s$ in a product-CFG $\pi$, we maintain a small number of
-concrete machine state pairs (of $S$ and $C$) at $s$.
+concrete machine state pairs (of \sprog{} and \cprog{}).
 The concrete machine state pairs at $s$ are obtained as counterexamples to an unsucessful proof
 obligation \hoareTriple{\phi_s}{s \rightarrow d}{\phi_d} (for some edge $s \rightarrow d$ and node $d$ in $\pi$).
 Thus, by construction, these counterexamples represent concrete state pairs that may potentially occur
@@ -139,7 +145,7 @@ If the counterexamples ensure that the machine states remain related at $d$,
 then that candidate correlation is ranked higher.
 This ranking criterion is based on prior work \cite{oopsla20}.
 A best-first search (BFS) procedure based on this ranking criterion is used to incrementally construct
-a product-CFG (starting from $\pi_0$) that proves bisimulation.
+a product-CFG (starting from $\pi_{init}$).
 For each intermediate candidate product-CFG $\pi$ generated during this search procedure,
 an automatic invariant inference procedure (discussed next in \cref{sec:invinferalgo}) is
 used to identify invariants at all the nodes in $\pi$.
@@ -151,42 +157,45 @@ If after invariant inference, we realize that an intermediate candidate product-
 is not promising enough, we backtrack and choose another candidate product-CFG $\pi_2$
 and explore the potential correlations that can be added to $\pi_2$.
 Thus, a product-CFG is constructed one edge at a time.
-If at any stage, a product-CFG $\pi$ contains correlations for every path in $C$
-and invariants ensure equal observables (i.e. $Post$ holds at correlated exit nodes),
+If at any stage, a product-CFG $\pi$ contains correlations for every path in \cprog{}
+and invariants ensure equal observables (i.e. \post{} holds at correlated exit nodes),
 we have successfully shown equivalence.
 This counterexample-guided BFS procedure is similar to the one described in prior work on
 the Counter algorithm \cite{oopsla20}.
 
 \subsubsection{Correlation in the Presence of Procedure Calls}
 \label{sec:correlfcalls}
-Recall that a procedure $\delta$ in $S$ or $C$ may make calls to other procedures (including self calls),
+Recall that a procedure $\delta$ in \sprog{} and \cprog{} may make function calls (including self calls),
 e.g., allocation of memory in C, traversal of a tree data structure.
-Calls to memory allocation functions in $C$ (i.e. {\tt malloc}) are handled by correlating
-the function call edge with the empty path ($\epsilon$) in $S$.
-For example, in the product-CFG shown in \cref{fig:llAllocProductCFG}, the {\tt malloc} edge \cpath{4,5} in $C$
-is correlated with $\epsilon$ in $S$.
+Recall that the nodes just before and after a function call are always considered anchor nodes.
+Calls to memory allocation functions in \cprog{} (i.e. {\tt malloc}) are handled by correlating
+the function call edge with the empty path ($\epsilon$) in \sprog{}.
+For example, in the product-CFG shown in \cref{fig:llAllocProductCFG}, the {\tt malloc} edge \cpath{4,5} in \cprog{}
+is correlated with $\epsilon$ in \sprog{}.
 
-For all other procedure calls, our correlation algorithm (in \cref{sec:searchalgo}) ensures that the anchor nodes
+For all other calls, our correlation algorithm (in \cref{sec:searchalgo}) ensures that the anchor nodes
 around such a callsite are correlated one-to-one across both procedures.
-For example, let there be a call to procedure $\delta'$ in $S$ at PC $n_S$, i.e. $n_S$ is the call-site.
+For example, let there be a call to procedure $\delta'$ in \sprog{} at PC $n_S$, i.e. $n_S$ is the call-site.
 Let us denote the program point just after this call-site as $n'_S$.
-Let {\tt args}$_{n_S}$ represent the values of the actual arguments of this procedure call (at $n_S$).
-Let {\tt ret}$_{n'_S}$ represent the value returned by this procedure call (at $n'_S$).
-Similarly, for a procedure call $\delta'$ in $C$, let $n_C$, $n'_C$, {\tt args}$_{n_C}$ and {\tt ret}$_{n'_C}$
-represent the procedure call call-site, program point just after call-site,
+Let {\tt args}$_{n_S}$ represent the values of the actual arguments of this function call (at $n_S$).
+Let {\tt ret}$_{n'_S}$ represent the value returned by this function call (at $n'_S$).
+Similarly, for a procedure call $\delta'$ in \sprog{}, let $n_C$, $n'_C$, {\tt args}$_{n_C}$ and {\tt ret}$_{n'_C}$
+represent the function call call-site, program point just after the call-site,
 the values of the actual arguments and the value returned respectively.
 Our algorithm ensures that the only correlation possible in a product-CFG $\pi$ for these program points are
 $(n_S:n_C)$ and $(n'_S:n'_C)$.
 
-We utilize the user-supplied input-output specification for $\delta'$ (say $(Pre_{\delta'},Post_{\delta'})$)
+We utilize the user-supplied input-output specification for $\delta'$ (say $(\pre{}_{\delta'},\post{}_{\delta'})$)
 to obtain the desired invariants at nodes $(n_S:n_C)$ and $(n'_S:n'_C)$ in the product-CFG.
 A successful proof must {\em ensure} that $Pre_{\delta'}$({\tt args}$_{n_S}$,{\tt args}$_{n_C}$,$\mem{}_{n_C}$)
 holds at $(n_S:n_C)$.
 Further, the proof can {\em assume} that $Post_{\delta'}$({\tt ret}$_{n'_S}$,{\tt ret}$_{n'_C}$,$\mem{}_{n'_C}$)
 holds at $(n'_S:n'_C)$.
-Here, $\mem{}_{n_C}$ and $\mem{}_{n'_C}$ represents the memory states in $C$ at $n_C$ and $n'_C$ respectively.
-Thus, for a procedure call, we inductively prove the precondition (on the arguments of the procedure call) at $(n_S:n_C)$
-and assume the postcondition (on the return values of the procedure call) at $(n'_S:n'_C)$.
+Here, $\mem{}_{n_C}$ and $\mem{}_{n'_C}$ represents the memory states in \cprog{} at $n_C$ and $n'_C$ respectively.
+Thus, for function calls, we inductively prove the precondition (on the arguments) at $(n_S:n_C)$
+and assume the postcondition (on the returned values) at $(n'_S:n'_C)$.
+
+\input{chapters/figures/figSearch.tex}
 
 \input{chapters/figures/figInvariantDFA.tex}
 \input{chapters/figures/figTfAndInvGrammar.tex}
@@ -202,31 +211,32 @@ $\Gamma_n$ that represents the potential concrete machine states at $n$.
 Given the invariants and counterexamples at node $s$: ($\phi_s,\Gamma_s$),
 the transfer function initializes the new candidate set of counterexamples at $d$ ($\Gamma^{can}_{d}$)
 with the current set of counterexamples at $d$ ($\Gamma_{d}$) {\em union}-ed with
-the counterexamples obtained by executing $\Gamma_s$ on edge $e$ ({\tt exec}$_e$).
+the counterexamples obtained by executing $\Gamma_s$ on edge $e$ (through {\tt exec}$_e$).
 The candidate invariant at $d$ ($\phi^{can}_d$) is computed as the strongest cover
 of $\Gamma^{can}_{d}$ ($StrongestInvCover()$).
 At each step, the transfer function attempts to prove $\{\phi_s\} (e) \{\phi^{can}_d\}$
 (through a call to $Prove()$).
-If the proof succeeds ($Prove()$ returns true), the candidate invariant $\phi^{can}_d$ is returned alongwith
+If the proof succeeds ($Prove()$ returns \cons{True}), the candidate invariant $\phi^{can}_d$ is returned along with
 the counterexamples $\Gamma^{can}_d$ learned so far.
-Else the candidate invariant $\phi^{can}_d$ is weakened using the counterexamples obtained
+Otherwise, $Prove()$ returns $\cons{False}(\gamma_s)$.
+The candidate invariant $\phi^{can}_d$ is weakened using the counterexamples obtained
 (i.e. $\gamma_s$) and the proof attempt is repeated.
 
-The candidate invariants are drawn from the predicate grammar shown in \cref{fig:invinfergrammar}.
-The predicate grammar allows affine and inequality relations between bitvector values of both
-programs, as well as, \recursiveRelations{} between an ADT value in \SpecL{} and a {\em lifted} ADT value in $C$.
-The candidate lifting constructors are derived from the lifting constructors
-present in the precondition $Pre$ and the position $Post$, as supplied by the user.
-More sophisticated strategies for deduction of new lifting constructors is possible.
+The candidate invariants are drawn from the predicate grammar \invgrammar{} shown in \cref{fig:invinfergrammar}.
+In addition to affine and inequality relations between bitvectors in \sprog{} and \cprog{},
+\invgrammar{} supports \recursiveRelations{} between an ADT variable in \sprog{} and a lifted expression in \cprog{}.
+The candidate lifting constructors (i.e. \lift{lift}{}{T}) are derived from the lifting constructors
+present in the precondition \pre{} and the postcondition \post{}, as supplied by the user.
+More sophisticated strategies for inference of new lifting constructors is possible.
 
-{\em StrongestInvCover()} for affine relations involve
+$StrongestInvCover()$ for affine relations involve
 identifying the basis vectors of the kernel of the
 matrix formed by the counterexamples in the bitvector
 domain \cite{esop05,semalign}.
-For inequality relations, {\em StrongestInvCover($\Gamma$)}
+For inequality relations, $StrongestInvCover(\Gamma)$
 returns {\em true} (i.e. the weakest invariant) iff any counterexample in $\Gamma$ evaluates the
 relation to false --- this effectively simulates the Houdini approach \cite{houdini}.
-Similarly, in case of a \recursiveRelation{} $l_1 \indEq{} l_2$, {\em StrongestInvCover($\Gamma$)}
+Similarly, in case of a \recursiveRelation{} $l_1 \indEq{} l_2$, $StrongestInvCover(\Gamma)$
 returns {\em true} iff any counterexample in $\Gamma$ evalutes its $\eta$-depth over-approximation
 $l_1 \indEqDepth{\eta} l_2$ to false, where $\eta$ is a fixed parameter of the algorithm.
 
@@ -238,10 +248,10 @@ $l_1 \indEqDepth{\eta} l_2$ to false, where $\eta$ is a fixed parameter of the a
 \Cref{algo:canonical} shows the pseudo-code for the canonicalization procedure.
 $Canonicalize(e)$ is responsible for converting an expression $e$ to its canonical form $\hat{e}$ (introduced in \cref{sec:unifyandrewrite}).
 Recall that a pseudo-variable is an expression of the form $\prodAccess{v}{a_1,a_2,.,a_n}$, where $v$ is a variable.
-Also recall that, an expression $e$ is canonical iff all accessors and {\em is}-operators operate on a pseudo-variable.
+Also recall that, an expression $e$ is canonical iff each {\em accessor} and {\em sum-is} expression operate on a pseudo-variable.
 An ADT expression with a data constructor, a lifting constructor or the \sumDtor{}-operator at its top-level, is called a {\em foldable} expression.
-$Canonicalize(e)$ iteratively folds each accessor and {\em is} subexpressions of $e$ that operate on a foldable argument.
-Hence, $Canonicalize(e)$ returns an expression where none of the accessor or {\em is}- subexpressions is foldable.
+$Canonicalize(e)$ iteratively folds each {\em accessor} and {\em sum-is} subexpressions of $e$ that operate on a foldable argument.
+Thus, $Canonicalize(e)$ returns an expression where none of the {\em accessor} or {\em sum-is} subexpressions is foldable.
 This condition implies the requirements of the canonical form.
 For example, $a + \prodAccess{\cons{LCons}(b,l)}{tail,val}$ and $\sumIs{\lifted{list}{\mem{}}{lnode}{p}}{LNil}$
 canonicalizes to $a + \prodAccess{l}{val}$ and $(p = 0)$ respectively.
@@ -256,8 +266,10 @@ conditions $p_1$ and $p_2$ respectively.
 $\theta$ either fails to unify with the \cons{Fail} output, or it successfully returns $\cons{Succ}(S)$, where $S$
 is the set of correlation tuples that relate (a) either two atomic expressions, or (b) an atom with an non-atomic expression.
 $\theta(p_1,e_1,p_2,e_2)$ terminates when one of $e_1$ and $e_2$ is an atomic expression.
-In case both $e_1$ and $e_2$ contains a data constructor at their top-level, $\theta$ attempts to recursively unify the data constructors and their corresponding children.
-If exactly one of $e_1$ and $e_2$ is a \sumDtor{} expression, $\theta$ attempts to unify both branches of \sumDtor{} (along with the path conditions) with the other expression
+In case both $e_1$ and $e_2$ contains a data constructor at their top-level, 
+$\theta$ attempts to recursively unify the data constructors and their corresponding children.
+If exactly one of $e_1$ and $e_2$ is a \sumDtor{} expression,
+$\theta$ attempts to unify both branches of \sumDtor{} (along with the path conditions) with the other expression
 and return whichever succeeds.
 If both $e_1$ and $e_2$ are \sumDtor{} expressions, $\theta$ attempts to recursively unify their children.
 $\theta$ uses the $\sqcup$-operator to combine the results of successive self-calls.
@@ -325,7 +337,7 @@ A memory write \memWrite{\mem{}}{a}{v}{T} is expanded into \sizeof{T} nested {\e
 
 \subsubsection{Reconciliation of Counterexamples}
 \label{sec:cerecons}
-As detail in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
+As detailed in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
 variables $F(v)$ during SMT encoding.
 Evidently, the models returned by SMT solvers map these variables (in $F(v)$ instead of $v$)
 to constant values.
