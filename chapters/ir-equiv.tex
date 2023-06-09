@@ -9,21 +9,16 @@ We finish with an analysis of proof obligations generated during the search for 
 \subsection{The \SpecL{} Language}
 \label{sec:speclang}
 We start with an introduction to the \SpecL{} language.
-\SpecL{} supports recursive algebraic data types (ADT) similar to the ones available in most functional languages (e.g. Haskell\footnote{TODO:cite pls}).
+\SpecL{} supports recursive algebraic data types (ADT) \footnote{TODO:cite pls} similar to the ones available in most functional languages (e.g. Haskell\footnote{TODO:cite pls}).
+\SpecL{} does not support parametric types but does allow ADTs which are mutually recursive.
 Additionally, \SpecL{} is equipped with the following {\em scalar} types: \type{unit}, \type{bool} (boolean) and \type{i<N>} (bitvector of size {\tt N}).
 ADTs can be thought of as `sum of product' types where each {\em data constructor} represents a variant
 and the arguments to each data constructor represents its {\em fields}.
 For example, the \type{List} type (defined at \apc{0} in \cref{fig:llAllocSpec}) has two variants \cons{LNil} and \cons{LCons}.
 \cons{LNil} has no fields while \cons{LCons} has two fields \field{val} and \field{tail} of types \type{i32} and \type{List} respectively.
-Types in \SpecL{} can be represented in {\em first order recursive types} with \type{Product} and \type{Sum} type constructors
-and \type{unit}, \type{bool}, \type{i<N>} types (i.e., nullary type constructors) through the following grammar:
-
-$T \rightarrow \mu \alpha.\ T \ |\  \type{Product}(T,\dots,T) \ |\  \type{Sum}(T,\dots,T) \ |\  \type{unit} \ |\ \type{bool} \ |\  \type{i\langle N \rangle} \ |\  \alpha$
-
-For example, the \type{List} type (defined at \apc{0} in \cref{fig:llAllocSpec}) can be written
-as $\mu \alpha. \type{Sum}(\type{unit}, \type{Product}(\type{i32},\alpha))$.
-Additionally, \SpecL{} follows equirecursive typing rules \footnote{TODO:cite pls} i.e.
-the values $l\ctype{List}$ and $\cons{LCons}(1_\type{i32},l)$ have {\em equal} types.
+Additionally, \SpecL{} follows {\em equirecursive} typing rules \footnote{TODO:cite pls} i.e.
+a \type{List} value $l$ and $\cons{LCons}(1_\type{i32}, l)$ have {\em equal} types.
+Later in \cref{sec:valuegraph}, we give a more formal definition of ADTs with their graphical representation.
 The language also borrows its expression grammar heavily from functional languages.
 This includes the constructs: {\tt let-in}, {\tt if-then-else}, {\tt match} and function application expressions.
 Pattern matching (i.e. deconstruction) of ADT values is archieved through {\tt match}.
