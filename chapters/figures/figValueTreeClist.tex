@@ -1,0 +1,22 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[label distance=-0.3mm,inner/.style = {draw, circle, inner sep=0.2mm},leaf/.style = {font=\footnotesize}, annot/.style= {font=\footnotesize}]
+
+\node[inner,label={\footnotesize 0}] (1)                            {$+$};
+\node[leaf,label={\footnotesize 1}]  (2) [position=-120:8mm from 1] {$()$};
+\node[inner,label={\footnotesize 2}] (3) [position=-60:8mm from 1]  {$\times$};
+\node[leaf,label={\footnotesize 3}]  (4) [position=-120:8mm from 3] {$\structPointer{a}{\mem{}}{lnode}{val}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:8mm from 1] {} edge[bend left,in=165] node[annot,shift={(4.7mm,0.5mm)}] {$a \coloneqq p$} (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- node[annot,shift={(-4mm,2mm)}] {$a = 0$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- node[annot,shift={(4mm,2mm)}] {$a \neq 0$} (3);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) -- (4);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) edge [out=-45,in=30,looseness=3] node[annot,shift={(13mm,0mm)}] {$a \coloneqq \structPointer{a}{\mem{}}{lnode}{next}$} (1);
+
+\end{tikzpicture}
+
+\end{document}

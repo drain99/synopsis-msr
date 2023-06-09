@@ -398,20 +398,25 @@ $T \rightarrow \mu \alpha. \ T \ |\ T \times \dots \times T \ |\  T + \dots + T 
 
 For example, the \type{List} type can be written as $\mu \alpha. \type{unit} + (\type{i32} \times \alpha)$.
 Note the use of a type variable $\alpha$ which is bound using $\mu$ to represent recursion.
-Consider the mutually-recursive types $\type{Tree} \rightarrow \cons{TNil} | \cons{TCons}(\type{i32}, \type{Forest})$
-and $\type{Forest} \rightarrow \cons{FNil} | \cons{FCons}(\type{Tree}, \type{Forest})$.
+Consider the mutually-recursive types $\type{Tree} = \cons{TNil} | \cons{TCons}(\type{i32}, \type{Forest})$
+and $\type{Forest} = \cons{FNil} | \cons{FCons}(\type{Tree}, \type{Forest})$.
 \type{Tree} represents a generic \type{i32} tree datatype: either its empty or it contains
 a value along with a {\em list of trees} for its children (represented by \type{Forest}).
 \type{Tree} can be represented as a {\em closed} term in \typegrammar{} as:
 $\mu \alpha. \type{unit} + (\type{i32} \times (\mu \beta. \type{unit + (\alpha \times \beta)}))$,
 where $\alpha$ and $\beta$ stand for the recursive types \type{Tree} and \type{Forest} respectively.
 A term $t$ is closed iff each type variable $\alpha$ in $t$ is bound (using $\mu$).
-\Cref{fig:typegraphs} shows the graphical representation of closed types in \typegrammar{}.
+
+\input{chapters/figures/figTypeTrees.tex}
+
+\Cref{fig:typetrees} shows the graphical representation of closed types in \typegrammar{}.
 Each internal node represents either a product (\circled{$\times$}) or a sum (\circled{$+$}) type constructor.
 The leaf nodes are the scalar types.
 For each bound type variable, a backedge is created to the ancestor at which it is bounded.
 
-%fig:typegraphs => 2 trees, one for list and one for tree
+\input{chapters/figures/figTypeTreesPeel.tex}
+
+\input{chapters/figures/figValueTrees.tex}
 
 Recall that types are equirecursive in \SpecL{}.
 In equirecursive typing, two types $t_1$ and $t_2$ (in \typegrammar{}) are equal
