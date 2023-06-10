@@ -373,11 +373,11 @@ is indeed a counterexample to $P$.
 
 \input{chapters/figures/figReconcile.tex}
 
-\subsubsection{Value Graph Representation}
+\subsubsection{Value Tree Representation}
 \label{sec:valuegraph}
 This section introduces a graphical representation of expressions which encodes both its canonical value and
 its deconstruction program at the same time.
-We call this the `Value Graph' and we use $\mathcal{V}(e)$ to represent the value graph of expression $e$.
+We call this the `Value Tree' and we use $\mathcal{V}(e)$ to denote the value tree of $e$.
 The value properties allow us to consolidate the following procedures used during conversion of a proof obligation
 {\em with} \recursiveRelations{} into its canonical form:
 (a) decomposition of \recursiveRelations{}, (b) over- and under-approximation of \recursiveRelations{},
@@ -386,46 +386,85 @@ On the program side, instead of checking equivalence of the deconstruction progr
 we check `equivalence' of the value graphs $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ instead.
 
 We begin with a formal description of ADTs.
-This allows us to introduce a graphical representation of ADTs, which is similar to the Value Graph representation, but simpler.
+This allows us to first introduce a graphical representation of types, which is analogous to the value tree representation, but simpler.
+Let's call this the `Type Tree' representation.
 Recall that ADTs are simply `sum of product' types where each data construction represents a variant (of the sum-type) and
 each data construction contains values for each of its fields (of the product-type).
 On top of ADTs, \SpecL{} also has built-in scalar types: \type{unit}, \type{bool} and \type{i<N>}.
 Types in \SpecL{} can be represented in {\em first order recursive types} using the product ($\times$) and sum ($+$) type
 constructors; and the scalar types (i.e. nullary type constructors).
-The grammar for this type system is given by \typegrammar{} as follows:
+The type system is characterized by the grammar \typegrammar{} as follows:
 
 $T \rightarrow \mu \alpha. \ T \ |\ T \times \dots \times T \ |\  T + \dots + T \ |\  \type{unit} \ |\ \type{bool} \ |\  \type{i\langle N \rangle} \ |\ \alpha$
 
+Every type in \SpecL{} can be encoded as a closed term (i.e. term without free variables) in \typegrammar{}.
 For example, the \type{List} type can be written as $\mu \alpha. \type{unit} + (\type{i32} \times \alpha)$.
 Note the use of a type variable $\alpha$ which is bound using $\mu$ to represent recursion.
 Consider the mutually-recursive types $\type{Tree} = \cons{TNil} | \cons{TCons}(\type{i32}, \type{Forest})$
 and $\type{Forest} = \cons{FNil} | \cons{FCons}(\type{Tree}, \type{Forest})$.
 \type{Tree} represents a generic \type{i32} tree datatype: either its empty or it contains
 a value along with a {\em list of trees} for its children (represented by \type{Forest}).
-\type{Tree} can be represented as a {\em closed} term in \typegrammar{} as:
+\type{Tree} can be represented in \typegrammar{} as:
 $\mu \alpha. \type{unit} + (\type{i32} \times (\mu \beta. \type{unit + (\alpha \times \beta)}))$,
 where $\alpha$ and $\beta$ stand for the recursive types \type{Tree} and \type{Forest} respectively.
-A term $t$ is closed iff each type variable $\alpha$ in $t$ is bound (using $\mu$).
 
 \input{chapters/figures/figTypeTrees.tex}
 
-\Cref{fig:typetrees} shows the graphical representation of closed types in \typegrammar{}.
+\Cref{fig:typetrees} shows the type trees based for three \SpecL{} ADTs encoded in \typegrammar{}.
 Each internal node represents either a product (\circled{$\times$}) or a sum (\circled{$+$}) type constructor.
 The leaf nodes are the scalar types.
 For each bound type variable, a backedge is created to the ancestor at which it is bounded.
 
 \input{chapters/figures/figTypeTreesPeel.tex}
 
+Recall that types in \SpecL{} follow equirecursive typing rules i.e. the two types $\mu \alpha. T$ and $T[\mu \alpha. T/\alpha]$ in \typegrammar{}
+are {\em equal} types, where $T[\mu \alpha. T/\alpha]$ is defined as the {\em unfolding} of $\mu \alpha T$.
+In general, under equirecursive typing, two types are equal iff their infinite expansions (through unfolding) are equal.
+In the type tree representation, two types are equal iff their infinite expansions are equivalent.
+Expansion through unfolding is equivalent to {\em unrolling} one iteration of a cycle in its type tree.
+\Cref{fig:typetreespeel} shows the three equivalent type trees for the \type{List} type.
+In practice, equality of two types in \typegrammar{} can be checked by converting both to their {\em canonical} forms
+and checking syntactic equality.
+\Cref{fig:typetreelistpeel1} shows the canonical type tree for \type{List}.
+On the other hand, \cref{fig:typetreelistpeel2,fig:typetreelistpeel3} are obtained through {\em peeling} and {\em unrolling}
+the only cycle in \cref{fig:typetreelistpeel1}.
+Peeling is a form of partial unrolling which only extracts the starting node in the cycle instead of one iteration.
+Note that the type trees in \cref{fig:typetreespeel} are technically not `trees' since they contain cycles.
+However, all three of them are isomorphic and represents the same infinite tree obtained by unrolling each of them forever.
+
 \input{chapters/figures/figValueTrees.tex}
 
-Recall that types are equirecursive in \SpecL{}.
-In equirecursive typing, two types $t_1$ and $t_2$ (in \typegrammar{}) are equal
-iff the infinite trees created by unfolding their graphical representation are equal.
-First define unfolding, also define peeling
-2 lines about equality using canonical forms which can be easily found.
-then the new figure showing the 3 versions of list datatype.
+With type trees out of the way, we are ready to define a value tree.
+A value tree for an expression of type $T$ is isomorphic to a type tree for $T$
+with the following differences:
 
-then define value graph and show a figure of 3 cases i alrdy listed.
+\begin{enumerate}
+\item Each leaf node contains a canonical expression of its scalar type.
+\item There is a special node called the {\em entry node} and a special edge from the entry node
+to the root of the tree, called the {\em entry edge}.
+\item Similar to the CFG representation, each edge is associated with an edge condition and a
+transfer function as follows:
+(a) the entry edge has an edge condition {\em true}.
+(b) all outgoing edges for a \circled{$\times$} node has edge condition {\em true}.
+(c) all outgoing edges for a \circled{$+$} node are mutually exclusive and exhaustive
+i.e. exactly one of them is {\em true}.
+\end{enumerate}
+
+\Cref{fig:valuetrees} shows the value trees for three different expressions.
+Note that all three expressions have \type{List} type and they are all isomorphic
+to one of the \type{List} type trees in \cref{fig:typetreespeel}.
+
+\subsubsection{Conversion Algorithm}
+We give an algorithm for converting an arbitrary expression $e$ to its value tree.
+Next, we reformulate multiple procedures related to our proof discharge algorithm
+in terms of the value trees directly.
+
+today: draw the figures for all conversions first
+then write a first draft
+
+tomorrow: draw the figures for decomposition, the 2 deconstruction programs, their unified forms and
+points-to analysis on them
+
 
 then go straight into the conversion algorithm
 quite easy for most
