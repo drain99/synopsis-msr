@@ -4,22 +4,24 @@
 
 \tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
 
-\begin{tikzpicture}[label distance=-0.3mm,inner/.style = {draw, circle, inner sep=0.2mm},leaf/.style = {font=\footnotesize}, annot/.style= {font=\footnotesize}]
+\begin{tikzpicture}
 
-\node[inner,label={\footnotesize 0}] (1)                            {$+$};
-\node[leaf,label={\footnotesize 1}]  (2) [position=-120:8mm from 1] {$()$};
-\node[inner,label={\footnotesize 2}] (3) [position=-60:8mm from 1]  {$\times$};
-\node[leaf,label={\footnotesize 3}]  (4) [position=-120:8mm from 3] {$\hat{e}$};
-\node[inner,label={\footnotesize 4}] (5) [position=-60:8mm from 3]  {$+$};
-\node[leaf,label={\footnotesize 5}]  (6) [position=-120:8mm from 5] {$()$};
+\node[ttinner={45:0}] (0)                             {$+$};
+\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[ttleaf]         (3) [position=-120:10mm from 2] {$\hat{e}$};
+\node[ttinner={45:2}] (4) [position=-60:10mm from 2]  {$+$};
+\node[ttleaf]         (5) [position=-120:10mm from 4]  {$()$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 1] {} edge[bend left,in=165] (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- node[annot,shift={(-1mm,2mm)}] {$\hat{c}$} (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- node[annot,shift={(1.8mm,2mm)}] {$\neg \hat{c}$} (3);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) -- (4);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) -- (5);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (5) -- node[annot,shift={(-3mm,2mm)}] {$true$} (6);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (5) edge [out=-45,in=30,looseness=2.6] node[near start,annot,shift={(4mm,-0.5mm)}] {$false$} (3);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot,left]  {\astcons{LNil} \\ $\hat{c}$}          (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot,right] {\astcons{LCons} \\ $\neg \hat{c}$}    (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,left]  {\olifield{val}}                       (3);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,right] {\olifield{tail}}                      (4);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to node[ttannot,left,xshift=-1mm]  {\astcons{LNil} \\ $true$} (5);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) .. controls ++(-45:17mm) and ++(30:18mm) .. node[ttannot,right] {\astcons{LCons} \\ $false$} (2);
 
 \end{tikzpicture}
 

@@ -4,24 +4,19 @@
 
 \tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
 
-\begin{tikzpicture}[label distance=-0.3mm,inner/.style = {draw, circle, inner sep=0.2mm},leaf/.style = {font=\footnotesize}]
+\begin{tikzpicture}
 
-\node[inner,label={\footnotesize 0}] (1)                            {$+$};
-\node[leaf,label={\footnotesize 1}]  (2) [position=-120:5mm from 1] {\type{unit}};
-\node[inner,label={\footnotesize 2}] (3) [position=-60:5mm from 1]  {$\times$};
-\node[leaf,label={\footnotesize 3}]  (4) [position=-120:5mm from 3] {\type{i32}};
-\node[inner,label={\footnotesize 4}] (5) [position=-60:5mm from 3]  {$+$};
-\node[leaf,label={\footnotesize 5}]  (6) [position=-120:5mm from 5] {\type{unit}};
-\node[inner,label={\footnotesize 6}] (7) [position=-60:5mm from 5]  {$\times$};
+\node[ttinner={135:0}] (0)                            {$+$};
+\node[ttleaf]          (1) [position=-120:7mm from 0] {\type{unit}};
+\node[ttinner={45:1}]  (2) [position=-60:7mm from 0]  {$\times$};
+\node[ttleaf]          (3) [position=-120:7mm from 2] {\type{i32}};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- (3);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) -- (4);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) -- (5);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (5) -- (6);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (5) -- (7);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (7) .. controls ($(7) +(-5mm,-7mm)$) and ($(7) +(8.5mm,-10mm)$) .. ($(7) +(8.5mm,0)$) .. controls ($(7) +(8.5mm,+25mm)$) and ($(5) +(3mm,+22mm)$) .. (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (7) edge [out=-45,in=30,looseness=2.6] (5);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot,left]  {\astcons{TNil}}  (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot,right] {\astcons{TCons}} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,left]  {\olifield{val}}  (3);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-70:30mm) and ++(42:36mm) .. node[ttannot,right]                  {\olifield{left}}  (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:16mm) and ++(18:25mm) .. node[ttannot,left,shift={(3mm,3mm)}] {\olifield{right}} (0);
 
 \end{tikzpicture}
 

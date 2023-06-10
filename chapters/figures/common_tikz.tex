@@ -27,12 +27,12 @@
 \input{../../common_macros.tex}
 
 \tikzset{
+    ttinner/.style args={#1:#2}{draw,circle,inner sep=0.2mm,label={#1,inner sep=0.1mm:\scriptsize #2}},
+    ttleaf/.style={font=\footnotesize},
+    ttannot/.style={near start,align=center,font=\scriptsize},
     position/.style args={#1:#2 from #3}{
         at=(#3.#1), anchor=#1+180, shift=(#1:#2)
-    }
-}
-
-\tikzset{
+    },
     show control points/.style={
         decoration={show path construction, curveto code={
                 \draw [blue, dashed]
