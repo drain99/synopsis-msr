@@ -520,7 +520,7 @@ represents the address of the newly allocated \type{lnode} object (through {\tt 
 represents the C memory state after executing the writes at lines \cpc{5} and \cpc{6} on the path \cpath{5,3}, i.e.,
 \begin{equation}
 \label{eqn:memstore}
-\mem{}' \Leftrightarrow \memWrite{\memWrite{\mem{}}{\cv{p}+\offsetof{lnode}{val}}{\cv{i}}{i32}}{\cv{p}+\offsetof{lnode}{next}}{\cv{l}}{i32}
+\mem{}' \Leftrightarrow \memWrite{\memWrite{\mem{}}{\addrof{\structPointer{\cv{p}}{}{lnode}{val}}}{\cv{i}}{i32}}{\addrof{\structPointer{\cv{p}}{}{lnode}{next}}}{\cv{l}}{i32}
 \end{equation}
 Recall that ``\memWrite{\mem{}}{a}{v}{T}'' represents an array that is equal
 to \mem{} everywhere except at addresses [$a$, $a$+\sizeof{T}) which contains
@@ -562,7 +562,7 @@ address $\cv{p}+\offsetof{lnode}{val}$ in $\mem{}'$ (\cref{eqn:memstore})
 and the \lhs{} ensures that $\sv{i} = \cv{i}$.
 \end{enumerate}
 
-For ease of exposition, we simply the postcondition of the third proof obligation by rewriting
+For ease of exposition, we simplify the postcondition of the third proof obligation by rewriting
 $\lifted{list}{\mem{}'}{lnode}{\structPointer{\cv{p}}{\mem{}'}{lnode}{next}}$
 to
 $\lifted{list}{\mem{}'}{lnode}{\cv{l}}$.
@@ -597,7 +597,7 @@ a \type{List} value equal to the value
 represented by \lifted{list}{\mem{}}{lnode}{l}.
 We call this program a {\em deconstruction program} based
 on the lifting constructor \lift{list}{}{lnode}.
-\Cref{fig:clistdecons} shows the IR and CFG representation of the deconstruction program
+\Cref{fig:clistdecons} show the IR and CFG representations of the deconstruction program
 for the lifting constructor \lift{list}{}{lnode}.
 
 \input{chapters/figures/figClistDeconsIRAndCFG.tex}
@@ -634,50 +634,67 @@ to distinguish this product-CFG from the top-level product-CFG that relates \spr
 we call this product-CFG that relates two deconstruction programs,
 a {\em deconstruction product-CFG} or {\em decons-PCFG} for short.
 
-\input{chapters/figures/figClistCfgsAndPointstoGraph.tex}
-The decons-PCFG for the proof obligation in \cref{eqn:clistPreserved} is shown in \cref{fig:recons}.
-We distinguish states between the first and second programs using superscripts: $fst$ and $snd$ respectively.
+\input{chapters/figures/figClistDeconsProductCFGAndInvs.tex}
+
+The decons-PCFG for the proof obligation in \cref{eqn:clistPreserved} is shown in \cref{fig:clistdeconsproductcfg}.
+We distinguish states between the first and second programs using superscripts:
+$f$ and $s$ (short for $first$ and $second$) respectively.
 However, these are omitted in case the states are equal in both programs (e.g., \cv{p}).
 To check bisimulation between the programs that deconstruct
 \lifted{list}{\mem{}}{lnode}{\cv{l}} and \lifted{list}{\mem{}'}{lnode}{\cv{l}} (i.e. \fdprog{} and \sdprog{} respectively),
 the decons-PCFG correlates one unrolling of the first program with one unrolling
 of the second program, as defined by the unrolling procedure in \cref{eqn:clist}.
 Thus, the PC-transition correlations of \fdprog{} and \sdprog{} are trivially
-obtained by unifying the static program structures.
+obtained by unifying the static program structures as shown in \cref{fig:clistdeconsproductcfg}.
 A node is created in the decons-PCFG that encodes the correlation of the entries
-of both programs; we call this node the {\em recursive-node} in the decons-PCFG (e.g., \ddpc{0}{0} in \cref{fig:reconsPCFG}).
+of both programs; we call this node the {\em recursive-node} in the decons-PCFG (e.g., (\ddpc{0}{0}) in \cref{fig:clistdeconsproductcfg}).
 A recursive call becomes a back-edge in the decons-PCFG that terminates at the recursive-node.
-At the start of both deconstruction programs, $\fstv{l} = \sndv{l} = \cv{l}$ --- the same \cv{l}
-is passed to both \fdprog{} and \sdprog{}, only the memory states $\fstv{\mem{}} = \mem{}$
-and $\sndv{\mem{}} = \mem{}'$ are different.
-The bisimulation check thus involves checking that if the invariant $\fstv{l} = \sndv{l}$
-holds at the recursive-node, then during one iteration of the unrolling procedure
-in both programs:
+Furthermore, a bisimulation check involves identification of invariants at correlated PC-pairs strong enough to
+ensure observable equivalence.
+At the start of both deconstruction programs, $\fdv{l} = \sdv{l} = \cv{l}$ --- the same \cv{l}
+is passed to both \fdprog{} and \sdprog{}, only the memory states $\fdv{\mem{}} = \mem{}$
+and $\sdv{\mem{}} = \mem{}'$ (defined in \cref{eqn:memstore}) are different.
+The observables (labeled \circled{\small E} in \cref{fig:clistdeconsproductcfginvs}) include the returned \type{List} values at correlated
+program exits (\ddpc{E_2}{E_2}) and (\ddpc{E_6}{E_6}).
+Next, the bisimulation check involves identification of inductive invariants (labeled \circled{\small I}
+in \cref{fig:clistdeconsproductcfginvs}) at correlated PC-pairs.
+The proof obligations arising due to this bisimulation check include:
 
 \begin{enumerate}
-\item The \underline{\tt if} condition $(\fstv{l} = 0)$ in \fdprog{} is equal to the corresponding \underline{\tt if} condition $(\sndv{l} = 0)$ in \sdprog{}:
-$(\fstv{l} = 0) = (\sndv{l} = 0)$.
+\item The \underline{\tt if} condition $(\fdv{l} = 0)$ in \fdprog{} is equal to the corresponding \underline{\tt if} condition $(\sdv{l} = 0)$ in \sdprog{}:
+$(\fdv{l} = 0) = (\sdv{l} = 0)$.
 \item If the \underline{\tt if} condition evaluates to false in both \fdprog{} and \sdprog{},
-then observable values (that are used in the construction of the list) are equal: \\
-$((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{val} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{val})$.
+then observable values \fdv{val} and \sdv{val} along the path \ddedge{1}{1}{5}{5}
+(used in the construction of the output lists) are equal.
+This forms the invariant \circled{\small I4} in \cref{fig:clistdeconsproductcfginvs} and lowers to the following proof obligation: \\
+$(\fdv{l} \neq 0) \land (\sdv{l} \neq 0) \Rightarrow \structPointer{\fdv{l}}{\fdv{\mem{}}}{lnode}{val} = \structPointer{\sdv{l}}{\sdv{\mem{}}}{lnode}{val}$.
 \item If the \underline{\tt if} condition evaluates to false in both \fdprog{} and \sdprog{}, then the
-invariant holds at the beginning of the programs invoked through the recursive call.
-This involves checking equality of the arguments to the recursive call: \\
-$((\fstv{l} \neq 0) \land (\sndv{l} \neq 0)) \Rightarrow (\structPointer{\fstv{l}}{\mem{}}{lnode}{next} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{next})$.
+preconditions are satisfied at the beginning of the programs invoked through the recursive call.
+This involves checking that, along the path \ddedge{1}{1}{5}{5}, the actual arguments to the recursive call
+satisfies the precondition \circled{\small I1} (\circled{\small I2} and \circled{\small I3} are trivially provable)
+at the beginning of the procedure i.e. the recursive-node (\ddpc{0}{0}).
+This forms the invariant \circled{\small I5} in \cref{fig:clistdeconsproductcfginvs} and lowers the following proof obligation: \\
+$(\fdv{l} \neq 0) \land (\sdv{l} \neq 0) \Rightarrow \structPointer{\fdv{l}}{\fdv{\mem{}}}{lnode}{next} = \structPointer{\sdv{l}}{\sdv{\mem{}}}{lnode}{next}$.
+
+A successful discharge of the above invariant (\circled{\small I5}), by induction, also ensures that postconditions
+are satisfied by the values returned by the recursive call at product-CFG node (\ddpc{7}{7}).
+Hence, we can assume that invariant \circled{\small I7} holds at (\ddpc{7}{7}).
+This special case of correlating procedure call edges is further discussed in \cref{sec:correlfcalls} as part of our
+overall product-CFG construction algorithm.
 \end{enumerate}
 
-The first check succeeds due to the invariant $\fstv{l} = \sndv{l}$.
+The first check succeeds due to the precondition \circled{\footnotesize P1} $\fdv{l} = \sdv{l}$ at the recursive-node.
 For the second and third checks, we additionally need to reason that the memory objects
-$\structPointer{\comv{l}}{\mem{}}{lnode}{val}$ and
-$\structPointer{\comv{l}}{\mem{}}{lnode}{next}$ cannot alias with
-the writes (in $\mem{}'$ in \cref{eqn:memstore}) to the newly
+$\structPointer{\sdv{l}}{\sdv{\mem{}}}{lnode}{val}$ and
+$\structPointer{\sdv{l}}{\sdv{\mem{}}}{lnode}{next}$ cannot alias with
+the writes in \sdv{\mem{}} (= $\mem{}'$ in \cref{eqn:memstore}) to the newly
 allocated objects
-$\structPointer{\cv{p}}{\mem{}}{lnode}{val}$ and
-$\structPointer{\cv{p}}{\mem{}}{lnode}{next}$.
+$\structPointer{\cv{p}}{\sdv{\mem{}}}{lnode}{val}$ and
+$\structPointer{\cv{p}}{\sdv{\mem{}}}{lnode}{next}$.
 We capture this aliasing information using a points-to analysis described next in \cref{sec:pointsTo}.
 
 Notice that a bisimulation check between the deconstruction programs is
-significantly easier than the top-level bisimulation check between \SpecL{} and C programs:
+significantly easier than the top-level bisimulation check between \sprog{} and \cprog{}:
 here, the correlation of PC traisitons is trivially identified by unifying the
 unrolling procedures of both lifted expressions, and the candidate invariants
 are obtained by equating each pair of terminal values that form the observables
@@ -687,7 +704,7 @@ of both programs.
 \label{sec:pointsTo}
 To reason about aliasing (as required during bisimulation check in \cref{sec:bisim}),
 we conservatively compute {\em may-point-to} information for each program value using
-a flow-sensitive version of Andersen's algorithm \cite{andersen94programanalysis}.
+an interprocedural flow-sensitive version of Andersen's algorithm \cite{andersen94programanalysis}.
 The range of this computed may-point-to function is the set of {\em region labels},
 where each region label identifies a set of memory objects.
 The sets of memory objects identified by two distinct region labels
@@ -730,6 +747,8 @@ because the \field{next} pointer of the object pointed-to by \cv{p}
 object (e.g., object pointed to by \cv{l}).
 On the other hand, pointers within a \mlrs{\cpc{4}} object may not point to a \mlrf{\cpc{4}} object.
 
+\input{chapters/figures/figClistDeconsProductCfgPointstoInvsAnfGraph.tex}
+
 \subsubsection{Transferring Points-to Information to Decons-PCFG}
 \label{sec:pointsToAsInvariants}
 Recall that in \cref{sec:reconsbisim}, we reduce the condition
@@ -743,39 +762,48 @@ $\structPointer{\comv{l}}{\mem{}'}{lnode}{\{val,next\}}$ are equal.
 To successfully discharge these proof obligations, it suffices to show
 \cv{l} cannot alias with the memory writes that distinguish \mem{} and $\mem{}'$.
 
-Our points-to analysis on the \cprog{} program (in \cref{fig:llAllocCIR}) determines that at PC \cpc{5}
+\Cref{fig:clistdeconspointstoinvs} shows the may-point-to relations identified by our
+points-to analysis on the \cprog{} in \cref{fig:llAllocCIR} at the program point \cpc{5}.
+The points-to analysis determines that at \cpc{5}
 (i.e. start of the product-CFG edge \scedge{3}{5}{3}{3} across which the proof obligation
-is generated), the pointer to the {\em head} of the list, i.e. $\cv{l} \pointsTo{} \{ \mlrs{C4} \}$.
-It also determines that the distinguishing writes modify memory regions belonging to \mlrf{C4} only.
-Further, we get $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ at PC \cpc{5}.
+is generated), the pointer to the {\em head} of the list, i.e. \circled{\small J3} $\cv{l} \pointsTo{} \{ \mlrs{C4} \}$.
+It also determines that the distinguishing writes (in \cref{eqn:memstore}) modify memory regions
+belonging to \mlrf{C4} only (i.e. \circled{\small J1}).
+Further, we get \circled{\small J4} $\mlrs{C4} \pointsTo{} \{ \mlrs{C4}, \heapr{} \}$ at PC \cpc{5}.
+\Cref{fig:clistdeconspointstograph} shows the points-to graph for the \cprog{} variables and the memory regions (in \mem{}).
+This graphical representation clearly illustrates that the objects pointed to by \cv{p} (i.e. \mlrf{\cpc{4}})
+and \cv{l} (i.e. \mlrs{\cpc{4}}) are mutually isolated.
+
 However, notice that these determinations only rule out aliasing of the list-head with
 the distinguishing writes. We also need to confirm non-aliasing
 of the internal nodes of the linked list with the distinguishing writes.
-For this, we need to identify a points-to invariant: $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$,
-at the recursive-node of the decons-PCFG (shown in \cref{fig:reconsPCFG}).
-To identify such points-to invariant, we run our points-to analysis
+For this, we need to identify a points-to invariant: $\sdv{l} \pointsTo{} \{ \mlrs{C4}, \heapr{} \}$,
+at the recursive-node of the decons-PCFG (shown in \cref{fig:clistdeconsproductcfg}).
+To identify such points-to invariants, we run our points-to analysis
 on the deconstruction programs (i.e. \fdprog{} and \sdprog{}) before comparing them for equivalence.
 To model procedure calls, A {\em supergraph} is created with edges representing control flow
 to (and from) the entry (and exits) of the program respectively (e.g., dashes edges in \cref{fig:clistdeconsCFG}).
-To see why $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ is an inductive invariant at the recursive-node:
+To see why $\sdv{l} \pointsTo{} \{ \mlrs{C4}, \heapr{} \}$ is an inductive invariant at (\ddpc{0}{0}):
 
 \begin{itemize}
-\item[] (Base case) the invariant holds at entry of the decons-PCFG because \sndv{l} = \cv{l} at entry and it holds for \cv{l}.
-\item[] (Inductive step) if $\sndv{l} \pointsTo{} \{ \mlrs{C4} \}$ holds at the entry node,
+\item[] (Base case) the invariant holds at entry of the decons-PCFG because \sdv{l} = \cv{l} at entry
+and \circled{\small J3} $\cv{l} \pointsTo{} \{ \mlrs{C4} \}$, which is a stronger condition.
+\item[] (Inductive step) if $\sdv{l} \pointsTo{} \{ \mlrs{C4}, \heapr{} \}$ holds at the entry node,
 it also holds at the start of a recursive call.
-This follows from $\mlrs{C4} \pointsTo{} \{ \mlrs{C4} \}$ (points-to information at PC \cpc{5}),
-which ensures that $\structPointer{\cv{l}}{\mem{}'}{lnode}{next}$ may point to only \mlrs{C4} objects.
+This follows from \circled{\small J4} $\mlrs{C4} \pointsTo{} \{ \mlrs{C4}, \heapr{} \}$
+and \circled{\small J5} $\heapr{} \pointsTo{} \{ \mlrs{C4}, \heapr{} \}$ (points-to information at PC \cpc{5}),
+which ensures that $\structPointer{\cv{l}}{\mem{}'}{lnode}{next}$ may point to only \mlrs{C4} and \heapr{} objects.
 \end{itemize}
 
-The same analysis is run for both \cprog{} and the deconstruction programs.
+The same analysis is run for both \cprog{}, and the deconstruction programs \fdprog{} and \sdprog{}.
 For a deconstruction program \dprog{}, the boundary condition (at entry) for the
 points-to analysis is based on the results of the points-to analysis on \cprog{}
 at the PC where the proof obligation is being discharged.
-For example, the points-to information of \cprog{} PC \cpc{5} (in \cref{fig:llAllocC})
-is used during the points-to analysis on \fdprog{} and \sdprog{} in \cref{fig:recons}.
+For example, the points-to information of \cprog{} PC \cpc{5} (in \cref{fig:llAllocCIR})
+is used during the points-to analysis on \fdprog{} and \sdprog{}.
 
 During proof query discharge, the points-to invariants are encoded as SMT constraints.
-This allows us to complete the bisimulation proof on the decons-PCFG in \cref{fig:reconsPCFG},
+This allows us to complete the bisimulation proof on the decons-PCFG in \cref{fig:clistdeconsproductcfg},
 and consequently, successfully discharge the proof obligation
 \hoareTriple{\scpcinv{3}{5}}{\spath{3,5,3},\cpath{5,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}
 in \cref{tab:llproductInv}.

@@ -6,63 +6,81 @@
 
 \tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
 
-\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
-%uncomment if require: \path (0,558); %set diagram left start at 0, and has height of 558
+\begin{tikzpicture}
 
-% Text Node
-\draw    (152, 55.5) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (152,55.5) node  [font=\footnotesize]  {\rpc{0}};
-% Text Node
-\draw    (152, 94.5) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (152,94.5) node  [font=\footnotesize]  {\rpc{1}};
-% Text Node
-\draw    (125, 156) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (125,156) node  [font=\footnotesize]  {\rpc{E_1}};
-% Text Node
-\draw    (180.5, 156) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (180.5,156) node  [font=\footnotesize]  {\rpc{F_s}};
-% Text Node
-\draw    (203.5, 211) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (203.5,211) node  [font=\footnotesize]  {\rpc{F_e}};
-% Text Node
-\draw    (228, 261) circle [x radius= 11.34, y radius= 11.34]   ;
-\draw (228,261) node  [font=\footnotesize]  {\rpc{E_2}};
-% Text Node
-\draw (126,107.5) node  [font=\footnotesize]  {$\comv{l} = 0$};
-% Text Node
-\draw (184,107.5) node  [font=\footnotesize]  {$\comv{l} \neq 0$};
-% Text Node
-\draw (72,156.5) node  [font=\footnotesize]  {\tfbox{\mathbf{output}\ \cons{LNil}}};
-% Text Node
-\draw (222.5,124) node  [font=\footnotesize]  {\tfbox{\comv{val} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{\comv{val}}}};
-% Text Node
-\draw (283,176.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \lifted{list}{\mem{}}{lnode}{\structPointer{\comv{l}}{\mem{}}{lnode}{next}}}};
-% Text Node
-\draw (312,260.5) node  [font=\footnotesize]  {\tfbox{\mathbf{output}\ \cons{LCons}(\comv{val}, \comv{tail})}};
-% Text Node
-\draw (313.5,60) node  [font=\footnotesize]  {\tfbox{\comv{l} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{next}}};
-% Text Node
-\draw (114,193.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \cons{LNil}}};
-% Text Node
-\draw (95,236.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \cons{LCons}(\comv{val}, \comv{tail})}};
-% Text Node
-\draw (102,55.5) node  [font=\footnotesize]  {\tfbox{\mathbf{input}\ \comv{l}, \mem{}}};
-% Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (152,66.6) -- (152,83.5) ;
-% Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (147.54,104.67) -- (131.39,147) ;
-% Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (156.67,104.58) -- (174,147) ;
-% Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (183.7,167) -- (197.53,201.2) ;
-% Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (207.43,221.5) -- (222.01,251.2) ;
-% Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (134.22,166.39) .. controls (143.79,179.47) and (162.27,192.18) .. (194,204.5) ;
-% Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (193.9,154.67) .. controls (375.75,139.13) and (281.42,46.11) .. (162.84,54.72) ;
-%Curve Lines [id:da3594688465785896] 
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (213,259) .. controls (159.61,251.02) and (156.87,221.8) .. (192.44,210.59) ;
+\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize,label={west:\footnotesize \compacttfbox{\mathbf{input} \  l,\mem{}}}] (0) {\dpc{0}};
+\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize] (1) [position=-90:4mm from 0] {\dpc{1}};
+\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize,label={-100,inner sep=0.4mm:\footnotesize \compacttfbox{\mathbf{output} \  \cons{LNil}}}] (2) [position=-110:10mm from 1] {\dpc{E_2}};
+\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize] (3) [position=-70:10mm from 1] {\dpc{5}};
+\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize] (4) [position=-70:8mm from 3] {\dpc{6}};
+\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize,label={west:\footnotesize \compacttfbox{\mathbf{output} \  \cons{LCons}({\tt val},{\tt tail})}}] (5) [position=-70:4mm from 4] {\dpc{E_6}};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) to node[near start,left,font=\footnotesize,yshift=0.5mm] {$l=0$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) to node[midway,right,font=\footnotesize,align=left,xshift=0.5mm] {$l \neq 0$ \\ \  \compacttfbox{{\tt val} \coloneqq \structPointer{l}{\mem{}}{lnode}{val}}} (3);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to node[midway,right,font=\footnotesize] {\ \compacttfbox{{\tt tail} \coloneqq \lifted{list}{\mem{}}{lnode}{\structPointer{l}{\mem{}}{lnode}{next}}}} (4);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to (5);
+
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (2) .. controls ++(-60:9mm) .. node[near end,left,font=\footnotesize,yshift=-2.5mm] {\compacttfbox{{\tt tail} \coloneqq \cons{LNil}}} (4);
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (5.20) .. controls ++(10:8mm) and ++(-10:8mm) .. node[right,font=\footnotesize] {\compacttfbox{{\tt tail} \coloneqq \cons{LCons}({\tt val}, {\tt tail})}} (4.-20);
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (3) .. controls ++(0:65mm) and ++(0:40mm) .. node[right,near end,font=\footnotesize,yshift=3.5mm] {\compacttfbox{l \coloneqq \structPointer{l}{\mem{}}{lnode}{next}}} (0);
+
+
+
+% % Text Node
+% \draw    (152, 55.5) circle [x radius= 11.34, y radius= 11.34]   ;
+% \draw (152,55.5) node  [font=\footnotesize]  {\rpc{0}};
+% % Text Node
+% \draw    (152, 94.5) circle [x radius= 11.34, y radius= 11.34]   ;
+% \draw (152,94.5) node  [font=\footnotesize]  {\rpc{1}};
+% % Text Node
+% \draw    (125, 156) circle [x radius= 11.34, y radius= 11.34]   ;
+% \draw (125,156) node  [font=\footnotesize]  {\rpc{E_1}};
+% % Text Node
+% \draw    (180.5, 156) circle [x radius= 11.34, y radius= 11.34]   ;
+% \draw (180.5,156) node  [font=\footnotesize]  {\rpc{F_s}};
+% % Text Node
+% \draw    (203.5, 211) circle [x radius= 11.34, y radius= 11.34]   ;
+% \draw (203.5,211) node  [font=\footnotesize]  {\rpc{F_e}};
+% % Text Node
+% \draw    (228, 261) circle [x radius= 11.34, y radius= 11.34]   ;
+% \draw (228,261) node  [font=\footnotesize]  {\rpc{E_2}};
+% % Text Node
+% \draw (126,107.5) node  [font=\footnotesize]  {$\comv{l} = 0$};
+% % Text Node
+% \draw (184,107.5) node  [font=\footnotesize]  {$\comv{l} \neq 0$};
+% % Text Node
+% \draw (72,156.5) node  [font=\footnotesize]  {\tfbox{\mathbf{output}\ \cons{LNil}}};
+% % Text Node
+% \draw (222.5,124) node  [font=\footnotesize]  {\tfbox{\comv{val} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{\comv{val}}}};
+% % Text Node
+% \draw (283,176.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \lifted{list}{\mem{}}{lnode}{\structPointer{\comv{l}}{\mem{}}{lnode}{next}}}};
+% % Text Node
+% \draw (312,260.5) node  [font=\footnotesize]  {\tfbox{\mathbf{output}\ \cons{LCons}(\comv{val}, \comv{tail})}};
+% % Text Node
+% \draw (313.5,60) node  [font=\footnotesize]  {\tfbox{\comv{l} \coloneqq \structPointer{\comv{l}}{\mem{}}{lnode}{next}}};
+% % Text Node
+% \draw (114,193.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \cons{LNil}}};
+% % Text Node
+% \draw (95,236.5) node  [font=\footnotesize]  {\tfbox{\comv{tail} \coloneqq \cons{LCons}(\comv{val}, \comv{tail})}};
+% % Text Node
+% \draw (102,55.5) node  [font=\footnotesize]  {\tfbox{\mathbf{input}\ \comv{l}, \mem{}}};
+% % Connection
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (152,66.6) -- (152,83.5) ;
+% % Connection
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (147.54,104.67) -- (131.39,147) ;
+% % Connection
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (156.67,104.58) -- (174,147) ;
+% % Connection
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (183.7,167) -- (197.53,201.2) ;
+% % Connection
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (207.43,221.5) -- (222.01,251.2) ;
+% % Connection
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (134.22,166.39) .. controls (143.79,179.47) and (162.27,192.18) .. (194,204.5) ;
+% % Connection
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (193.9,154.67) .. controls (375.75,139.13) and (281.42,46.11) .. (162.84,54.72) ;
+% %Curve Lines [id:da3594688465785896] 
+% \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}]  (213,259) .. controls (159.61,251.02) and (156.87,221.8) .. (192.44,210.59) ;
 
 \end{tikzpicture}
 

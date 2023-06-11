@@ -65,6 +65,8 @@
 \newcommand{\comv}[1]{\ensuremath{{\tt #1}}}%
 \newcommand{\fstv}[1]{\ensuremath{{\tt #1}^{fst}}}%
 \newcommand{\sndv}[1]{\ensuremath{{\tt #1}^{snd}}}%
+\newcommand{\fdv}[1]{\ensuremath{{\tt #1}^{f}}}%
+\newcommand{\sdv}[1]{\ensuremath{{\tt #1}^{s}}}%
 \newcommand{\sdef}{\ensuremath{{(\sprog{}\ {\tt def})}}}%
 \newcommand{\cfits}{\ensuremath{{(\cprog{}\ {\tt fits})}}}%
 \newcommand{\spath}[2][\ensuremath{{\rightarrow}}]{%
@@ -77,6 +79,11 @@
   \renewcommand*{\do}[1]{\nextitem{\cpc{##1}}}% How to process each item
   \docsvlist{#2}% Process list
 }%
+\newcommand{\dpath}[2][\ensuremath{{\rightarrow}}]{%
+  \def\nextitem{\def\nextitem{#1}}% Separator
+  \renewcommand*{\do}[1]{\nextitem{\dpc{##1}}}% How to process each item
+  \docsvlist{#2}% Process list
+}%
 \newcommand{\pathpar}{\ensuremath{+}}%
 \newcommand{\pathset}[2][\ensuremath{{\rightarrow}}]{%
   \def\nextitem{\def\nextitem{#1}}% Separator
@@ -84,6 +91,7 @@
   \docsvlist{#2}% Process list
 }
 \newcommand{\scedge}[4]{\ensuremath{{\small (\scpc{#1}{#2}) \! \rightarrow \! (\scpc{#3}{#4})}}}%
+\newcommand{\ddedge}[4]{\ensuremath{{\small (\ddpc{#1}{#2}) \! \rightarrow \! (\ddpc{#3}{#4})}}}%
 \newcommand{\type}[1]{{\tt #1}}%
 \newcommand{\ctype}[1]{{{\,\tt :\!#1}}}
 \newcommand{\cons}[1]{{\tt #1}}%
