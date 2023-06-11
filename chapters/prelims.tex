@@ -1,10 +1,5 @@
-\section{Languages and Equivalence}
-\label{sec:lang-eqdef}
-
-This section introduces the \SpecL{} language and give a detailed description of \SpecL{} along
-with the intermediate representations introduced in \cref{sec:motivatingexample}.
-Next, we give a formal definition of equivalence in our context, followed by a discussion on bisimulation.
-We finish with an analysis of proof obligations generated during the search for a bisimulation relation.
+\section{Preliminaries}
+\label{sec:prelims}
 
 \subsection{The \SpecL{} Language}
 \label{sec:speclang}
@@ -39,10 +34,63 @@ The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a \type{bool
 of the ADT value \nonTerm{expr} is \nonTerm{data-cons}.
 \nonTerm{scalar-op} includes the logical, arithmatic and relational operators supported by \SpecL{}.
 
-\subsection{Intermediate Representations}
+\subsection{Equivalence Definition}
+\label{sec:eqdef}
+Given (1) a \SpecL{} function specification \sprog{}, (2) a C implementation \cprog{},
+(3) a precondition \pre{} that relates the initial inputs \sv{Input} and \cv{Input} to
+\sprog{} and \cprog{} respectively, and (4) a postcondition \post{} that relates the final outputs
+\sv{Output} and \cv{Output} of \sprog{} and \cprog{} respectively\footnote{\cv{Input} and \cv{Output}
+include the initial and final memory state of \cprog{} respectively.}:
+\sprog{} and \cprog{} are {\em equivalent} if for all possible inputs \sv{Input} and \cv{Input} such that
+$\pre{}(\sv{Input},\cv{Input})$ holds,
+\sprog{}'s execution is well-defined on \sv{Input}, {\em and}
+\cprog{}'s memory allocation requests during its execution on \cv{Input} are successful,
+then both programs \sprog{} and \cprog{} produce outputs such that $\post{}(\sv{Output},\cv{Output})$ holds.
+$$
+\pre{}(\sv{Input},\cv{Input}) \land \sdef{} \land \cfits{} \Rightarrow \post{}(\sv{Output},\cv{Output})
+$$
+
+The \sdef{} antecedent states that we are only interested in proving equivalence for
+well-defined executions of \sprog{}, i.e., executions that satisfy all assertions expressed
+using the {\tt assuming-do} statement.
+The \cfits{} antecedent states that we prove equivalence under the assumption that \cprog{}'s memory
+requirements fit within the available system memory i.e., only for those executions of \cprog{}
+in which all memory allocation requests (through {\tt malloc} calls) are successful.
+
+The returned values of \sprog{} and \cprog{} form their observable outputs.
+For \sprog{}, the returned values are explicit and may include ADT values.
+For \cprog{}, observables include the returned value alongside the implicit memory state
+at program exit.
+The postcondition \post{} relates these outputs of the two programs.
+The pair $(\pre{},\post{})$ represents the input-output behaviour of \cprog{} in terms of the specification \sprog{},
+and is called the {\em input-output specification}.
+In general, \SpecL{} and C sources may contain multiple top-level procedures, with calls to each other.
+In this case, we are interested in finding equivalence between each pair
+of \sprog{} and \cprog{} procedures with respect to their input-output specification.
+
+Sometimes, the user may be interested in constraining the nature of inputs to \cprog{}
+for the purpose of checking equivalence only for {\em well-defined} inputs.
+In those circumstances, we use a combination of \pre{} and \sdef{} to constrain
+the execution of \cprog{} to inputs for which we are interested in proving equivalence.
+For example, the C library function {\tt strlen(\type{char}* \cv{str})} is well-defined only if \cv{str}
+represents a valid null character terminated string.
+This includes the assumption that the pointer \cv{str} may not be null.
+Since \SpecL{} has no notion of pointers, we expose this conditional well-definedness of C strings
+through an explicit constructor e.g. \cons{SInvalid} for the \type{String} ADT defined as:
+$$
+\type{String}=\cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{String})
+$$
+\sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ (using {\tt assuming-do}) and
+the precondition \pre{} contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
+Hence, \sdef{} and \pre{} ensure that we compute equivalence for those
+executions of \sprog{} and \cprog{} where the input strings are well-defined.
+A similar strategy is employed for other functions as explored later in \cref{sec:results}.
+
+\subsection{Control Flow Graph Representation}
 \label{sec:ir}
-As outlined in \cref{sec:motivatingexample}, we lower both \SpecL{} and C programs to a common
-logical representation called IR.
+As outlined in \cref{sec:motivatingexample}, we convert both \SpecL{} and C programs to a common
+abstract representation called the `Control Flow Graph' (CFG for short).
+This process involves converting both programs to a linear equivalent representation called the IR.
 IR is a Three-Address-Code (3AC) style intermediate representation.
 We often omit intermediate registers in the IR for brevity,
 and refer to this as the {\em abstracted} IR.
@@ -149,58 +197,6 @@ in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7
 In such a case, the transfer function of the edge is the composition of the sequence of instructions.
 We omit these transfer functions in the CFG figures and only show the edge conditions (unless they are {\em true}).
 Henceforth, We refer to the IR programs as \SpecL{} and C directly unless a distinction is necessary.
-
-\subsection{Equivalence Definition}
-\label{sec:eqdef}
-Given (1) a \SpecL{} function specification \sprog{}, (2) a C implementation \cprog{},
-(3) a precondition \pre{} that relates the initial inputs \sv{Input} and \cv{Input} to
-\sprog{} and \cprog{} respectively, and (4) a postcondition \post{} that relates the final outputs
-\sv{Output} and \cv{Output} of \sprog{} and \cprog{} respectively\footnote{\cv{Input} and \cv{Output}
-include the initial and final memory state of \cprog{} respectively.}:
-\sprog{} and \cprog{} are {\em equivalent} if for all possible inputs \sv{Input} and \cv{Input} such that
-$\pre{}(\sv{Input},\cv{Input})$ holds,
-\sprog{}'s execution is well-defined on \sv{Input}, {\em and}
-\cprog{}'s memory allocation requests during its execution on \cv{Input} are successful,
-then both programs \sprog{} and \cprog{} produce outputs such that $\post{}(\sv{Output},\cv{Output})$ holds.
-$$
-\pre{}(\sv{Input},\cv{Input}) \land \sdef{} \land \cfits{} \Rightarrow \post{}(\sv{Output},\cv{Output})
-$$
-
-The \sdef{} antecedent states that we are only interested in proving equivalence for
-well-defined executions of \sprog{}, i.e., executions that satisfy all assertions expressed
-using the {\tt assuming-do} statement.
-The \cfits{} antecedent states that we prove equivalence under the assumption that \cprog{}'s memory
-requirements fit within the available system memory i.e., only for those executions of \cprog{}
-in which all memory allocation requests (through {\tt malloc} calls) are successful.
-
-The returned values of \sprog{} and \cprog{} form their observable outputs.
-For \sprog{}, the returned values are explicit and may include ADT values.
-For \cprog{}, observables include the returned value alongside the implicit memory state
-at program exit.
-The postcondition \post{} relates these outputs of the two programs.
-The pair $(\pre{},\post{})$ represents the input-output behaviour of \cprog{} in terms of the specification \sprog{},
-and is called the {\em input-output specification}.
-In general, \SpecL{} and C sources may contain multiple top-level procedures, with calls to each other.
-In this case, we are interested in finding equivalence between each pair
-of \sprog{} and \cprog{} procedures with respect to their input-output specification.
-
-Sometimes, the user may be interested in constraining the nature of inputs to \cprog{}
-for the purpose of checking equivalence only for {\em well-defined} inputs.
-In those circumstances, we use a combination of \pre{} and \sdef{} to constrain
-the execution of \cprog{} to inputs for which we are interested in proving equivalence.
-For example, the C library function {\tt strlen(\type{char}* \cv{str})} is well-defined only if \cv{str}
-represents a valid null character terminated string.
-This includes the assumption that the pointer \cv{str} may not be null.
-Since \SpecL{} has no notion of pointers, we expose this conditional well-definedness of C strings
-through an explicit constructor e.g. \cons{SInvalid} for the \type{String} ADT defined as:
-$$
-\type{String}=\cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{String})
-$$
-\sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ (using {\tt assuming-do}) and
-the precondition \pre{} contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
-Hence, \sdef{} and \pre{} ensure that we compute equivalence for those
-executions of \sprog{} and \cprog{} where the input strings are well-defined.
-A similar strategy is employed for other functions as explored later in \cref{sec:results}.
 
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
 
