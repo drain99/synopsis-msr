@@ -100,10 +100,10 @@ In order to express equality between these two values (of types \type{List} and 
 would like to `adapt' one of the values so as to match their types.
 We choose to lift the C linked list (represented by the \type{i32} value and the C memory state) to a \type{List} value
 using an operator called a {\em lifting constructor}.
-Let us call this lifting constructor \lift{list}{}{lnode} and the expression
+Let us call this lifting constructor \lift{list}{\mem{}}{lnode} and the expression
 \lifted{list}{\mem{}}{lnode}{p\ctype{i32}} represents a \type{List} list
 constructed from a C pointer $p$ (pointing to a \type{lnode} object) in the memory state \mem{}.
-We will formally define \lift{list}{}{lnode} in \cref{sec:recrel}.
+We will formally define \lift{list}{\mem{}}{lnode} in \cref{sec:recrel}.
 For now, this allows us to express equality between the outputs of the \SpecL{} and C procedures as
 $\sv{ret} = \lifted{list}{\mem{}}{lnode}{\cv{ret}}$, where \sv{ret} and \cv{ret} represents the
 values returned by the respective \SpecL{} and C procedures in \cref{fig:llAllocSpecIR,fig:llAllocCIR}.

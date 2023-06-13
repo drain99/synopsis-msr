@@ -253,7 +253,7 @@ while all inductive invariants are identified by an invariant inference algorith
 
 \subsection{Recursive Relation}
 \label{sec:recrel}
-In \cref{sec:motivatingexample}, we briefly introduced a lifting constructor (\lift{list}{}{lnode})
+In \cref{sec:motivatingexample}, we briefly introduced a lifting constructor (\lift{list}{\mem{}}{lnode})
 and \recursiveRelations{}.
 In \cref{fig:llTraverseProductInv}, the precondition (\circled{\small P}) is another instance
 of a \recursiveRelation{}:
@@ -263,7 +263,7 @@ represent the input arguments to the \SpecL{} and C procedures respectively,
 and \mem{} is the byte-addressable array representing the current memory state of the C program.
 $l_1 \indEq{} l_2$ is read {\em $l_1$ is recursively equal to $l_2$} and is semantically equivalent
 to $l_1 = l_2$. The `\indEq{}' simply emphasizes that $l_1$ and $l_2$ are (possibly recursive) ADT values.
-The lifting constructor \lift{list}{}{lnode} `lifts' a C pointer value $p$
+The lifting constructor \lift{list}{\mem{}}{lnode} `lifts' a C pointer value $p$
 (pointing to an object of type \type{struct lnode}) and
 memory state \mem{} to a (possibly infinite in case of a circular list) \type{List} value,
 and is defined through its {\em unrolling procedure} as follows:
@@ -275,11 +275,11 @@ U_C:\ &\lifted{list}{\mem{}}{lnode}{p \ctype{i32}} = \sumIf{p=0} \ \sumThen{\con
 \end{split}
 \end{equation}
 
-Note the recursive nature of the lifting constructor \lift{list}{}{lnode}: if the pointer $p$ is zero
+Note the recursive nature of the lifting constructor \lift{list}{\mem{}}{lnode}: if the pointer $p$ is zero
 (i.e. $p$ is a null pointer), then it represents the empty list \cons{LNil};
 otherwise it represents the list formed by \cons{LCons}-ing the value stored at
 \structPointer{p}{\mem{}}{lnode}{val} in memory \mem{} and the list formed by recursively
-lifting \structPointer{p}{\mem{}}{lnode}{next} through \lift{list}{}{lnode}.
+lifting \structPointer{p}{\mem{}}{lnode}{next} through \lift{list}{\mem{}}{lnode}.
 \lifted{list}{\mem{}}{lnode}{p} allows us to adapt a C linked list (formed by chasing pointers
 in the memory \mem{}) to a \type{List} value and compare it with a \SpecL{} \type{List}
 value for equality.
