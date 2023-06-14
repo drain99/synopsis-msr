@@ -444,7 +444,7 @@ two programs.
 \subsubsection{Equality of Values to Equivalence of Programs}
 \label{sec:recursiveEqToBisim}
 Consider a program that recursively calls the definition (body) of
-\lift{list}{}{lnode} to deconstruct \lifted{list}{\mem{}}{lnode}{\cv{l}}.
+\lift{list}{\mem{}}{lnode} to deconstruct \lifted{list}{\mem{}}{lnode}{\cv{l}}.
 For example, \lifted{list}{\mem{}}{lnode}{\cv{l}} may yield a recursive call
 to \lifted{list}{\mem{}}{lnode}{\structPointer{\cv{l}}{\mem{}}{lnode}{next}}
 and so on, until the argument becomes zero.
@@ -453,7 +453,7 @@ into its terminal (scalar) values and reconstructs
 a \type{List} value equal to the value
 represented by \lifted{list}{\mem{}}{lnode}{\cv{l}}.
 We call this program a {\em deconstruction program} based
-on the lifting constructor \lift{list}{}{lnode}.
+on the lifting constructor \lift{list}{\mem{}}{lnode}.
 % We call this program that deconstructs
 % ${\tt Clist}_m^{{\tt lnode}}({\tt l}_C)$
 % into its components and reconstructs an output
@@ -600,16 +600,16 @@ or {\em decons-PCFG} for short.
 %lockstep execution; for
 %a successful bisimulation check, these invariants must ensure equal observables.
 The deconstruction
-program and the decons-PCFG for our \lift{list}{}{lnode} example are shown in \cref{fig:recons}.
+program and the decons-PCFG for our \lift{list}{\mem{}}{lnode} example are shown in \cref{fig:recons}.
 We distinguish states between the first and second programs using superscripts: $fst$ and $snd$ respectively.
 However, these are omitted in case the states are equal in both programs (e.g., \cv{p}).
 Since both \lifted{list}{\mem{}}{lnode}{\cv{l}}
 and \lifted{list}{\mem{}'}{lnode}{\cv{l}} use the same
-lifting constructor \lift{list}{}{lnode}, the PC-transition correlations of both programs
+lifting constructor \lift{list}{\mem{}}{lnode}, the PC-transition correlations of both programs
 are trivially obtained by unifying the program structures.
 A node is created in the decons-PCFG that
 encodes the correlation of the entries to both programs,
-we call this node the {\em recursive-node} in the decons-PCFG (e.g., \rrpc{0}{0} in \cref{fig:reconsPCFG}).
+we call this node the {\em recursive-node} in the decons-PCFG (e.g., \ddpc{0}{0} in \cref{fig:reconsPCFG}).
 A recursive call becomes a back-edge in the decons-PCFG that terminates at the recursive-node.
 % A candidate invariant at the recursive-node is obtained by equating the pair of corresponding $l$
 % variables across the first (superscripted with $fst$) and second (superscripted with $snd$) programs.

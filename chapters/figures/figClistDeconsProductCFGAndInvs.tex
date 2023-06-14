@@ -10,30 +10,26 @@
 \begin{subfigure}[b]{0.6\textwidth}
 \begin{center}
 \begin{footnotesize}
-\renewcommand{\arraystretch}{1.4}
+\renewcommand{\arraystretch}{1.6}
 \begin{tabular}{|c|l|}
 \hline
 {\bf PC-Pair} & \multicolumn{1}{c|}{\bf Invariants} \\
 \hline
 \hline
-% \multirow{2}{*}{(\ddpc{0}{0})} &
-% \Tstrut $\circled{\scriptsize P1} \  \fdv{l} = \sdv{l}$ \\
-% & \Tstrut $\circled{\scriptsize P2} \  \fdv{\mem{}} = \mem{}$ $\circled{\scriptsize P3} \  \sdv{\mem{}} = \mem{}'$ \\
-% \hline
-\multirow{3}{*}{\shortstack[c]{(\ddpc{0}{0}) \\ (\ddpc{1}{1})}} & \Tstrut $\circled{I1} \ \fdv{l} = \sdv{l}$ \\
-& \Tstrut $\circled{I2} \  \fdv{\mem{}} = \mem{}$ \\
-& $\circled{I3} \  \sdv{\mem{}} = \mem{}'$ \\
+(\ddpc{0}{0}) & \Tstrut $\circled{\small P} \  \fstv{l} = \sndv{l}$ \\
+\hline
+(\ddpc{1}{1}) & \Tstrut $\circled{I1} \  \fstv{l} = \sndv{l}$ \\
 \hline
 \multirow{2}{*}{(\ddpc{5}{5})} &
-\Tstrut $\circled{I4} \  \fdv{val} = \sdv{val}$ \\
-& \Bstrut $\circled{I5} \  \structPointer{\fdv{l}}{\fdv{\mem{}}}{lnode}{next} = \structPointer{\sdv{l}}{\sdv{\mem{}}}{lnode}{next}$ \\
+\Tstrut $\circled{I2} \  \fstv{val} = \sndv{val}$ \\
+& \Bstrut $\circled{I3} \  \structPointer{\fstv{l}}{\mem{}}{lnode}{next} = \structPointer{\sndv{l}}{\mem{}'}{lnode}{next}$ \\
 \hline
 \multirow{2}{*}{(\ddpc{6}{6})} &
-\Tstrut $\circled{I6} \  \fdv{val} = \sdv{val}$ \\
-& \Tstrut \Bstrut $\circled{I7} \  \fdv{tail} = \sdv{tail}$ \\
+\Tstrut $\circled{I4} \  \fstv{val} = \sndv{val}$ \\
+& \Tstrut \Bstrut $\circled{I5} \  \fstv{tail} = \sndv{tail}$ \\
 \hline
 \Tstrut (\ddpc{E_2}{E_2}) &
-\multirow{2}{*}{$\circled{E} \   \fdv{ret} = \sdv{ret}$} \\
+\multirow{2}{*}{$\circled{E} \   \fstv{ret} = \sndv{ret}$} \\
 \Bstrut (\ddpc{E_6}{E_6}) & \\
 \hline
 \end{tabular}

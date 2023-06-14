@@ -40,7 +40,7 @@ $\Delta^{\cprog{}}: (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \mapsto 2^{\me
 For a deconstruction program \dprog{}, we are also interested in finding the may-point-to function for
 all scalar pseudo-registers in \dprog{}, say $\pseudoregs{}^{\dprog{}}$.
 Thus, \dprog{} contains mappings for $\Delta^{\dprog{}}$ as well:
-$\Delta^{\dprog{}}: (\pseudoregs{}^{\cprog{}} \cup \memregions{} \pseudoregs{}^{\dprog{}}) \mapsto 2^{\memregions{}}$.
+$\Delta^{\dprog{}}: (\pseudoregs{}^{\cprog{}} \cup \memregions{} \cup \pseudoregs{}^{\dprog{}}) \mapsto 2^{\memregions{}}$.
 The '$\pointsTo$' operator introduced in \cref{sec:pointsTo} is called the {\em element-wise} may-point-to function
 and is related to the may-point-to function $\Delta$ as follows: $p \pointsTo{} S \Leftrightarrow \Delta(p) = S$.
 
@@ -327,7 +327,8 @@ In the canonical form, each {\em sum-is} expression $e$ must operate on a pseudo
 The last step guarantees that $e$ must be of the form: $e = \sumIs{v}{\textnormal{V}}$.
 We replace $e$ with the its SMT equivalent: $(v \strcat{} tag) = \mathcal{E}(V)$
 \footnote{\SpecL{} does not allow naming a field of a data constructor \field{tag}.
-This prevents collision between variable names obtained due to flattening.}.
+Furthermore, fields cannot contain the `\_' character.
+Combined, these two conditions prevent collision between variable names obtained due to flattening.}.
 \end{enumerate}
 
 For example, the canonical expression $a + \prodAccess{l}{val}$ flattens to $a + l \strsep{} val$.
