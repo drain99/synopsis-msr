@@ -625,6 +625,8 @@ deconstruction programs \fdprog{} and \sdprog{} (implying equivalence).
 \Cref{theorem:clistsEqual} generalizes to arbitrary lifted expressions
 with potentially different \cprog{} values and memory states.
 
+\input{chapters/figures/figClistDeconsProductCFGAndInvs.tex}
+
 \subsubsection{Checking Bisimulation between Deconstruction Programs}
 \label{sec:reconsbisim}
 To check bisimulation, we attempt to show that both deconstructions
@@ -633,8 +635,6 @@ We use a product-CFG to encode this lockstep execution between \fdprog{} and \sd
 to distinguish this product-CFG from the top-level product-CFG that relates \sprog{} and \cprog{},
 we call this product-CFG that relates two deconstruction programs,
 a {\em deconstruction product-CFG} or {\em decons-PCFG} for short.
-
-\input{chapters/figures/figClistDeconsProductCFGAndInvs.tex}
 
 The decons-PCFG for the proof obligation in \cref{eqn:clistPreserved} is shown in \cref{fig:clistdeconsproductcfg}.
 We distinguish states between the first and second programs using superscripts:
