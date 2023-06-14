@@ -86,6 +86,9 @@ Hence, \sdef{} and \pre{} ensure that we compute equivalence for those
 executions of \sprog{} and \cprog{} where the input strings are well-defined.
 A similar strategy is employed for other functions as explored later in \cref{sec:results}.
 
+\input{chapters/figures/figSumListSpecAndC.tex}
+\input{chapters/figures/figSumListSpecAndCIRAndCFG.tex}
+
 \subsection{Control Flow Graph Representation}
 \label{sec:ir}
 As outlined in \cref{sec:motivatingexample}, we convert both \SpecL{} and C programs to a common
@@ -94,9 +97,6 @@ This process involves converting both programs to a linear equivalent representa
 IR is a Three-Address-Code (3AC) style intermediate representation.
 We often omit intermediate registers in the IR for brevity,
 and refer to this as the {\em abstracted} IR.
-
-\input{chapters/figures/figSumListSpecAndC.tex}
-\input{chapters/figures/figSumListSpecAndCIRAndCFG.tex}
 
 We have already seen the the IRs (in \cref{fig:llAllocSpecIR,fig:llAllocCIR}) for the \SpecL{} and C programs
 that construct lists in \cref{fig:llAllocSpec,fig:llAllocC}.
