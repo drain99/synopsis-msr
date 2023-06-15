@@ -170,7 +170,7 @@ The algorithms responsible for canonicalization, unification, and iterative unif
 are further discussed in \cref{sec:canonicalalgo,sec:unifalgo,sec:unifyandrewritealgo} respectively.
 
 For a \recursiveRelation{} $l_1 \indEq{} l_2$, we unify (canonicalized) $l_1$ and $l_2$ through a
-call to $\Theta(l_1,l_2,true,true)$.
+call to $\Theta(true,l_1,true,l_2)$.
 If the $n$ tuples obtained after a successful unification are \corrtuple{p_1^i}{a_1^i}{p_2^i}{a_2^i}
 (for $i=1\ldots n$), then the {\em decomposition} of $l_1 \indEq{} l_2$ is defined as:
 
@@ -324,6 +324,7 @@ To explain our over- and under-approximation scheme, we
 first introduce the notion of {\em depth of an ADT value}.
 
 \subsubsection{Depth of ADT Values}
+\label{sec:adtdepth}
 To define depth of an ADT value $v$, we view the value as a tree $\mathcal{T}(v)$.
 The internal nodes of $\mathcal{T}(v)$ represent ADT data constructors and
 the leafs (also called {\em terminals}) represent scalar values (e.g. bitvector literals).
@@ -336,6 +337,7 @@ For example, the depth of $\cons{LCons}(1, \cons{LCons}(4, \cons{LNil}))$ is {\t
 \input{chapters/figures/figExprtrees.tex}
 
 \subsubsection{Overapproximation and Underapproximation of Recursive Relations}
+\label{sec:approxdefs}
 The $d$-depth overapproximation of a \recursiveRelation{} $l_1 \indEq{} l_2$,
 denoted by $l_1 \indEqDepth{d} l_2$, represents the condition that
 $l_1$ and $l_2$ are {\em recursively equal up to depth $d$}. i.e.,
@@ -368,20 +370,24 @@ the approximations of $l_1 \indEq{} l_2$ are related as follows:
 l_1 \indEqUapprox{a} l_2 \Rightarrow l_1 \indEqUapprox{b} l_2 \Rightarrow l_1 \indEq{} l_2 \Rightarrow l_1 \indEqDepth{b} l_2 \Rightarrow l_1 \indEqDepth{a} l_2
 \end{equation}
 
-\subsubsection{SMT Encoding of Approximate Recursive Relations}
+\subsubsection{Reduction of Approximate Recursive Relations}
+\label{sec:approxdecomp}
 Unlike the original \recursiveRelation{} $l_1 \indEq{} l_2$,
-its approximations $l_1\indEqDepth{d}l_2$ and $l_1\indEqUapprox{d}l_2$ can be encoded in SMT logic as shown below:
+its approximations $l_1\indEqDepth{d}l_2$ and $l_1\indEqUapprox{d}l_2$ can be reduced into
+equivalent conditions absent of \recursiveRelations{}.
+Hence, these approximations can be encoded and subsequently discharged by a SMT solver.
 
 \begin{itemize}
 \item $l_1 \indEqDepth{d} l_2$ is equivalent to the condition that
 the tree structures of $l_1$ and $l_2$ are identical till depth $d$ {\em and}
 the corresponding terminal values in both $d$-depth identical structures are also equal.
 Note that these conditions only require scalar equalities.
-$l_1 \indEqDepth{d} l_2$ can be identified through a {\em $d$-depth bounded} iterative unification and rewriting
-procedure described in \cref{sec:unifyandrewrite}.
-In this modified algorithm, We eagerly expand both expressions through rewriting and collect all correlation
-tuples till depth $d$.
-Finally, we only keep those correlation tuples that relate scalar values and discard the \recursiveRelations{}.
+$l_1 \indEqDepth{d} l_2$ can be identified through unification of $l_1$ and $l_2$ till depth $d$.
+This algorithm is similar to the `iterative unification and rewriting procedure' in \cref{sec:unifyandrewrite}
+and further described in \cref{sec:overapproxalgo}.
+In this modified unification algorithm, we eagerly expand atomic ADT expressions till depth $d$, whereas
+`iterative unification and rewriting procedure' terminates unification whenever a correlation tuple relates (possibly ADT) atomic expressions.
+Finally, we only keep those correlation tuples at depth $\leq d$ that relate scalar values and discard the \recursiveRelations{}.
 
 For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$ is computed
 through iterative unification and rewriting till depth one; yielding the correlation tuples:
@@ -395,8 +401,8 @@ $$
 
 \item Recall that $l_1 \indEqUapprox{d} l_2 \Leftrightarrow \depthBound{d}{l_1} \land \depthBound{d}{l_2} \land l_1 \indEqDepth{d} l_2$.
 $\depthBound{d}{l}$ is equivalent to the condition that the tree nodes at depths $>d$ are unreachable.
-This is achieved through expanding $l$ through rewriting till depth $d$ and asserting the unreachability
-of \sumDtor{} paths that reach nodes with depths $>d$ (i.e. the negation of their expression path conditions).
+This is achieved through expanding (canonicalized) $l$ through rewriting till depth $d$ and asserting the unreachability
+of \sumDtor{} paths that reach nodes with depths $>d$ (i.e. asserting the negation of their expression path conditions).
 For example, for a \type{List} variable $l$, the condition $\depthBound{2}{l}$ is equivalent to
 $(\sumIs{l}{LNil}) \vee ((\sumIs{l}{LCons}) \land (\sumIs{\prodAccess{l}{tail}}{LNil}))$.
 Similarly, $\depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
@@ -634,7 +640,7 @@ proceed in lockstep, and the invariants at each step of this lockstep execution 
 We use a product-CFG to encode this lockstep execution between \fdprog{} and \sdprog{} ---
 to distinguish this product-CFG from the top-level product-CFG that relates \sprog{} and \cprog{},
 we call this product-CFG that relates two deconstruction programs,
-a {\em deconstruction product-CFG} or {\em decons-PCFG} for short.
+a {\em deconstruction product}-CFG or {\em decons}-PCFG for short.
 
 The decons-PCFG for the proof obligation in \cref{eqn:clistPreserved} is shown in \cref{fig:clistdeconsproductcfg}.
 We distinguish states between the first and second programs using superscripts:

@@ -1,0 +1,22 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$Overapprox^d(l_1,l_2)$}{
+  $ret \mapsfrom true$;\\
+  $\hat{l_1} \mapsfrom Canonicalize(l_1)$;\\
+  $\hat{l_2} \mapsfrom Canonicalize(l_2)$;\\
+  $R   \mapsfrom \Theta^d(true,\hat{l_1},true,\hat{l_2},0)$;\\
+  \lIf{$R = \cons{Fail}$}{\Return{$false$}}
+  \ForEach{$\corrtuple{p_1}{a_1}{p_2}{a_2}^{d_1} \keyword{in} R$}{
+    \If{$a_1 \keyword{is} scalar \keyword{and} d_1 \leq d$}{
+      $ret \mapsfrom ret \land (p_1 \land p_2) \rightarrow (a_1 = a_2)$;\\
+    }
+  }
+  \Return{$ret$};
+}
+\end{footnotesize}
+\caption{\label{algo:overapprox}Pseudo-code of Reduction Procedure for Overapproximated Recursive Relations}
+\end{algorithm}
+\end{figure}

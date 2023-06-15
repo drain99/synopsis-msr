@@ -1,0 +1,35 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$\Theta^d(p_a,e_a,p_b,e_b,d_{cur})$}{
+  $R \mapsfrom \emptyset$;\\
+  $S \mapsfrom \theta^d(p_a,e_a,p_b,e_b,d_{cur})$;\\
+  \lIf{$S = \cons{Fail}$}{\Return{$\cons{Fail}$}}
+  \ForEach{$\corrtuple{p_1}{a_1}{p_2}{e_2}^{d_1} \keyword{in} S$}{
+    \uIf{$e_2 \keyword{is} atomic$}{
+      \uIf{$d_1 \leq d \keyword{and} a_1 \keyword{is} \keyword{not} scalar$}{
+        $e_1 \mapsfrom rewrite(a_1)$;\\
+        $e_2^r \mapsfrom rewrite(e_2)$;\\
+        $R_1 \mapsfrom \Theta^d(p_1,e_1,p_2,e_2^r)$
+        \lIf{$R_1 = \cons{Fail}$}{\Return{$\cons{Fail}$}}
+        $R \mapsfrom R \cup R_1$;\\
+      }
+      \Else{
+        $R \mapsfrom R \cup \{ \corrtuple{p_1}{a_1}{p_2}{e_2}^{d_1} \}$;\\
+      }
+    }
+    \Else{
+      $e_1 \mapsfrom rewrite(a_1)$;\\
+      $R_1 \mapsfrom \Theta^d(p_1,e_1,p_2,e_2,d_1)$;\\
+      \lIf{$R_1 = \cons{Fail}$}{\Return{$\cons{Fail}$}}
+      $R \mapsfrom R \cup R_1$;\\
+    }
+  }
+  \Return{$\cons{Succ}(R)$};
+}
+\end{footnotesize}
+\caption{\label{algo:dunifyandrewrite}Pseudo-code for $d$-Depth Iterative Unification and Rewriting Procedure}
+\end{algorithm}
+\end{figure}

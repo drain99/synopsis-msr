@@ -289,9 +289,84 @@ is the set of correlation tuples that relate {\em only} atomic expressions.
 $\Theta$ attempts to iteratively (a) unify the expressions (through a call to the unification procedure $\theta$ in \cref{sec:proofalgo}),
 and (b) perform rewriting (of atom $a_1$ for those correlation tuples \corrtuple{p_1}{a_1}{p_2}{e_2} where $e_2$ is non-atomic), followed by
 a recursive call to $\Theta$.
-A \recursiveRelation{} $l_1 \indEq{} l_2$ is decomposed through the top-level invocation of $\Theta(true,l_1,true,l_2)$.
 
 \input{chapters/figures/figIterUnifyAndRewrite.tex}
+
+\subsubsection{Summary of Decomposition Procedure for Recursive Relations}
+\label{sec:decomposealgo}
+\Cref{algo:decompose} shows the pseudo-code for the decomposition algorithm defined in \cref{sec:unifyandrewrite}.
+$Decompose(l_1, l_2)$ is responsible for computing the decomposition of the \recursiveRelation{} $l_1 \indEq{} l_2$.
+Recall that, decomposition of a \recursiveRelation{} $l_1 \indEq{} l_2$ requires the unification of (canonicalized)
+$l_1$ and $l_2$ through the top-level invocation of $\Theta(true,l_2,true,l_2)$.
+If the $n$ correlation tuples obtained after a successful unification are \corrtuple{p_1^i}{a_1^i}{p_2^i}{a_2^i}
+(for $i=1\ldots n$), then the decomposition of $l_1 \indEq{} l_2$ is defined by \cref{eqn:decompose}.
+If the unification fails (with a \cons{Fail} output), the decomposition is defined to be {\tt false}.
+
+\input{chapters/figures/figDecompose.tex}
+
+\subsubsection{Summary of Reduction Procedure for Overapproximated Recursive Relations}
+\label{sec:overapproxalgo}
+For type II proof obligations summarized in \cref{sec:cat2summary},
+we overapproximate \lhs{} by substituting each \recursiveRelations{} $l_1 \indEq{} l_2$ in the \lhs{}
+with its $d_o$-depth overapproximation $l_1 \indEqDepth{d_o} l_2$.
+This overapproximation of \lhs{} results in a stronger proof obligation which is further
+discharged through an SMT solver.
+
+Recall that, \cref{sec:approxdecomp} briefly describes the process of reducing an
+overapproximated \recursiveRelation{} into its SMT-encodable equivalent absent
+of \recursiveRelations{}.
+We use modified versions of unification and `iterative unification and rewriting' procedures
+(defined in \cref{sec:unifalgo,sec:unifyandrewritealgo} respectively)
+to compute this overapproximated version of a \recursiveRelation{}.
+The $d$-depth unification and `iterative unification and rewriting' procedures
+are represented by $\Theta^{d}(p_a,e_a,p_b,e_b,d_{cur})$ and $\theta^{d}(p_1,e_1,p_2,e_2,d_{cur})$
+respectively, where $d$ is a parameter of the algorithm.
+The pseudo-code for these two procedures are shown in \cref{algo:dunification,algo:dunifyandrewrite} respectively.
+Similar to the argument $p_a$ (and $p_1$) responsible for keeping track of the expression
+path condition of $e_a$ (and $e_1$), $d_{cur}$ keeps track of the depth of the expressions
+currently being unified.
+The $d$-depth `iterative unification and rewriting' returns depth-augmented
+correlation tuples of the form $\corrtuple{p_1}{a_1}{p_2}{a_2}^{d_1}$ such that $d_1 \geq d$
+for all correlation tuples.
+Unlike $\Theta$ which terminates unification iff both expressions are atomic,
+$\Theta^{d}$ performs rewriting of both ADT atomic expressions and continues to
+unify deeper into their respective expression trees until all correlation tuples relate
+expressions at depth $\geq d$.
+Similar to decomposition, we can define the $d$-depth decomposition of $l_1 \indEq{} l_2$
+using the $d$-depth `iterative unification and rewriting' procedure.
+$Overapprox^{d}(l_1,l_2)$ is responsible for reducing the overapproximation $l_1 \indEqDepth{d} l_2$
+into its SMT-encodable equivalent condition.
+\Cref{algo:overapprox} shows the pseudo-code for $Overapprox$.
+
+\input{chapters/figures/figDUnification.tex}
+\input{chapters/figures/figDIterUnifyAndRewrite.tex}
+\input{chapters/figures/figOverapprox.tex}
+
+\subsubsection{Summary of Reduction Procedure for Underapproximated Recursive Relations}
+\label{sec:underapproxalgo}
+Recall that, for type II proof obligations summarized in \cref{sec:cat2summary},
+if we are unable to prove the stronger proof obligation with overapproximated \lhs{},
+we compute the weaker proof obligation by substituting each \recursiveRelation{} $l_1 \indEq{} l_2$ in the \lhs{}
+with its $d_u$-depth underapproximation $l_1 \indEqUapprox{d_u} l_2$.
+This underapproximation of \lhs{} results in a weaker proof obligation which is further
+discharged through an SMT solver.
+
+Recall that, an underapproximate \recursiveRelation{} $l_1 \indEqUapprox{d_u} l_2$
+is equivalent to $\depthBound{d_u}{l_1} \land \depthBound{d_u}{l_2} \land l_1 \indEqDepth{d_u} l_2$,
+where $\depthBound{d}{l}$ asserts that $l$ has a depth of at most $d$ (defined in \cref{sec:approxdefs}).
+We have already described the process of reducing an overapproximated \recursiveRelation{}
+(i.e. $l_1 \indEqDepth{d_u} l_2$) in \cref{sec:overapproxalgo}.
+Hence, we are left with reducing the conditions $\depthBound{d_u}{l_1}$ and $\depthBound{d_u}{l_2}$
+to SMT-encodable equivalents.
+The function responsible for computing $\depthBound{d}{l}$ is given by $isDepthBounded^d(l,p,d_{cur})$,
+where $p$ and $d_{cur}$ represents the current expression path condition and depth.
+\Cref{algo:depthbound} gives the pseudo-code for $isDepthBounded$.
+The top-level invocation is given by $isDepthBounded^d(l,true,0)$.
+Finally, the procedure for reducing $l_1 \indEqUapprox{d} l_2$ is given by $Underapprox^{d}(l_1,l_2)$
+along with its pseudo-code in \cref{algo:underapprox}.
+
+\input{chapters/figures/figDepthBounded.tex}
+\input{chapters/figures/figUnderapprox.tex}
 
 \subsubsection{SMT Encoding of First Order Logic Formula}
 \label{sec:smtencoding}

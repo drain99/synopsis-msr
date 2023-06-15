@@ -1,0 +1,27 @@
+\begin{figure}[H]
+\begin{algorithm}[H]
+\begin{footnotesize}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$\Gamma^d(l,p,d_{cur})$}{
+  \lIf{$d_{cur} > d$}{\Return{$\neg p$}}
+  \uIf{$l \keyword{is} atomic$}{
+    \lIf{$l \keyword{is} scalar$}{\Return{$true$}}
+    \Else{
+      $l_r \mapsfrom rewrite(l)$;\\
+      \Return{$\Gamma^d(l_r,p,d_{cur})$};
+    }
+  }
+  \uElseIf{$l = V^{(n)}(l^1,l^2,\dots,l^n)$}{
+    \Return{$\bigwedge_{i \in [1,n]} \Gamma^d(l^i,p,d_{cur}+1)$}
+  }
+  \Else($l = $ \sumIf{c} \sumThen{l^{\tt th}} \sumElse{l^{\tt el}}){
+    $cond^{\tt th} \mapsfrom \Gamma^d(l^{\tt th},p \land (p \rightarrow c), d_{cur})$;\\
+    $cond^{\tt el} \mapsfrom \Gamma^d(l^{\tt el},p \land (p \rightarrow \neg c), d_{cur})$;\\
+    \Return{$cond^{\tt th} \land cond^{\tt el}$}
+  }
+}
+\end{footnotesize}
+\caption{\label{algo:depthbound}Pseudo-code for $isDepthBounded$ Procedure}
+\end{algorithm}
+\end{figure}
