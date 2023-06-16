@@ -1,0 +1,85 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\begin{scope}[local bounding box=scope1]
+
+\node[tttree] (0) {$v_a^\type{M}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{a \coloneqq m}$} (0.90);
+
+\end{scope}
+
+\begin{scope}[local bounding box=scope2,position=10:30mm from scope1]
+
+\node[ttinner={45:0}] (0)                             {$+$};
+\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[tttree] (3) [position=-110:10mm from 2] {$v_b^\type{L}$};
+\node[tttree] (4) [position=-70:10mm from 2]  {$v_a^\type{M}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{a \coloneqq m}$} (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\sumIs{a}{MNil}$}               (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\sumIs{a}{MCons}$}         (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{row} \\ $\compacttfbox{b \coloneqq \prodAccess{a}{row}}$}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {\olifield{cols} \\ $\compacttfbox{a \coloneqq \prodAccess{a}{cols}}$} (4.90);
+
+\end{scope}
+
+\begin{scope}[local bounding box=scope3,position=10:80mm from scope2]
+
+\node[ttinner={45:0}] (0)                             {$+$};
+\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[ttinner={45:2}] (3) [position=-110:10mm from 2] {$+$};
+\node[tttree]         (4) [position=-70:10mm from 2]  {$v_a^\type{M}$};
+\node[ttleaf]         (5) [position=-120:10mm from 3] {$()$};
+\node[ttinner={45:3}] (6) [position=-60:10mm from 3]  {$\times$};
+\node[ttleaf]         (7) [position=-120:10mm from 6] {$\prodAccess{b}{val}$};
+\node[tttree]         (8) [position=-70:10mm from 6]  {$v_b^\type{L}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{a \coloneqq m}$} (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\sumIs{a}{MNil}$}               (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\sumIs{a}{MCons}$}         (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{row} \\ $\compacttfbox{b \coloneqq \prodAccess{a}{row}}$}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {\olifield{cols} \\ $\compacttfbox{a \coloneqq \prodAccess{a}{cols}}$} (4.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{b}{LNil}$}               (5);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{b}{LCons}$}         (6);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{val}}  (7.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) to node[ttannot={left},right,xshift=0.7mm]  {\olifield{tail} \\ $\compacttfbox{b \coloneqq \prodAccess{b}{tail}}$} (8.90);
+
+\end{scope}
+
+\begin{scope}[local bounding box=scope4,position=10:130mm from scope3]
+
+\node[ttinner={75:0}] (0)                             {$+$};
+\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[ttinner={145:2}] (3) [position=-110:10mm from 2] {$+$};
+\node[ttleaf]         (5) [position=-120:10mm from 3] {$()$};
+\node[ttinner={45:3}] (6) [position=-60:10mm from 3]  {$\times$};
+\node[ttleaf]         (7) [position=-120:10mm from 6] {$\prodAccess{b}{val}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{a \coloneqq m}$} (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\sumIs{a}{MNil}$}               (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\sumIs{a}{MCons}$}         (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{row} \\ $\compacttfbox{b \coloneqq \prodAccess{a}{row}}$}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{b}{LNil}$}               (5);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{b}{LCons}$}         (6);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{val}}  (7.90);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:20mm) and ++(30:25mm) .. node[ttannot={left},right,yshift=-1.2mm] {\olifield{cols} \\ $\compacttfbox{a \coloneqq \prodAccess{a}{cols}}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) .. controls ++(-45:20mm) and ++(30:25mm) .. node[ttannot={left},right,yshift=-2.5mm] {\olifield{tail} \\ $\compacttfbox{b \coloneqq \prodAccess{b}{tail}}$} (3);
+
+\end{scope}
+
+\end{tikzpicture}
+
+\end{document}

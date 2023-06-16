@@ -24,9 +24,9 @@
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:typetreespeel}Three equivalent graphical representations for \type{List} ADT.
-\Cref{fig:typetreelistpeel1} shows the graphical representation of the canonical form of \type{List}.
-\Cref{fig:typetreelistpeel2} is obtained by peeling the {\em backedge} [2,1] in \cref{fig:typetreelistpeel1}.
-\Cref{fig:typetreelistpeel3} is obtained by unrolling the backedge [2,1] in \cref{fig:typetreelistpeel1} or by
-peeling the backedge [4,1] in \cref{fig:typetreelistpeel2} respectively.}
+\caption{\label{fig:typetreespeel}Three equivalent type trees for \type{List} ADT.
+\Cref{fig:typetreelistpeel1} shows the type tree for the canonical form of \type{List}.
+\Cref{fig:typetreelistpeel2} is obtained by peeling the {\em backedge} [1,\field{tail}] in \cref{fig:typetreelistpeel1}.
+\Cref{fig:typetreelistpeel3} is obtained by unrolling the backedge [1,\field{tail}] in \cref{fig:typetreelistpeel1} or by
+peeling the backedge [2,\cons{LCons}] in \cref{fig:typetreelistpeel2} respectively.}
 \end{figure}

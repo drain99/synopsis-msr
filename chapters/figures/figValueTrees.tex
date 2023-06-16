@@ -1,26 +1,29 @@
 \begin{figure}[H]
-\begin{tabular}{@{}c@{}c@{}c@{}}
-\begin{subfigure}[b]{0.30\textwidth}
+\begin{tabular}{cc}
+\begin{subfigure}[b]{0.45\textwidth}
 \begin{center}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeList1.pdf}
+\includegraphics[scale=1.4]{chapters/figures/figValueTreeList1.pdf}
 \end{center}
-\caption{\label{fig:valuetreelist1}Value Graph of \sumIf{c} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(e_1, \cons{LNil})}}
+\caption{\label{fig:valuetreelist1}\sumIf{c} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(e, \cons{LNil})}}
 \end{subfigure}%
 &
-\begin{subfigure}[b]{0.30\textwidth}
+\begin{tabular}{@{}c@{}}
+\begin{subfigure}[b]{0.53\textwidth}
 \begin{center}
 \includegraphics[scale=1.3]{chapters/figures/figValueTreeVarList.pdf}
 \end{center}
-\caption{\label{fig:valuetreevarlist}Value Graph of a \type{List} variable $l$}
+\caption{\label{fig:valuetreevarlist}$l\ctype{List}$}
 \end{subfigure}%
-&
-\begin{subfigure}[b]{0.30\textwidth}
+\\
+\begin{subfigure}[b]{0.53\textwidth}
 \begin{center}
 \includegraphics[scale=1.3]{chapters/figures/figValueTreeClist.pdf}
 \end{center}
-\caption{\label{fig:valuetreeclist}Value Graph of lifted expression \lifted{list}{\mem{}}{lnode}{p}}
+\caption{\label{fig:valuetreeclist}\lifted{list}{\mem{}}{lnode}{p}}
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:valuetrees}Value Graphs of three \type{List} expressions.}
+\\
+\end{tabular}
+\caption{\label{fig:valuetrees}Value trees for three \type{List}-typed expressions.}
 \end{figure}
