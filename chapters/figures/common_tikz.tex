@@ -15,6 +15,7 @@
 \usepackage{extarrows}
 \usepackage{booktabs}
 \usepackage{fontspec}
+\usepackage{makecell}
 
 \usetikzlibrary{fadings}
 \usetikzlibrary{patterns}
@@ -28,9 +29,11 @@
 \input{../../common_macros.tex}
 
 \tikzset{
+    tttree/.style={draw,regular polygon,regular polygon sides=3,inner sep=0mm,font=\footnotesize},
     ttinner/.style args={#1:#2}{draw,circle,inner sep=0.2mm,label={#1,inner sep=0.1mm:\scriptsize #2}},
     ttleaf/.style={font=\footnotesize},
-    ttannot/.style={near start,align=center,font=\scriptsize},
+    ttannot/.style={near start,align=#1,font=\scriptsize},
+    ttannot/.default=center,
     position/.style args={#1:#2 from #3}{
         at=(#3.#1), anchor=#1+180, shift=(#1:#2)
     },

@@ -1,0 +1,30 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\begin{scope}[local bounding box=scope1]
+
+\node[ttleaf] (0) {$e'_i$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega_i}$} (0);
+
+\end{scope}
+
+\begin{scope}[local bounding box=scope2,position=0:27mm from scope1]
+
+\node[ttleaf] (0) {$\omega_1(e'_1) \odot \omega_2(e'_2)$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right] {} (0);
+
+\end{scope}
+
+\node (0) [position=180:-2mm from scope1] {$\mathcal{V}(e_i)=$};
+\node (1) [position=180:-1mm from scope2] {$\mathcal{V}(e_1 \odot e_2)=$};
+
+\end{tikzpicture}
+
+\end{document}

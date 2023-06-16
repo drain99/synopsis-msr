@@ -4,18 +4,20 @@
 
 \tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
 
-\begin{tikzpicture}[label distance=-0.3mm,inner/.style = {draw, circle, inner sep=0.2mm},leaf/.style = {font=\footnotesize}, annot/.style= {font=\footnotesize}]
+\begin{tikzpicture}
 
-\node[inner,label={\footnotesize 0}] (1)                            {$+$};
-\node[leaf,label={\footnotesize 1}]  (2) [position=-120:8mm from 1] {$()$};
-\node[inner,label={\footnotesize 2}] (3) [position=-60:8mm from 1]  {$\times$};
-\node[leaf,label={\footnotesize 3}]  (4) [position=-120:8mm from 3] {$\prodAccess{a}{val}$};
+\node[ttinner={75:0}] (0)                             {$+$};
+\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={45:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[ttleaf]         (3) [position=-120:10mm from 2] {$\prodAccess{a}{val}$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:8mm from 1] {} edge[bend left,in=165] node[annot,shift={(4.2mm,1.3mm)}] {$a \coloneqq l$} (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- node[annot,shift={(-6.3mm,2mm)}] {$\sumIs{a}{LNil}$} (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (1) -- node[annot,shift={(6.5mm,2mm)}] {$\sumIs{a}{LCons}$} (3);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) -- (4);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) edge [out=-45,in=30,looseness=4.4] node[annot,shift={(8mm,0mm)}] {$a \coloneqq \prodAccess{a}{next}$} (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{a \coloneqq l}$} (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{LNil} \\ $\sumIs{a}{LNil}$}    (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ $\sumIs{a}{LCons}$}   (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,left] {\olifield{val}}                                               (3);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:20mm) and ++(30:25mm) .. node[ttannot={left},right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{a \coloneqq \prodAccess{a}{next}}$ \\ \olifield{tail}} (0);
 
 \end{tikzpicture}
 

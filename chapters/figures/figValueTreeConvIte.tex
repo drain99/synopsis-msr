@@ -1,0 +1,48 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\begin{scope}[local bounding box=scope1]
+
+\node[ttleaf] (0) {$c'$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega}$} (0);
+
+\end{scope}
+
+\begin{scope}[local bounding box=scope2,position=-91:15mm from scope1]
+
+\node[tttree] (0) {$v_i$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega_i}$} (0.90);
+
+\end{scope}
+
+\begin{scope}[local bounding box=scope3,position=7:55mm from scope1]
+
+\node[ttinner={45:0}] (0)                             {$+$};
+\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[tttree]         (3) [position=-115:10mm from 2] {$v_1$};
+\node[tttree]         (4) [position=-65:10mm from 2]  {$v_2$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\omega(c')$}               (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\neg \omega(c')$}         (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\omega_1}$ \\ \olifield{row}}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {$\compacttfbox{\omega_2}$ \\ \olifield{cols}} (4.90);
+
+\end{scope}
+
+\node (0) [position=180:-2mm from scope1] {$\mathcal{V}(c)=$};
+\node (1) [position=180:-2mm from scope2] {$\mathcal{V}(e_i)=$};
+\node[align=center] (2) [position=180:-2mm from scope3] {$\mathcal{V}\Biggl($\makecell[l]{\footnotesize \sumIf{c} \sumThen{\cons{MNil}} \\ \footnotesize \sumElse{\cons{MCons}(e_1,e_2)}}$\Biggr)=$};
+
+\end{tikzpicture}
+
+\end{document}

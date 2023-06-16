@@ -1,0 +1,39 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\begin{scope}[local bounding box=scope1]
+
+\node[tttree] (0) {$v_i$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega_i}$} (0.90);
+
+\end{scope}
+
+\begin{scope}[local bounding box=scope2,position=16:55mm from scope1]
+
+\node[ttinner={45:0}] (0)                             {$+$};
+\node[tttree]         (1) [position=-115:10mm from 0] {$v^{T_1}$};
+\node[ttinner={45:1}] (2) [position=-55:10mm from 0]  {$\times$};
+\node[tttree]         (3) [position=-115:10mm from 2] {$v_1$};
+\node[tttree]         (4) [position=-65:10mm from 2]  {$v_2$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {} (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm] {\astcons{LNil} \\ ${\tt false}$} (1.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ ${\tt true}$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\omega_1}$ \\ \olifield{val}} (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.5mm] {$\compacttfbox{\omega_2}$ \\ \olifield{tail}} (4.90);
+
+\end{scope}
+
+\node (0) [position=180:-2mm from scope1] {$\mathcal{V}(e^i)=$};
+\node (1) [position=180:-2mm from scope2] {$\mathcal{V}(\cons{LCons}(e_1,e_2))=$};
+
+\end{tikzpicture}
+
+\end{document}

@@ -15,13 +15,13 @@
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] (0);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot,left]  {\astcons{LNil} \\ $\hat{c}$}          (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot,right] {\astcons{LCons} \\ $\neg \hat{c}$}    (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]  {\astcons{LNil} \\ $\hat{c}$}          (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm] {\astcons{LCons} \\ $\neg \hat{c}$}    (2);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,left]  {\olifield{val}}                       (3);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,right] {\olifield{tail}}                      (4);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to node[ttannot,left,xshift=-1mm]  {\astcons{LNil} \\ $true$} (5);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to node[ttannot={right},left,xshift=-1mm]  {\astcons{LNil} \\ ${\tt true}$} (5);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) .. controls ++(-45:17mm) and ++(30:18mm) .. node[ttannot,right] {\astcons{LCons} \\ $false$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) .. controls ++(-45:17mm) and ++(30:18mm) .. node[ttannot={left},right] {\astcons{LCons} \\ ${\tt false}$} (2);
 
 \end{tikzpicture}
 

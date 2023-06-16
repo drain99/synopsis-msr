@@ -10,7 +10,7 @@
 
 \node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize,label={west:\footnotesize \compacttfbox{\mathbf{input} \  l}}] (0) {\dpc{0}};
 \node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize] (1) [position=-90:4mm from 0] {\dpc{1}};
-\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize,label={-100,inner sep=0.4mm:\footnotesize \compacttfbox{\mathbf{output} \  \cons{LNil}}}] (2) [position=-110:10mm from 1] {\dpc{E_2}};
+\node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize,label={-95,inner sep=0.4mm:\footnotesize \compacttfbox{\mathbf{output} \  \cons{LNil}}}] (2) [position=-110:10mm from 1] {\dpc{E_2}};
 \node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize] (3) [position=-70:10mm from 1] {\dpc{5}};
 \node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize] (4) [position=-70:8mm from 3] {\dpc{6}};
 \node[draw,circle,inner sep=0.4mm,minimum size=6mm,font=\footnotesize,label={west:\footnotesize \compacttfbox{\mathbf{output} \  \cons{LCons}({\tt val},{\tt tail})}}] (5) [position=-70:4mm from 4] {\dpc{E_6}};
@@ -21,9 +21,9 @@
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to node[midway,right,font=\footnotesize] {\ \compacttfbox{{\tt tail} \coloneqq \lifted{list}{\mem{}}{lnode}{\structPointer{l}{\mem{}}{lnode}{next}}}} (4);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to (5);
 
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (2) .. controls ++(-60:9mm) .. node[near end,left,font=\footnotesize,yshift=-2.5mm] {\compacttfbox{{\tt tail} \coloneqq \cons{LNil}}} (4);
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (2) .. controls ++(-60:9mm) .. node[near end,left,font=\footnotesize,xshift=1.2mm,yshift=-2mm] {\compacttfbox{{\tt tail} \coloneqq \cons{LNil}}} (4);
 \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (5.20) .. controls ++(10:8mm) and ++(-10:8mm) .. node[right,font=\footnotesize] {\compacttfbox{{\tt tail} \coloneqq \cons{LCons}({\tt val}, {\tt tail})}} (4.-20);
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (3) .. controls ++(0:65mm) and ++(0:40mm) .. node[right,near end,font=\footnotesize,yshift=3.5mm] {\compacttfbox{l \coloneqq \structPointer{l}{\mem{}}{lnode}{next}}} (0);
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (3) .. controls ++(0:65mm) and ++(0:40mm) .. node[right,near end,font=\footnotesize,yshift=3mm] {\compacttfbox{l \coloneqq \structPointer{l}{\mem{}}{lnode}{next}}} (0);
 
 \end{tikzpicture}
 
