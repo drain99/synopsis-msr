@@ -9,15 +9,15 @@
 \node[ttinner={75:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
 \node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
-\node[ttleaf]         (3) [position=-120:10mm from 2] {$\structPointer{a}{\mem{}}{lnode}{val}$};
+\node[ttleaf]         (3) [position=-120:10mm from 2] {$\structPointer{\vtse{1}}{\mem{}}{lnode}{val}$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{a \coloneqq p}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq p}$} (0);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{LNil} \\ $a = 0$}    (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ $a \neq 0$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{LNil} \\ $\vtse{1} = 0$}    (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ $\vtse{1} \neq 0$} (2);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,left] {\olifield{val}}                                     (3);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:19mm) and ++(30:20mm) .. node[ttannot={left},right,xshift=1mm,yshift=1.3mm] {$\compacttfbox{a \coloneqq \structPointer{a}{\mem{}}{lnode}{next}}$ \\ \olifield{tail}} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:18mm) and ++(30:23mm) .. node[ttannot={left},right,xshift=1mm,yshift=0.7mm] {$\compacttfbox{\vtse{1} \coloneqq \structPointer{\vtse{1}}{\mem{}}{lnode}{next}}$ \\ \olifield{tail}} (0);
 
 \end{tikzpicture}
 

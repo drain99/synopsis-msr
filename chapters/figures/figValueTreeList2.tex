@@ -1,0 +1,24 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\node[ttinner={75:0}] (0)                             {$+$};
+\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[ttleaf]         (3) [position=-120:10mm from 2] {$123$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {} (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{LNil} \\ ${\tt true}$}    (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ ${\tt false}$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,left] {\olifield{val}}                                     (3);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:18mm) and ++(30:23mm) .. node[ttannot={left},right,xshift=-1mm,yshift=-1.55mm] {\olifield{tail}} (0);
+
+\end{tikzpicture}
+
+\end{document}

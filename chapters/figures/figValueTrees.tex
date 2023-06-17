@@ -1,29 +1,28 @@
 \begin{figure}[H]
-\begin{tabular}{cc}
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{tabular}{@{}c@{}c@{}c@{}}
+\begin{subfigure}[b]{0.245\textwidth}
 \begin{center}
-\includegraphics[scale=1.4]{chapters/figures/figValueTreeList1.pdf}
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeList2.pdf}
 \end{center}
-\caption{\label{fig:valuetreelist1}\sumIf{c} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(e, \cons{LNil})}}
+\vspace{24px}
+\caption{\label{fig:valuetreelist1}\cons{LNil}}
 \end{subfigure}%
 &
-\begin{tabular}{@{}c@{}}
-\begin{subfigure}[b]{0.53\textwidth}
+\begin{subfigure}[b]{0.40\textwidth}
 \begin{center}
 \includegraphics[scale=1.3]{chapters/figures/figValueTreeVarList.pdf}
 \end{center}
+\vspace{18px}
 \caption{\label{fig:valuetreevarlist}$l\ctype{List}$}
 \end{subfigure}%
-\\
-\begin{subfigure}[b]{0.53\textwidth}
+&
+\begin{subfigure}[b]{0.35\textwidth}
 \begin{center}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeClist.pdf}
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeList1.pdf}
 \end{center}
-\caption{\label{fig:valuetreeclist}\lifted{list}{\mem{}}{lnode}{p}}
+\caption{\label{fig:valuetreelist2}\sumIf{p=0} \sumThen{\cons{LNil}} \\ \qquad\qquad\qquad\quad \sumElse{\cons{LCons}(42, \cons{LNil})}}
 \end{subfigure}%
 \\
 \end{tabular}
-\\
-\end{tabular}
-\caption{\label{fig:valuetrees}Value trees for three \type{List}-typed expressions.}
+\caption{\label{fig:valuetrees}Value trees of three \type{List}-typed expressions}
 \end{figure}

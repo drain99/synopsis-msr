@@ -9,19 +9,19 @@
 \node[ttinner={45:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
 \node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
-\node[ttleaf]         (3) [position=-120:10mm from 2] {$\hat{e}$};
+\node[ttleaf]         (3) [position=-120:10mm from 2] {$42$};
 \node[ttinner={45:2}] (4) [position=-60:10mm from 2]  {$+$};
 \node[ttleaf]         (5) [position=-120:10mm from 4]  {$()$};
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] (0);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]  {\astcons{LNil} \\ $\hat{c}$}          (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm] {\astcons{LCons} \\ $\neg \hat{c}$}    (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]  {\astcons{LNil} \\ $p=0$}          (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.8mm] {\astcons{LCons} \\ $p \neq 0$}    (2);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,left]  {\olifield{val}}                       (3);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot,right] {\olifield{tail}}                      (4);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to node[ttannot={right},left,xshift=-1mm]  {\astcons{LNil} \\ ${\tt true}$} (5);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) .. controls ++(-45:17mm) and ++(30:18mm) .. node[ttannot={left},right] {\astcons{LCons} \\ ${\tt false}$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) .. controls ++(-45:18mm) and ++(30:23mm) .. node[ttannot={left},right,yshift=-1.5mm] {\astcons{LCons} \\ ${\tt false}$} (2);
 
 \end{tikzpicture}
 

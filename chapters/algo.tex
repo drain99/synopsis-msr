@@ -451,86 +451,127 @@ is indeed a counterexample to $P$.
 
 \subsection{Value Tree Representation}
 \label{sec:valuegraph}
-This section introduces a graphical representation of expressions which encodes both its canonical value and
-its deconstruction program at the same time.
-We call this the `Value Tree' and we use $\mathcal{V}(e)$ to denote the value tree of $e$.
-The value properties allow us to consolidate the following procedures used during conversion of a proof obligation
-{\em with} \recursiveRelations{} into its canonical form:
-(a) decomposition of \recursiveRelations{}, (b) over- and under-approximation of \recursiveRelations{},
-and (c) canonicalization of a proof obligation without \recursiveRelations{} (required for encoding in SMT logic).
-On the program side, instead of checking equivalence of the deconstruction programs for a \recursiveRelation{} $l_1 \indEq{} l_2$,
-we check `equivalence' of the value graphs $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ instead.
+This section presents a graphical representation of IR expressions that helps us simplify the
+implementation of multiple subprocedures used by our proof discharge algorithm.
+This includes the computation of the over- and under-approximated versions of \recursiveRelations{},
+as well as showing bisimilarity between two deconstruction programs as part of a type III proof obligation.
+We call this the {\em Value Tree} representation and use $\mathcal{V}(e)$ to denote a value tree associated with $e$.
+We give an algorithm to convert an expression $e$ into $\mathcal{V}(e)$ and list its advantages.
 
-We begin with a formal description of ADTs.
-This allows us to first introduce a graphical representation of types, which is analogous to the value tree representation, but simpler.
-Let's call this the `Type Tree' representation.
+Before diving into value trees, we start by introducing an analogous but simpler representation for IR types, called {\em Type Trees}.
+We use $\mathcal{T}(t)$ to denote a type tree associated with $t$.
+To define type trees, we begin with a formal description of ADTs.
 Recall that ADTs are simply `sum of product' types where each data construction represents a variant (of the sum-type) and
 each data construction contains values for each of its fields (of the product-type).
-On top of ADTs, \SpecL{} also has built-in scalar types: \type{unit}, \type{bool} and \type{i<N>}.
-Types in \SpecL{} can be represented in {\em first order recursive types} using the product ($\times$) and sum ($+$) type
+On top of ADTs, IR has build-in scalar types: \type{unit}, \type{bool} and \type{i<N>}.
+Types in IR can be represented in {\em first order recursive types} using the product ($\times$) and sum ($+$) type
 constructors; and the scalar types (i.e. nullary type constructors).
 The type system is characterized by the grammar \typegrammar{} as follows:
 
-$T \rightarrow \mu \alpha. \ T \ |\ T \times \dots \times T \ |\  T + \dots + T \ |\  \type{unit} \ |\ \type{bool} \ |\  \type{i\langle N \rangle} \ |\ \alpha$
+$$
+T \rightarrow \mu \alpha. \ T \ |\ T \times \dots \times T \ |\  T + \dots + T \ |\  \type{unit} \ |\ \type{bool} \ |\  \type{i\langle N \rangle} \ |\ \alpha
+$$
 
-Every type in \SpecL{} can be encoded as a closed term (i.e. term without free variables) in \typegrammar{}.
+Every IR type can be encoded as a closed term (i.e. term without free variables) in \typegrammar{}.
 For example, the \type{List} type can be written as $\mu \alpha. \type{unit} + (\type{i32} \times \alpha)$.
 Note the use of a type variable $\alpha$ which is bound using $\mu$ to represent recursion.
-Consider the mutually-recursive types $\type{Tree} = \cons{TNil} | \cons{TCons}(\type{i32}, \type{Forest})$
-and $\type{Forest} = \cons{FNil} | \cons{FCons}(\type{Tree}, \type{Forest})$.
-\type{Tree} represents a generic \type{i32} tree datatype: either its empty or it contains
-a value along with a {\em list of trees} for its children (represented by \type{Forest}).
-\type{Tree} can be represented in \typegrammar{} as:
-$\mu \alpha. \type{unit} + (\type{i32} \times (\mu \beta. \type{unit + (\alpha \times \beta)}))$,
-where $\alpha$ and $\beta$ stand for the recursive types \type{Tree} and \type{Forest} respectively.
+Similarly, the \type{Matrix} type is represented by the term
+$\mu \alpha. \type{unit} + ((\mu \beta. \type{unit} + (\type{i32} \times \beta)) \times \alpha)$,
+where the type variables $\alpha$ and $\beta$ are used to bind recursive types \type{Matrix} and \type{List}
+at their definitions respectively.
 
 \input{chapters/figures/figTypeTrees.tex}
 
-\Cref{fig:typetrees} shows the type trees based for three \SpecL{} ADTs encoded in \typegrammar{}.
-Each internal node represents either a product (\circled{$\times$}) or a sum (\circled{$+$}) type constructor.
+\Cref{fig:typetrees} shows the type trees for three ADTs \type{List}, \type{Tree}, and \type{Matrix} respectively.
+In a type tree, each internal node represents either a product (\prodn{}) or a sum (\sumn{}) type constructor.
 The leaf nodes are the scalar types.
-For each bound type variable, a backedge is created to the ancestor at which it is bounded.
+Each outgoing edge of a \sumn{} node is associated with a data constructor of the corresponding ADT (i.e. \cons{LCons} for \type{List}).
+Similarly, each outgoing edge of a \prodn{} node is associated with a field of the corresponding data constructor (i.e. \field{val} for \type{LCons}).
+We assign integer indices to the internal nodes and use \ttedge{v}{label} to identify the edge outgoing at ${\tt v}$ associated with {\tt label},
+where {\tt label} is either a data constructor or a field name.
+The edges going outward from the root node are called {\em tree-edges} e.g., \ttedge{0}{LCons} and \ttedge{1}{val} in \cref{fig:typetreelist1}.
+Edges that are not tree-edges, are called {\em back-edges} e.g., \ttedge{1}{cols} in \cref{fig:typetreematrix1}.
+Every back-edge induces an unique simple cycle in the type tree representation.
 
 \input{chapters/figures/figTypeTreesPeel.tex}
 
-Recall that types in \SpecL{} follow equirecursive typing rules i.e. the two types $\mu \alpha. T$ and $T[\mu \alpha. T/\alpha]$ in \typegrammar{}
-are {\em equal} types, where $T[\mu \alpha. T/\alpha]$ is defined as the {\em unfolding} of $\mu \alpha T$.
+Recall that types in \SpecL{} (and in IR also) follow equirecursive typing rules i.e. types
+$\mu \alpha. T$ and $T[\mu \alpha. T/\alpha]$ in \typegrammar{} are {\em equal} types,
+where $T[\mu \alpha. T/\alpha]$ represents the new type obtained by substituting all free
+instances of $\alpha$ with $\mu \alpha. T$, and is defined as the {\em unfolding} of $\mu \alpha T$.
 In general, under equirecursive typing, two types are equal iff their infinite expansions (through unfolding) are equal.
 In the type tree representation, two types are equal iff their infinite expansions are equivalent.
-Expansion through unfolding is equivalent to {\em unrolling} one iteration of a cycle in its type tree.
-\Cref{fig:typetreespeel} shows the three equivalent type trees for the \type{List} type.
-In practice, equality of two types in \typegrammar{} can be checked by converting both to their {\em canonical} forms
-and checking syntactic equality.
-\Cref{fig:typetreelistpeel1} shows the canonical type tree for \type{List}.
-On the other hand, \cref{fig:typetreelistpeel2,fig:typetreelistpeel3} are obtained through {\em peeling} and {\em unrolling}
-the only cycle in \cref{fig:typetreelistpeel1}.
-Peeling is a form of partial unrolling which only extracts the starting node in the cycle instead of one iteration.
-Note that the type trees in \cref{fig:typetreespeel} are technically not `trees' since they contain cycles.
-However, all three of them are isomorphic and represents the same infinite tree obtained by unrolling each of them forever.
+An unfolding in the term representation corresponds to {\em unrolling} one iteration of a simple cycle in its type tree.
+\Cref{fig:typetreespeel} shows three type trees for the \type{List} type.
+\Cref{fig:typetreelistpeel1} corresponds to the canonical (intuitively the `smallest') type tree for the \type{List} type.
+The type trees \cref{fig:typetreelistpeel2,fig:typetreelistpeel3} are obtained by {\em peeling} and unrolling
+the back-edge \ttedge{1}{tail} (in \cref{fig:typetreelistpeel1}) respectively.
+Peeling is a form of partial unrolling which only extracts the starting node of the cycle.
+In practice, equality of two IR types (encoded in \typegrammar{}) can be reposed as syntactic
+equality of their {\em canonical} forms.
+In general, type trees may contain cycles (due to back-edges) and hence are not quite `trees'.
+However, they represent the actual (possibly infinite) trees obtained through repeated unrolling of cycles.
 
 \input{chapters/figures/figValueTrees.tex}
 
-With type trees out of the way, we are ready to define a value tree.
-A value tree for an expression of type $T$ is isomorphic to a type tree for $T$
-with the following differences:
+With type trees out of the way, we are ready to present their value analogue called `value trees'.
+\Cref{fig:valuetrees} shows the value trees for three \type{List} expressions.
+Note that, all three value trees are isomorphic (i.e. identical structures) to one of the
+\type{List} type trees shown in \cref{fig:typetreespeel}, e.g.,
+\cref{fig:valuetreelist1} is isomorphic to \cref{fig:typetreelistpeel2}.
+In general, a value tree $\mathcal{V}(e)$ (for the expression $e$ of type $t$) is isomorphic to a
+type tree $\mathcal{T}(t)$ with the following distinctions:
 
 \begin{enumerate}
-\item Each leaf node contains a canonical expression of its scalar type.
-\item There is a special node called the {\em entry node} and a special edge from the entry node
-to the root of the tree, called the {\em entry edge}.
-\item Similar to the CFG representation, each edge is associated with an edge condition and a
-transfer function as follows:
-(a) the entry edge has an edge condition {\em true}.
-(b) all outgoing edges for a \circled{$\times$} node has edge condition {\em true}.
-(c) all outgoing edges for a \circled{$+$} node are mutually exclusive and exhaustive
-i.e. exactly one of them is {\em true}.
+\item Similar to $\mathcal{T}(t)$, each internal node is either a \sumn{} or a \prodn{} node.
+\item Instead of a scalar type $t$, each leaf node in $\mathcal{V}(e)$ contains an expression
+of type $t$.
+\item In addition to a data constructor, each edge originating at a \sumn{} node also contains
+an edge condition expression. We identify such an edge with \vtedge{i}{V}{c}, where {\tt i} is the index of
+the sum node, $V$ is the data constructor and $c$ is the edge condition.
+The set of edge conditions for all outgoing edges at a \sumn{} node must be mutually exclusive and exhaustive.
+\item In addition to a field name, each edge originating at a product (\circled{$\times$}) node also contains
+a transfer function. We identify such an edge with \vtedge{i}{f}{\omega}, where {\tt i} is the index of
+the product node, $f$ is the field name and $\omega$ is the transfer function.
+\item $\mathcal{V}(e)$ also contains a special node (called the {\em entry node}), and a special edge
+(called the {\em entry edge}) from the entry node to the root node. The entry edge contains a transfer
+function. We often omit the entry node in figures.
 \end{enumerate}
 
-\Cref{fig:valuetrees} shows the value trees for three different expressions.
-Note that all three expressions have \type{List} type and they are all isomorphic
-to one of the \type{List} type trees in \cref{fig:typetreespeel}.
+Intuitively, a value tree simultaneously represents the value of the expression as well as a program
+similar to its deconstruction program.
+Next, we give an algorithm to convert an expression $e$ to its value tree representation $\mathcal{V}(e)$
+and list its properties and applications in the context of our proof discharge algorithm.
 
-\subsection{Conversion Algorithm}
+\subsection{Conversion of Expressions to their Value Graphs}
+
+\begin{enumerate}
+\item scalar operations
+\begin{center}
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvScalar.pdf}
+\end{center}
+\item cons
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvCons.pdf}
+\item sum-is
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvSumIs.pdf}
+\item prod-access
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvProdAccess.pdf}
+\item if-then-else
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvIte.pdf}
+\item variable
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvVar.pdf}
+\item lifting constructor
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvLift.pdf}
+\end{enumerate}
+
+
+
+\subsection{Applications of Value Graphs}
+
+\subsubsection{Approximations of a Recursive Relation}
+
+\subsubsection{Bisimilarity of Deconstruction Programs}
+
 We give an algorithm for converting an arbitrary expression $e$ to its value tree.
 Next, we reformulate multiple procedures related to our proof discharge algorithm
 in terms of the value trees directly.
@@ -556,11 +597,3 @@ write the final algorithm
 DONE
 (will need like 5-6 days to write all this out with figures)
 but for now, i can atleast try to do as much as possible so sir can start to review it
-
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvScalar.pdf}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvCons.pdf}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvSumIs.pdf}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvProdAccess.pdf}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvIte.pdf}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvVar.pdf}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvLift.pdf}
