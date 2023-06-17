@@ -6,31 +6,32 @@
 
 \begin{tikzpicture}
 
-\begin{scope}[local bounding box=scope1]
+\node (0) {$\mathcal{V}(e)=$};
+
+\begin{scope}[local bounding box=scope1,shift={($(0.east)+(11mm,5mm)$)}]
 
 \node[ttinner={75:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$e_1$};
-\node[tttree]         (2) [position=-65:10mm from 0]  {$v_2$};
+\node[tttree,inner sep=1mm]         (2) [position=-70:10mm from 0]  {$v_2$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\omega}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\Omega}$} (0);
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{MNil} \\ $c_1$}  (1);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm]  {\astcons{MCons} \\ $c_2$} (2.90);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (2) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot] {} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]},dash pattern={on 2.5pt off 2.5pt}] (2.east) .. controls ++(-30:11mm) and ++(30:22mm) .. node[ttannot] {} (0);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope2,position=-11.7:48.5mm from scope1]
+\node (1) [shift={($(scope1.east)+(17mm,0mm)$)}]   {$\mathcal{V}(\sumIs{e}{MCons})=$};
+
+\begin{scope}[local bounding box=scope2,shift={($(1.east)+(6mm,-3mm)$)}]
 
 \node[ttleaf] (0) {$c_2$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\omega}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\Omega}$} (0);
     
 \end{scope}
-
-\node (0) [position=180:0mm from scope1] {$\mathcal{V}(e)=$};
-\node (1) [position=180:-2mm from scope2]   {$\mathcal{V}(\sumIs{e}{MCons})=$};
 
 \end{tikzpicture}
 

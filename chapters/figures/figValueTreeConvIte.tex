@@ -6,23 +6,29 @@
 
 \begin{tikzpicture}
 
-\begin{scope}[local bounding box=scope1]
+\node (out0) {$\mathcal{V}(c)=$};
 
-\node[ttleaf] (0) {$c'$};
+\begin{scope}[local bounding box=scope1,shift={($(out0.east)+(6mm,-2mm)$)}]
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega}$} (0);
+\node[ttleaf] (0) {$s$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\Omega}$} (0);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope2,position=-91:15mm from scope1]
+\node (out1) [shift={($(out0.south)+(0mm,-10mm)$)}] {$\mathcal{V}(e_i)=$};
+
+\begin{scope}[local bounding box=scope2,shift={($(out1.east)+(6mm,-2mm)$)}]
 
 \node[tttree] (0) {$v_i$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega_i}$} (0.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\Omega_i}$} (0.90);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope3,position=7:55mm from scope1]
+\node[align=center] (out2) [shift={($(scope1.south east)+(28mm,-2.5mm)$)}] {$\mathcal{V}\Biggl($\makecell[l]{\footnotesize \sumIf{c} \sumThen{\cons{MNil}} \\ \footnotesize \sumElse{\cons{MCons}(e_1,e_2)}}$\Biggr)=$};
+
+\begin{scope}[local bounding box=scope3,shift={($(out2.east)+(12mm,10.5mm)$)}]
 
 \node[ttinner={45:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
@@ -32,16 +38,12 @@
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] (0);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\omega(c')$}               (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\neg \omega(c')$}         (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\omega_1}$ \\ \olifield{row}}  (3.90);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {$\compacttfbox{\omega_2}$ \\ \olifield{cols}} (4.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\Omega(s)$}               (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\neg \Omega(c)$}         (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\Omega_1}$ \\ \olifield{row}}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {$\compacttfbox{\Omega_2}$ \\ \olifield{cols}} (4.90);
 
 \end{scope}
-
-\node (0) [position=180:-2mm from scope1] {$\mathcal{V}(c)=$};
-\node (1) [position=180:-2mm from scope2] {$\mathcal{V}(e_i)=$};
-\node[align=center] (2) [position=180:-2mm from scope3] {$\mathcal{V}\Biggl($\makecell[l]{\footnotesize \sumIf{c} \sumThen{\cons{MNil}} \\ \footnotesize \sumElse{\cons{MCons}(e_1,e_2)}}$\Biggr)=$};
 
 \end{tikzpicture}
 

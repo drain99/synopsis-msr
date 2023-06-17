@@ -6,68 +6,70 @@
 
 \begin{tikzpicture}
 
-\begin{scope}[local bounding box=scope1]
+\node (out0) {$\mathcal{V}(e)=$};
+
+\begin{scope}[local bounding box=scope1,shift={($(out0.east)+(12mm,9mm)$)}]
 
 \node[ttinner={75:0}]  (0)                             {$+$};
-\node[ttleaf]          (1) [position=-120:10mm from 0] {$e_1$};
+\node[ttleaf]          (1) [position=-120:10mm from 0] {$s_1$};
 \node[ttinner={45:1}]  (2) [position=-60:10mm from 0]  {$\times$};
 \node[tttree]          (3) [position=-110:10mm from 2] {$v_2$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\omega}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\Omega}$} (0);
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{MNil} \\ $c_1$}  (1);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{MCons} \\ $c_2$} (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\omega_1}$ \\ \olifield{row}}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\Omega_1}$ \\ \olifield{row}}  (3.90);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot={left},right,yshift=-1.8mm] {$\compacttfbox{\omega_2}$ \\ \olifield{cols}} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot={left},right,yshift=-1.6mm] {$\compacttfbox{\Omega_2}$ \\ \olifield{cols}} (0);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope2,position=15:35mm from scope1]
+\node (out1) [shift={($(scope1.east)+(5mm,0mm)$)}] {$\xRightarrow[{\tt [1:\field{cols}]}]{{\tt unroll}}$};
+
+\begin{scope}[local bounding box=scope2,shift={($(out1.east)+(10mm,10mm)$)}]
 
 \node[ttinner={75:0}]  (0)                             {$+$};
-\node[ttleaf]          (1) [position=-120:10mm from 0] {$e_1$};
+\node[ttleaf]          (1) [position=-120:10mm from 0] {$s_1$};
 \node[ttinner={45:1}]  (2) [position=-60:10mm from 0]  {$\times$};
-\node[tttree]          (3) [position=-110:10mm from 2] {$e_2$};
+\node[tttree]          (3) [position=-110:10mm from 2] {$v_2$};
 \node[ttinner={75:2}]  (4) [position=-60:10mm from 2]  {$+$};
-\node[ttleaf]          (5) [position=-120:10mm from 4] {$e_1$};
+\node[ttleaf]          (5) [position=-120:10mm from 4] {$s_1$};
 \node[ttinner={45:3}]  (6) [position=-60:10mm from 4]  {$\times$};
-\node[tttree]          (7) [position=-110:10mm from 6] {$e_2$};
+\node[tttree]          (7) [position=-110:10mm from 6] {$v_2$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\omega}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\Omega}$} (0);
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{MNil} \\ $c_1$}                      (1);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm]  {\astcons{MCons} \\ $c_2$}                     (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\omega_1}$ \\ \olifield{row}}  (3.90);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.5mm]  {$\compacttfbox{\omega_2}$ \\ \olifield{cols}} (4);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\Omega_1}$ \\ \olifield{row}}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.5mm,yshift=0.2mm]  {$\compacttfbox{\Omega_2}$ \\ \olifield{cols}} (4);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to node[ttannot={right},left,xshift=0.5mm] {\astcons{MNil} \\ $c_1$ \ }                      (5);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to node[ttannot={left},right,xshift=0.5mm]  {\astcons{MCons} \\ $c_2$}                     (6);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) to node[ttannot={right},left,xshift=-0.5mm]  {$\compacttfbox{\omega_1}$ \\ \olifield{row}} (7.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) to node[ttannot={right},left,xshift=-0.5mm]  {$\compacttfbox{\Omega_1}$ \\ \olifield{row}} (7.90);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot={left},right,yshift=-1.8mm] {$\compacttfbox{\omega_2}$ \\ \olifield{cols}} (4);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot={left},right,yshift=-1.6mm] {$\compacttfbox{\Omega_2}$ \\ \olifield{cols}} (4);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope3,position=0:100mm from scope2]
+\node (out2) [shift={($(out0.south)+(4mm,-40mm)$)}] {$\mathcal{V}(\prodAccess{e}{cols})=$};
+
+\begin{scope}[local bounding box=scope3,shift={($(out2.east)+(12mm,7mm)$)}]
 
 \node[ttinner={75:0}]  (0)                             {$+$};
-\node[ttleaf]          (1) [position=-120:10mm from 0] {$e_1$};
+\node[ttleaf]          (1) [position=-120:10mm from 0] {$s_1$};
 \node[ttinner={45:1}] (2) [position=-60:10mm from 0]  {$\times$};
-\node[ttleaf]          (3) [position=-120:10mm from 2] {$e_2$};
+\node[tttree]          (3) [position=-110:10mm from 2] {$v_2$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\omega \cdot \omega_2}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {$\compacttfbox{\Omega \cdot \Omega_2}$} (0);
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{MNil} \\ $c_1$}  (1);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{MCons} \\ $c_2$} (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\omega_1}$ \\ \olifield{row}}  (3);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\Omega_1}$ \\ \olifield{row}}  (3.90);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot={left},right,yshift=-1.8mm] {$\compacttfbox{\omega_2}$ \\ \olifield{cols}} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot={left},right,yshift=-1.8mm] {$\compacttfbox{\Omega_2}$ \\ \olifield{cols}} (0);
 
 \end{scope}
-
-\node (0) [position=180:0mm from scope1] {$\mathcal{V}(e)=$};
-\node (0) [position=171:0mm from scope2] {$=$};
-\node (2) [position=180:0mm from scope3] {$\mathcal{V}(\prodAccess{e}{cols})=$};
 
 \end{tikzpicture}
 

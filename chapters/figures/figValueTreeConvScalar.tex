@@ -6,24 +6,25 @@
 
 \begin{tikzpicture}
 
-\begin{scope}[local bounding box=scope1]
+\node (0) {$\mathcal{V}(e_i)=$};
 
-\node[ttleaf] (0) {$e'_i$};
+\begin{scope}[local bounding box=scope1,shift={($(0.east)+(6mm,-3mm)$)}]
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega_i}$} (0);
+\node[ttleaf] (0) {$s_i$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1mm] {$\compacttfbox{\Omega_i}$} (0);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope2,position=0:27mm from scope1]
+\node (1) [shift={($(0.east)+(16mm,3mm)$)}] {$\mathcal{V}(e_1 \odot e_2)=$};
 
-\node[ttleaf] (0) {$\omega_1(e'_1) \odot \omega_2(e'_2)$};
+\begin{scope}[local bounding box=scope2,shift={($(1.east)+(12mm,-3mm)$)}]
+
+\node[ttleaf] (0) {$\Omega_1(s_1) \odot \Omega_2(s_2)$};
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right] {} (0);
 
 \end{scope}
-
-\node (0) [position=180:-2mm from scope1] {$\mathcal{V}(e_i)=$};
-\node (1) [position=180:-1mm from scope2] {$\mathcal{V}(e_1 \odot e_2)=$};
 
 \end{tikzpicture}
 

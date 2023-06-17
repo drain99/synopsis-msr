@@ -6,45 +6,51 @@
 
 \begin{tikzpicture}
 
-\begin{scope}[local bounding box=scope1]
+\node (out0) {$\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})=$};
 
-\node[tttree] (0) {$v_a^{li}$};
+\begin{scope}[local bounding box=scope0,shift={($(out0.east)+(7mm,-3.5mm)$)}]
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{a \coloneqq p}$} (0.90);
+\node[tttree,inner sep=-0.5mm] (0) {$v_\vtse{1}^\lift{list}{}{}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq p}$} (0.90);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope2,position=10:30mm from scope1]
+\node (out1) [shift={($(scope0.east)+(4mm,-3.2mm)$)}] {$\xRightarrow[{v_\vtse{1}^\lift{list}{}{}}]{{\tt expand}}$};
+
+\begin{scope}[local bounding box=scope1,shift={($(out1.east)+(15mm,12mm)$)}]
 
 \node[ttinner={45:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
 \node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
-\node[ttleaf] (3) [position=-120:10mm from 2] {$\prodAccess{b}{val}$};
-\node[tttree] (4) [position=-70:10mm from 2]  {$v_a^{li}$};
+\node[ttleaf] (3) [position=-120:10mm from 2] {$\prodAccess{\vtse{1}}{val}$};
+\node[tttree,inner sep=-0.5mm] (4) [position=-75:10mm from 2]  {$v_\vtse{1}^\lift{list}{}{}$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{a \coloneqq p}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq p}$} (0);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{a}{LNil}$}   (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{a}{LCons}$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{\vtse{1}}{LNil}$}   (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{\vtse{1}}{LCons}$} (2);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{val}} (3);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {\olifield{tail} \\ $\compacttfbox{a \coloneqq \prodAccess{a}{tail}}$} (4.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {\olifield{tail} \\ $\compacttfbox{\vtse{1} \coloneqq \prodAccess{\vtse{1}}{tail}}$} (4.90);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope3,position=5:70mm from scope2]
+\node (out2) [shift={($(scope1.east)+(4mm,1.3mm)$)}] {$\xRightarrow[{v_\vtse{1}^\lift{list}{}{}}]{{\tt fold}}$};
 
-\node[ttinner={75:0}] (0)                             {$+$};
+\begin{scope}[local bounding box=scope2,shift={($(out2.east)+(15mm,10mm)$)}]
+
+\node[ttinner={80:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
 \node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
-\node[ttleaf] (3) [position=-120:10mm from 2] {$\prodAccess{b}{val}$};
+\node[ttleaf] (3) [position=-120:10mm from 2] {$\prodAccess{\vtse{1}}{val}$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{a \coloneqq p}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq p}$} (0);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{a}{LNil}$}   (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{a}{LCons}$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{\vtse{1}}{LNil}$}   (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{\vtse{1}}{LCons}$} (2);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{val}} (3);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:20mm) and ++(30:25mm) .. node[ttannot={left},right,yshift=-1.2mm] {\olifield{tail} \\ $\compacttfbox{a \coloneqq \prodAccess{a}{tail}}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:19mm) and ++(30:27mm) .. node[ttannot={left},right,xshift=-0.7mm,yshift=-2.6mm] {\olifield{tail} \\ $\compacttfbox{\vtse{1} \coloneqq \prodAccess{\vtse{1}}{tail}}$} (0);
 
 \end{scope}
 

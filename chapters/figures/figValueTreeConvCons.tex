@@ -6,18 +6,22 @@
 
 \begin{tikzpicture}
 
-\begin{scope}[local bounding box=scope1]
+\node (0) {$\mathcal{V}(e_i)=$};
+
+\begin{scope}[local bounding box=scope1,shift={($(0.east)+(5mm,-4mm)$)}]
 
 \node[tttree] (0) {$v_i$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm] {$\compacttfbox{\omega_i}$} (0.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1mm] {$\compacttfbox{\Omega_i}$} (0.90);
 
 \end{scope}
 
-\begin{scope}[local bounding box=scope2,position=16:55mm from scope1]
+\node (1) [shift={($(scope1.east)+(20mm,-0.7mm)$)}] {$\mathcal{V}(\cons{LCons}(e_1,e_2))=$};
+
+\begin{scope}[local bounding box=scope2,shift={($(1.east)+(13mm,10mm)$)}]
 
 \node[ttinner={45:0}] (0)                             {$+$};
-\node[tttree]         (1) [position=-115:10mm from 0] {$v^{T_1}$};
+\node[tttree,inner xsep=-1mm,inner ysep=-2mm]         (1) [position=-112:10mm from 0] {$\mathcal{R}_{\cons{LNil}}$};
 \node[ttinner={45:1}] (2) [position=-55:10mm from 0]  {$\times$};
 \node[tttree]         (3) [position=-115:10mm from 2] {$v_1$};
 \node[tttree]         (4) [position=-65:10mm from 2]  {$v_2$};
@@ -26,13 +30,10 @@
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm] {\astcons{LNil} \\ ${\tt false}$} (1.90);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ ${\tt true}$} (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.5mm] {$\compacttfbox{\omega_1}$ \\ \olifield{val}} (3.90);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.5mm] {$\compacttfbox{\omega_2}$ \\ \olifield{tail}} (4.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\Omega_1}$ \\ \olifield{val}} (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.8mm] {$\compacttfbox{\Omega_2}$ \\ \olifield{tail}} (4.90);
 
 \end{scope}
-
-\node (0) [position=180:-2mm from scope1] {$\mathcal{V}(e^i)=$};
-\node (1) [position=180:-2mm from scope2] {$\mathcal{V}(\cons{LCons}(e_1,e_2))=$};
 
 \end{tikzpicture}
 
