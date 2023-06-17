@@ -1,7 +1,7 @@
-\section{Preliminaries}
+\chapter{Preliminaries}
 \label{sec:prelims}
 
-\subsection{The \SpecL{} Language}
+\section{The \SpecL{} Language}
 \label{sec:speclang}
 We start with an introduction to the \SpecL{} language.
 \SpecL{} supports recursive algebraic data types (ADT) \footnote{TODO:cite pls} similar to the ones available in most functional languages (e.g. Haskell\footnote{TODO:cite pls}).
@@ -34,7 +34,7 @@ The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a \type{bool
 of the ADT value \nonTerm{expr} is \nonTerm{data-cons}.
 \nonTerm{scalar-op} includes the logical, arithmatic and relational operators supported by \SpecL{}.
 
-\subsection{Equivalence Definition}
+\section{Equivalence Definition}
 \label{sec:eqdef}
 Given (1) a \SpecL{} function specification \sprog{}, (2) a C implementation \cprog{},
 (3) a precondition \pre{} that relates the initial inputs \sv{Input} and \cv{Input} to
@@ -89,7 +89,7 @@ A similar strategy is employed for other functions as explored later in \cref{se
 \input{chapters/figures/figSumListSpecAndC.tex}
 \input{chapters/figures/figSumListSpecAndCIRAndCFG.tex}
 
-\subsection{Control Flow Graph Representation}
+\section{Control Flow Graph Representation}
 \label{sec:ir}
 As outlined in \cref{sec:motivatingexample}, we convert both \SpecL{} and C programs to a common
 abstract representation called the `Control Flow Graph' (CFG for short).
@@ -200,7 +200,7 @@ Henceforth, We refer to the IR programs as \SpecL{} and C directly unless a dist
 
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
 
-\subsection{Bisimulation Relation}
+\section{Bisimulation Relation}
 \label{sec:bisim}
 Recall that,
 we construct a {\em bisimulation relation} to identify equivalence between \SpecL{} and C procedures.
@@ -251,7 +251,7 @@ and consequently the postcondition \post{} (\circled{\small E}) holds at the exi
 The input-output specification (i.e. $(\pre{},\post{})$) is manually provided by the user
 while all inductive invariants are identified by an invariant inference algorithm described in \cref{sec:invinferalgo}.
 
-\subsection{Recursive Relation}
+\section{Recursive Relation}
 \label{sec:recrel}
 In \cref{sec:motivatingexample}, we briefly introduced a lifting constructor (\lift{list}{\mem{}}{lnode})
 and \recursiveRelations{}.
@@ -284,7 +284,7 @@ lifting \structPointer{p}{\mem{}}{lnode}{next} through \lift{list}{\mem{}}{lnode
 in the memory \mem{}) to a \type{List} value and compare it with a \SpecL{} \type{List}
 value for equality.
 
-\subsection{Proof Obligations}
+\section{Proof Obligations}
 \label{sec:proofobl}
 As previously discussed, algorithms for (a) incremental construction of a Product-CFG
 and (b) inference of invariants at intermediate PCs in the (partially constructed) product-CFG, are

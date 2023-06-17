@@ -1,4 +1,4 @@
-\section{Evaluation}
+\chapter{Evaluation}
 \label{sec:eval}
 
 We have implemented \toolName{} on top of the Counter tool \cite{oopsla20}.
@@ -23,7 +23,7 @@ During invariant inference, \toolName{} derives the candidate lifting constructo
 from the user-specified $Pre$ and $Post$.
 More sophisticated approaches to finding lifting constructors are left as future work.
 
-\subsection{Experiments}
+\section{Experiments}
 We consider programs involving four distinct ADTs, namely,
 \inv{\small T1} \type{String}, \inv{\small T2} \type{List}, \inv{\small T3} \type{Tree}
 and \inv{\small T4} \type{Matrix}.
@@ -38,7 +38,7 @@ constructors, and (c) varying algorithmic strategies.
 
 \input{chapters/figures/figLiftingConsStr.tex}
 
-\subsubsection{String}
+\subsection{String}
 We wrote a single specification in \SpecL{} for each of the following
 common string library functions: {\tt strlen}, {\tt strchr}, {\tt strcmp}, {\tt strspn},
 {\tt strcspn}, and {\tt strpbrk}.  For each specification
@@ -99,7 +99,7 @@ with values of type \type{T} respectively.
 
 \input{chapters/figures/figLiftingConsList.tex}
 
-\subsubsection{List}
+\subsection{List}
 We wrote a \SpecL{} program specification that creates a list, a
 program that traverses a list to compute the sum of its elements and a program
 that computes the dot product of two lists. We use three different
@@ -119,7 +119,7 @@ indicate the empty string.
 
 \input{chapters/figures/figLiftingConsTree.tex}
 
-\subsubsection{Tree}
+\subsection{Tree}
 We wrote a \SpecL{} program that sums all the nodes in a tree
 through an inorder traversal using recursion. We use two different data layouts for a tree: 
 (1) a flat array where a
@@ -132,7 +132,7 @@ and at the exit of the recursive calls, \toolName{} assumes $Post$ on the return
 
 \input{chapters/figures/figLiftingConsMatrix.tex}
 
-\subsubsection{Matrix}
+\subsection{Matrix}
 We wrote a
 \SpecL{} program to count the frequency of a value appearing in a 2D matrix.
 A matrix is represented as an ADT that resembles a \type{List} of \type{List}s (\inv{\small T4} in \cref{tab:LiftingConsMatrix}).
@@ -148,7 +148,7 @@ constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
 
 \input{chapters/figures/figEvalTable.tex}
 
-\subsection{Results}
+\section{Results}
 \label{sec:results}
 \Cref{tab:results} lists the various C implementations and the time it took
 to compute equivalence with their specifications. For functions that
@@ -174,7 +174,7 @@ This is an example where \sdef{} and $Pre$ can be used to model wellformedness o
 
 TODO: add strlen spec atleast, show the strchr also!! maybe some matrix data layouts (only layouts)
 
-\subsection{Limitations}
+\section{Limitations}
 \label{sec:limitations}
 Our proof discharge algorithm is not without limitations.
 For a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree}, a $d$-depth

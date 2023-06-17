@@ -1,19 +1,15 @@
-\documentclass[twoside,a4paper,titlepage,openright,12pt]{article}
-% \usepackage[left=1.5in, right=1in, top=1in, bottom=1in, headheight=13.6pt]{geometry}
-% \usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
-% \usepackage[none]{hyphenat}
-% \usepackage[margin=1in]{geometry}
-% \documentclass[a4paper,twoside]{book}
-% \documentclass[a4paper,titlepage,openright,12pt]{MSThesis}
+\documentclass[twoside,12pt]{book}
+
 \usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{epsfig}
 \usepackage[size=small,labelfont=bf,justification=centering]{caption}
+\usepackage{subfloat}
 \usepackage[size=footnotesize,labelfont=bf,justification=centering,skip=-10px]{subcaption}
 \usepackage{booktabs}
 \usepackage{float}
-\usepackage{fancyhdr}
 \usepackage{makeidx}
 % \usepackage[nottoc,notlot,notlof]{tocbibind}
 \usepackage{supertabular}
@@ -22,9 +18,10 @@
 \usepackage{layout}
 \usepackage{enumerate}
 \usepackage{rotating}
+\usepackage{bbm}
 \usepackage{moreverb}
 \usepackage{tikz}
-\usepackage{multirow,bigdelim}
+\usepackage{multirow,tabularx,bigdelim}
 \usepackage{makecell}
 \usepackage{amsmath}
 \usepackage{amsthm}
@@ -33,11 +30,11 @@
 % \usepackage{captcont}
 \usepackage{verbatim}
 \usepackage{titlesec}
-\usepackage{url}
+\usepackage{url,paralist}
+\usepackage{subfiles}
 \usepackage{listings}
 \usepackage[inline]{enumitem}
 \usepackage{stmaryrd}
-\usepackage[hidelinks]{hyperref}
 \usepackage{lipsum}
 \usepackage{lscape}
 \usepackage{color}
@@ -47,121 +44,119 @@
 \usepackage{etoolbox}
 \usepackage{wrapfig}
 \usepackage{algorithm2e}
-\usepackage{cleveref}
 \usepackage{fontspec}
 \usepackage{arydshln}
 \usepackage{bm}
-\usepackage[acronym,nomain]{glossaries}
-%\usepackage{natbib}
-\RequirePackage[numbers,square]{natbib}
-% \setlength{\bibsep}{0pt plus 0.3ex}
-% \bibliographystyle{iitd}
-% \usepackage{indentfirst}
-%\usepackage{geometry}
-% \usepackage[algoruled]{algorithm2e}
-% \usepackage[figure,algoruled]{algorithm2e}
-% \usepackage[figure,boxruled]{algorithm2e}
-%\setlength{\parindent}{1.0em}
+\usepackage[toc,page]{appendix}
+\usepackage[pdfpagemode={UseOutlines},bookmarks=true,bookmarksopen=true, pdfauthor={Your Name},pdfcreator={Your Name}, bookmarksopenlevel=0,bookmarksnumbered=true,hypertexnames=false, colorlinks,linkcolor={black},citecolor={black},urlcolor={red},  pdfstartview={FitV},unicode,breaklinks=true]{hyperref}
+\usepackage{cleveref}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[english]{babel}
+\usepackage{fancyhdr}
+
+\addtolength{\oddsidemargin}{10pt}
+\addtolength{\evensidemargin}{-65pt}
+\addtolength{\textwidth}{64pt}
+\setlength{\belowcaptionskip}{0.5cm}
 
 % \titlespacing\section{0pt}{5pt plus 5pt}{5pt plus 5pt}
 % \titlespacing\subsection{0pt}{5pt plus 5pt}{5pt plus 5pt}
 % \titlespacing\subsubsection{0pt}{5pt plus 4pt minus 2pt}{5pt plus 2pt minus 2pt}
 
-\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
-\setlength{\textheight}{8.5in}
 \pagestyle{fancy}
-% with this we ensure that the chapter and section
-% headings are in lowercase.
-\renewcommand{\bibname}{References}
-% \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
-\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
-\fancyhf{} % delete current setting for header and footer
-%\fancyhead[LE,RO]{\bfseries\thepage}
-%\fancyhead[LO]{\bfseries\rightmark}
-%\fancyhead[RE]{\bfseries\leftmark}
-\rhead{\fancyplain{}{\thepage}} % predefined ()
-\lhead{\fancyplain{}{\rightmark}} % 1. sectionname, 1.1 subsection name etc
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancyhf{}
+\fancyhead[LO,RE]{\bfseries \leftmark}
+\fancyhead[LE,RO]{\bfseries \thepage}
+\fancyhead[RE]{\bfseries\leftmark}
+\addtolength{\headheight}{14.6pt}
 
-%\rfoot{\bfseries\thepage}
-%\rfoot{\fancyplain{}{\thepage}}
-% \cfoot{\em $\copyright$ 2022, Indian Institute of Technology Delhi}
-\renewcommand{\headrulewidth}{0.5pt}
-\renewcommand{\footrulewidth}{0.5pt}
-\addtolength{\headheight}{2.5pt} % make space for the rule
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\fancypagestyle{plain}{%
-\fancyhead{} % get rid of headers on plain pages
-\fancyfoot{}
-%\rfoot{\bfseries\thepage}
-% \cfoot{\em $\copyright$ 2019, Indian Institute of Technology Delhi}
-\renewcommand{\headrulewidth}{0pt} % and the line
-}
+\input{common_doc}
 
-%% The smart version of cleardouble page.
-\let\origdoublepage\cleardoublepage
-\newcommand{\clearemptydoublepage}{%
-  \clearpage
-  {\pagestyle{empty}\origdoublepage}%
-}
-\usepackage{xspace}
-
-\let\cleardoublepage\clearemptydoublepage
-
-% \setlength{\abovecaptionskip}{2px plus 2px}
-% \setlength{\belowcaptionskip}{2px plus 2px}
-
+\title{\ThesisTitle{}}
+\author{\Auth{}}
 \date{}
 
-\addtolength{\oddsidemargin}{30pt}
-\addtolength{\evensidemargin}{-30pt}
-
-% \titlespacing*{\chapter}{0pt}{-50pt}{20pt}
-% \titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{11pt}{\Huge}
-
-\sloppy\hyphenpenalty=100 \emergencystretch5em
-\input{common_doc}
-% \hypersetup{draft}
 \begin{document}
 
-\include{others/the-titlepage}
-\onehalfspacing
-\thispagestyle{empty}
+%\doublespacing
+\pagestyle{empty}
+\cleardoublepage
+%\newpage \ \newpage
+\onehalfspacing 
+%\newpage \ \newpage
+%------------------------------------------------------------------------- 
+\pagenumbering{gobble}
+\include{rest/cover_page}
+
+%===================================================================================
+% Activate the copyright page after viva
+% \cleardoublepage
+% \include{rest/copyright}
+%===================================================================================
+
+\cleardoublepage
+\include{rest/inner_cover_page}
+\cleardoublepage
+\pagenumbering{roman}
+\include{rest/certificate}
+\cleardoublepage
+\include{rest/acknowledge}
+
 \normalfont
 
-\include{others/certificate}
-\thispagestyle{empty}
+\doublespacing
+\pagestyle{plain}
+\include{chapters/abstract}
 
-\include{others/acknowledgement}
-\thispagestyle{empty}
-
-\setcounter{page}{1}
-\pagenumbering{roman}
-\thispagestyle{empty}
-
-\include{others/abstract}
-\thispagestyle{empty}
-
-\setcounter{tocdepth}{3}
+\cleardoublepage
+\pagestyle{fancy}
 \tableofcontents
-\newpage
 
-\setcounter{page}{1}
+\cleardoublepage
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename}
+
+\cleardoublepage
+\listoftables
+\addcontentsline{toc}{chapter}{\listtablename}
+
+\newpage \ \newpage
+\pagestyle{plain}
+
 \pagenumbering{arabic}
-\input{chapters/introduction}
-\input{chapters/prelims}
-\input{chapters/examples}
-\input{chapters/algo}
-\input{chapters/evaluation}
-\input{chapters/conclusion}
-% \include{chapters/organization-thesis}
-% \include{chapters/publications}
-\begin{singlespace}
-\bibliographystyle{iitd}
+\pagestyle{plain}
+\pagestyle{fancy}
+\singlespacing
+\onehalfspacing
+
+\include{chapters/introduction}
+\include{chapters/prelims}
+\include{chapters/examples}
+\include{chapters/algo}
+\include{chapters/evaluation}
+\include{chapters/conclusion}
+
+\pagestyle{fancy}
+\cleardoublepage
+%------------------------------------------------------------------------- 
+\addtocontents{toc}{\vspace{1em}} % Add a gap in the Contents, for aesthetics
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{plain} 
 \bibliography{main}
-\end{singlespace}
-% \include{chapters/Appendix}
+
+%\cleardoublepage
+\pagestyle{plain}
+\doublespacing
+\cleardoublepage
+\include{rest/bio}
+\cleardoublepage
+\pagestyle{plain}
 
 \end{document}	

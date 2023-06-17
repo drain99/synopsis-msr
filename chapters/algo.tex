@@ -1,4 +1,4 @@
-\section{Spec-to-C Equivalence Checker}
+\chapter{Spec-to-C Equivalence Checker}
 \label{sec:spectocalgo}
 In this section, we present our automatic equivalence checker algorithm \toolName{}.
 \toolName{} is able to search for a bisimulation based proof of equivalence
@@ -19,7 +19,7 @@ We finish with a comprehensive analysis of our proof discharge algorithm and its
 
 \input{chapters/figures/figPointstoDFA.tex}
 
-\subsection{Points-to Analysis}
+\section{Points-to Analysis}
 \label{sec:pointsToFormal}
 Recall that in \cref{sec:reconsbisim}, we needed to reason about aliasing to successfully discharge a type III proof obligation.
 These aliasing relationships are described in \cref{sec:pointsTo} and used in \cref{sec:pointsToAsInvariants} to
@@ -88,7 +88,7 @@ the previously-allocated objects (as in the \type{List}
 construction example). The coarse-grained $\{1, 2+\}$
 categorization of allocation recency is effective for such disambiguation.
 
-\subsection{Counterexample-guided Product-CFG Construction}
+\section{Counterexample-guided Product-CFG Construction}
 \label{sec:searchalgo}
 \toolName{} constructs a product-CFG incrementally to search for an observably-equivalent
 bisimulation relation between the CFGs of a \SpecL{} procedure \sprog{} and a C procedire \cprog{}.
@@ -163,7 +163,7 @@ we have successfully shown equivalence.
 This counterexample-guided BFS procedure is similar to the one described in prior work on
 the Counter algorithm \cite{oopsla20}.
 
-\subsubsection{Correlation in the Presence of Procedure Calls}
+\subsection{Correlation in the Presence of Procedure Calls}
 \label{sec:correlfcalls}
 Recall that a procedure $\delta$ in \sprog{} and \cprog{} may make function calls (including self calls),
 e.g., allocation of memory in C, traversal of a tree data structure.
@@ -200,7 +200,7 @@ and assume the postcondition (on the returned values) at $(n'_S:n'_C)$.
 \input{chapters/figures/figInvariantDFA.tex}
 \input{chapters/figures/figTfAndInvGrammar.tex}
 
-\subsection{Invariant Inference and Counterexample Generation}
+\section{Invariant Inference and Counterexample Generation}
 \label{sec:invinferalgo}
 We formulate our counterexample-guided invariant inference algorithm as a dataflow analysis
 as shown in \cref{tab:invinferalgodfa}.
@@ -240,10 +240,10 @@ Similarly, in case of a \recursiveRelation{} $l_1 \indEq{} l_2$, $StrongestInvCo
 returns {\em true} iff any counterexample in $\Gamma$ evalutes its $\eta$-depth over-approximation
 $l_1 \indEqDepth{\eta} l_2$ to false, where $\eta$ is a fixed parameter of the algorithm.
 
-\subsection{Proof Discharge Algorithm}
+\section{Proof Discharge Algorithm}
 \label{sec:proofalgo}
 
-\subsubsection{Summary of Canonicalization Procedure}
+\subsection{Summary of Canonicalization Procedure}
 \label{sec:canonicalalgo}
 \Cref{algo:canonical} shows the pseudo-code for the canonicalization procedure.
 $Canonicalize(e)$ is responsible for converting an expression $e$ to its canonical form $\hat{e}$ (introduced in \cref{sec:unifyandrewrite}).
@@ -258,7 +258,7 @@ canonicalizes to $a + \prodAccess{l}{val}$ and $(p = 0)$ respectively.
 
 \input{chapters/figures/figCanonical.tex}
 
-\subsubsection{Summary of Unification Procedure}
+\subsection{Summary of Unification Procedure}
 \label{sec:unifalgo}
 \Cref{algo:unification} shows the pseudo-code for the unification algorithm introduced in \cref{sec:unifyandrewrite}.
 $\theta(p_1,e_1,p_2,e_2)$ is responsible for unifying expressions $e_1$ and $e_2$ under the expression path
@@ -278,7 +278,7 @@ otherwise (if one of $A$ and $B$ is \cons{Fail}), $A \sqcup B = \cons{Fail}$.
 
 \input{chapters/figures/figUnification.tex}
 
-\subsubsection{Summary of Iterative Unification and Rewriting Procedure}
+\subsection{Summary of Iterative Unification and Rewriting Procedure}
 \label{sec:unifyandrewritealgo}
 \Cref{algo:unifyandrewrite} shows the pseudo-code for the iterative unification and rewriting procedure
 introduced in \cref{sec:unifyandrewrite}.
@@ -292,7 +292,7 @@ a recursive call to $\Theta$.
 
 \input{chapters/figures/figIterUnifyAndRewrite.tex}
 
-\subsubsection{Summary of Decomposition Procedure for Recursive Relations}
+\subsection{Summary of Decomposition Procedure for Recursive Relations}
 \label{sec:decomposealgo}
 \Cref{algo:decompose} shows the pseudo-code for the decomposition algorithm defined in \cref{sec:unifyandrewrite}.
 $Decompose(l_1, l_2)$ is responsible for computing the decomposition of the \recursiveRelation{} $l_1 \indEq{} l_2$.
@@ -304,7 +304,7 @@ If the unification fails (with a \cons{Fail} output), the decomposition is defin
 
 \input{chapters/figures/figDecompose.tex}
 
-\subsubsection{Summary of Reduction Procedure for Overapproximated Recursive Relations}
+\subsection{Summary of Reduction Procedure for Overapproximated Recursive Relations}
 \label{sec:overapproxalgo}
 For type II proof obligations summarized in \cref{sec:cat2summary},
 we overapproximate \lhs{} by substituting each \recursiveRelations{} $l_1 \indEq{} l_2$ in the \lhs{}
@@ -342,7 +342,7 @@ into its SMT-encodable equivalent condition.
 \input{chapters/figures/figDIterUnifyAndRewrite.tex}
 \input{chapters/figures/figOverapprox.tex}
 
-\subsubsection{Summary of Reduction Procedure for Underapproximated Recursive Relations}
+\subsection{Summary of Reduction Procedure for Underapproximated Recursive Relations}
 \label{sec:underapproxalgo}
 Recall that, for type II proof obligations summarized in \cref{sec:cat2summary},
 if we are unable to prove the stronger proof obligation with overapproximated \lhs{},
@@ -368,7 +368,7 @@ along with its pseudo-code in \cref{algo:underapprox}.
 \input{chapters/figures/figDepthBounded.tex}
 \input{chapters/figures/figUnderapprox.tex}
 
-\subsubsection{SMT Encoding of First Order Logic Formula}
+\subsection{SMT Encoding of First Order Logic Formula}
 \label{sec:smtencoding}
 As summarized in \cref{algo:proofSummary}, our proof discharge algorithm solves a proof obligation $P: \lhs{} \Rightarrow \rhs{}$,
 through a sequence of queries $P_i : \lhs{}_i \Rightarrow \rhs{}_i$ to off-the-shelf SMT solvers.
@@ -420,7 +420,7 @@ The memory element \mem{} is represented as a byte-addressable (i.e. \type{i8}) 
 A memory load \memRead{\mem{}}{a}{T} is expanded into the concatenation of \sizeof{T} {\em array-select} operations.
 A memory write \memWrite{\mem{}}{a}{v}{T} is expanded into \sizeof{T} nested {\em array-store} operations.
 
-\subsubsection{Reconciliation of Counterexamples}
+\subsection{Reconciliation of Counterexamples}
 \label{sec:cerecons}
 As detailed in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
 variables $\mathcal{F}(v)$ during SMT encoding.
@@ -449,7 +449,7 @@ is indeed a counterexample to $P$.
 
 \input{chapters/figures/figReconcile.tex}
 
-\subsubsection{Value Tree Representation}
+\subsection{Value Tree Representation}
 \label{sec:valuegraph}
 This section introduces a graphical representation of expressions which encodes both its canonical value and
 its deconstruction program at the same time.
@@ -530,7 +530,7 @@ i.e. exactly one of them is {\em true}.
 Note that all three expressions have \type{List} type and they are all isomorphic
 to one of the \type{List} type trees in \cref{fig:typetreespeel}.
 
-\subsubsection{Conversion Algorithm}
+\subsection{Conversion Algorithm}
 We give an algorithm for converting an arbitrary expression $e$ to its value tree.
 Next, we reformulate multiple procedures related to our proof discharge algorithm
 in terms of the value trees directly.

@@ -1,4 +1,4 @@
-\section[Proof Discharge Algorithm]{Proof Discharge Algorithm through Illustative Examples}
+\chapter{Proof Discharge Algorithm through Illustative Examples}
 \label{sec:examples}
 This section demonstrates our proof discharge algorithm through examples.
 We consider proof obligations generated due to invariants shown in \cref{tab:llproductInv,fig:llTraverseProductInv}
@@ -9,7 +9,7 @@ these properties are essential for the correctness of our proof discharge algori
 Next, the proof discharge algorithm is explored using sample proof obligations,
 and we finish with a pseudo-code of the algorithm.
 
-\subsection{Properties of Proof Discharge Algorithm}
+\section{Properties of Proof Discharge Algorithm}
 \label{sec:proofalgoprops}
 An algorithm that evaluates the truth value of a proof obligation is called a
 {\em proof discharge algorithm}.
@@ -76,7 +76,7 @@ one of three types; each type is discussed separately in subsequent
 sections.
 The categorization is based on a specialized unification procedure, which we describe next.
 
-\subsection{Iterative Unification and Rewriting Procedure}
+\section{Iterative Unification and Rewriting Procedure}
 \label{sec:unifyandrewrite}
 We begin with some definitions.
 An expression $e$ whose top-level constructor is a lifting
@@ -207,7 +207,7 @@ The invariant shapes along with the invariant inference procedure is discussed i
 We {\em decompose} a \recursiveRelation{} by replacing it with its decomposition.
 We {\em decompose} a proof obligation by decomposing all \recursiveRelations{} in it.
 
-\subsection{Categorization of Proof Obligations}
+\section{Categorization of Proof Obligations}
 We {\em unroll a \recursiveRelation{} $l_1 \indEq{} l_2$} by rewriting the
 top-level expressions $l_1$ and $l_2$ through their unrolling procedures (if possible)
 and decomposing it.
@@ -240,7 +240,7 @@ Henceforth, we will simply use $k$-unrolling of $P$ to refer to $P_E$ directly.
 Next, we describe the algorithm for each type of proof obligations
 in \cref{sec:cat1,sec:cat2,sec:cat3}.
 
-\subsection{Handling Type I Proof Obligations}
+\section{Handling Type I Proof Obligations}
 \label{sec:cat1}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge \scedge{0}{0}{3}{3}
@@ -280,7 +280,7 @@ all proof obligations in type I can be discharged precisely, i.e., we can always
 decide whether the proof obligation evaluates to true or false.
 If it evaluates to false, we also obtain counterexamples.
 
-\subsection{Handling Type II Proof Obligations}
+\section{Handling Type II Proof Obligations}
 \label{sec:cat2}
 Consider the proof obligation for \circled{\small I2} invariant $\sv{sum} = \cv{sum}$
 across edge \scedge{2}{2}{2}{2} in \cref{fig:llTraverseProduct}:
@@ -323,7 +323,7 @@ versions of precondition $\phi_s$ respectively, and $d_1$ and $d_2$ represent
 To explain our over- and under-approximation scheme, we
 first introduce the notion of {\em depth of an ADT value}.
 
-\subsubsection{Depth of ADT Values}
+\subsection{Depth of ADT Values}
 \label{sec:adtdepth}
 To define depth of an ADT value $v$, we view the value as a tree $\mathcal{T}(v)$.
 The internal nodes of $\mathcal{T}(v)$ represent ADT data constructors and
@@ -336,7 +336,7 @@ For example, the depth of $\cons{LCons}(1, \cons{LCons}(4, \cons{LNil}))$ is {\t
 
 \input{chapters/figures/figExprtrees.tex}
 
-\subsubsection{Overapproximation and Underapproximation of Recursive Relations}
+\subsection{Overapproximation and Underapproximation of Recursive Relations}
 \label{sec:approxdefs}
 The $d$-depth overapproximation of a \recursiveRelation{} $l_1 \indEq{} l_2$,
 denoted by $l_1 \indEqDepth{d} l_2$, represents the condition that
@@ -370,7 +370,7 @@ the approximations of $l_1 \indEq{} l_2$ are related as follows:
 l_1 \indEqUapprox{a} l_2 \Rightarrow l_1 \indEqUapprox{b} l_2 \Rightarrow l_1 \indEq{} l_2 \Rightarrow l_1 \indEqDepth{b} l_2 \Rightarrow l_1 \indEqDepth{a} l_2
 \end{equation}
 
-\subsubsection{Reduction of Approximate Recursive Relations}
+\subsection{Reduction of Approximate Recursive Relations}
 \label{sec:approxdecomp}
 Unlike the original \recursiveRelation{} $l_1 \indEq{} l_2$,
 its approximations $l_1\indEqDepth{d}l_2$ and $l_1\indEqUapprox{d}l_2$ can be reduced into
@@ -411,7 +411,7 @@ Finally, $l \indEqUapprox{2} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \de
 \land \depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{2} \lifted{list}{\mem{}}{lnode}{p}$.
 \end{itemize}
 
-\subsubsection{Summary of Type II Proof Discharge Algorithm}
+\subsection{Summary of Type II Proof Discharge Algorithm}
 \label{sec:cat2summary}
 We over- (under-) approximate a precondition $\phi$ till depth $d$ by $d$-depth over- (under-) approximating
 each \recursiveRelation{} occuring in $\phi$.
@@ -504,7 +504,7 @@ are executed starting at the machine state represented by this counterexample, t
 values of \sv{sum} and \cv{sum} are {\tt 3+42+43=88} and {\tt 3+42=45} respectively.
 Evidently, the counterexample falsifies the proof condition because these values are not equal (as required by the postcondition).
 
-\subsection{Handling Type III Proof Obligations}
+\section{Handling Type III Proof Obligations}
 \label{sec:cat3}
 In \cref{fig:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge \scedge{3}{5}{3}{3} while checking if the
@@ -535,7 +535,7 @@ Consequently, $\mem{}'$ is equal to \mem{} everywhere except at the \field{val}
 and \field{next} fields of the \type{lnode} object pointed to by \cv{p}.
 We refer to these memory writes that distinguish \mem{} and $\mem{}'$, as the {\em distinguishing writes}.
 
-\subsubsection{LHS-to-RHS Substitution and RHS Decomposition}
+\subsection{LHS-to-RHS Substitution and RHS Decomposition}
 We start by utilizing
 the \indEq{} relationships in the \lhs{} (antecedent) of `$\Rightarrow$'
 to rewrite \cref{eqn:ex1cat3} so that the ADT variables (e.g., \sv{l}) in its \rhs{} (consequent)
@@ -590,7 +590,7 @@ Hence, we are interested in proving equality between two \type{List} values lift
 Next, we show how the above can be reposed as the problem of showing equivalence between
 two procedures through bisimulation.
 
-\subsubsection{Deconstruction Programs for Lifted Values}
+\subsection{Deconstruction Programs for Lifted Values}
 \label{sec:deconsprogram}
 Consider a program that recursively calls the definition (i.e. unrolling procedure)
 of \lift{list}{\mem{}}{lnode} (\cref{eqn:clist}) to deconstruct \lifted{list}{\mem{}}{lnode}{l}.
@@ -633,7 +633,7 @@ with potentially different \cprog{} values and memory states.
 
 \input{chapters/figures/figClistDeconsProductCFGAndInvs.tex}
 
-\subsubsection{Checking Bisimulation between Deconstruction Programs}
+\subsection{Checking Bisimulation between Deconstruction Programs}
 \label{sec:reconsbisim}
 To check bisimulation, we attempt to show that both deconstructions
 proceed in lockstep, and the invariants at each step of this lockstep execution ensure equal observables.
@@ -707,7 +707,7 @@ unrolling procedures of both lifted expressions, and the candidate invariants
 are obtained by equating each pair of terminal values that form the observables
 of both programs.
 
-\subsubsection{Points-to Analysis}
+\subsection{Points-to Analysis}
 \label{sec:pointsTo}
 To reason about aliasing (as required during bisimulation check in \cref{sec:bisim}),
 we conservatively compute {\em may-point-to} information for each program value using
@@ -756,7 +756,7 @@ On the other hand, pointers within a \mlrs{\cpc{4}} object may not point to a \m
 
 \input{chapters/figures/figClistDeconsProductCfgPointstoInvsAnfGraph.tex}
 
-\subsubsection{Transferring Points-to Information to Decons-PCFG}
+\subsection{Transferring Points-to Information to Decons-PCFG}
 \label{sec:pointsToAsInvariants}
 Recall that in \cref{sec:reconsbisim}, we reduce the condition
 $\lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$
@@ -818,7 +818,7 @@ and consequently, successfully discharge the proof obligation
 in \cref{tab:llproductInv}.
 The points-to analysis is further discussed in \cref{sec:pointsToFormal}.
 
-\subsubsection{Summary of Type III Proof Discharge Algorithm}
+\subsection{Summary of Type III Proof Discharge Algorithm}
 \label{sec:cat3summary}
 
 Before the start of an equivalence check, a points-to analysis is run on the \cprog{} program (IR) once.
@@ -853,7 +853,7 @@ otherwise, we imprecisely return {\em false} (without counterexamples).
 
 \input{chapters/figures/figProofSummary.tex}
 
-\subsection{Overview of Proof Discharge Algorithm}
+\section{Overview of Proof Discharge Algorithm}
 \Cref{algo:proofSummary} gives a basic pseudo-code of our proof discharge algorithm.
 The top-level function responsible for discharging Hoare triple proof obligations is: $Prove()$.
 $Prove()$ accepts the proof obligation along with the categorization ($k$)
