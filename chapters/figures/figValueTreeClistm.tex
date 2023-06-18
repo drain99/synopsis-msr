@@ -1,0 +1,24 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\node[ttinner={80:0}] (0)                             {$+$};
+\node[ttleaf,label={135,inner sep=-0.5mm:\scriptsize $\zeta_0$}]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
+\node[ttleaf,label={170,inner sep=-0.5mm:\scriptsize $\zeta_1$}] (3) [position=-120:10mm from 2] {$\structPointer{\vtse{1}}{\mem{}}{lnode}{val}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {\footnotesize $\xi$} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq \cv{l}}$} (0);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\vtse{1} = 0$}   (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\vtse{1} \neq 0$} (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{val}} (3);
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:15mm) and ++(30:22mm) .. node[ttannot={left},right,xshift=1mm,yshift=-0.2mm] {$\compacttfbox{\vtse{1} \coloneqq \structPointer{\vtse{1}}{\mem{}}{lnode}{next}}$ \\ \olifield{tail}} (0);
+
+\end{tikzpicture}
+
+\end{document}

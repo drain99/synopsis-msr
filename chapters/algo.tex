@@ -555,7 +555,7 @@ of our proof discharge algorithm.
 Next, we give an algorithm to convert an expression $e$ to its value tree representation $\mathcal{V}(e)$.
 
 \subsection{Conversion of Expressions to their Value Graphs}
-
+\label{sec:valuetreeconv}
 In this section, we present an algorithm to recursively construct a value tree for any arbitrary expression $e$.
 We take a visual approach to match the graphical nature of value trees.
 
@@ -744,27 +744,67 @@ respectively (nodes 0 and 3 in \cref{fig:valuetreeconvvar} respectively).
 
 \subsection{Applications of Value Trees}
 \label{sec:valuetreeapps}
-With the construction algorithm out of the way, we next discuss the applications of value tree representation
+With the construction algorithm out of the way, we next discuss some of the applications of value tree representation
 in the context of our proof discharge algorithm.
 
-\subsubsection{Canonicalization Property}
-
-all expressions are canonical
-
-then talk about the special case of a proof obligation of bool (i.e. scalar) type
+\subsubsection{Canonical Form Property}
+For any expression $e$, its value tree $\mathcal{V}(e)$ has the following property:
+for any path from the entry node $\xi$ to a leaf node $v_l$ (containing a scalar expression $s_l$)
+$\rho[\xi \rightarrow \dots \rightarrow v_l]$, the weakest-precondition of $s_l$ at the entry $\xi$
+is always in canonical form.
+This is called the {\em canonical form property} of value trees.
+The proof of this property follows from the construction algorithm described in \cref{sec:valuetreeconv}.
+Let $P$ be a proof obligation of \type{bool} type.
+Recall that, a value tree for a scalar type $T$ (such as \type{bool}) must be composed of a single leaf node at its root
+(say $v_0$) containing a scalar expression (say $s$) of type $T$ along with a transfer function $\Omega$ associated
+with the entry edge.
+The expression $\Omega(s)$ is equal to the proof obligation $P$.
+Due to the canonical form property, $\Omega(s)$ is also in the canonical form.
+Hence, we can convert a proof obligation $P$ (without \recursiveRelations{}) to its canonical form
+by converting to value tree followed by extracting the expression at the root.
 
 \subsubsection{Reduction of Approximate Recursive Relations}
+Recall that, in \cref{sec:valuetreeconv} we did not give an algorithm for constructing the value
+tree for a \recursiveRelation{} $l_1 \indEq{} l_2$.
+Unlike $l_1 \indEq{} l_2$, the value trees corresponding to its $d$-depth
+over- and under-approximations ($l_1 \indEqDepth{d} l_2$ and $l_1 \indEqUapprox{d} l_2$ respectively)
+are construcible from $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
 
-write about the equality interpretation along with the full equation
-
-then the 2 equations for over and under approximations
+Since an ADT represents a `sum of product' type, each level of an ADT value (in its expression tree)
+corresponds to two levels -- \sumn{} and \prodn{} (in the value tree).
+Hence, a $d$-depth over-approximation of $l_1 \indEq{} l_2$ simply asserts equality of all
+leaf expressions between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$, up to a depth of $2d$.
+Similarly, the $d$-depth under-approximation of $l_1 \indEq{} l_2$ asserts the above,
+and in addition asserts the unreachability of all paths outgoing at level $2d$ i.e. paths
+incident at a depth of $2d+1$.
+Due to the canonical form property, this allows us to convert any proof obligation $P$ without
+a \recursiveRelation{} (but possibly its approximations) to its canonical form
+by converting it to the value tree representation, followed by extracting the expression at the root.
 
 \subsubsection{Bisimilarity of Value Trees}
+Recall that, $l_1 \indEq{} l_2$ asserts exact equality of $l_1$ and $l_2$ up to an arbitrary depth.
+Using the program representation of value graphs, if we are able to establish bisimilarity
+between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$
+(similar to bisimilarity between their deconstruction programs),
+we have shown that $l_1 \indEq{} l_2$ holds.
+We can interpret value trees as non-deterministic Control Flow Graphs.
+The inputs include the free variables at the entry node $\xi$ and
+the observable outputs are the expressions contained in the leaf nodes.
+To make the search for a bisimulation easier, we can peel the value trees of $l_1$ and $l_2$
+to unify their tree structures.
+Next, the bisimulation relation requires us to prove that the outputs of
+each pair of leaf nodes are identical.
+Just like their deconstruction programs, we run our points-to analysis before the check
+for bisimilarity, to identify points-to invariants to help in the bisimulation process.
+Recall the \rhs{} of the type III proof obligation illustrated in \cref{sec:cat3}:
+$\lhs{} \Rightarrow \lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$.
+Also recall that the points-to invariants available at \cpc{5} are (showing only the relevant ones):
+$\cv{p} \pointsTo{} \{ \mlrf{\cpc{4}} \}$
+$\cv{l} \pointsTo{} \{ \mlrs{\cpc{4}} \}$, $\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$,
+$\mlrs{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$, and
+$\heapr{} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$.
+\Cref{fig:valuetreebisim} shows the value trees of $\lifted{list}{\mem{}}{lnode}{\cv{l}}$
+and $\lifted{list}{\mem{}'}{lnode}{\cv{l}}$ along with the table of invariants
+required by the proof of equivalence through bisimulation.
 
-continue the equality idea here
-
-talk small about structural unification part
-
-then the bisimulation relation between them
-
-TODO: write first sketch of all today + draw the figure later with final formatting
+\input{chapters/figures/figValueTreeBisim.tex}
