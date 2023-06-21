@@ -66,8 +66,21 @@ List the other ADTs and their layouts considered
 Thank you slide
 
 TODO:
-by end of this month, finish up everything before the dive into the algorithm through examples
-then 2 days for the algo
-then 2 days for the everything after the algo
-then 1 day to put in all the figures i guess
-then only left with the new section i.e. 7 days 
+C2 -> C6 -> CE => ch is at top, either its null or an actual character
+C2 -> C3 -> C4 -> CE => ch is not zero but top is zero i.e. end of string
+
+S1 -> S3 -> S4 -> SE => empty string and also ch is zero
+S1 -> S3 -> S7 -> SE => non-empty string but equal actual characters
+S1 -> S3 -> S4 -> S5 -> SE => empty string but ch is non zero
+
+so the single exit path (1) correlates with (1) & (2) of Spec!!!
+perfect example where pathset is a requirement
+
+so TODO first thing tomorrow:
+(0) check the code that indeed both pathconds are added!!
+(1) add pathset small text in correlation algo
+(2) in proof discharge algo, say how to reduce it into paths in the proof algo first subsection
+(3) add OptStr to the table along with definitions
+(4) update and add the strchr figures to evaluation
+(5) discuss the following - (a) use of OptStr (b) use of (S def) (c) pathset correlation i.e. generalization in C while Spec is more explicit!
+(6) do a pass over the proof discharge algo section excluding value graphs and send to sir

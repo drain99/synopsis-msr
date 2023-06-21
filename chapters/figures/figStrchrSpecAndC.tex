@@ -2,7 +2,7 @@
 \begin{tabular}{cc}
 \begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
-\begin{specIRLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{S0:}}~ OptStr strchr (Str s, i8 c) {
 ~{\tiny \textcolor{mygray}{S1:}}~   while ${\tt true}$:
 ~{\tiny \textcolor{mygray}{S2:}}~     assume ${\tt \neg (s\ is\ SInvalid)}$;
@@ -13,14 +13,14 @@
 ~{\tiny \textcolor{mygray}{S7:}}~     if c == ch: return Found(s);
 ~{\tiny \textcolor{mygray}{S8:}}~     s $\coloneq$ s.tail;
 ~{\tiny \textcolor{mygray}{SE:}}~ }
-\end{specIRLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \caption{\label{fig:llStrchrSpecIR}Strchr Spec IR Program}
 \end{subfigure}%
 &
 \begin{subfigure}[b]{0.46\textwidth}
 \begin{center}
-\begin{cIRLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{\ \ \ }}~ char* strchr(char* t, int c);
 ~{\tiny \textcolor{mygray}{}}~
 ~{\tiny \textcolor{mygray}{C0:}}~ i32 strchr (i32 t, i32 c) {
@@ -31,14 +31,14 @@
 ~{\tiny \textcolor{mygray}{C5:}}~     t $\coloneq$ t + ${\tt 1_{i32}}$
 ~{\tiny \textcolor{mygray}{C6:}}~   return t;
 ~{\tiny \textcolor{mygray}{CE:}}~ }
-\end{cIRLangEnvScript}
+\end{allLangEnvFoot}
 \end{center}
 \caption{\label{fig:llStrchrCArrIR}Generic Strchr C IR Program using Array}
 \end{subfigure}%
 \\
 \begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
-{\includegraphics[scale=0.87]{figStrchrProductCfg.pdf}}
+\includegraphics[scale=0.87]{chapters/figures/figStrchrProductCfg.pdf}
 \end{center}
 \caption{\label{fig:llStrchrProduct}XXX}
 \end{subfigure}%

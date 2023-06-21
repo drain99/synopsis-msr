@@ -88,7 +88,7 @@ it is unspecified.
 For example, during conversion of C program in \cref{fig:llAllocC} to IR (in \cref{fig:llAllocCIR}),
 the sizes of pointer and \type{unsigned} types are fixed to 32 bits (i.e. \type{i32}).
 Similarly, the memory layout (including alignment and offset) of \type{lnode} struct defined in \bpc{0} (in \cref{fig:llAllocC}) is chosen.
-The consequences of determinizing the C program behaviour are further discussed in \cref{sec:spectocalgo}.
+The implications of determinizing the C program behaviour are further discussed in \cref{sec:spectocalgo}.
 For now, it is sufficient to note that we are interested in equivalence between \SpecL{} and this determinized version of C.
 \item The memory state of the C program is made explicit, represented using the byte-addressable array `\mem{}'.
 Memory loads and stores are represented using explicit operations on \mem{}, e.g.,
