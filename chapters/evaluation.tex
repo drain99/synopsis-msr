@@ -12,15 +12,17 @@ We use a value of {\em five} for $\eta$ (used by {\em StrongestInvCover()} durin
 
 \toolName{} requires the user to provide a \SpecL{} program $S$ (specification), a C implementation $C$,
 and a file that contains their input-output specifications.
+For each function pair, \toolName{} attempts to find equivalence between their CFGs \sprog{} and \cprog{}
+under their respective \pre{} and \post{} (given as part of input-output specification).
 An equivalence check requires the identification of lifting constructors to relate C
 values to the ADT values in \SpecL{} through  \recursiveRelations{}.
-Such relations may be required at the entry of both programs (i.e. in the precondition $Pre$),
+Such relations may be required at the entry of both programs (i.e. in the precondition \pre{}),
 in the middle of both programs (i.e., in the invariants at intermediate product-CFG nodes),
-and at the exit of both programs (i.e., in the postcondition $Post$).
-$Pre$ and $Post$ are user-specified, whereas the inductive invariants are
+and at the exit of both programs (i.e., in the postcondition \post{}).
+\pre{} and \post{} are user-specified, whereas the inductive invariants are
 inferred automatically by our algorithm.
 During invariant inference, \toolName{} derives the candidate lifting constructors
-from the user-specified $Pre$ and $Post$.
+from the user-specified \pre{} and \post{}.
 More sophisticated approaches to finding lifting constructors are left as future work.
 
 \section{Experiments}
@@ -54,16 +56,11 @@ corresponding lifting constructor is \lift{str}{\mem{}}{u8[]}.
 \type{u<N>} represents the N-bit unsigned integer type in C.
 For example, \type{u8} represents \type{unsigned char} type.
 
-Further, we implemented
-custom C programs for all of these functions that used
-linked list
-and {\em chunked linked list} data structures
-to represent a string.
-In a chunked linked list, a single list node (linked
-through a {\tt next} pointer)
+Further, we implemented custom C programs for these functions that uses linked list
+and {\em chunked linked list} data structures to represent a string.
+In a chunked linked list, a single list node (linked through a {\tt next} pointer)
 contains a small array (chunk) of values.
-We use a default chunk size of four for our
-benchmarks.
+We use a default chunk size of four for our benchmarks.
 The corresponding lifting constructors are \lift{str}{\mem{}}{lnode(u8)}
 and \lift{str}{\mem{}}{clnode(u8)} respectively.
 These lifting constructors are defined in \cref{tab:LiftingConsStr}.
@@ -72,6 +69,10 @@ argument $p$ representing the pointer to the list node.
 On the other hand, \lift{str}{\mem{}}{clnode(u8)} requires two arguments $p$
 and $i$, where $p$ represents the pointer to the chunked linked list node
 and $i$ represents the position of the initial character in the chunk.
+
+\input{chapters/figures/figStrlenSpecAndC.tex}
+
+\input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
 \Cref{fig:strlenSpecAndC} shows the {\tt strlen} specification and two vastly
 different $C$ implementations. \Cref{fig:llStrlenCArrIR} is a generic implementation
@@ -92,10 +93,6 @@ In general, we use the following naming convention for different C data layouts:
 \type{lnode(T)} represents a linked list node type containing a value of type \type{T}.
 Similarly, \type{clnode(T)} and \type{tnode(T)} represent a chunked linked list and a tree node
 with values of type \type{T} respectively.
-
-\input{chapters/figures/figStrlenSpecAndC.tex}
-
-\input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
 \input{chapters/figures/figLiftingConsList.tex}
 
@@ -123,12 +120,12 @@ indicate the empty string.
 We wrote a \SpecL{} program that sums all the nodes in a tree
 through an inorder traversal using recursion. We use two different data layouts for a tree: 
 (1) a flat array where a
-complete binary tree is laid out in breadth-first search order commonly used for heaps (\lift{tree}{\mem{}}{u32[]}),
+{\em complete} binary tree is laid out in breadth-first search order commonly used for heaps (\lift{tree}{\mem{}}{u32[]}),
 and (2) a linked tree node with two pointers for the left and right children (\lift{tree}{\mem{}}{tnode(u32)}) (shown in \cref{tab:LiftingConsTree}).
 Both \SpecL{} and C programs contain non-tail recursive procedure calls for left and right children.
-\toolName{} is able to correlate these recursive calls using user-provided $Pre$ and $Post$.
-At the entry of the recursive calls, \toolName{} is required to prove that $Pre$ holds for the arguments
-and at the exit of the recursive calls, \toolName{} assumes $Post$ on the returned states.
+\toolName{} is able to correlate these recursive calls using user-provided \pre{} and \post{} as discussed in \cref{sec:correlfcalls}.
+At the entry of the recursive calls, \toolName{} is required to prove that \pre{} holds for the arguments
+and at the exit of the recursive calls, \toolName{} assumes \post{} on the returned states.
 
 \input{chapters/figures/figLiftingConsMatrix.tex}
 
@@ -166,29 +163,40 @@ address does not belong to the null character terminated array representing the 
 We use an explicit constructor \cons{SInvalid} to expose this well-formedness property in a \SpecL{} \type{String}.
 Furthermore, we relate \cons{SInvalid} to the condition of C character pointer being null using the
 lifting constructors \lifted{str}{\mem{}}{T}{p\ctype{i32},\dots} (as defined in \cref{tab:LiftingConsList}).
-These lifting constructors are used as part of $Pre$ to equate $S$ and $C$ input strings.
+These lifting constructors are used as part of \pre{} to equate $S$ and $C$ input strings.
 Finally in $S$, we model the absence of \cons{SInvalid} in the input string as a UB assumption using
 the {\tt assuming-do} statement introduced in \cref{sec:speclang}.
 Due to the \sdef{} assumption, this constraints the inputs to $S$ as well as $C$ to well-formed strings only.
-This is an example where \sdef{} and $Pre$ can be used to model wellformedness of values in $C$.
+This is an example where \sdef{} and \pre{} can be used to model wellformedness of values in $C$.
 
-TODO: add strlen spec atleast, show the strchr also!! maybe some matrix data layouts (only layouts)
+TODO: consider adding matrix data layouts (not programs) to illustrate the diversity of possible memory layouts being considered
 
 \section{Limitations}
 \label{sec:limitations}
-Our proof discharge algorithm is not without limitations.
-For a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree}, a $d$-depth
-approximation results in $\sim 2^d$ smaller equalities. This is a major cause of inefficiency due to
-generation of large queries which slows down SMT solvers and counterexample-guided algorithms for large values of $d$.
+\toolName{} is not without limitations.
+Since \toolName{} is only interested in finding a bisimulation relation,
+a whole class of non-bisimilar but equivalent program pairs is beyond our scope.
+\toolName{} currently only supports bitvector affine and inequality relations, in addition to \recursiveRelations{}
+based on the lifting constructors provided as part of \pre{} and \post{}.
+Consequently, non-linear bitvector invariants (such as polynomial invariants) are not supported.
+More importantly, \toolName{} does not attempt to infer lifting constructors and merely
+uses the lifting constructors (with different arguments) provided as part of the input-output characteristics.
+While our correlation and invariant inference algorithms are based on the Counter tool \cite{oopsla20}
+designed primarily for translation validation between (C-like) unoptimized IR and assembly, we found them to be
+quite effective for \SpecL{} to (C-like) IR as well.
+However, \toolName{} inherits many of the limitations of the Counter tool.
+For example, \toolName{} supports path specializations from \SpecL{} to C, but does not
+search for path merging correlations.
 
-\toolName{} is only interested in finding a bisimulation relation and hence
-equivalence of non-bisimilar programs is beyond our scope.
-\toolName{} currently only supports bitvector affine and inequality relations
-along with \recursiveRelations{} provided as part of $Pre$ and $Post$.
-Consequently, non-linear bitvector invariants (e.g. polynomial invariants)
-as well as custom \recursiveRelations{} are not supported.
-While our correlation and invariant inference algorithms based on the Counter tool \cite{oopsla20}
-are designed for translation validation between (C-like) unoptimized IR and assembly, we found them
-to be surprisingly good for \SpecL{} to (C-like) IR as well. Rather unsurprisingly, \toolName{}
-suffers from the same limitations of these algorithms. For example, \toolName{} supports path
-specializations from \SpecL{} to C, it does not search for path merging correlations.
+In case of our proof discharge algorithm, we have identified a source of inefficiency for type II
+proof obligations.
+For a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree},
+its $d$-depth approximation results in $\mathcal{O}(2^d)$ scalar equalities.
+This is a source of major inefficiency due to generation of large SMT queries.
+The completely of type III proof obligations is highly contingent on the precision
+of our points-to analysis on \cprog{} as well as the deconstruction programs being
+checked for equivanece as part of the nested bisimulation check.
+We found our coarse-grained {\tt \{1,2+\}} categorization of allocation recency
+combined with allocation-site based points-to analysis to be quite good at
+identifying required points-to invariants.
+However, such an abstraction is far from complete.
