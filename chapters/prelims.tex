@@ -1,29 +1,29 @@
 \chapter{Preliminaries}
 \label{sec:prelims}
 
-\section{The \SpecL{} Language}
+\section{The Specification Language : \SpecL{}}
 \label{sec:speclang}
-We start with an introduction to the \SpecL{} language.
-\SpecL{} supports recursive algebraic data types (ADT) \footnote{TODO:cite pls} similar to the ones available in most functional languages (e.g. Haskell\footnote{TODO:cite pls}).
-\SpecL{} does not support parametric types but does allow ADTs which are mutually recursive.
-Additionally, \SpecL{} is equipped with the following {\em scalar} types: \type{unit}, \type{bool} (boolean) and \type{i<N>} (bitvector of size {\tt N}).
-ADTs can be thought of as `sum of product' types where each {\em data constructor} represents a variant
-and the arguments to each data constructor represents its {\em fields}.
+We start with an introduction to our specification language, called \SpecL{}.
+\SpecL{} supports recursive algebraic data types (ADT) \cite{algebraicdatatypes} similar to the ones available in functional languages such as Haskell \cite{marlow2010haskell} and SML \cite{standardmlspec}.
+\SpecL{} does not support universal types but does allow ADTs which are mutually recursive.
+Additionally, \SpecL{} is equipped with the following {\em scalar} types: \type{unit}, \type{bool} (boolean) and \type{i<N>} (fixed-width bitvectors).
+ADTs can be thought of as `sum of product' types where each {\em data constructor} represents a variant (of the sum-type)
+and the arguments to each data constructor represents its {\em fields} (of the product-type).
 For example, the \type{List} type (defined at \apc{0} in \cref{fig:llAllocSpec}) has two variants \cons{LNil} and \cons{LCons}.
 \cons{LNil} has no fields while \cons{LCons} has two fields \field{val} and \field{tail} of types \type{i32} and \type{List} respectively.
-Additionally, \SpecL{} follows {\em equirecursive} typing rules \footnote{TODO:cite pls} i.e.
+Additionally, \SpecL{} follows {\em equirecursive} typing rules i.e.
 a \type{List} value $l$ and $\cons{LCons}(1_\type{i32}, l)$ have {\em equal} types.
-Later in \cref{sec:valuegraph}, we give a more formal definition of ADTs with their graphical representation.
+Later in \cref{sec:valuegraph}, we further expand on ADTs in the context of a graphical representation of types and values.
 The language also borrows its expression grammar heavily from functional languages.
-This includes the constructs: {\tt let-in}, {\tt if-then-else}, {\tt match} and function application expressions.
+This includes {\tt let-in}, {\tt if-then-else}, {\tt match} and function application.
 Pattern matching (i.e. deconstruction) of ADT values is archieved through {\tt match}.
 Unlike functional languages, \SpecL{} only supports first order functions.
 Also, \SpecL{} does not support partial function application.
 Hence, we constrain our attention to C programs containing only first order functions.
 \SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing assertions.
 \SpecL{} also provides intrinsic scalar operators for expressing computation in C succintly yet explicitly.
-This includes logical operators (e.g., {\tt and}), bitvector arithmatic operators (e.g., {\tt bvadd(+)}) and
-relational operators for comparing bitvectors interpreted as unsigned or signed integers (e.g., {\tt $\leq_{\tt u,s}$}).
+Examples of scalar operators include (a) logical operators (e.g., {\tt and}), (b) bitvector arithmatic operators (e.g., {\tt bvadd(+)}),
+and (c) relational operators for comparing bitvectors interpreted as unsigned or signed integers (e.g., {\tt $\leq_{\tt u,s}$}).
 The equality operator ($=$) is only supported for scalar types.
 
 \input{chapters/figures/figSpecGrammar.tex}
@@ -33,6 +33,169 @@ The equality operator ($=$) is only supported for scalar types.
 The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a \type{bool} and is used to test whether the top-level constructor
 of the ADT value \nonTerm{expr} is \nonTerm{data-cons}.
 \nonTerm{scalar-op} includes the logical, arithmatic and relational operators supported by \SpecL{}.
+
+\input{chapters/figures/figSumListSpecAndC.tex}
+\input{chapters/figures/figSumListSpecAndCIRAndCFG.tex}
+
+\section{Abstract Representation of Programs}
+\label{sec:ir}
+As outlined in \cref{sec:motivatingexample}, we convert both \SpecL{} and C programs to a common
+abstract representation called the {\em Control Flow Graph} (CFG for short).
+This process involves converting both programs to a linear representation called the IR.
+This section presents both IR and CFG representations for the original \SpecL{} and C programs.
+
+\subsection{Conversion of Programs to their Intermediate Representation}
+\label{sec:irconv}
+IR is a Three-Address-Code (3AC) style intermediate representation.
+We often omit intermediate registers in the IR for brevity, and refer to this as the {\em abstracted} IR.
+We have already seen the IRs (in \cref{fig:llAllocSpecIR,fig:llAllocCIR}) for the \SpecL{} and C programs
+that construct lists in \cref{fig:llAllocSpec,fig:llAllocC}.
+\Cref{fig:llTraverseSpec,fig:llTraverseC} show \SpecL{} and C programs that traverse a list of integers
+and return the sum of all the values in it.
+The corresponding IR programs for the above are shown in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR}.
+
+The following major steps are performed during conversion of a \SpecL{} source to its IR representation:
+
+\begin{enumerate}
+\item {\tt match} statements are converted to explicit {\tt if-else} conditionals where each branch is
+associated with a {\tt match} branch. The {\em sum-is} operator is used in the condition to query
+the top-level data constructor of an expression. The fields of the data constructor are bound to
+variables using the {\em product-access} or {\em accessor} operator.
+For example, the {\tt match} statement in \apc{3} (in \cref{fig:llTraverseSpec}) is lowered to {\tt if-else}
+in \cref{fig:llTraverseSpecIR}, where `\sumIs{\comv{l}}{LCons}' is used to test whether \comv{l} is
+of kind \cons{LCons} and `\prodAccess{\comv{l}}{val}' is used to extract the \field{val} field of \cons{LCons} data constructor.
+Importantly, the expression `\prodAccess{e}{fi}' is well-formed iff `\sumIs{e}{\mathnormal{V}_{fi}}', where $V_\field{fi}$ represents the
+data constructor containing the field \field{fi}.
+The construction of the IR guarantees the well-formedness of all expressions.
+\item All tail-recursive calls are converted to loops in the IR. However, all non-tail procedure calls are preserved as is.
+This transformation enables direct correlation (during equivalence checking) of tail-recursion in \SpecL{} with native loops in C.
+For example, the tail recursive function {\tt sum\_list\_impl} in \apc{2} (in \cref{fig:llTraverseSpec}) is converted to a non-recursive function with a loop.
+\item All {\em helper} functions\footnote{We use a special marker to designate a function as `helper' in \SpecL{}.
+For simplicity, this marker is omitted and instead helper function names are ended with the `{\tt \_impl}' suffix.}
+are inlined at their call-site.
+We are only interested in proving equivalence of non-helper functions in \SpecL{} with their C counterparts.
+For example, the helper function {\tt sum\_list\_impl} (now non-recursive due to previous step), is inlined
+at call-site \apc{7} in \cref{fig:llTraverseSpec}.
+\end{enumerate}
+
+Similarly, the following transformations are carried out during conversion of a C source to its IR:
+
+\begin{enumerate}
+\item Non-determinism in the original C program is determinized in the IR.
+This includes concretizing the size and memory layouts of both scalar (e.g. \type{int})
+and compound (e.g., \type{struct}) types, along with fixing the order of evaluation in case
+it is unspecified.
+For example, during conversion of C program in \cref{fig:llAllocC} to IR (in \cref{fig:llAllocCIR}),
+the sizes of pointer and \type{unsigned} types are fixed to 32 bits (i.e. \type{i32}).
+Similarly, the memory layout (including alignment and offset) of \type{lnode} struct defined in \bpc{0} (in \cref{fig:llAllocC}) is chosen.
+The consequences of determinizing the C program behaviour are further discussed in \cref{sec:spectocalgo}.
+For now, it is sufficient to note that we are interested in equivalence between \SpecL{} and this determinized version of C.
+\item The memory state of the C program is made explicit, represented using the byte-addressable array `\mem{}'.
+Memory loads and stores are represented using explicit operations on \mem{}, e.g.,
+(a) memory load in \cpc{3} in \cpc{4} in \cref{fig:llTraverseCIR}, and
+(b) memory stores in \cpc{5} and \cpc{6} in \cref{fig:llAllocCIR}.
+The memory load and store operators are defined promptly in \cref{sec:irops}
+\item We annotate calls to memory allocation functions (e.g., {\tt malloc}) with their call-site.
+For example, {\tt malloc$_\cpc{4}$} is annotated with its call-site \cpc{4} in \cref{fig:llAllocCIR}.
+These annotations are used by a points-to analysis done as part of our equivalence checking procedure,
+and defined subsequently in \cref{sec:pointsToFormal}.
+\end{enumerate}
+
+\subsection{IR Instructions}
+\label{sec:irops}
+Note that both \SpecL{} and C programs are converted to the common IR.
+On the \SpecL{} side, IR supports scalar as well as ADT types defined in the \SpecL{} program under consideration.
+The IR also inherits the scalar operators available as part of \SpecL{}.
+Each ADT value can be thought of as a key-value dictionary that maps each of its field names
+to their respective values.
+These key-value pairs are accessed using the previously introduced {\em accessor} operator,
+e.g., \prodAccess{l}{val} and \prodAccess{l}{next} represents the first and second fields of the
+\cons{LCons} data constructor in \cref{fig:llTraverseSpecIR}.
+Recall that, the IR also allows querying the top-level variant of an ADT value using the
+{\em sum-is} operator, e.g., \sumIs{l}{LNil} in \cref{fig:llTraverseSpecIR}.
+The \field{val} field is associated with the \cons{LCons} data constructor and
+evidently, \prodAccess{l}{val} (and \prodAccess{l}{next}) is only {\em well-formed} under \sumIs{l}{LCons}.
+As discussed, the well-formedness of all {\em accessor} expressions are preserved during
+construction of IR for a \SpecL{} program.
+Using {\em accessor} and {\em sum-is} operators, a \type{List} value $l$ can be expanded as:
+
+\begin{equation}
+\label{eqn:specDeconstruct}
+U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCons}(\prodAccess{l}{val}, \prodAccess{l}{next})}
+\end{equation}
+
+In this expanded representation of $l$,
+the {\em sum-deconstruction} operator `\sumDtor{}'
+conditionally deconstructs the sum type into its variants \cons{LNil} and \cons{LCons}.
+The {\em underlined} \sumDtor{} operator is a stricter version of {\tt if-then-else}, and is only used for ADT values.
+An \sumDtor{} expression $e$ (for an ADT type $T$) must satisfy the following properties:
+(a) $e$ has exactly one branch for each data construction of $T$ (in the order they are defined),
+and (b) the branch associated with the data constructor $V$ has the form $V(e_1,e_2,\dots)$ i.e. its top-level operator is $V$.
+For example, an \sumDtor{} expression for the \type{List} type must be of the form:
+`\sumIf{e_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(e_2,e_3)}' for some expressions $e_1,e_2,e_3$.
+\Cref{eqn:specDeconstruct} is called the {\em unrolling procedure} for the \type{List} variable $l$.
+We can similarly define the unrolling procedure for any ADT variable (based on the definition of the ADT).
+
+On the C side, the size of a pointer is fixed\footnote{We choose an address width of 4 bytes or 32 bits for our evaluation.}
+and the memory state is modeled as a byte-addressable array over bitvectors (represented by \mem{}).
+``\memRead{\mem{}}{p}{T}'' represents a memory load operation and is equal to the bytes
+at addresses [$p$, $p$+\sizeof{T}) in \mem{}, interpreted as a value of type \type{T}.
+Similarly, ``\memWrite{\mem{}}{p}{v}{T}'' represents a memory store operation and is equal to \mem{}
+everywhere except at addresses [$p$, $p$+\sizeof{T}) which contains
+the value $v$ of type \type{T} (e.g., \cpc{5} in \cref{fig:llAllocCIR}).
+We use the following two C-like syntaxes to represent more intricate memory loads succintly:
+
+\begin{enumerate}
+\item ``\structPointer{p}{\mem{}}{T}{fi}'' is equivalent to ``\memRead{\mem}{p+\offsetof{T}{fi}}{\typeof{T.fi}}''
+i.e., it returns the bytes in the memory array \mem{} starting at address `$p+\offsetof{T}{fi}$'
+and interpreted as a value of type \typeof{T.fi}.
+
+\item ``\arrIndex{p}{i}{\mem{}}{T}'' is equivalent to ``\memRead{\mem}{p+i \times \sizeof{T}}{T}''
+i.e., it returns the bytes in the memory array \mem{} starting at address `$p+i \times \sizeof{T}$'
+and interpreted as a value of type \type{T}.
+Interestingly, $\memRead{\mem{}}{p}{T} = \arrIndex{p}{0}{\mem{}}{}$.
+\end{enumerate}
+
+Recall that the size and layout of each type in C is concretized in the IR,
+and hence the values `\offsetof{T}{f}' and `\sizeof{T}' are constants.
+We use the `\addrof{}' operator to extract the address of a memory load expression:
+``\addrof{\memRead{\mem{}}{p}{T}}'' is equivalent to $p$.
+For example, at PC \cpc{5} in \cref{fig:llAllocCIR}, $\addrof{\structPointer{\mathnormal{p}}{\mem{}}{lnode}{val}} \Leftrightarrow p+\offsetof{lnode}{val}$.
+
+\subsection{Control-Flow Graph Representation}
+\Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
+of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
+The Control-Flow Graph is an alternate graphical representation of an IR program that emphasizes
+the control flow structures of the static program.
+Each CFG node represents a program point (i.e. IR PC) and is denoted by $n$.
+The CFG representation is analogous to a deterministic labeled transition systems and
+uses a symbolic state $\Omega_n$ to represent the machine state at node $n$.
+An edge from $n$ to $n'$ (denoted by $\omega[n \rightarrow n']$) represents transition
+from $n$ to $n'$ through execution of instructions and is associated with:
+
+\begin{enumerate}
+\item An {\em edge condition} representing the condition that must be satisfied by $\Omega_n$
+to trigger the edge $\omega$.
+\item A {\em transfer function} representing the symbolic state at $n'$ ($\Omega_{n'}$) as a function of $\Omega_n$
+i.e. how the machine state is mutated along the edge $\omega$.
+\item An {\em UB condition} representing the condition that must be satisfied by $\Omega_n$ for
+the transition $\omega$ to be well-defined. For a \SpecL{} function, assertions expressed
+using the {\tt assuming-do} statement form the UB assumptions.
+\end{enumerate}
+
+For brevity, we often represent a sequence of instructions with a single edge, e.g.,
+in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7,8,3}.
+In such a case, the transfer function of the edge is the composition of the sequence of instructions.
+A CFG must contain exactly one entry node (representing the entry to the function), but may contain
+multiple exit nodes (each representing an exit from the function).
+An edge incident on an exit node is called an {\em exit edge} and is associated with an {\em action} representing
+the values returned as a function of the symbolic state at the source node.
+Actions form the observable behaviour of a CFG while transition through non-exit edges are internal to the program.
+Additionally, exit edges are always associated with an edge condition of {\tt true} and an identity transfer function.
+Recall that for a C CFG, the action includes both the returned value (if non-void) and the memory state.
+We omit these transfer functions in the CFG figures (as they are shown in their corresponding IR)
+and only show the edge conditions (unless they are {\em true}).
+Henceforth, we refer to the CFGs of \SpecL{} and C functions as \sprog{} and \cprog{} respectively.
 
 \section{Equivalence Definition}
 \label{sec:eqdef}
@@ -57,10 +220,9 @@ The \cfits{} antecedent states that we prove equivalence under the assumption th
 requirements fit within the available system memory i.e., only for those executions of \cprog{}
 in which all memory allocation requests (through {\tt malloc} calls) are successful.
 
-The returned values of \sprog{} and \cprog{} form their observable outputs.
-For \sprog{}, the returned values are explicit and may include ADT values.
-For \cprog{}, observables include the returned value alongside the implicit memory state
-at program exit.
+Recall that the observables of \sprog{} and \cprog{} are the actions associated with their exit edges (i.e. returned values).
+For \sprog{}, observables include the explicit value returned.
+For \cprog{}, observables include the returned value alongside the memory state at program exit.
 The postcondition \post{} relates these outputs of the two programs.
 The pair $(\pre{},\post{})$ represents the input-output behaviour of \cprog{} in terms of the specification \sprog{},
 and is called the {\em input-output specification}.
@@ -86,124 +248,12 @@ Hence, \sdef{} and \pre{} ensure that we compute equivalence for those
 executions of \sprog{} and \cprog{} where the input strings are well-defined.
 A similar strategy is employed for other functions as explored later in \cref{sec:results}.
 
-\input{chapters/figures/figSumListSpecAndC.tex}
-\input{chapters/figures/figSumListSpecAndCIRAndCFG.tex}
-
-\section{Control Flow Graph Representation}
-\label{sec:ir}
-As outlined in \cref{sec:motivatingexample}, we convert both \SpecL{} and C programs to a common
-abstract representation called the `Control Flow Graph' (CFG for short).
-This process involves converting both programs to a linear equivalent representation called the IR.
-IR is a Three-Address-Code (3AC) style intermediate representation.
-We often omit intermediate registers in the IR for brevity,
-and refer to this as the {\em abstracted} IR.
-
-We have already seen the the IRs (in \cref{fig:llAllocSpecIR,fig:llAllocCIR}) for the \SpecL{} and C programs
-that construct lists in \cref{fig:llAllocSpec,fig:llAllocC}.
-\Cref{fig:llTraverseSpec,fig:llTraverseC} show \SpecL{} and C programs that traverse a list
-and return the sum of all the values in it.
-The corresponding IR programs are shown in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR}.
-
-During conversion of a \SpecL{} source to its IR,
-(a) {\tt match} statements are lowered to explicit {\tt if-else} conditionals where each branch
-is associated with a {\tt match} branch,
-(b) all tail recursive calls are converted to loops while non-tail calls are preserved and
-(c) all helper functions are inlined at their call-site.
-For example, during conversion of \SpecL{} program in \cref{fig:llTraverseSpec},
-(a) the {\tt match} statement in \apc{3} is converted to {\tt if-else}
-(b) the tail recursive function {\tt sum\_list\_impl} is converted to a loop,
-and (c) the helper function {\tt sum\_list\_impl} is inlined,
-to obtain the IR in \cref{fig:llTraverseSpecIR}.
-
-Similarly, the following is performed during conversion of a C source to its IR:
-(a) the sizes and memory layouts of both scalar (e.g., \type{int})
-and compound (e.g., \type{struct}) types are concretized,
-(b) the program memory state along with loads and stores on the memory are made explicit and
-(c) we annotate {\tt malloc} calls with their call-site i.e. IR PC.
-For example, during conversion of C program in \cref{fig:llAllocC} to IR (in \cref{fig:llAllocCIR}),
-(a) the size of pointer and \type{unsigned} types are fixed to 32-bits (i.e. \type{i32}),
-(b) \mem{} is used to represent the program memory with explicit writes at \cpc{5} and \cpc{6},
-and (c) {\tt malloc$_\cpc{4}$} is annotated with its call-site \cpc{4}.
-
-The IR supports both scalar and ADT types available in \SpecL{}.
-Each ADT value is modeled as a key-value dictionary that maps
-each of its field names to the constituent values.
-These key-value pairs are accessed using the {\em accessor} operator,
-e.g., \prodAccess{l}{val} and \prodAccess{l}{next} represents the first and second
-fields of the \cons{LCons} constructor in \cref{fig:llTraverseSpecIR}.
-The IR also allows querying the top-level data constructor of an ADT value
-using the {\em sum-is} operator, e.g., \sumIs{l}{LNil} in \cref{fig:llTraverseSpecIR}.
-The \field{val} field is associated with the \cons{LCons} data constructor
-and evidently, \prodAccess{l}{val} is only {\em well-formed} if \sumIs{l}{LCons}.
-Importantly, the construction of the \SpecL{} IR ensures the well-formedness of all expressions.
-Using {\em accessor} and {\em sum-is} operators, a \type{List} value $l$ can be expanded as:
-
-\begin{equation}
-\label{eqn:specDeconstruct}
-U_S: l = \sumIf{\sumIs{l}{LNil}} \  \sumThen{\cons{LNil}} \  \sumElse{\cons{LCons}(\prodAccess{l}{val}, \prodAccess{l}{next})}
-\end{equation}
-
-In this expanded representation of $l$,
-the {\em sum-deconstruction} operator `\sumDtor{}'
-conditionally deconstructs the sum type into its variants \cons{LNil} and \cons{LCons}.
-The {\em underlined} \sumDtor{} operator is a stricter version of {\tt if-then-else}, and is only used for ADT values.
-An \sumDtor{} expression $e$ (for an ADT type $T$) must satisfy the following properties:
-(a) $e$ has exactly one branch for each data construction of $T$ (in the order they are defined),
-and (b) the branch associated with the data constructor $V$ has the form $V(e_1,e_2,\dots)$ i.e. its top-level operator is $V$.
-For example, an \sumDtor{} expression for the \type{List} type must be of the form:
-`\sumIf{e_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(e_2,e_3)}' for some expressions $e_1,e_2,e_3$.
-\Cref{eqn:specDeconstruct} is called the {\em unrolling procedure} for the \type{List} variable $l$.
-We can similarly define the unrolling procedure for any ADT variable (based on the definition of the ADT).
-
-The C memory is modeled as a byte-addressable array \mem{} in the IR
-and pointers are converted to bitvectors.
-``\memRead{\mem{}}{p}{T}'' represents a memory load operation and is equal to the bytes
-at addresses [$p$, $p$+\sizeof{T}) in \mem{}, interpreted as a value of type `\type{T}'.
-Similarly, ``\memWrite{\mem{}}{p}{v}{T}'' represents a memory store operation and is equal to \mem{}
-everywhere except at addresses [$p$, $p$+\sizeof{T}) which contains
-the value $v$ of type `\type{T}' (e.g., \cpc{5} in \cref{fig:llAllocCIR}).
-We use the following two C-like syntaxes to represent more complex memory loads succintly:
-
-\begin{enumerate}
-\item ``\structPointer{p}{\mem{}}{T}{f}'' is equivalent to ``\memRead{\mem}{p+\offsetof{T}{f}}{\typeof{T.f}}''
-i.e., it returns the bytes in the memory array \mem{} starting at address `$p+\offsetof{T}{f}$'
-and interpreted as a value of type `\typeof{T.f}'.
-
-\item ``\arrIndex{p}{i}{\mem{}}{T}'' is equivalent to ``\memRead{\mem}{p+i \times \sizeof{T}}{T}''
-i.e., it returns the bytes in the memory array \mem{} starting at address `$p+i \times \sizeof{T}$'
-and interpreted as a value of type `\type{T}'.
-Interestingly, $\memRead{\mem{}}{p}{T} = \arrIndex{p}{0}{\mem{}}{}$.
-\end{enumerate}
-
-\noindent Recall that the size and memory layout of each type is concretized in the IR,
-and hence the values `\offsetof{T}{f}' and `\sizeof{T}' are known constants.
-We use the `\addrof{}' operator to extract the address of a memory load expression:
-``\addrof{\memRead{\mem{}}{p}{T}}'' is equivalent to $p$.
-For example, at PC \cpc{5} in \cref{fig:llAllocCIR}, $\addrof{\structPointer{\mathnormal{p}}{\mem{}}{lnode}{val}} \Leftrightarrow p+\offsetof{lnode}{val}$.
-
-\Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
-of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
-Each CFG node represents a program point (i.e. IR PC) and edges represent
-transitions through execution of instructions.
-Each edge is associated with:
-(a) an {\em edge condition} (the condition under which that edge is taken),
-(b) a {\em transfer function} (how the program state is mutated if that edge is taken) and
-(c) a {\em UB assumption} (what condition should be true for the program execution
-to be well-defined across this edge).
-In \SpecL{}, assertions expressed using the {\tt assuming-do} statement
-form the UB assumptions.
-For brevity, we often represent a sequence of instructions with a single edge, e.g.,
-in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7,8,3}.
-In such a case, the transfer function of the edge is the composition of the sequence of instructions.
-We omit these transfer functions in the CFG figures and only show the edge conditions (unless they are {\em true}).
-Henceforth, We refer to the IR programs as \SpecL{} and C directly unless a distinction is necessary.
-
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
 
 \section{Bisimulation Relation}
 \label{sec:bisim}
 Recall that,
-we construct a {\em bisimulation relation} to identify equivalence between \SpecL{} and C procedures.
+we construct a {\em bisimulation relation} to identify equivalence between the CFGs of \SpecL{} and C procedures.
 A bisimulation relation correlates the transitions of \sprog{} and \cprog{} in lockstep, such that the
 lockstep execution ensures identical observable behaviour.
 A bisimulation relation between two programs can be represented using a {\em product program}
@@ -219,7 +269,8 @@ The start node (\scpc{0}{0}) of the product-CFG correlates the start nodes of CF
 Similarly, the exit node (\scpc{E}{E}) correlates the exit nodes of both programs.
 
 An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edges) in \sprog{}
-with a path in \cprog{}.
+with a path in \cprog{}\footnote{TODO: to keep the discussion simple, we consider paths to be sequence of edges. however, a more general approach of pathset
+is used based on the Counter tool \cite{oopsla20}. We will explore pathsets in more detail later on.}.
 A product-CFG edge encodes the lockstep execution of its correlated paths.
 For example, the product-CFG edge \scedge{2}{2}{2}{2} is formed by pairing
 \spath{2,5,2} and \cpath{2,4,2} in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} respectively,
@@ -227,7 +278,8 @@ and represents that when \sprog{} makes the transition \spath{2,5,2}, \cprog{} m
 in lockstep.
 In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in \sprog{} with a finite path
 \cv{\rho} in \cprog{}, written $e=(\sv{\rho},\cv{\rho})$.
-The empty path $\epsilon$ in \sprog{} may be correlated with a finite path in \cprog{}.
+The empty path $\epsilon$ in \sprog{} may be correlated with a finite path in \cprog{},
+effectively simulating a {\em stuttering bisimulation} relation.
 However, a product-CFG is only well-formed (i.e. represents a valid bisimulation relation)
 if no loop path in \cprog{} is correlated with $\epsilon$ in \sprog{}.
 For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs
@@ -236,6 +288,8 @@ The edges \scedge{3}{3}{3}{4} and \scedge{3}{4}{3}{5} correlate the empty path $
 with the non-empty paths \cpath{3,4} and \cpath{4,5} respectively.
 However, the only loop path \cpath{3,4,5,3} in \cprog{} is still correlated with the non-empty path \spath{3,5,3}
 in \sprog{} and thus, the product-CFG in \cref{fig:llAllocProductCFG} satisfies this well-formedness criterion.
+This well-formedness condition is required to preserve {\em divergence}, i.e. either both programs terminate or
+both continue indefinitely.
 
 At the start node (\scpc{0}{0}) of the product-CFG in \cref{fig:llTraverseProduct},
 the precondition \pre{} (labeled \circled{\small P})
