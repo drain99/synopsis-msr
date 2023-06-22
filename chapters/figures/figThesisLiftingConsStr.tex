@@ -1,0 +1,33 @@
+\begin{table}[H]
+\begin{center}
+\caption{\label{tab:LiftingConsStr}String lifting constructors and their definitions.}
+\begin{footnotesize}
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{\Tstrut \Bstrut\footnotesize \bf Lifting Constructor} & \multicolumn{1}{c|}{\Tstrut \Bstrut \footnotesize \bf Definition} \\
+\hline
+\hline
+\multicolumn{2}{|c|}{\makecell[c]{\Tstrut \Bstrut \inv{T1} {\tt Str = SInvalid | SNil | SCons(ch:i8, tail:Str)}  \qquad  {\tt OptStr = NotFound | Found(str:Str)} }} \\
+\hline
+\lifted{str}{\mem{}}{u8[]}{p\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{SInvalid}} \\
+                                                        \Tstrut \sumElif{\arrIndex{p}{0_\type{i32}}{\mem{}}{i8}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
+                                                \Tstrut \Bstrut \sumElse{\cons{SCons}(\arrIndex{p}{0_\type{i32}}{\mem{}}{i8}, \lifted{str}{\mem{}}{u8[]}{p+1_\type{i32}})}} \\
+\hdashline[0.5px/3px]
+\lifted{optstr}{\mem{}}{u8[]}{p\ctype{i32}} & \makecell[l]{\Tstrut \Bstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{NotFound}} \sumElse{\cons{Found}(\lifted{str}{\mem{}}{u8[]}{p})}} \\
+\hline
+\lifted{str}{\mem{}}{lnode(u8)}{p\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{SInvalid}} \\
+                                                             \Tstrut \sumElif{\structPointer{p}{\mem{}}{lnode}{val}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
+                                                     \Tstrut \Bstrut \sumElse{\cons{SCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{str}{\mem{}}{lnode(u8)}{\structPointer{p}{\mem{}}{lnode}{next}})}} \\
+\hdashline[0.5px/3px]
+\lifted{optstr}{\mem{}}{lnode(u8)}{p\ctype{i32}} & \makecell[l]{\Tstrut \Bstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{NotFound}} \sumElse{\cons{Found}(\lifted{str}{\mem{}}{lnode(u8)}{p})}} \\
+\hline
+\lifted{str}{\mem{}}{clnode(u8)}{p\ctype{i32},i\ctype{i2}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{SInvalid}} \\
+                                                                          \Tstrut \sumElif{\arrIndex{\structPointer{p}{\mem{}}{lnode}{chunk}}{i}{\mem{}}{i8}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
+                                                                  \Tstrut \Bstrut \sumElse{\cons{SCons}(\arrIndex{\structPointer{p}{\mem{}}{lnode}{chunk}}{i}{\mem{}}{i8}, \lifted{str}{\mem{}}{clnode(u8)}{\ite{i=3_\type{i2}}{\structPointer{p}{\mem{}}{clnode}{next}}{p}, i+1_\type{i2}})}} \\
+\hdashline[0.5px/3px]
+\lifted{optstr}{\mem{}}{clnode(u8)}{p\ctype{i32},i\ctype{i2}} & \makecell[l]{\Tstrut \Bstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{NotFound}} \sumElse{\cons{Found}(\lifted{str}{\mem{}}{clnode(u8)}{p,i})}} \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\end{table}

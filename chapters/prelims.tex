@@ -161,6 +161,8 @@ and hence the values `\offsetof{T}{f}' and `\sizeof{T}' are constants.
 We use the `\addrof{}' operator to extract the address of a memory load expression:
 ``\addrof{\memRead{\mem{}}{p}{T}}'' is equivalent to $p$.
 For example, at PC \cpc{5} in \cref{fig:llAllocCIR}, $\addrof{\structPointer{\mathnormal{p}}{\mem{}}{lnode}{val}} \Leftrightarrow p+\offsetof{lnode}{val}$.
+Additionally, given a bitvector expression $e$, ``$e{\tt [ub:lb]}$'' represents a bitvector extract operation that extracts the bits
+in the range [lb,ub] from $e$ resulting in a $(ub-lb+1)$-sized bitvector expression.
 
 \subsection{Control-Flow Graph Representation}
 \Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
@@ -240,7 +242,7 @@ This includes the assumption that the pointer \cv{str} may not be null.
 Since \SpecL{} has no notion of pointers, we expose this conditional well-definedness of C strings
 through an explicit constructor e.g. \cons{SInvalid} for the \type{String} ADT defined as:
 $$
-\type{String}=\cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{String})
+\type{Str} = \cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{Str})
 $$
 \sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ (using {\tt assuming-do}) and
 the precondition \pre{} contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.

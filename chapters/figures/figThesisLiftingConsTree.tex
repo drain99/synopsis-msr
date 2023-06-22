@@ -1,0 +1,21 @@
+\begin{table}[H]
+\begin{center}
+\caption{\label{tab:LiftingConsTree}Tree lifting constructors and their definitions.}
+\begin{footnotesize}
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{\Tstrut \Bstrut\footnotesize \bf Lifting Constructor} & \multicolumn{1}{c|}{\Tstrut \Bstrut \footnotesize \bf Definition} \\
+\hline
+\hline
+\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T3} {\tt Tree = TNil | TCons(val:i32, left:Tree, right:Tree)}} \\
+\hline
+\lifted{tree}{\mem{}}{u32[]}{p\ i\ n\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{i \geq_u n} \  \sumThen{\cons{TNil}} \\
+                                                        \Tstrut \Bstrut \sumElse{\cons{TCons}(\arrIndex{p}{i}{\mem{}}{i32}, \lifted{tree}{\mem{}}{u32[]}{p,2_\type{i32} \times i+1_\type{i32},n}, \lifted{tree}{\mem{}}{u32[]}{p,2_\type{i32} \times i+2_\type{i32},n})}} \\
+\hline
+\lifted{tree}{\mem{}}{tnode(u32)}{p\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{p = 0_\type{i32}} \  \sumThen{\cons{TNil}} \\
+                                                       \Tstrut \Bstrut \sumElse{\cons{TCons}(\structPointer{p\!}{\mem{}}{tnode}{\!\!val},\! \lifted{tree}{\mem{}}{tnode(u32)}{\structPointer{p\!}{\mem{}}{tnode}{\!\!left}},\! \lifted{tree}{\mem{}}{tnode(u32)}{\structPointer{p\!}{\mem{}}{tnode}{\!\!right}})}} \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\end{table}

@@ -39,7 +39,7 @@ of an inner-most loop. Next, we consider each ADT in more detail. For each,
 we discuss (a) its corresponding programs, (b) C memory layouts and their lifting
 constructors, and (c) varying algorithmic strategies.
 
-\input{chapters/figures/figLiftingConsStr.tex}
+\input{chapters/figures/figThesisLiftingConsStr.tex}
 
 \subsection{String}
 \label{sec:expstring}
@@ -72,10 +72,58 @@ On the other hand, \lift{str}{\mem{}}{clnode(u8)} requires two arguments $p$
 and $i$, where $p$ represents the pointer to the chunked linked list node
 and $i$ represents the position of the initial character in the chunk.
 
+\input{chapters/figures/figStrchrSpecAndC.tex}
+
+\subsubsection{An Example : strchr}
+\label{sec:strchrexample}
+Additionally, we define an optional string type \type{OptStr} to specify
+behaviour of functions that conditionally return a string (e.g., {\tt strchr}, {\tt strpbrk}).
+The \type{OptStr} ADT along with its three lifting constructors for the three layouts of the \type{Str} ADT
+are shown in \cref{tab:LiftingConsStr}.
+{\tt strchr} accepts a string $t$ and a character $c$\footnote{TODO:Due to historical reasons, the type of $c$ is declared as \type{int}
+to maintain backward compatibility with pre C-98 code.
+However, the function is specified to cast it to a character and use it instead.} and returns
+the longest substring of $t$ that begins with $c$, otherwise it returns a null pointer to indicate
+failure to find $c$ in the string $t$.
+In case $c$ is the null character, {\tt strchr} is defined to return the empty string ({\em not} the null value).
+\Cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR} shows the IRs of the {\tt strchr} \SpecL{} specification and
+a generic C implementation respectively.
+We demonstrate two important aspects of \toolName{} using this example -- (a) use of \sdef{} and \pre{} to restrict the C implementation
+to only well-formed inputs (in \cref{sec:eqdef}),
+and (b) need for correlating pathsets (instead of paths) (in \cref{sec:pathsetcorrel}).
+
+Recall that a null-character terminated C string is only well-formed if the string itself does not belong to a region of memory containing the null pointer.
+This wellformedness condition is necessary to prove that the pointer to the string returned in \cpc{6} (in \cref{fig:llStrchrCArrIR})
+does not equal the null pointer (used uniquely to indicate a failure to find the character $c$ in the string $t$).
+As previously discussed in \cref{sec:eqdef}, we expose this wellformedness condition in the specification using
+the explicit \type{Str} data constructor \cons{SInvalid}.
+Finally, we assert that \sv{s} in \cref{fig:llStrchrSpecIR} is wellformed using the {\tt assuming-do} statement
+(\spc{3} in \cref{fig:llStrchrSpecIR}) and relate the non-null wellformedness condition of the C input string \cv{t}
+with the condition of \sv{s} being \cons{SInvalid} using \pre{} (labeled \circled{\scriptsize P1} in \cref{fig:llStrchrInvs}).
+Note the use of \lift{optstr}{\mem{}}{u8[]} in the postcondition (labeled \circled{E} in \cref{fig:llStrchrInvs}).
+
+\Cref{fig:llStrchrProductCFG} shows the product-CFG showing the path correlations between \sprog{} and \cprog{}.
+Consider the product-CFG edge \scedge{1}{2}{E}{E} correlating the pathsets:
+$\pathset{S1,S3,(S4 \pathpar (\pathset{S4,S5}) \pathpar S7), SE}$ (in \sprog{}) and
+$\pathset{C2,((\pathset{C3,C4}) \pathpar C6),CE}$ (in \cprog{}).
+The $\rightarrow$ and $\pathpar$ operators are used to represent `series' and `parallel' path combinations.
+The above two pathsets represent the following two sets
+$\{ \spath{1,3,4,E},\spath{1,3,4,5,E},\spath{1,3,7,E} \}$ and
+$\{ \cpath{2,3,4,E}, \cpath{2,6,E} \}$ respectively.
+In \sprog{}, the case of \sv{c} being the null character is handled explicitly in \spc{4} while
+\spc{7} handles the case where the string \sv{s} contains the (non-null) character \sv{c}.
+However in \cprog{}, the above two cases are taken care of by the singular exit edge in \cpc{6}.
+For a successful bisimulation proof, we are required to correlate the \cprog{} path
+\cpath{2,6,E} with the \sprog{} pathset $\{ \spath{1,3,4,E}, \spath{1,3,7,E} \}$.
+Such cases are rather frequent because the strongly-typed specification has to handle
+each case explicitly while its C implementation may take advantage of the
+underlying representation to generalize multiple explicit cases into one.
+
 \input{chapters/figures/figStrlenSpecAndC.tex}
 
 \input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
+\subsubsection{Another Example : strlen}
 \Cref{fig:strlenSpecAndC} shows the {\tt strlen} specification and two vastly
 different $C$ implementations. \Cref{fig:llStrlenCArrIR} is a generic implementation
 using a null character terminated array to represent a string similar to a C-style string.
@@ -96,7 +144,7 @@ In general, we use the following naming convention for different C data layouts:
 Similarly, \type{clnode(T)} and \type{tnode(T)} represent a chunked linked list and a tree node
 with values of type \type{T} respectively.
 
-\input{chapters/figures/figLiftingConsList.tex}
+\input{chapters/figures/figThesisLiftingConsList.tex}
 
 \subsection{List}
 \label{sec:explist}
@@ -117,7 +165,7 @@ lists (\cons{LNil}) using {\em null pointers}. These layouts are in contrast to 
 \type{String} layouts, all of which uses a {\em null character} to
 indicate the empty string.
 
-\input{chapters/figures/figLiftingConsTree.tex}
+\input{chapters/figures/figThesisLiftingConsTree.tex}
 
 \subsection{Tree}
 \label{sec:exptree}
@@ -131,7 +179,7 @@ Both \SpecL{} and C programs contain non-tail recursive procedure calls for left
 At the entry of the recursive calls, \toolName{} is required to prove that \pre{} holds for the arguments
 and at the exit of the recursive calls, \toolName{} assumes \post{} on the returned states.
 
-\input{chapters/figures/figLiftingConsMatrix.tex}
+\input{chapters/figures/figThesisLiftingConsMatrix.tex}
 
 \subsection{Matrix}
 \label{sec:expmat}

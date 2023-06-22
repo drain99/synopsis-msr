@@ -9,32 +9,23 @@
 
 % Text Node
 \draw    (73, 398) circle [x radius= 16.3, y radius= 16.3]   ;
-\draw (73,398) node [font=\scriptsize]  [align=left] {\tt S0:C0};
+\draw (73,398) node [font=\scriptsize]  [align=left] {\scpc{0}{0}};
 % Text Node
 \draw    (157, 398) circle [x radius= 16.3, y radius= 16.3]   ;
-\draw (157,398) node [font=\scriptsize]  [align=left] {\tt S1:C2};
+\draw (157,398) node [font=\scriptsize]  [align=left] {\scpc{1}{2}};
 % Text Node
-\draw    (370, 398) circle [x radius= 16.3, y radius= 16.3]   ;
-\draw (370,398) node [font=\scriptsize]  [align=left] {\tt SE:CE};
+\draw    (345, 398) circle [x radius= 16.3, y radius= 16.3]   ;
+\draw (345,398) node [font=\scriptsize]  [align=left] {\scpc{E}{E}};
 % Text Node
-\draw (112,383.5) node  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S0 \rightarrow S1}\\
-{\tt C0 \rightarrow C2}
-\end{array}$};
+\draw (112,383.5) node  [font=\scriptsize]  {$ \begin{array}{c} \spath{0,1} \\ \cpath{0,2} \end{array}$};
 % Text Node
-\draw (259.5,383.5) node  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S1 \rightarrow S3 \rightarrow ( S4 + ( S4 \rightarrow S5) + S7) \rightarrow SE}\\
-{\tt C2 \rightarrow ( \epsilon + C3) \rightarrow CE}
-\end{array}$};
+\draw (248,383.5) node  [font=\scriptsize]  {$ \begin{array}{c} \pathset{S1,S3,(S4 \pathpar (\pathset{S4,S5}) \pathpar S7), SE} \\ \pathset{C2,((\pathset{C3,C4}) \pathpar C6),CE} \end{array}$};
 % Text Node
-\draw (159,450) node  [font=\scriptsize]  {$ \begin{array}{c}
-{\tt S1 \rightarrow S3 \rightarrow S7 \rightarrow S1}\\
-{\tt C2 \rightarrow C3 \rightarrow C2}
-\end{array}$};
+\draw (159,450) node  [font=\scriptsize]  {$ \begin{array}{c} \spath{1,3,7,8,1} \\ \cpath{2,3,5,2} \end{array}$};
 % Connection
 \draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (89,398) -- (141,398) ;
 % Connection
-\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (173,398) -- (354,398) ;
+\draw  [-{Straight Barb[length=2.2mm, width=1.5mm]}]  (173,398) -- (329,398) ;
 %Curve Lines [id:da11268258604531689] 
 \draw  [{Straight Barb[length=2.2mm, width=1.5mm]}-]  (144,407) .. controls (78,444) and (231,444) .. (171,407) ;
 
