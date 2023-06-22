@@ -77,10 +77,10 @@ so the single exit path (1) correlates with (1) & (2) of Spec!!!
 perfect example where pathset is a requirement
 
 so TODO first thing tomorrow:
-(0) check the code that indeed both pathconds are added!!
-(1) add pathset small text in correlation algo
-(2) in proof discharge algo, say how to reduce it into paths in the proof algo first subsection
+*(0) check the code that indeed both pathconds are added!!
+*(1) add pathset small text in correlation algo
+*(2) in proof discharge algo, say how to reduce it into paths in the proof algo first subsection
 (3) add OptStr to the table along with definitions
 (4) update and add the strchr figures to evaluation
 (5) discuss the following - (a) use of OptStr (b) use of (S def) (c) pathset correlation i.e. generalization in C while Spec is more explicit!
-(6) do a pass over the proof discharge algo section excluding value graphs and send to sir
+*(6) do a pass over the proof discharge algo section excluding value graphs and send to sir

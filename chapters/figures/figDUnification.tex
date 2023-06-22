@@ -3,41 +3,41 @@
 \begin{footnotesize}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$\theta^d(p_1,e_1,p_2,e_2,d_{cur})$}{
+\Fn{$\theta_D(p_1,e_1,p_2,e_2,d)$}{
   \uIf{$e_1 \keyword{is} atomic$}{
-    \Return{$\cons{Succ}(\{ \corrtuple{p_1}{e_1}{p_2}{e_2}^{d_{cur}} \})$};
+    \Return{$\cons{Succ}(\{ \corrtuple{p_1}{e_1}{p_2}{e_2}_d \})$};
   }
   \uElseIf{$e_2 \keyword{is} atomic$}{
-    \Return{$\cons{Succ}(\{ \corrtuple{p_2}{e_2}{p_1}{e_1}^{d_{cur}} \})$};
+    \Return{$\cons{Succ}(\{ \corrtuple{p_2}{e_2}{p_1}{e_1}_d \})$};
   }
   \uElseIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n) \keyword{and} e_2 = V_2^{(m)}(e_2^1,e_2^2,\dots,e_2^m)$}{
     \If{$V_1^{(n)} \neq V_2^{(m)}$}{
       \Return{$\cons{Fail}$};
     }
-    \Return{$\bigsqcup_{i \in [1,n]} \theta^d(p_1,e_1^i,p_2,e_2^i,d_{cur}+1)$};
+    \Return{$\bigsqcup_{i \in [1,n]} \theta_D(p_1,e_1^i,p_2,e_2^i,d+1)$};
   }
   \uElseIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n) \keyword{and} e_2 = $ \sumIf{c_2} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}}}{
-    $R^{\tt th} \mapsfrom \theta^d(p_1,true,p_2,c_2,d_{cur}) \sqcup \theta^d(p_1,e_1,p_2 \land c_2, e_2^{\tt th},d_{cur})$;\\
+    $R^{\tt th} \mapsfrom \theta_D(p_1,true,p_2,c_2,d) \sqcup \theta_D(p_1,e_1,p_2 \oland c_2, e_2^{\tt th},d)$;\\
     \lIf{$R^{\tt th} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
-    $R^{\tt el} \mapsfrom \theta^d(p_1,true,p_2,\neg c_2,d_{cur}) \sqcup \theta^d(p_1,e_1,p_2 \land \neg c_2, e_2^{\tt el},d_{cur})$;\\
+    $R^{\tt el} \mapsfrom \theta_D(p_1,true,p_2,\neg c_2,d) \sqcup \theta_D(p_1,e_1,p_2 \oland \neg c_2, e_2^{\tt el},d)$;\\
     \lIf{$R^{\tt el} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
     \Return{$\cons{Fail}$};
   }
   \uElseIf{$e_1 = $ \sumIf{c_1} \sumThen{e_1^{\tt th}} \sumElse{e_1^{\tt el}} $\keyword{and} e_1 = V_2^{(m)}(e_2^1,e_2^2,\dots,e_2^m)$}{
-    $R^{\tt th} \mapsfrom \theta^d(p_1,c_1,p_2,true,d_{cur}) \sqcup \theta^d(p_1 \land c_1,e_1^{\tt th},p_2, e_2,d_{cur})$;\\
+    $R^{\tt th} \mapsfrom \theta_D(p_1,c_1,p_2,true,d) \sqcup \theta_D(p_1 \oland c_1,e_1^{\tt th},p_2, e_2,d)$;\\
     \lIf{$R^{\tt th} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
-    $R^{\tt el} \mapsfrom \theta^d(p_1,\neg c_1,p_2,true,d_{cur}) \sqcup \theta^d(p_1 \land \neg c_2,e_1^{\tt el},p_2, e_2,d_{cur})$;\\
+    $R^{\tt el} \mapsfrom \theta_D(p_1,\neg c_1,p_2,true,d) \sqcup \theta_D(p_1 \oland \neg c_2,e_1^{\tt el},p_2, e_2,d)$;\\
     \lIf{$R^{\tt el} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
     \Return{$\cons{Fail}$};
   }
   \Else($e_1 = $ \sumIf{c_1} \sumThen{e_1^{\tt th}} \sumElse{e_1^{\tt el}} $\keyword{and} e_2 = $ \sumIf{c_2} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}}){
-    $R_1 \mapsfrom \theta^d(p_1,c_1,p_2,c_2,d_{cur})$;\\
-    $R_2 \mapsfrom \theta^d(p_1 \land c_1, e_1^{\tt th}, p_2 \land c_2, e_2^{\tt th},d_{cur})$;\\
-    $R_3 \mapsfrom \theta^d(p_1 \land \neg c_1, e_1^{\tt el}, p_2 \land \neg c_2, e_2^{\tt el},d_{cur})$;\\
+    $R_1 \mapsfrom \theta_D(p_1,c_1,p_2,c_2,d)$;\\
+    $R_2 \mapsfrom \theta_D(p_1 \oland c_1, e_1^{\tt th}, p_2 \oland c_2, e_2^{\tt th},d)$;\\
+    $R_3 \mapsfrom \theta_D(p_1 \oland \neg c_1, e_1^{\tt el}, p_2 \oland \neg c_2, e_2^{\tt el},d)$;\\
     \Return{$R_1 \sqcup R_2 \sqcup R_3$};
   }
 }
 \end{footnotesize}
-\caption{\label{algo:dunification}Pseudo-code for $d$-Depth Unification Procedure}
+\caption{\label{algo:dunification}Pseudo-code for $D$-Depth Unification Procedure}
 \end{algorithm}
 \end{figure}

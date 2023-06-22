@@ -99,6 +99,8 @@ the previously-allocated objects (as in the \type{List}
 construction example). The coarse-grained $\{1, 2+\}$
 categorization of allocation recency is effective for such disambiguation.
 
+\input{chapters/figures/figSearch.tex}
+
 \section{Counterexample-guided Product-CFG Construction}
 \label{sec:searchalgo}
 \toolName{} constructs a product-CFG incrementally to search for a bisimulation relation
@@ -121,27 +123,46 @@ The search procedure begins with a single partially-constructed product-CFG $\pi
 $\pi_{init}$ contains exactly one node (\scpc{0}{0}) that encodes the correlation of the entry nodes
 (i.e. \spc{0} and \cpc{0}) of \sprog{} and \cprog{}.
 
+\subsection{Correlating Pathsets}
+\label{sec:pathsetcorrel}
 At each step of the incremental construction process, a node $(n_S\!:\!n_C)$ is chosen in a product-CFG $\pi$
-and a path $\rho_C$ in \cprog{} starting at $n_C$ (and ending at an anchor node in \cprog{}) is selected.
-Then, we enumerate potentially correlated paths in \sprog{} for the path $\rho_C$ in \cprog{}.
+and a 1-{\em pathset} $\xi_C$ in \cprog{} starting at $n_C$ (and ending at an anchor node in \cprog{}) is selected.
+Then, we enumerate potentially correlated $\mu$-{\em pathsets} in \sprog{} for the pathset $\xi_C$ in \cprog{}.
+A {\em pathset} $\xi$ is essentially a set of paths with the following additional properties:
+(a) all paths $\rho \in \xi$ begin at the same node and terminate at the same node,
+(b) all paths $\rho \in \xi$ are mutually-exclusive i.e. {\em at most} one of ${\tt pathcond}_\rho$ can be true.
+A $\mu$-pathset $\xi$ is a pathset where each path $\rho \in \xi$ contains {\em at most} $\mu$ occurrences of any node.
+$\mu$-pathsets are based on earlier work on the Counter tool \cite{oopsla20}\footnote{
+Counter tool \cite{oopsla20} considers $(\mu,\delta)$-unrolled pathsets in its correlation search algorithm.
+Our $\mu$-pathsets are a special case of $(\mu,\delta)$-unrolled pathsets where $\delta = \mu$.}
+and helps improve the completeness of the bisimulation search
+by attempting to correlate a set of \cprog{} paths with a set of \sprog{} paths,
+where individual paths of \cprog{} and \sprog{} may be uncorrelated.
+An example of such a scenario is depicted in \cref{sec:expstring}.
+\Cref{sec:pathsethoaretriples} briefly discusses the techniques of handling Hoare triples (i.e. proof obligations)
+involving pathsets.
+
+Revisiting our incremental construction process, recall that we choose a 1-pathset $\xi_C$ in \cprog{}
+and enumerate potentially correlated $\mu$-pathsets $\xi_S$ in \sprog{}.
+Hence, $\mu$ represents the maximum number of iterations of a loop (in \sprog{}),
+that may be correlated with a pathset in \cprog{} consisting of acyclic paths.
+$\mu$ is a fixed parameter of the \toolName{} algorithm and is called the {\em unroll factor}.
 For example, during construction of the product-CFG shown in \cref{fig:llAllocProductCFG},
 say we select the product-CFG node (\scpc{3}{3}).
-We choose the \cprog{} path \cpath{3,4} and enumerate its potential correlations (i.e. paths in \sprog{} starting at \spc{3}):
-$\epsilon$, \spath{3,5,3}, \spath{3,5,3,5,3}, \ldots, $\pathset{S3,(\pathset{S5,S3})^\mu}$.
-The {\em unroll factor} $\mu$ is a fixed parameter of the algorithm and represents the maximum number of iterations of a loop (in \sprog{}),
-that may be correlated with a path $\rho_C$ in \cprog{}.
-Importantly, for paths $\rho_S$ (in \sprog{}) and $\rho_C$ (in \cprog{}) to be considered for correlation,
-they must begin and end at anchor nodes, i.e. the path \spath{3,5} is skipped during enumeration.
-Moreover, the path $\rho_C$ may only contain anchor nodes as the source and destination.
-Hence, the path \cpath{3,4,5} is not considered for $\rho_C$,
+We choose the \cprog{} path(set) \cpath{3,4} and enumerate its potential correlations (i.e. $\mu$-pathsets in \sprog{} starting at \spc{3}):
+$\epsilon$, \spath{3,5,3}, \ldots, $\pathset{S3,(\pathset{S5,S3})^{(\mu-1)}}$.
+Importantly, for pathsets $\xi_S$ (in \sprog{}) and $\xi_C$ (in \cprog{}) to be considered for correlation,
+they must originate and terminate at anchor nodes, i.e. the path \spath{3,5} is skipped during enumeration.
+Moreover, the pathset $\xi_C$ may only contain anchor nodes as its source and destination.
+Hence, the path \cpath{3,4,5} is not considered for $\xi_C$,
 instead we attempt to correlate the subpaths \cpath{3,4} and \cpath{4,5} individually.
 
-For each enumerated correlation possibility $(\rho_S,\rho_C)$, a separate product-CFG $\pi'$ is
-created (by cloning $\pi$) and a new product-CFG edge $e=(\rho_S,\rho_C)$ is added to $\pi'$.
+For each enumerated correlation possibility $(\xi_S,\xi_C)$, a separate product-CFG $\pi'$ is
+created (by cloning $\pi$) and a new product-CFG edge $e=(\xi_S,\xi_C)$ is added to $\pi'$.
 The head of the product-CFG edge $e$ is the (potentially newly added) product-CFG node representing
-the correlation of the end-points of paths $\rho_S$ and $\rho_C$. For example, the node (\scpc{3}{4}) is added
-to the product-CFG if it correlates paths $\epsilon$ and \cpath{3,4} starting at (\scpc{3}{3}).
-Recall that, we consider $\epsilon$ as a candidate for $\rho_S$, but not $\rho_C$.
+the correlation of the end-points of pathsets $\xi_S$ and $\xi_C$. For example, the node (\scpc{3}{4}) is added
+to the product-CFG if it correlates pathsets $\epsilon$ and \cpath{3,4} starting at (\scpc{3}{3}).
+Recall that, we consider $\epsilon$ as a candidate for $\xi_S$, but not $\xi_C$.
 The algorithm ensures that no cycle in \cprog{} is correlated with $\epsilon$ in \sprog{}
 (to preserve divergence discussed in \cref{sec:bisim}).
 For each node $n$ in a product-CFG $\pi$, we maintain a small number of
@@ -151,9 +172,11 @@ obligation \hoareTriple{\phi_s}{s \rightarrow d}{\phi_d} (for some edge $s \righ
 Thus, by construction, these counterexamples represent concrete state pairs that may potentially occur
 at $n$ during the lockstep execution encoded by $\pi$.
 
-To evaluate the promise of a possible correlation $(\rho_S,\rho_C)$ starting at node $n$
+\subsection{Best-First Ranking of Partial Product-CFGs}
+\label{sec:rankproductcfg}
+To evaluate the promise of a possible correlation $(\xi_S,\xi_C)$ starting at node $n$
 in product-CFG $\pi$, we examine the execution behaviour of the counterexamples at $n$ on
-the product-CFG edge $e=(s\rightarrow d)=(\rho_S,\rho_C)$.
+the product-CFG edge $e=(s\rightarrow d)=(\xi_S,\xi_C)$.
 If the counterexamples ensure that the machine states remain related at $d$,
 then that candidate correlation is ranked higher.
 This ranking criterion is based on prior work \cite{oopsla20}.
@@ -207,8 +230,6 @@ $\mem{}_{n_C}$ (at $n_C$) and $\mem{}_{n'_C}$ (at $n'_C$) respectively.
 Thus, for function calls, we inductively prove the precondition (on the arguments) at $(n_S:n_C)$
 and assume the postcondition (on the returned values) at $(n'_S:n'_C)$.
 
-\input{chapters/figures/figSearch.tex}
-
 \input{chapters/figures/figInvariantDFA.tex}
 \input{chapters/figures/figTfAndInvGrammar.tex}
 
@@ -253,13 +274,40 @@ Similarly, in case of a \recursiveRelation{} $l_1 \indEq{} l_2$, $StrongestInvCo
 returns {\em true} iff any counterexample in $\Gamma$ evalutes its $\eta$-depth over-approximation
 $l_1 \indEqDepth{\eta} l_2$ to false (effectively falsifying a weaker condition), where $\eta$ is a fixed parameter of the algorithm.
 
-\input{chapters/figures/figStrchrSpecAndC.tex}
-
 \section{Proof Discharge Algorithm}
 \label{sec:proofalgo}
 
-\subsection{Summary of Canonicalization Procedure}
+\subsection{Handling Proof Obligations On Pathsets}
+\label{sec:pathsethoaretriples}
+Recall that our correlation algorithm attempts to correlate pathsets (instead of paths) between \sprog{} and \cprog{}.
+Evidently, each edge of a (possibly partial) product-CFG $\pi$ is associated with a pair of pathsets $(\xi_S,\xi_C)$.
+Proof obligations originating across a product-CFG edge $e[s \rightarrow d]=(\xi_S,\xi_C)$ are of
+the form \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d}.
+A Hoare triple of the above form can be broken down into a conjunction of Hoare triples involving purely paths as follows:
+
+\begin{equation}
+\label{eqn:hoaretriplepathset}
+\hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d} \Leftrightarrow \bigwedge_{\substack{\rho_S \in \xi_S \\ \rho_C \in \xi_C}} \hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d}
+\end{equation}
+
+Recall that our proof discharge algorithm requires that proof obligations satisfy the conjunctive \recursiveRelation{} property (defined in \cref{sec:proofalgoprops}).
+If the original proof obligation \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d} satisfies this property, so does each of the smaller
+proof obligation \hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d}.
+Hence, the proof discharge algorithm presented in \cref{sec:examples} is capable of handling these smaller proof obligations
+and by \cref{eqn:hoaretriplepathset}, also the original proof obligations.
+If $|\xi|$ represents the number of paths in a pathset $\xi$, the proof obligation \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d} results
+in $|\xi_S| \times |\xi_C|$ smaller proof obligations.
+In practice, the number of paths in \sprog{} that are correlated with a path in \cprog{} is quite low
+and consequently, most of these proof obligations usually end up with a {\tt false} \lhs{} when lowered to
+first-order logic (through \cref{eqn:firstOrderFormula}), due to the presence of {\tt pathcond}$_{\rho_S}$ and {\tt pathcond}$_{\rho_C}$.
+Our proof discharge procedure begins with an attempt to disprove \lhs{} (overapproximated in case of \recursiveRelations{}),
+which trivially resolves the smaller proof obligations involving uncorrelated paths to {\tt true}.
+
+\subsection{Canonicalization Procedure}
 \label{sec:canonicalalgo}
+
+\input{chapters/figures/figCanonical.tex}
+
 \Cref{algo:canonical} shows the pseudo-code for the canonicalization procedure.
 $Canonicalize(e)$ is responsible for converting an expression $e$ to its canonical form $\hat{e}$ (introduced in \cref{sec:unifyandrewrite}).
 Recall that a pseudo-variable is an expression of the form $\prodAccess{v}{a_1,a_2,.,a_n}$, where $v$ is a variable.
@@ -267,14 +315,15 @@ Also recall that, an expression $e$ is canonical iff each {\em accessor} and {\e
 An ADT expression with a data constructor, a lifting constructor or the \sumDtor{}-operator at its top-level, is called a {\em foldable} expression.
 $Canonicalize(e)$ iteratively folds each {\em accessor} and {\em sum-is} subexpressions of $e$ that operate on a foldable argument.
 Thus, $Canonicalize(e)$ returns an expression where none of the {\em accessor} or {\em sum-is} subexpressions is foldable.
-This condition implies the requirements of the canonical form.
+This condition entails the requirements of the canonical form.
 For example, $a + \prodAccess{\cons{LCons}(b,l)}{tail,val}$ and $\sumIs{\lifted{list}{\mem{}}{lnode}{p}}{LNil}$
 canonicalizes to $a + \prodAccess{l}{val}$ and $(p = 0)$ respectively.
 
-\input{chapters/figures/figCanonical.tex}
-
-\subsection{Summary of Unification Procedure}
+\subsection{Unification Procedure}
 \label{sec:unifalgo}
+
+\input{chapters/figures/figUnification.tex}
+
 \Cref{algo:unification} shows the pseudo-code for the unification algorithm introduced in \cref{sec:unifyandrewrite}.
 $\theta(p_1,e_1,p_2,e_2)$ is responsible for unifying expressions $e_1$ and $e_2$ under the expression path
 conditions $p_1$ and $p_2$ respectively.
@@ -287,14 +336,18 @@ If exactly one of $e_1$ and $e_2$ is a \sumDtor{} expression,
 $\theta$ attempts to unify both branches of \sumDtor{} (along with the path conditions) with the other expression
 and return whichever succeeds.
 If both $e_1$ and $e_2$ are \sumDtor{} expressions, $\theta$ attempts to recursively unify their children.
-$\theta$ uses the $\sqcup$-operator to combine the results of successive self-calls.
+$\theta$ uses the $\sqcup$ -operator to combine the results of successive self-calls.
 $A \sqcup B$ is equal to $\cons{Succ}(S_1 \cup S_2)$ if $A = \cons{Succ}(S_1)$ and $B = \cons{Succ}(S_2)$;
 otherwise (if one of $A$ and $B$ is \cons{Fail}), $A \sqcup B = \cons{Fail}$.
+Additionally, for a \sumDtor{} expression with \underline{\tt if} condition $c$, $c$ is well-formed under the expression path condition.
+Hence, when conjuncting $c$ to the expression path condition, we use an `ordered and' operator \oland;
+$e_1 \oland e_2$ is equivalent to $e_1 \land (e_1 \rightarrow e_2)$.
 
-\input{chapters/figures/figUnification.tex}
-
-\subsection{Summary of Iterative Unification and Rewriting Procedure}
+\subsection{Iterative Unification and Rewriting Procedure}
 \label{sec:unifyandrewritealgo}
+
+\input{chapters/figures/figIterUnifyAndRewrite.tex}
+
 \Cref{algo:unifyandrewrite} shows the pseudo-code for the iterative unification and rewriting procedure
 introduced in \cref{sec:unifyandrewrite}.
 $\Theta(p_a,e_a,p_b,e_b)$ is responsible for unifying expressions $e_a$ and $e_b$ under the expression
@@ -303,12 +356,13 @@ $\Theta$ either fails to unify with the \cons{Fail} output, or it successfully r
 is the set of correlation tuples that relate {\em only} atomic expressions.
 $\Theta$ attempts to iteratively (a) unify the expressions (through a call to the unification procedure $\theta$ in \cref{sec:proofalgo}),
 and (b) perform rewriting (of atom $a_1$ for those correlation tuples \corrtuple{p_1}{a_1}{p_2}{e_2} where $e_2$ is non-atomic), followed by
-a recursive call to $\Theta$.
+a recursive call to $\Theta$. TODO recall example from \cref{sec:decomprecrel}
 
-\input{chapters/figures/figIterUnifyAndRewrite.tex}
-
-\subsection{Summary of Decomposition Procedure for Recursive Relations}
+\subsection{Decomposition Procedure for Recursive Relations}
 \label{sec:decomposealgo}
+
+\input{chapters/figures/figDecompose.tex}
+
 \Cref{algo:decompose} shows the pseudo-code for the decomposition algorithm defined in \cref{sec:unifyandrewrite}.
 $Decompose(l_1, l_2)$ is responsible for computing the decomposition of the \recursiveRelation{} $l_1 \indEq{} l_2$.
 Recall that, decomposition of a \recursiveRelation{} $l_1 \indEq{} l_2$ requires the unification of (canonicalized)
@@ -316,72 +370,77 @@ $l_1$ and $l_2$ through the top-level invocation of $\Theta(true,l_2,true,l_2)$.
 If the $n$ correlation tuples obtained after a successful unification are \corrtuple{p_1^i}{a_1^i}{p_2^i}{a_2^i}
 (for $i=1\ldots n$), then the decomposition of $l_1 \indEq{} l_2$ is defined by \cref{eqn:decompose}.
 If the unification fails (with a \cons{Fail} output), the decomposition is defined to be {\tt false}.
+TODO recall example from \cref{sec:decomprecrel}
 
-\input{chapters/figures/figDecompose.tex}
-
-\subsection{Summary of Reduction Procedure for Overapproximated Recursive Relations}
-\label{sec:overapproxalgo}
-For type II proof obligations summarized in \cref{sec:cat2summary},
-we overapproximate \lhs{} by substituting each \recursiveRelations{} $l_1 \indEq{} l_2$ in the \lhs{}
+\subsection{Reduction Procedures for Approximate Recursive Relations}
+\label{sec:approxalgo}
+Recall that type II proof obligations (summarized in \cref{sec:cat2summary}) are discharged
+by over- and under-approximating the \lhs{} (resulting in a weaker and a stronger proof obligation respectively),
+followed by discharging both proof obligations through SMT solvers.
+We overapproximate \lhs{} by substituting each \recursiveRelation{} $l_1 \indEq{} l_2$ in the \lhs{}
 with its $d_o$-depth overapproximation $l_1 \indEqDepth{d_o} l_2$.
-This overapproximation of \lhs{} results in a stronger proof obligation which is further
-discharged through an SMT solver.
+Similarly, the \lhs{} is underapproximated by substituting each \recursiveRelation{} $l_1 \indEq{} l_2$
+with its $d_u$-depth underapproximation $l_1 \indEqDepth{d_u} l_2$.
 
-Recall that, \cref{sec:approxdecomp} briefly describes the process of reducing an
-overapproximated \recursiveRelation{} into its SMT-encodable equivalent absent
-of \recursiveRelations{}.
-We use modified versions of unification and `iterative unification and rewriting' procedures
-(defined in \cref{sec:unifalgo,sec:unifyandrewritealgo} respectively)
-to compute this overapproximated version of a \recursiveRelation{}.
-The $d$-depth unification and `iterative unification and rewriting' procedures
-are represented by $\Theta^{d}(p_a,e_a,p_b,e_b,d_{cur})$ and $\theta^{d}(p_1,e_1,p_2,e_2,d_{cur})$
-respectively, where $d$ is a parameter of the algorithm.
-The pseudo-code for these two procedures are shown in \cref{algo:dunification,algo:dunifyandrewrite} respectively.
-Similar to the argument $p_a$ (and $p_1$) responsible for keeping track of the expression
-path condition of $e_a$ (and $e_1$), $d_{cur}$ keeps track of the depth of the expressions
-currently being unified.
-The $d$-depth `iterative unification and rewriting' returns depth-augmented
-correlation tuples of the form $\corrtuple{p_1}{a_1}{p_2}{a_2}^{d_1}$ such that $d_1 \geq d$
-for all correlation tuples.
-Unlike $\Theta$ which terminates unification iff both expressions are atomic,
-$\Theta^{d}$ performs rewriting of both ADT atomic expressions and continues to
-unify deeper into their respective expression trees until all correlation tuples relate
-expressions at depth $\geq d$.
-Similar to decomposition, we can define the $d$-depth decomposition of $l_1 \indEq{} l_2$
-using the $d$-depth `iterative unification and rewriting' procedure.
-$Overapprox^{d}(l_1,l_2)$ is responsible for reducing the overapproximation $l_1 \indEqDepth{d} l_2$
-into its SMT-encodable equivalent condition.
-\Cref{algo:overapprox} shows the pseudo-code for $Overapprox$.
+\subsubsection{$D$-depth Iterative Unification and Rewriting Procedure}
+\label{sec:dunifyandrewritealgo}
 
 \input{chapters/figures/figDUnification.tex}
 \input{chapters/figures/figDIterUnifyAndRewrite.tex}
+
+Recall that, \cref{sec:approxdecomp} briefly describes the process of reducing an
+overapproximate \recursiveRelation{} into its SMT-encodable equivalent absent of \recursiveRelations{}.
+We use modified versions of unification and `iterative unification and rewriting' procedures
+(defined in \cref{sec:unifalgo,sec:unifyandrewritealgo} respectively) to
+reduce an overapproximate \recursiveRelation{} into its SMT-equivalent.
+The $D$-depth unification and `iterative unification and rewriting' procedures
+are represented by $\Theta_D(p_a,e_a,p_b,e_b,d)$ and $\theta_D(p_1,e_1,p_2,e_2,d)$
+respectively, where $D$ is a parameter of the algorithm.
+The pseudo-code for these two procedures are shown in \cref{algo:dunification,algo:dunifyandrewrite} respectively.
+The $D$-depth `iterative unification and rewriting' returns depth-augmented
+correlation tuples of the form $\corrtuple{p_1}{a_1}{p_2}{a_2}_d$ such that $d \geq D$
+for all correlation tuples.
+Unlike $\Theta$ which terminates unification iff both expressions are atomic,
+$\Theta_D$ performs rewriting of both ADT atomic expressions and continues to
+unify deeper into their respective expression trees until all correlation tuples relate
+expressions at depth $\geq D$. TODO recall example from \cref{sec:approxdecomp}
+
+\subsubsection{Reduction Procedure for Overapproximate Recursive Relations}
+\label{sec:overapproxalgo}
+
 \input{chapters/figures/figOverapprox.tex}
 
-\subsection{Summary of Reduction Procedure for Underapproximated Recursive Relations}
+$Overapprox_D(l_1,l_2)$ is responsible for reducing the overapproximation $l_1 \indEqDepth{D} l_2$
+into its SMT-encodable equivalent condition.
+$Overapprox_D$ is similar to the decomposition procedure in \cref{sec:decomposealgo} except it only preserves
+scalar equalities till a maximum depth of $D$ (inclusive).
+This essentially asserts that both $l_1$ and $l_2$ have identical structures (by equating expression path conditions)
+and equal scalar values (by equating scalar leaf expressions) till a depth of $D$.
+TODO recall example from \cref{sec:approxdecomp}
+
+\subsubsection{Reduction Procedure for Underapproximate Recursive Relations}
 \label{sec:underapproxalgo}
-Recall that, for type II proof obligations summarized in \cref{sec:cat2summary},
-if we are unable to prove the stronger proof obligation with overapproximated \lhs{},
-we compute the weaker proof obligation by substituting each \recursiveRelation{} $l_1 \indEq{} l_2$ in the \lhs{}
-with its $d_u$-depth underapproximation $l_1 \indEqUapprox{d_u} l_2$.
-This underapproximation of \lhs{} results in a weaker proof obligation which is further
-discharged through an SMT solver.
+
+\input{chapters/figures/figDepthBounded.tex}
 
 Recall that, an underapproximate \recursiveRelation{} $l_1 \indEqUapprox{d_u} l_2$
 is equivalent to $\depthBound{d_u}{l_1} \land \depthBound{d_u}{l_2} \land l_1 \indEqDepth{d_u} l_2$,
 where $\depthBound{d}{l}$ asserts that $l$ has a depth of at most $d$ (defined in \cref{sec:approxdefs}).
-We have already described the process of reducing an overapproximated \recursiveRelation{}
-(i.e. $l_1 \indEqDepth{d_u} l_2$) in \cref{sec:overapproxalgo}.
-Hence, we are left with reducing the conditions $\depthBound{d_u}{l_1}$ and $\depthBound{d_u}{l_2}$
-to SMT-encodable equivalents.
-The function responsible for computing $\depthBound{d}{l}$ is given by $isDepthBounded^d(l,p,d_{cur})$,
-where $p$ and $d_{cur}$ represents the current expression path condition and depth.
-\Cref{algo:depthbound} gives the pseudo-code for $isDepthBounded$.
-The top-level invocation is given by $isDepthBounded^d(l,true,0)$.
-Finally, the procedure for reducing $l_1 \indEqUapprox{d} l_2$ is given by $Underapprox^{d}(l_1,l_2)$
-along with its pseudo-code in \cref{algo:underapprox}.
+The function responsible for computing $\depthBound{D}{l}$ is $isDepthBounded_D(l,p,d)$,
+where $p$ and $d$ represents the current expression path condition and depth of $l$,
+and $D$ is a parameter of the algorithm.
+\Cref{algo:depthbound} gives the pseudo-code for $isDepthBounded_D$.
+The top-level invocation is given by $isDepthBounded_D(l,true,0)$.
+$isDepthBounded_D$ recursively traverses the expression tree of $l$ (while rewriting as necessary),
+until it reaches a node at depth $>D$, at which point it returns the condition asserting the unreachability
+of such a node. TODO recall example from \cref{sec:approxdecomp}
 
-\input{chapters/figures/figDepthBounded.tex}
 \input{chapters/figures/figUnderapprox.tex}
+
+Finally, $Underapprox_D(l_1,l_2)$ is responsible for reducing the underapproximation $l_1 \indEqUapprox{D} l_2$
+into its SMT-encodable equivalent condition.
+The pseudo-code for $Underapprox_D$ is given in \cref{algo:underapprox}.
+TODO recall example from \cref{sec:approxdecomp}
 
 \subsection{SMT Encoding of First Order Logic Formula}
 \label{sec:smtencoding}
@@ -425,7 +484,7 @@ For example, the canonical expression $a + \prodAccess{l}{val}$ flattens to $a +
 Similarly, $(\sumIs{\prodAccess{l}{tail}}{LCons})$ flattens to $l \strsep{} tail \strsep{} tag = \mathcal{E}(\cons{LCons})$.
 Due to flattening, each flattenable expression $e$ in $\hat{P}_i$ with index $v$ gets lowered
 into a variable in $P_i^f$ whose name begins with $v \strsep$.
-For the ADT variable $v$, let $\mathcal{F}(v)$ be the set of all such variables in $P_i^f$.
+For the ADT variable $v$, let $\mathcal{F}(v)$ be the set of all such lowered variables in $P_i^f$.
 For example, flattening of an expression with $\prodAccess{l}{val}$ and $\sumIs{l}{LCons}$
 results in $\mathcal{F}(l) = \{ l \strsep{} val, l \strsep tag \}$.
 Importantly, $P_i^j$ may only contain scalar and memory operations (but not ADT values).
@@ -434,9 +493,13 @@ Scalar types and their operations map one-to-one to their SMT equivalents.
 The memory element \mem{} is represented as a byte-addressable (i.e. \type{i8}) array.
 A memory load \memRead{\mem{}}{a}{T} is expanded into the concatenation of \sizeof{T} {\em array-select} operations.
 A memory write \memWrite{\mem{}}{a}{v}{T} is expanded into \sizeof{T} nested {\em array-store} operations.
+TODO encoding of points-to invariants i.e. $\pointsTo$
 
 \subsection{Reconciliation of Counterexamples}
 \label{sec:cerecons}
+
+\input{chapters/figures/figReconcile.tex}
+
 As detailed in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
 variables $\mathcal{F}(v)$ during SMT encoding.
 Evidently, the models returned by SMT solvers map these variables (in $\mathcal{F}(v)$ instead of $v$)
@@ -453,16 +516,14 @@ from the model $\gamma$ (returned by a SMT solver).
 $Rand(T)$ returns an arbitrary constant of type $T$.
 For example, consider the rather contrived proof obligation $P: {\tt true} \Rightarrow \sumIs{l}{\cons{LNil}}$.
 Clearly, any valuation of $l$ where $l$ is a non-empty list is a valid counterexample to $P$.
-However, a counterexample $\gamma$ returned by an SMT solver must contain
+However, a counterexample $\gamma$ returned by an SMT solver would instead contain
 the mapping $\{ l \strsep{} tag \mapsto \mathcal{E}(\cons{LCons}) \}$.
 During reconciliation, we find that $l \strsep{} tag$ is mapped to the data constructor \cons{LCons}
 and recurse for each of its fields \cons{val} and \cons{tail}.
 Since $\gamma$ do not contain a mapping for either of these fields, we soundly generate random constants
 for these instead.
-Note that $Reconcile$ correctly constructs a non-empty but otherwise arbitrary list for $l$, which
-is indeed a counterexample to $P$.
-
-\input{chapters/figures/figReconcile.tex}
+Indeed, $Reconcile$ correctly constructs a non-empty but otherwise arbitrary list for $l$, which
+is a counterexample to $P$.
 
 \subsection{Value Tree Representation}
 \label{sec:valuegraph}

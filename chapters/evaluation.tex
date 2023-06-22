@@ -26,6 +26,7 @@ from the user-specified \pre{} and \post{}.
 More sophisticated approaches to finding lifting constructors are left as future work.
 
 \section{Experiments}
+\label{sec:experiments}
 We consider programs involving four distinct ADTs, namely,
 \inv{\small T1} \type{String}, \inv{\small T2} \type{List}, \inv{\small T3} \type{Tree}
 and \inv{\small T4} \type{Matrix}.
@@ -41,6 +42,7 @@ constructors, and (c) varying algorithmic strategies.
 \input{chapters/figures/figLiftingConsStr.tex}
 
 \subsection{String}
+\label{sec:expstring}
 We wrote a single specification in \SpecL{} for each of the following
 common string library functions: {\tt strlen}, {\tt strchr}, {\tt strcmp}, {\tt strspn},
 {\tt strcspn}, and {\tt strpbrk}.  For each specification
@@ -97,6 +99,7 @@ with values of type \type{T} respectively.
 \input{chapters/figures/figLiftingConsList.tex}
 
 \subsection{List}
+\label{sec:explist}
 We wrote a \SpecL{} program specification that creates a list, a
 program that traverses a list to compute the sum of its elements and a program
 that computes the dot product of two lists. We use three different
@@ -117,6 +120,7 @@ indicate the empty string.
 \input{chapters/figures/figLiftingConsTree.tex}
 
 \subsection{Tree}
+\label{sec:exptree}
 We wrote a \SpecL{} program that sums all the nodes in a tree
 through an inorder traversal using recursion. We use two different data layouts for a tree: 
 (1) a flat array where a
@@ -130,8 +134,8 @@ and at the exit of the recursive calls, \toolName{} assumes \post{} on the retur
 \input{chapters/figures/figLiftingConsMatrix.tex}
 
 \subsection{Matrix}
-We wrote a
-\SpecL{} program to count the frequency of a value appearing in a 2D matrix.
+\label{sec:expmat}
+We wrote a \SpecL{} program to count the frequency of a value appearing in a 2D matrix.
 A matrix is represented as an ADT that resembles a \type{List} of \type{List}s (\inv{\small T4} in \cref{tab:LiftingConsMatrix}).
 The C implementations for a \type{Matrix} object include
 (a) a two-dimensional array (\lift{mat}{\mem{}}{u32[][]}), (b) a flattened row-major array (\lift{mat}{\mem{}}{u32[r]}),

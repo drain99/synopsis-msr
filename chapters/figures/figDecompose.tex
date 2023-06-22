@@ -11,10 +11,10 @@
   \lIf{$R = \cons{Fail}$}{\Return{$false$}}
   \ForEach{$\corrtuple{p_1}{a_1}{p_2}{a_2} \keyword{in} R$}{
     \uIf{$a_1 \keyword{is} scalar$}{
-      $ret \mapsfrom ret \land (p_1 \land p_2) \rightarrow (a_1 = a_2)$;\\
+      $ret \mapsfrom ret \land ((p_1 \land p_2) \rightarrow (a_1 = a_2))$;\\
     }
     \Else{
-      $ret \mapsfrom ret \land (p_1 \land p_2) \rightarrow (a_1 \indEq{} a_2)$;\\
+      $ret \mapsfrom ret \land ((p_1 \land p_2) \rightarrow (a_1 \indEq{} a_2))$;\\
     }
   }
   \Return{$ret$};

@@ -10,9 +10,9 @@
     $\pi_{cur} \mapsfrom extractMostPromising(Q)$;\\
     ${\tt InferInvariantsAndCounterexamples}(\pi_{cur})$;\\
     \
-    \uIf{$getCPathToCorrelate(\cprog{},\pi_{cur}) = \cons{Found}(\rho_C)$}{
-      \ForEach{$\rho_S \keyword{in} enumeratePathsInS(\sprog{},\rho_C,\mu)$}{
-        $\pi_{next} \mapsfrom extendProductCFG(\pi_{cur},\rho_S,\rho_C)$;\\
+    \uIf{$getPathsetToCorrelate(\cprog{},\pi_{cur}) = \cons{Found}(\xi_C)$}{
+      \ForEach{$\xi_S \keyword{in} enumeratePathsetsInS(\sprog{},\xi_C,\mu)$}{
+        $\pi_{next} \mapsfrom extendProductCFG(\pi_{cur},\xi_S,\xi_C)$;\\
         $Q \mapsfrom Q \cup \{ \pi_{next} \}$;\\
       }
     }

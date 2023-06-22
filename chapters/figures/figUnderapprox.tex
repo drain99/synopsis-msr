@@ -3,12 +3,12 @@
 \begin{footnotesize}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$Underapprox^d(l_1,l_2)$}{
+\Fn{$Underapprox_D(l_1,l_2)$}{
   $\hat{l_1} \mapsfrom Canonicalize(l_1)$;\\
   $\hat{l_2} \mapsfrom Canonicalize(l_2)$;\\
-  $overapprox \mapsfrom Overapprox^d(\hat{l_1},\hat{l_2})$;\\
-  $depthbound_1 \mapsfrom isDepthBounded^d(\hat{l_1},true,0)$;\\
-  $depthbound_2 \mapsfrom isDepthBounded^d(\hat{l_2},true,0)$;\\
+  $overapprox \mapsfrom Overapprox_D(\hat{l_1},\hat{l_2})$;\\
+  $depthbound_1 \mapsfrom isDepthBounded_D(\hat{l_1},true,0)$;\\
+  $depthbound_2 \mapsfrom isDepthBounded_D(\hat{l_2},true,0)$;\\
   \Return{$overapprox \land depthbound_1 \land depthbound_2$};
 }
 \end{footnotesize}
