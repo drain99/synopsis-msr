@@ -6865,3 +6865,30 @@ series = {LFP '80}
   year           = {1997},
   language       = {english},
 }
+
+@inproceedings{recursivetypestrees,
+author = {Gauthier, Nadji and Pottier, Fran\c{c}ois},
+title = {Numbering Matters: First-Order Canonical Forms for Second-Order Recursive Types},
+year = {2004},
+isbn = {1581139055},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1016850.1016872},
+doi = {10.1145/1016850.1016872},
+abstract = {We study a type system equipped with universal types and equire-cursive types, which we refer to as F͘. We show that type equality may be decided in time O(nlog n), an improvement over the previous known bound of O(n2 ). In fact, we show that two more general problems, namely entailment of type equations and type unification, may be decided in time O(nlog n), a new result. To achieve this bound, we associate, with every F͘ type, a first-order canonical form, which may be computed in time O(nlogn). By exploiting this notion, we reduce all three problems to equality and unification of first-order recursive terms, for which efficient algorithms are known.},
+booktitle = {Proceedings of the Ninth ACM SIGPLAN International Conference on Functional Programming},
+pages = {150–161},
+numpages = {12},
+keywords = {unification, equality, recursive types, polymorphism},
+location = {Snow Bird, UT, USA},
+series = {ICFP '04}
+}
+
+@techreport{canonicalrecursivetypes,
+author = {Considine, Jeffrey},
+title = {Efficient Hash-Consing of Recursive Types},
+year = {2000},
+publisher = {Boston University},
+address = {USA},
+abstract = {Abstract Efficient storage of types within a compiler is necessary to avoid large blowups in space during compilation. Recursive types in particular are important to consider, as naive representations of recursive types may be arbitrarily larger than necessary through unfolding. Hash-consing has been used to efficiently store non-recursive types. Deterministic finite automata techniques have been used to efficiently perform various operations on recursive types. We present a new system for storing recursive types combining hash-consing and deterministic finite automata techniques. The space requirements are linear in the number of distinct types. Both update and lookup operations take polynomial time and linear space and type equality can be checked in constant time once both types are in the system.}
+}

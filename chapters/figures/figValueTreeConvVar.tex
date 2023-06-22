@@ -26,9 +26,9 @@
 
 \end{scope}
 
-\node (out1) [shift={($(scope1.east)+(4mm,-3mm)$)}] {$\xRightarrow[{v_\vtse{1}^\type{Mat}}]{{\tt expand}}$};
+\node (out1) [shift={($(scope1.east)+(0mm,-3mm)$)}] {$\xRightarrow[{v_\vtse{1}^\type{Mat}}]{{\tt expand}}$};
 
-\begin{scope}[local bounding box=scope2,shift={($(out1.east)+(15mm,24mm)$)}]
+\begin{scope}[local bounding box=scope2,shift={($(out1.east)+(12mm,24mm)$)}]
 
 \node[ttinner={45:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
@@ -45,9 +45,9 @@
 
 \end{scope}
 
-\node (out2) [shift={($(scope2.east)+(4mm,-1mm)$)}] {$\xRightarrow[{v_\vtse{2}^\type{Lis}}]{{\tt expand}}$};
+\node (out2) [shift={($(scope2.east)+(2mm,-1mm)$)}] {$\xRightarrow[{v_\vtse{2}^\type{Lis}}]{{\tt expand}}$};
 
-\begin{scope}[local bounding box=scope3,shift={($(out2.east)+(18mm,12mm)$)}]
+\begin{scope}[local bounding box=scope3,shift={($(out2.east)+(14mm,12mm)$)}]
 
 \node[ttinner={45:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
@@ -72,7 +72,7 @@
 
 \end{scope}
 
-\node (out3) [shift={($(scope3.south)+(-2mm,-10mm)$)}] {$\xLeftarrow[{v_\vtse{1}^\type{Mat}}]{{\tt fold}}$};
+\node (out3) [shift={($(scope3.south)+(8mm,-18mm)$)}] {$\xLeftarrow[{v_\vtse{1}^\type{Mat}}]{{\tt fold}}$};
 
 \begin{scope}[local bounding box=scope4,shift={($(out3.west)+(-35mm,19mm)$)}]
 

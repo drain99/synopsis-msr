@@ -10,9 +10,9 @@
 
 \begin{scope}[local bounding box=scope1,shift={($(out0.east)+(6mm,-2mm)$)}]
 
-\node[ttleaf] (0) {$s$};
+\node[ttleaf] (0) {$c'$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\Omega}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\xfer{}}$} (0);
 
 \end{scope}
 
@@ -22,7 +22,7 @@
 
 \node[tttree] (0) {$v_i$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\Omega_i}$} (0.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\xfer{}_i}$} (0.90);
 
 \end{scope}
 
@@ -38,10 +38,10 @@
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] (0);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\Omega(s)$}               (1);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\neg \Omega(c)$}         (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\Omega_1}$ \\ \olifield{row}}  (3.90);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {$\compacttfbox{\Omega_2}$ \\ \olifield{cols}} (4.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{MNil} \\ $\xfer{}(c')$}               (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{MCons} \\ $\neg \xfer{}(c')$}         (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\xfer{}_1}$ \\ \olifield{row}}  (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.7mm]  {$\compacttfbox{\xfer{}_2}$ \\ \olifield{cols}} (4.90);
 
 \end{scope}
 

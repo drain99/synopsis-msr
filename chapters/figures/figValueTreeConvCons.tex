@@ -12,7 +12,7 @@
 
 \node[tttree] (0) {$v_i$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1mm] {$\compacttfbox{\Omega_i}$} (0.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1mm] {$\compacttfbox{\xfer{}_i}$} (0.90);
 
 \end{scope}
 
@@ -30,8 +30,8 @@
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm] {\astcons{LNil} \\ ${\tt false}$} (1.90);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ ${\tt true}$} (2);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\Omega_1}$ \\ \olifield{val}} (3.90);
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.8mm] {$\compacttfbox{\Omega_2}$ \\ \olifield{tail}} (4.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {$\compacttfbox{\xfer{}_1}$ \\ \olifield{val}} (3.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={left},right,xshift=0.8mm] {$\compacttfbox{\xfer{}_2}$ \\ \olifield{tail}} (4.90);
 
 \end{scope}
 

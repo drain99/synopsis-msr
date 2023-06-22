@@ -6,19 +6,29 @@
 
 \begin{tikzpicture}
 
-\node (out0) {$\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})=$};
+\node (outm1) {$\mathcal{V}(p)=$};
+
+\begin{scope}[local bounding box=scopem1,shift={($(outm1.east)+(6mm,-2mm)$)}]
+
+\node[ttleaf] (0) {$p'$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\xfer{}}$} (0);
+
+\end{scope}
+
+\node (out0) [shift={($(outm1.south)+(-9mm,-20mm)$)}] {$\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})=$};
 
 \begin{scope}[local bounding box=scope0,shift={($(out0.east)+(7mm,-3.5mm)$)}]
 
 \node[tttree,inner sep=-0.5mm] (0) {$v_\vtse{1}^\lift{list}{}{}$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq p}$} (0.90);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0.90] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1.5mm] {$\compacttfbox{\vtse{1} \coloneqq \xfer{}(p')}$} (0.90);
 
 \end{scope}
 
-\node (out1) [shift={($(scope0.east)+(4mm,-3.2mm)$)}] {$\xRightarrow[{v_\vtse{1}^\lift{list}{}{}}]{{\tt expand}}$};
+\node (out1) [shift={($(scope0.east)+(0mm,-5.2mm)$)}] {$\xRightarrow[{v_\vtse{1}^\lift{list}{}{}}]{{\tt expand}}$};
 
-\begin{scope}[local bounding box=scope1,shift={($(out1.east)+(15mm,12mm)$)}]
+\begin{scope}[local bounding box=scope1,shift={($(out1.east)+(6mm,27mm)$)}]
 
 \node[ttinner={45:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
@@ -26,7 +36,7 @@
 \node[ttleaf] (3) [position=-120:10mm from 2] {$\prodAccess{\vtse{1}}{val}$};
 \node[tttree,inner sep=-0.5mm] (4) [position=-75:10mm from 2]  {$v_\vtse{1}^\lift{list}{}{}$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq p}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1.5mm] {$\compacttfbox{\vtse{1} \coloneqq \xfer{}(p')}$} (0);
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{\vtse{1}}{LNil}$}   (1);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{\vtse{1}}{LCons}$} (2);
@@ -35,22 +45,22 @@
 
 \end{scope}
 
-\node (out2) [shift={($(scope1.east)+(4mm,1.3mm)$)}] {$\xRightarrow[{v_\vtse{1}^\lift{list}{}{}}]{{\tt fold}}$};
+\node (out2) [shift={($(scope1.east)+(-2mm,-14mm)$)}] {$\xRightarrow[{v_\vtse{1}^\lift{list}{}{}}]{{\tt fold}}$};
 
-\begin{scope}[local bounding box=scope2,shift={($(out2.east)+(15mm,10mm)$)}]
+\begin{scope}[local bounding box=scope2,shift={($(out2.east)+(7mm,23mm)$)}]
 
 \node[ttinner={80:0}] (0)                             {$+$};
 \node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
 \node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
 \node[ttleaf] (3) [position=-120:10mm from 2] {$\prodAccess{\vtse{1}}{val}$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=0.5mm] {$\compacttfbox{\vtse{1} \coloneqq p}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1.5mm] {$\compacttfbox{\vtse{1} \coloneqq \xfer{}(p')}$} (0);
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-1mm]   {\astcons{LNil} \\ $\sumIs{\vtse{1}}{LNil}$}   (1);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.4mm]  {\astcons{LCons} \\ $\sumIs{\vtse{1}}{LCons}$} (2);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) to node[ttannot={right},left,xshift=-0.8mm] {\olifield{val}} (3);
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:19mm) and ++(30:27mm) .. node[ttannot={left},right,xshift=-0.7mm,yshift=-2.6mm] {\olifield{tail} \\ $\compacttfbox{\vtse{1} \coloneqq \prodAccess{\vtse{1}}{tail}}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (2) .. controls ++(-45:19mm) and ++(30:27mm) .. node[ttannot={left},right,xshift=-7.7mm,yshift=-2.6mm] {\qquad\ \ \olifield{tail} \\ $\compacttfbox{\vtse{1} \coloneqq \prodAccess{\vtse{1}}{tail}}$} (0);
 
 \end{scope}
 

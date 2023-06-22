@@ -80,7 +80,8 @@ Additionally, we define an optional string type \type{OptStr} to specify
 behaviour of functions that conditionally return a string (e.g., {\tt strchr}, {\tt strpbrk}).
 The \type{OptStr} ADT along with its three lifting constructors for the three layouts of the \type{Str} ADT
 are shown in \cref{tab:LiftingConsStr}.
-{\tt strchr} accepts a string $t$ and a character $c$\footnote{TODO:Due to historical reasons, the type of $c$ is declared as \type{int}
+{\tt strchr} accepts a string $t$ and a character $c$\footnote{Due to historical reasons,
+the type of $c$ is declared as \type{int}
 to maintain backward compatibility with pre C-98 code.
 However, the function is specified to cast it to a character and use it instead.} and returns
 the longest substring of $t$ that begins with $c$, otherwise it returns a null pointer to indicate
@@ -220,8 +221,6 @@ Finally in $S$, we model the absence of \cons{SInvalid} in the input string as a
 the {\tt assuming-do} statement introduced in \cref{sec:speclang}.
 Due to the \sdef{} assumption, this constraints the inputs to $S$ as well as $C$ to well-formed strings only.
 This is an example where \sdef{} and \pre{} can be used to model wellformedness of values in $C$.
-
-TODO: consider adding matrix data layouts (not programs) to illustrate the diversity of possible memory layouts being considered
 
 \section{Limitations}
 \label{sec:limitations}

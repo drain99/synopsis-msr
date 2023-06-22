@@ -165,6 +165,7 @@ Additionally, given a bitvector expression $e$, ``$e{\tt [ub:lb]}$'' represents 
 in the range [lb,ub] from $e$ resulting in a $(ub-lb+1)$-sized bitvector expression.
 
 \subsection{Control-Flow Graph Representation}
+\label{sec:cfg}
 \Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
 of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
 The Control-Flow Graph is an alternate graphical representation of an IR program that emphasizes
@@ -190,10 +191,9 @@ in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7
 In such a case, the transfer function of the edge is the composition of the sequence of instructions.
 A CFG must contain exactly one entry node (representing the entry to the function), but may contain
 multiple exit nodes (each representing an exit from the function).
-An edge incident on an exit node is called an {\em exit edge} and is associated with an {\em action} representing
-the values returned as a function of the symbolic state at the source node.
+An edge incident on an exit node is called an {\em exit edge} and is only associated with an {\em action} representing
+the values returned, as a function of the symbolic state at the source node.
 Actions form the observable behaviour of a CFG while transition through non-exit edges are internal to the program.
-Additionally, exit edges are always associated with an edge condition of {\tt true} and an identity transfer function.
 Recall that for a C CFG, the action includes both the returned value (if non-void) and the memory state.
 We omit these transfer functions in the CFG figures (as they are shown in their corresponding IR)
 and only show the edge conditions (unless they are {\em true}).

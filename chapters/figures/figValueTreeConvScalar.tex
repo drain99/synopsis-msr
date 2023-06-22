@@ -10,9 +10,9 @@
 
 \begin{scope}[local bounding box=scope1,shift={($(0.east)+(6mm,-3mm)$)}]
 
-\node[ttleaf] (0) {$s_i$};
+\node[ttleaf] (0) {$e'_i$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1mm] {$\compacttfbox{\Omega_i}$} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=0.5mm,yshift=1mm] {$\compacttfbox{\xfer{}_i}$} (0);
 
 \end{scope}
 
@@ -20,7 +20,7 @@
 
 \begin{scope}[local bounding box=scope2,shift={($(1.east)+(12mm,-3mm)$)}]
 
-\node[ttleaf] (0) {$\Omega_1(s_1) \odot \Omega_2(s_2)$};
+\node[ttleaf] (0) {$\xfer{}_1(e'_1) \odot \xfer{}_2(e'_2)$};
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right] {} (0);
 

@@ -274,8 +274,9 @@ Similarly, in case of a \recursiveRelation{} $l_1 \indEq{} l_2$, $StrongestInvCo
 returns {\em true} iff any counterexample in $\Gamma$ evalutes its $\eta$-depth over-approximation
 $l_1 \indEqDepth{\eta} l_2$ to false (effectively falsifying a weaker condition), where $\eta$ is a fixed parameter of the algorithm.
 
-\section{Proof Discharge Algorithm}
+\section{More on Proof Discharge Algorithm}
 \label{sec:proofalgo}
+TODO: write 1-2 lines about what "more" information this section contains
 
 \subsection{Handling Proof Obligations On Pathsets}
 \label{sec:pathsethoaretriples}
@@ -527,20 +528,20 @@ is a counterexample to $P$.
 
 \subsection{Value Tree Representation}
 \label{sec:valuegraph}
-This section presents a graphical representation of IR expressions that helps us simplify the
+This section presents a graphical representation of expressions that helps us simplify the
 implementation of multiple subprocedures used by our proof discharge algorithm.
-This includes the computation of the over- and under-approximated versions of \recursiveRelations{},
-as well as showing bisimilarity between two deconstruction programs as part of a type III proof obligation.
+This includes the process of canonicalization, reducing approximate \recursiveRelations{} as well as
+construction of deconstruction programs as part of type III proof obligations.
 We call this the {\em Value Tree} representation and use $\mathcal{V}(e)$ to denote a value tree associated with $e$.
-We give an algorithm to convert an expression $e$ into $\mathcal{V}(e)$ and list its advantages.
+We give an algorithm to convert an expression $e$ into $\mathcal{V}(e)$ and list its applications.
 
-Before diving into value trees, we start by introducing an analogous but simpler representation for IR types, called {\em Type Trees}.
-We use $\mathcal{T}(t)$ to denote a type tree associated with $t$.
-To define type trees, we begin with a formal description of ADTs.
+Before diving into value trees, we start by introducing an analogous (but simpler) representation for types, called {\em Type Trees}.
+We use $\mathcal{T}(\tau)$ to denote a type tree associated with $\tau$.
+% To define type trees, we begin with a formal description of ADTs.
 Recall that ADTs are simply `sum of product' types where each data construction represents a variant (of the sum-type) and
 each data construction contains values for each of its fields (of the product-type).
 On top of ADTs, IR has build-in scalar types: \type{unit}, \type{bool} and \type{i<N>}.
-Types in IR can be represented in {\em first order recursive types} using the product ($\times$) and sum ($+$) type
+Types in IR can be represented in {\em first order recursive types} \cite{recursivetypestrees} using the product ($\times$) and sum ($+$) type
 constructors; and the scalar types (i.e. nullary type constructors).
 The type system is characterized by the grammar \typegrammar{} as follows:
 
@@ -565,28 +566,28 @@ Each outgoing edge of a \sumn{} node is associated with a data constructor of th
 Similarly, each outgoing edge of a \prodn{} node is associated with a field of the corresponding data constructor (i.e. \field{val} for \type{LCons}).
 We assign integer indices to the internal nodes and use \ttedge{v}{label} to identify the edge outgoing at $v$ associated with {\tt label},
 where {\tt label} is either a data constructor or a field name.
+The root node is denoted by $v_0$.
 The edges going outward from the root node are called {\em tree-edges} e.g., \ttedge{0}{LCons} and \ttedge{1}{val} in \cref{fig:typetreelist1}.
 Edges that are not tree-edges, are called {\em back-edges} e.g., \ttedge{1}{cols} in \cref{fig:typetreematrix1}.
 Every back-edge induces an unique simple cycle in the type tree representation.
 
 \input{chapters/figures/figTypeTreesPeel.tex}
 
-Recall that types in \SpecL{} (and in IR also) follow equirecursive typing rules i.e. types
+Recall that types in \SpecL{} (and in IR) follow equirecursive typing rules i.e. types
 $\mu \alpha. T$ and $T[\mu \alpha. T/\alpha]$ in \typegrammar{} are {\em equal} types,
 where $T[\mu \alpha. T/\alpha]$ represents the new type obtained by substituting all free
-instances of $\alpha$ with $\mu \alpha. T$, and is defined as the {\em unfolding} of $\mu \alpha T$.
+instances of $\alpha$ with $\mu \alpha. T$, and is defined as the {\em unfolding} of $\mu \alpha. T$.
 In general, under equirecursive typing, two types are equal iff their infinite expansions (through unfolding) are equal.
 In the type tree representation, two types are equal iff their infinite expansions are equivalent.
-Such type trees are called isomorphic.
-Hence, two types are isomorphic iff they represent equal types.
+Such type trees are called isomorphic and two types are isomorphic iff they represent the same type.
 An unfolding in the term representation corresponds to {\em unrolling} one iteration of a simple cycle in its type tree.
 \Cref{fig:typetreespeel} shows three type trees for the \type{List} type.
 \Cref{fig:typetreelistpeel1} corresponds to the canonical (intuitively the `smallest') type tree for the \type{List} type.
 The type trees \cref{fig:typetreelistpeel2,fig:typetreelistpeel3} are obtained by {\em peeling} and unrolling
 the back-edge \ttedge{1}{tail} (in \cref{fig:typetreelistpeel1}) respectively.
 Peeling is a form of partial unrolling which only extracts the starting node of the cycle.
-In practice, equality of two IR types (encoded in \typegrammar{}) can be reposed as syntactic
-equality of their {\em canonical} forms.
+In practice, equality of two types (encoded in \typegrammar{}) can be reposed as syntactic
+equality of their {\em canonical forms} \cite{canonicalrecursivetypes}.
 In general, type trees may contain cycles (due to back-edges) and hence are not quite `trees'.
 However, they represent the actual (possibly infinite) trees obtained through repeated unrolling of cycles.
 
@@ -594,62 +595,58 @@ However, they represent the actual (possibly infinite) trees obtained through re
 
 With type trees out of the way, we are ready to present their value analogue called `value trees'.
 \Cref{fig:valuetrees} shows the value trees for three \type{List} expressions.
-Note that, all three value trees are structurally identical to one of the
+Note that, all three value trees are isomorphic to one of the
 \type{List} type trees shown in \cref{fig:typetreespeel}, e.g.,
 \cref{fig:valuetreelist2} is isomorphic to \cref{fig:typetreelistpeel2}.
-In general, for an expression $e$ of type $t$, its value tree $\mathcal{V}(e)$ resembles
+In general, for an expression $e$ of type $\tau$, its value tree $\mathcal{V}(e)$ resembles
 its type tree with the following distinctions:
 
 \begin{enumerate}
 \item Similar to a type tree, each internal node is either a \sumn{} or a \prodn{} node.
-\item Instead of a scalar type $t$, each leaf node in $\mathcal{V}(e)$ contains an expression
-of type $t$.
-\item In addition to a data constructor, each edge originating at a \sumn{} node also contains
-an edge condition expression. We identify such an edge with \vtedge{i}{\mathnormal{V}}{c}, $i$ is the index of
-the sum node, $V$ is the data constructor and $c$ is the edge condition.
+\item Instead of a scalar type $\tau_s$, each leaf node in $\mathcal{V}(e)$ contains an expression
+of type $\tau_s$.
+\item Similar to the Control-Flow Graph representation (presented in \cref{sec:cfg}), each node $v$
+is associated with a symbolic state $\Omega_v$.
+\item In addition to a data constructor, each edge originating at a \sumn{} node $v$ also contains
+an edge condition expression (a boolean valued function over $\Omega_v$).
+We identify such an edge with \vtedge{v}{\mathnormal{V}}{c}, where $v$ is the sum node,
+$V$ is a data constructor and $c$ is the edge condition.
 The set of edge conditions for all outgoing edges at a \sumn{} node must be mutually exclusive and exhaustive.
-\item In addition to a field name, each edge originating at a \prodn{} node also contains
-a transfer function. We identify such an edge with \vtedge{i}{f}{\Omega}, where $i$ is the index of
-the product node, \field{f} is the field name and $\Omega$ is the transfer function.
-\item Additionally, $\mathcal{V}(e)$ also contains a special node (called the {\em entry node}), and a special edge
-(called the {\em entry edge}) from the entry node to the root of the tree.
-The entry edge is associated with a transfer function.
-We use $\xi$ to denote the entry node and \vtedge{\xi}{v_0}{\Omega} to identify the entry edge,
-where $v_0$ and $\Omega$ are the root node and transfer function respectively.
-We often omit the entry node in figures.
+\item In addition to a field name, each edge $v \rightarrow v'$ originating at a \prodn{} node $v$ also contains
+a transfer function ($\Omega_{v'}$ as a function of $\Omega_v$).
+We identify such an edge with \vtedge{v}{fi}{\xfer{}}, where $v$ is the product node,
+\field{fi} is a field name and \xfer{} is the transfer function.
+\item Additionally, a value tree also contains a special node (called the {\em entry node}), and a special edge
+(called the {\em entry edge}) from the entry node to $v_0$ (i.e. the root of the tree).
+We use $\xi$ to denote the entry node.
+The entry edge is associated with a transfer function $\xfer{}_\xi$.
+We often omit the entry node in figures for brevity.
 \item A value tree $\mathcal{V}(e)$ can be converted to a type tree $\mathcal{T}$ as follows:
 (a) remove the entry node and edge pair, (b) remove edge conditions and transfer functions
-associated with existing edges, and (c) replace each leaf node expression of (scalar) type $\tau$
-with $\tau$ itself.
-The resulting type tree $\mathcal{T}$ must represent the type $t$ of the expression $e$.
+associated with all edges, and (c) replace each leaf node expression of (scalar) type $\tau_s$
+with $\tau_s$ itself.
+The resulting type tree $\mathcal{T}$ represents the type $\tau$ of the expression $e$.
 \end{enumerate}
 
-Intuitively, a value tree simultaneously represents the value of the expression as well as its
-{\em abstracted} deconstruction program.
+Intuitively, a value tree simultaneously represents the value of the expression as well as
+the CFG of its {\em abstracted} deconstruction program.
 We will subsequently discuss these properties along with their applications in the context
 of our proof discharge algorithm.
 Next, we give an algorithm to convert an expression $e$ to its value tree representation $\mathcal{V}(e)$.
 
-\subsection{Conversion of Expressions to their Value Graphs}
+\subsection{Conversion of Expressions to their Value Trees}
 \label{sec:valuetreeconv}
 In this section, we present an algorithm to recursively construct a value tree for any arbitrary expression $e$.
 We take a visual approach to match the graphical nature of value trees.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \includegraphics[scale=1.3]{chapters/figures/figValueTreeConvScalar.pdf}
 \end{center}
+\end{subfigure}
 \caption{\label{fig:valuetreeconvscalar} Construction of $\mathcal{V}(e_1 \odot e_2)$ from $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$.\\
 $\odot$ represents an arbitrary scalar operator.}
-\end{subfigure}
-\begin{subfigure}[b]{\textwidth}
-\begin{center}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvCons.pdf}
-\end{center}
-\caption{\label{fig:valuetreeconvcons} Construction of $\mathcal{V}(\cons{LCons}(e_1,e_2))$ from $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$.\\
-$\mathcal{R}_\cons{LNil}$ represents an arbitrary value tree corresponding to the product-type (in \typegrammar{}) associated with \cons{LNil}.}
-\end{subfigure}
 \end{figure}
 
 \subsubsection{Scalar Operators}
@@ -657,22 +654,32 @@ Given an expression $e = e_1 \odot e_2$,
 \cref{fig:valuetreeconvscalar} shows the construction of $\mathcal{V}(e)$
 from $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$ respectively.
 Since $e_1$ and $e_2$ have scalar types, their value trees must have exactly one
-node (i.e. the leaf node) containing an expression ($s_1$ and $s_2$ respectively) of the same type.
+node (i.e. the leaf node) containing an expression ($e'_1$ and $e'_2$ respectively) of the same type.
 $\odot$ represents an aribtrary scalar operator, i.e. an operator whose arguments
 are scalar-typed values (e.g., bitvector arithmatic and relational operators).
-Given an expression $s$ and a transfer function $\Omega$, $\Omega(s)$
-represents the expression obtained by applying $\Omega$, interpreted as a substitution,
+Given an expression $s$ and a transfer function \xfer{}, $\xfer{}(s)$
+represents the expression obtained by applying \xfer{}, interpreted as a substitution,
 to $s$. This is equivalent to the weakest-precondition of $s$ along an edge associated
-with the transfer function $\Omega$.
+with the \xfer{}.
 The construction shown in \cref{fig:valuetreeconvscalar} can be generalized to
-$n$-ary operators for $n>2$ such as the ternary conditional operator `{\tt ?:}'.
+$n$-ary scalar operators for $n>2$.
+
+\begin{figure}[H]
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvCons.pdf}
+\end{center}
+\end{subfigure}
+\caption{\label{fig:valuetreeconvcons} Construction of $\mathcal{V}(\cons{LCons}(e_1,e_2))$ from $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$.\\
+$\mathcal{R}_\cons{LNil}$ represents an arbitrary value tree corresponding to the product-type (in \typegrammar{}) associated with \cons{LNil}.}
+\end{figure}
 
 \subsubsection{ADT Data Constructors}
 Given an expression $e = \cons{LCons}(e_1, e_2)$,
 \cref{fig:valuetreeconvcons} depicts the construction of $\mathcal{V}(e)$
 from $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$ respectively.
 In general, for an arbitrary data constructor $V$ of ADT $T$,
-the process begins with the construction of a \sumn{} node (0 in \cref{fig:valuetreeconvcons})
+the process begins with a \sumn{} node (0 in \cref{fig:valuetreeconvcons})
 such that the outgoing edge associated with the value constructor $V$ (\cons{LCons} in \cref{fig:valuetreeconvcons})
 has an edge condition of {\tt true} while all other edges are assigned the edge condition {\tt false}.
 For each data constructor $V' \neq V$ of $T$, we append a random value tree corresponding to the product-type
@@ -680,40 +687,42 @@ associated with $V'$ in \typegrammar{}.
 For example, given \type{List} is associated with the sum-type $\mu \alpha. \type{Unit} + (\type{i32} \times \alpha)$,
 the product-types associated with \cons{LNil} and \cons{LCons} are:
 $\type{Unit}$ and $\mu \alpha. \type{i32} \times (\type{Unit} + \alpha)$ respectively.
-We use $\mathcal{R}_T$ to denote an arbitrary (i.e. random) value tree of type $T$.
+We use $\mathcal{R}_\tau$ to denote an arbitrary (i.e. random) value tree of type $\tau$.
 For the outgoing edge associated with the data constructor $V$ (\vtedge{0}{LCons}{\tt true} in \cref{fig:valuetreeconvcons}),
 we construct a product node (1 in \cref{fig:valuetreeconvcons}) and append the
 value trees corresponding to the arguments $e_i$ as children of the product node.
-Interpreted as a program, all random value trees are appended under a {\tt false} edge condition
-(i.e. unreachable) and hence do not change the value represented by $\mathcal{V}(e)$.
-Their only responsibility is to keep the overall structure of $\mathcal{V}(e)$ isomorphic to $\mathcal{T}(\type{List})$.
+% Interpreted as a program, all random value trees are appended under a {\tt false} edge condition
+% (i.e. unreachable) and hence do not change the value represented by $\mathcal{V}(e)$.
+% Their only responsibility is to keep the overall structure of $\mathcal{V}(e)$ isomorphic to $\mathcal{T}(\type{List})$.
 
 \begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \includegraphics[scale=1.3]{chapters/figures/figValueTreeConvSumIs.pdf}
 \end{center}
+\end{subfigure}
 \caption{\label{fig:valuetreeconvsumis} Construction of $\mathcal{V}(\sumIs{e}{MCons})$ from $\mathcal{V}(e)$.\\
 The dashed edge represents the (possibly empty) set of backedges originating in $v_2$ that terminates at 0.}
-\end{subfigure}
-\begin{subfigure}[b]{\textwidth}
-\begin{center}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvProdAccess.pdf}
-\end{center}
-\caption{\label{fig:valuetreeconvprodaccess} Construction of $\mathcal{V}(\prodAccess{e}{cols})$ from $\mathcal{V}(e)$.\\
-Similar to type trees, {\tt unroll} \ttedge{1}{cols} represents the operation of hoisting one iteration of the cycle \pathset{0,1,0}.}
-\end{subfigure}
 \end{figure}
 
 \subsubsection{Sum-Is Operator}
-Given an expression $e' = \sumIs{e_1}{MCons}$,
+Given a {\em sum-is} expression $e' = \sumIs{e}{MCons}$,
 \cref{fig:valuetreeconvsumis} shows the construction of $\mathcal{V}(e')$
 from $\mathcal{V}(e)$.
-The process is rather straightforward and for a general expression $\sumIs{e}{V_i}$, entails extracting the
-edge condition $c$ ($c_2$ in \cref{fig:valuetreeconvsumis}) from the edge
-\vtedge{v_0}{V}{c} (\vtedge{0}{MCons}{c_2} in \cref{fig:valuetreeconvsumis})
-outgoing at the root \sumn{} node $v_0$ (0 in \cref{fig:valuetreeconvsumis}).
-Notice that we preserve the entry transfer function of $\mathcal{V}(e)$ during construction of $\mathcal{V}(e')$.
+The process is rather straightforward and for a general expression $\sumIs{e}{\mathnormal{V}_i}$, entails extracting the
+edge condition $c$ ($c_2$ in \cref{fig:valuetreeconvsumis}) from the $\mathcal{V}(\sumIs{e}{\mathnormal{V}_i})$ edge
+\vtedge{v_0}{V}{c} (\vtedge{0}{MCons}{c_2} in \cref{fig:valuetreeconvsumis}).
+Notice that the entry transfer function $\xfer{}_\xi$ during this conversion.
+
+\begin{figure}[H]
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\includegraphics[scale=1.2]{chapters/figures/figValueTreeConvProdAccess.pdf}
+\end{center}
+\end{subfigure}
+\caption{\label{fig:valuetreeconvprodaccess} Construction of $\mathcal{V}(\prodAccess{e}{cols})$ from $\mathcal{V}(e)$.\\
+Similar to type trees, {\tt unroll} \ttedge{1}{cols} represents the operation of hoisting one iteration of the cycle \pathset{0,1,0}.}
+\end{figure}
 
 \subsubsection{Product-Access Operator}
 Given an expression $e' = \prodAccess{e}{cols}$,
@@ -722,45 +731,49 @@ from $\mathcal{V}(e)$.
 Intuitively, $\mathcal{V}(e')$ represents the subtree of $\mathcal{V}(e)$ rooted at the \sumn{} node reached by taking
 the edges \vtedge{0}{MCons}{c_2} followed by \vtedge{1}{cols}{\Omega_2}.
 However, this path may contain backedges or the subtree itself may contain backedges leaving the subtree.
-In such a case, we perform peeling until this is no longer true.
+In such a case, we perform peeling until all such backedges strickly terminate within this subtree.
 For example, in \cref{fig:valuetreeconvprodaccess}, the edge \vtedge{1}{cols}{\Omega_2} is a backedge and hence we peel it once.
 In the resulting (equivalent) value tree, the subtree (rooted at 2) contains a backedge leaving the subtree which requires
 one more peeling operation.
 The resulting value tree contains the subtree rooted at the \sumn{} node 2 which satisfies the two conditions above and
 hence $\mathcal{V}(e')$ is simply constructed by extracting the subtree rooted at \sumn{} node 2.
 Note that we preserve the transfer functions from the entry to the \sumn{} node 2 during extraction.
+$\xfer{}_1 \cdot \xfer{}_2$ represents the composition of the transfer functions $\xfer{}_1$ and $\xfer{}_2$ respectively.
 
 \begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \includegraphics[scale=1.3]{chapters/figures/figValueTreeConvIte.pdf}
 \end{center}
-\caption{\label{fig:valuetreeconvite} Construction of $\mathcal{V}($ \sumIf{c} \sumThen{\cons{MNil}} \sumElse{\cons{MCons}(e_1,e_2)} $)$ from $\mathcal{V}(c)$, $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$.}
 \end{subfigure}
+\caption{\label{fig:valuetreeconvite} Construction of $\mathcal{V}($ \sumIf{c} \sumThen{\cons{MNil}} \sumElse{\cons{MCons}(e_1,e_2)} $)$ from $\mathcal{V}(c)$, $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$.}
+\end{figure}
+
+\subsubsection{\underline{If}-\underline{Then}-\underline{Else} Operator}
+Given an expression $e =$ \sumIf{c} \sumThen{\cons{MNil}} \sumElse{\cons{MCons}(e_1,e_2)},
+\cref{fig:valuetreeconvite} describes the construction of $\mathcal{V}(e)$
+using $\mathcal{V}(c)$, $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$.
+Let us consider a general \sumDtor{} expression $e$ (associated with the ADT $T$ with data constructors $V_1,V_2,\dots,V_n$)
+such that the branch associated with $V_i$ is given by $V_i(e_i^1,e_i^2,\dots)$.
+We begin with the construction of a \sumn{} root node (0 in \cref{fig:valuetreeconvite})
+such that the outgoing edge associated with $V_i$ has the edge condition equal to the
+expression path condition of the branch $V_i(e_i^1,e_i^2,\dots)$
+($\xfer{}(c')$ and $\neg \xfer{}(c')$ for \cons{MNil} and \cons{MCons} respectively in \cref{fig:valuetreeconvite}).
+For each outgoing edge associated with the data constructor $V_i$, we construct a \prodn{} node
+(1 for \cons{MCons} in \cref{fig:valuetreeconvite}) and append the value trees corresponding to
+the arguments $e_i^j$ as its children.
+
+\begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \includegraphics[scale=1.3]{chapters/figures/figValueTreeConvLift.pdf}
 \end{center}
-\caption{\label{fig:valuetreeconvlift} Construction of $\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})$ from $\mathcal{V}(p)$.\\
-The process involves assuming $v_\vtse{1}^\lift{list}{}{}$ to be the body of $\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})$,
-followed by expansion of $v_\vtse{1}^\lift{list}{}{}$ using the definition of \lift{list}{\mem{}}{lnode} (in \cref{eqn:clist})
-and, finally folding a treeedge into a backedge.}
 \end{subfigure}
+\caption{\label{fig:valuetreeconvlift} Construction of $\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})$ from $\mathcal{V}(p)$.\\
+The process involves assuming $v_\vtse{1}^\lift{list}{}{}$ to be the value tree of $\lifted{list}{\mem{}}{lnode}{\vtse{1}}$,
+followed by expansion of $v_\vtse{1}^\lift{list}{}{}$ using the definition of \lift{list}{\mem{}}{lnode} (in \cref{eqn:clist})
+and, finally folding the tree-edge \ttedge{1}{tail} incident on the self-referencial subtree $v_\vtse{1}^\lift{list}{}{}$ into a backedge.}
 \end{figure}
-
-\subsubsection{\sumDtor{} Operator}
-Given an expression $e =$ \sumIf{c} \sumThen{\cons{MNil}} \sumElse{\cons{MCons}(e_1,e_2)},
-\cref{fig:valuetreeconvite} describes the construction of $\mathcal{V}(e)$
-from $\mathcal{V}(c)$, $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$.
-Let us consider the general \sumDtor{} expression $e$ (associated with the ADT $T$ with data constructors $V_1,V_2,\dots,V_n$)
-such that the branch associated with $V_i$ is given by $V_i(e_i^1,e_i^2,\dots)$.
-We begin with the construction of a \sumn{} node (0 in \cref{fig:valuetreeconvite})
-such that the outgoing edge associated with $V_i$ has the edge condition equal to the
-expression path condition of the branch $V_i(e_i^1,e_i^2,\dots)$
-($c$ and $\neg c$ for \cons{MNil} and \cons{MCons} respectively in \cref{fig:valuetreeconvite}).
-For each outgoing edge associated with the data constructor $V_i$, we construct a product node
-(1 for \cons{MCons} in \cref{fig:valuetreeconvite}) and append the value trees corresponding to
-the arguments $e_i^j$ as children of the product node.
 
 \subsubsection{Lifting Constructor}
 Given an expression $e = \lifted{list}{\mem{}}{lnode}{p}$,
@@ -771,22 +784,24 @@ Recall the recursive definition of the lifting constructor \lift{list}{\mem{}}{l
 We start by assuming that $v_\vtse{1}^\lift{list}{}{}$ is the value tree for the lifted expression
 \lifted{list}{\mem{}}{lnode}{\vtse{1}}.
 Hence, the value tree of \lifted{list}{\mem{}}{lnode}{p} is identical to $v_\vtse{1}^\lift{list}{}{}$
-except we assign the actual argument (i.e. $\Omega(p)$) to the formal argument $\vtse{1}$ along the
+except we assign the actual argument (i.e. $\xfer{}(p')$) to the formal argument $\vtse{1}$ along the
 entry edge.
-Next, we expand the definition of $v_\vtse{1}^\lift{list}{}{}$ based on \cref{eqn:clist} until it becomes
-a self-referencial value tree (definition of $v_\vtse{1}^\lift{list}{}{}$ contains itself).
-Finally, we fold all self-referencial tree-edges (\ttedge{1}{tail} in \cref{fig:valuetreeconvlift})
-by converting them into back-edges terminating at the root of the subtree being referenced
+Next, we expand the subtree $v_\vtse{1}^\lift{list}{}{}$ based on the unrolling procedure of \lift{list}{\mem{}}{lnode}
+(defined in \cref{eqn:clist}) until the entire value tree becomes a self-referencial structure.
+For example, after expanding through \cref{eqn:clist} once in \cref{fig:valuetreeconvlift},
+the value tree contains an tree-edge \ttedge{1}{tail} incident on the self-referencial subtree $v_\vtse{1}^\lift{list}{}{}$.
+In the last step, we fold all self-referencial tree-edges (\ttedge{1}{tail} in \cref{fig:valuetreeconvlift})
+by converting them into backedges terminating at the root of the subtree being referenced
 (0 for $v_\vtse{1}^\lift{list}{}{}$ in \cref{fig:valuetreeconvlift}).
 
 \begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvVar.pdf}
+\includegraphics[scale=1.2]{chapters/figures/figValueTreeConvVar.pdf}
 \end{center}
-\caption{\label{fig:valuetreeconvvar} Construction of $\mathcal{V}(m\ctype{Matrix})$
-The process is similar to the construction of value trees for lifted expressions.}
 \end{subfigure}
+\caption{\label{fig:valuetreeconvvar} Construction of $\mathcal{V}(m)$ for a \type{Matrix} variable $m$.
+The process is identical to the construction of value trees for lifted expressions as shown in \cref{fig:valuetreeconvlift}.}
 \end{figure}
 
 \subsubsection{Variables}
@@ -795,28 +810,27 @@ Recall that, every ADT (pseudo-)variable is associated with an unrolling procedu
 characterized by the ADT itself. e.g. \cref{eqn:specDeconstruct}
 for the \type{List} variable $l$.
 The \type{Matrix} ADT is defined as:
-$\type{Matrix} = \cons{MNil} \ | \ \cons{MCons}(\field{row} \!:\! \type{List}, \field{cols} \!:\! \type{Matrix})$.
-Hence, the unrolling procedure for a \type{Matrix} variable $m$ is given by:
+$\type{Matrix} = \cons{MNil} \ | \ \cons{MCons}(\type{List},\type{Matrix})$,
+and thus the unrolling procedure for a \type{Matrix} variable $m$ is given by:
 
 \begin{equation}
 \label{matrixunrollingprocedure}
 m = \sumIf{\sumIs{m}{MNil}} \  \sumThen{\cons{MNil}} \  \sumElse{\cons{MCons}(\prodAccess{m}{row}, \prodAccess{m}{cols})}
 \end{equation}
 
-Given a variable $m$ of type \type{Matrix}, \cref{fig:valuetreeconvvar} describes the
-construction $\mathcal{V}(m)$.
+\Cref{fig:valuetreeconvvar} illustrates the construction $\mathcal{V}(m)$ for the \type{Matrix} variable $m$.
 The process consists of the same three steps used to construct the value tree
-of a lifted expression, namely assume, expand and fold.
+for a lifted expression -- assume, expand and fold.
 First, we assume that $v_\vtse{1}^\type{Mat}$ and $v_\vtse{2}^\type{Lis}$ are the value trees
 corresponding to the pseudo-variables \vtse{1} and \vtse{2} of \type{Matrix} and \type{List}
 types respectively.
 Thus, $\mathcal{V}(m)$ is equal to $v_\vtse{1}^\type{Mat}$ with the entry edge transfer function
-${\vtse{1} \mapsfrom m}$
+$\{ \vtse{1} \mapsfrom m \}$.
 We expand the definitions of $v_\vtse{1}^\type{Mat}$ and $v_\vtse{2}^\type{Lis}$ once each before
 the value tree becomes self-referencial.
-Finally, we fold the tree-edges \ttedge{1}{cols} and \ttedge{3}{tail} into the back-edges
+Finally, we fold the treeedges \ttedge{1}{cols} and \ttedge{3}{tail} into the back-edges
 terminating at the roots of the subtrees representing $v_\vtse{1}^\type{Mat}$ and $v_\vtse{2}^\type{Lis}$
-respectively (nodes 0 and 3 in \cref{fig:valuetreeconvvar} respectively).
+respectively (nodes 0 and 3 in \cref{fig:valuetreeconvvar}).
 
 \subsection{Applications of Value Trees}
 \label{sec:valuetreeapps}
