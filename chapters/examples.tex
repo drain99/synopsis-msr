@@ -193,8 +193,8 @@ l_1 \indEq{} l_2 \Leftrightarrow \bigwedge \limits_{i=1}^n (p_1^i \land p_2^i \r
 
 For example, the unification of `\sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0,l_1)}'
 and `\sumIf{c_2} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}'
-yields the correlation tuples: $(true,true,c_1,c_2)$, $(\neg c_1, \neg c_2, 0, i)$ and
-$(\neg c_1, \neg c_2, l_1, \lifted{list}{\mem{}}{lnode}{l_2})$.
+yields the correlation tuples: $\corrtuple{true}{c_1}{true}{c_2}$, $\corrtuple{\neg c_1}{0}{\neg c_2}{i}$ and
+$\corrtuple{\neg c_1}{l_1}{\neg c_2}{\lifted{list}{\mem{}}{lnode}{l_2}}$.
 Consequently, the \recursiveRelation{} ``\sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0,l_1)} \indEq{}
 \sumIf{c_2} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}''
 decomposes into $(c_1 = c_2) \land (\neg c_1 \land \neg c_2 \rightarrow 0 = i)
@@ -403,8 +403,8 @@ Finally, we only keep those correlation tuples at depth $\leq d$ that relate sca
 
 For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$ is computed
 through iterative unification and rewriting till depth one; yielding the correlation tuples:
-$(true, true, \sumIs{l}{LNil}, p = 0)$, $(\sumIs{l}{LCons}, p \neq 0, \prodAccess{l}{val}, \structPointer{p}{\mem{}}{lnode}{val})$
-and $(\sumIs{l}{LCons}, p \neq 0, \prodAccess{l}{tail}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})$.
+$\corrtuple{true}{\sumIs{l}{LNil}}{true}{p=0}$, $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{p \neq 0}{\structPointer{p}{\mem{}}{lnode}{val}}$
+and $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{p \neq 0}{\lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}}}$.
 Keeping only those correlation tuples that relate scalar expressions, the above condition
 reduces to the SMT-encodable predicate:
 $$

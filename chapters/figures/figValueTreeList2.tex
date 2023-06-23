@@ -1,4 +1,4 @@
-\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\documentclass[tikz,border=3.14mm,margin=2pt,fontsize=12pt]{standalone}
 \input{common_tikz.tex}
 \begin{document}
 
@@ -7,11 +7,11 @@
 \begin{tikzpicture}
 
 \node[ttinner={75:0}] (0)                             {$+$};
-\node[ttleaf]         (1) [position=-120:10mm from 0] {$()$};
+\node[ttleaf,label={135,inner sep=-0.5mm:\scriptsize $\zeta_0$}]         (1) [position=-120:10mm from 0] {$()$};
 \node[ttinner={80:1}] (2) [position=-60:10mm from 0]  {$\times$};
-\node[ttleaf]         (3) [position=-120:10mm from 2] {$123$};
+\node[ttleaf,label={135,inner sep=-0.5mm:\scriptsize $\zeta_1$}]         (3) [position=-120:10mm from 2] {$123$};
 
-\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {} (0);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] node[position=130:5mm from 0] {\footnotesize $\xi$} edge[bend left,in=165] node[ttannot,right,xshift=1mm,yshift=0.5mm] {} (0);
 
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={right},left,xshift=-0.5mm] {\astcons{LNil} \\ ${\tt true}$}    (1);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to node[ttannot={left},right,xshift=0.5mm] {\astcons{LCons} \\ ${\tt false}$} (2);

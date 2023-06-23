@@ -357,7 +357,11 @@ $\Theta$ either fails to unify with the \cons{Fail} output, or it successfully r
 is the set of correlation tuples that relate {\em only} atomic expressions.
 $\Theta$ attempts to iteratively (a) unify the expressions (through a call to the unification procedure $\theta$ in \cref{sec:proofalgo}),
 and (b) perform rewriting (of atom $a_1$ for those correlation tuples \corrtuple{p_1}{a_1}{p_2}{e_2} where $e_2$ is non-atomic), followed by
-a recursive call to $\Theta$. TODO recall example from \cref{sec:decomprecrel}
+a recursive call to $\Theta$.
+For example, the unification of $l_1$ and $\cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$
+yields the correlation tuples:
+$\corrtuple{true}{\sumIs{l_1}{LCons}}{true}{true}$, $\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{val}}{true}{42}$ and
+$\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{l_2}}$.
 
 \subsection{Decomposition Procedure for Recursive Relations}
 \label{sec:decomposealgo}
@@ -371,7 +375,13 @@ $l_1$ and $l_2$ through the top-level invocation of $\Theta(true,l_2,true,l_2)$.
 If the $n$ correlation tuples obtained after a successful unification are \corrtuple{p_1^i}{a_1^i}{p_2^i}{a_2^i}
 (for $i=1\ldots n$), then the decomposition of $l_1 \indEq{} l_2$ is defined by \cref{eqn:decompose}.
 If the unification fails (with a \cons{Fail} output), the decomposition is defined to be {\tt false}.
-TODO recall example from \cref{sec:decomprecrel}
+For example, recall that the unification of $l_1$ and $\cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$
+yields the correlation tuples:
+$\corrtuple{true}{\sumIs{l_1}{LCons}}{true}{true}$, $\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{val}}{true}{42}$ and
+$\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{l_2}}$.
+Consequently, $l_1 \indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ decomposes into the conjunctive predicate:
+$(\sumIs{l_1}{LCons}) \land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{val}=42)
+\land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$.
 
 \subsection{Reduction Procedures for Approximate Recursive Relations}
 \label{sec:approxalgo}
@@ -400,11 +410,15 @@ respectively, where $D$ is a parameter of the algorithm.
 The pseudo-code for these two procedures are shown in \cref{algo:dunification,algo:dunifyandrewrite} respectively.
 The $D$-depth `iterative unification and rewriting' returns depth-augmented
 correlation tuples of the form $\corrtuple{p_1}{a_1}{p_2}{a_2}_d$ such that $d \geq D$
-for all correlation tuples.
+for all correlation tuples relating ADT values.
 Unlike $\Theta$ which terminates unification iff both expressions are atomic,
 $\Theta_D$ performs rewriting of both ADT atomic expressions and continues to
 unify deeper into their respective expression trees until all correlation tuples relate
-expressions at depth $\geq D$. TODO recall example from \cref{sec:approxdecomp}
+expressions at depth $\geq D$.
+For example, the $1$-depth unification of $l$ and $\lifted{list}{\mem{}}{lnode}{p}$ yields the
+(depth augmented) correlation tuples:
+$\corrtuple{true}{\sumIs{l}{LNil}}{true}{p=0}_0$, $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{p \neq 0}{\structPointer{p}{\mem{}}{lnode}{val}}_1$
+and $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{p \neq 0}{\lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}}}_1$.
 
 \subsubsection{Reduction Procedure for Overapproximate Recursive Relations}
 \label{sec:overapproxalgo}
@@ -417,7 +431,11 @@ $Overapprox_D$ is similar to the decomposition procedure in \cref{sec:decomposea
 scalar equalities till a maximum depth of $D$ (inclusive).
 This essentially asserts that both $l_1$ and $l_2$ have identical structures (by equating expression path conditions)
 and equal scalar values (by equating scalar leaf expressions) till a depth of $D$.
-TODO recall example from \cref{sec:approxdecomp}
+For example, recall that $l$ and $\lifted{list}{\mem{}}{lnode}{p}$ $1$-depth unifies into the correlation tuples:
+$\corrtuple{true}{\sumIs{l}{LNil}}{true}{p=0}_0$, $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{p \neq 0}{\structPointer{p}{\mem{}}{lnode}{val}}_1$
+and \\ $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{p \neq 0}{\lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}}}_1$.
+Keeping only the scalar clauses till depth $1$, $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$ reduces to:
+$((\sumIs{l}{LNil}) = (p = 0)) \land ((\sumIs{l}{LCons}) \land (p \neq 0) \rightarrow \prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val})$.
 
 \subsubsection{Reduction Procedure for Underapproximate Recursive Relations}
 \label{sec:underapproxalgo}
@@ -434,14 +452,25 @@ and $D$ is a parameter of the algorithm.
 The top-level invocation is given by $isDepthBounded_D(l,true,0)$.
 $isDepthBounded_D$ recursively traverses the expression tree of $l$ (while rewriting as necessary),
 until it reaches a node at depth $>D$, at which point it returns the condition asserting the unreachability
-of such a node. TODO recall example from \cref{sec:approxdecomp}
+of such a node.
+For example, for a \type{List} variable $l$, $\depthBound{2}{l}$ (i.e. $isDepthBounded_2(l,true,0)$)
+returns the predicate:
+$\neg(\sumIs{l}{LCons} \oland \sumIs{\prodAccess{l}{tail}}(LCons))$.
+Expanding $e_1 \oland e_2$ to $e_1 \land (e_1 \rightarrow e_2)$ and using the identity $\neg (\sumIs{e}{LNil}) = \sumIs{e}{LCons}$,
+the above reduces to the equivalent condition:
+$(\sumIs{l}{LNil}) \lor ((\sumIs{l}{LCons}) \land (\sumIs{\prodAccess{l}{tail}}{LNil}))$.
 
 \input{chapters/figures/figUnderapprox.tex}
 
 Finally, $Underapprox_D(l_1,l_2)$ is responsible for reducing the underapproximation $l_1 \indEqUapprox{D} l_2$
 into its SMT-encodable equivalent condition.
 The pseudo-code for $Underapprox_D$ is given in \cref{algo:underapprox}.
-TODO recall example from \cref{sec:approxdecomp}
+For example, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \depthBound{1}{l}
+\land \depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$.
+$\depthBound{1}{l}$ and $\depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}}$ reduces to the conditions
+$\sumIs{l}{LNil}$ and $(p = 0)$ resectively.
+Finally, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p}$ reduces to the condition:
+$\sumIs{l}{LNil} \land (p = 0) \land ((\sumIs{l}{LNil}) = (p = 0)) \land ((\sumIs{l}{LCons}) \land (p \neq 0) \rightarrow \prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val})$.
 
 \subsection{SMT Encoding of First Order Logic Formula}
 \label{sec:smtencoding}
@@ -766,7 +795,7 @@ the arguments $e_i^j$ as its children.
 \begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
-\includegraphics[scale=1.3]{chapters/figures/figValueTreeConvLift.pdf}
+\includegraphics[scale=1.2]{chapters/figures/figValueTreeConvLift.pdf}
 \end{center}
 \end{subfigure}
 \caption{\label{fig:valuetreeconvlift} Construction of $\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})$ from $\mathcal{V}(p)$.\\
@@ -834,67 +863,110 @@ respectively (nodes 0 and 3 in \cref{fig:valuetreeconvvar}).
 
 \subsection{Applications of Value Trees}
 \label{sec:valuetreeapps}
-With the construction algorithm out of the way, we next discuss some of the applications of value tree representation
-in the context of our proof discharge algorithm.
+With the conversion algorithm out of the way, we next discuss a handful of properties of value trees along with
+their applications, in the context of our proof discharge algorithm.
+Recall that, $\ttedge{v}{label}$ represents the edge outgoing at a \sumn{} or \prodn{} node $v$ and associated with
+the label {\tt label}.
+Generalizing, $\ttedge{v}{label_1,label_2,\dots label_n}$ represents the path starting at node $v$ where its $n$ edges
+are associated with the labels ${\tt label_i} \forall i \in [1,n]$ in order.
+Also, for a field \field{fi}, let $\consof{}(\field{fi})$ represent the data constructor of which \field{fi} is a field,
+e.g., $\consof{}(\field{tail}) = \cons{LCons}$.
 
-\subsubsection{Canonical Form Property}
-For any expression $e$, its value tree $\mathcal{V}(e)$ has the following property:
-for any path from the entry node $\xi$ to a leaf node $v_l$ (containing a scalar expression $s_l$)
-$\rho[\xi \rightarrow \dots \rightarrow v_l]$, the weakest-precondition of $s_l$ at the entry $\xi$
-is always in canonical form.
-This is called the {\em canonical form property} of value trees.
-The proof of this property follows from the construction algorithm described in \cref{sec:valuetreeconv}.
-Let $P$ be a proof obligation of \type{bool} type.
-Recall that, a value tree for a scalar type $T$ (such as \type{bool}) must be composed of a single leaf node at its root
-(say $v_0$) containing a scalar expression (say $s$) of type $T$ along with a transfer function $\Omega$ associated
-with the entry edge.
-The expression $\Omega(s)$ is equal to the proof obligation $P$.
-Due to the canonical form property, $\Omega(s)$ is also in the canonical form.
-Hence, we can convert a proof obligation $P$ (without \recursiveRelations{}) to its canonical form
-by converting to value tree followed by extracting the expression at the root.
+\input{chapters/figures/figValueTreeApprox.tex}
+
+\subsubsection{Canonical Deconstruction Property}
+Let $e$ be an ADT expression and $\mathcal{V}(e)$ be its value tree.
+For any {\em scalar} expression $e_s = \prodAccess{e}{a_1,a_2,.,a_n}$,
+let $\vtpath{}(e_s)$ represent the path $\xi \rightarrow \ttedge{v_0}{\consof{}(\field{a_1}), \field{a_1}, \dots, \consof{}(\field{a_n}), \field{a_n}}$
+in the value tree $\mathcal{V}(e)$.
+Recall that $\xi$ and $v_0$ represents the entry and root nodes respectively.
+Moreoever, since $e_s$ is a scalar expression, the path $\vtpath{}(e_s)$ must also terminate at a leaf node (say $v_s$).
+Let, ${\tt pathcond}(\vtpath{}(e_s))$ and ${\tt value}(\vtpath{}(e_s))$ represent the path condition and
+the value associated with $v_s$ along the path $\vtpath{}(e_s)$.
+The {\em canonical deconstruction property} for a value tree ensures that:
+
+\begin{enumerate}
+\item The condition under which $e_s$ is accessible is equal to ${\tt pathcond}(\vtpath{}(e_s))$.
+\item The value $e_s$ is equivalent to ${\tt value}(\vtpath{}(e_s))$.
+\item Both ${\tt pathcond}(\vtpath{}(e_s))$ and ${\tt value}(\vtpath{}(e_s))$ are in the canonical form (\cref{sec:canonicalalgo}).
+\end{enumerate}
+
+Consider the value tree corresponding to a \type{List} variable $l$, as shown in \cref{fig:valuetreevar}.
+For the expression $e_s = \prodAccess{l}{tail,val}$, $\vtpath{}(e_s)$ is given by $\xi \rightarrow \ttedge{v_0}{\cons{LCons},\field{tail},\cons{LCons},\field{val}}$
+i.e. $\pathset{\xi,0,1,0,1,\zeta_1}$.
+The corresponding ${\tt pathcond}(\vtpath{}(e_s))$ and ${\tt value}(\vtpath{}(e_s))$ are given by
+$(\sumIs{l}{LCons}) \oland (\sumIs{\prodAccess{l}{next}}{LCons})$ and
+$\prodAccess{l}{next,val}$ respectively.
 
 \subsubsection{Reduction of Approximate Recursive Relations}
-Recall that, in \cref{sec:valuetreeconv} we did not give an algorithm for constructing the value
-tree for a \recursiveRelation{} $l_1 \indEq{} l_2$.
-Unlike $l_1 \indEq{} l_2$, the value trees corresponding to its $d$-depth
-over- and under-approximations ($l_1 \indEqDepth{d} l_2$ and $l_1 \indEqUapprox{d} l_2$ respectively)
-are construcible from $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
+Since an ADT represents a `sum of product' type, each level of an ADT value
+(in its expression tree as shown in \cref{sec:adtdepth}) corresponds to two levels -- \sumn{} and \prodn{}
+in the value tree representation.
+Combining the above observation with the canonical deconstruction property allows us to construct the value trees of
+over- and under-approximate \recursiveRelations{} directly from the value trees of its argument pair.
+A $d$-depth over-approximation of $l_1 \indEq{} l_2$ simply asserts equality of all leaf values (along with their path conditions)
+between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ up to a depth of $2 \cdot d$.
+Similarly, the $d$-depth under-approximation of $l_1 \indEq{} l_2$ asserts the above in
+conjunction with the unreachability of all paths outgoing at depth $2 \cdot d$ (i.e. paths incident at depth $2 \cdot d + 1$).
+Let $\vtpath{}_D(e_1,e_2)$ be the set of all path pairs
+$\langle \xi \rightarrow \ttedge{v_0}{label_1,label_2,\dots label_n}, \xi \rightarrow \ttedge{v_0}{label_1,label_2,\dots label_n}\rangle$
+in $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$ respectively that --
+(a) originate at their entry nodes and (b) terminate at leaf nodes at depth equal to $D$ (i.e. spans $(D+1)$ edges).
+For example, consider the value trees shown in \cref{fig:valuetreeapproxeg} corresponding to the \type{List} values $e_1 = l$
+and $e_2 = \lifted{list}{\mem{}}{clode}{p}$ respectively.
+Then, $\vtpath{}_0(e_1,e_2) = \emptyset$, $\vtpath{}_1(e_1,e_2) = \{ \langle \pathset{\xi,0,\zeta_0}, \pathset{\xi,0,\zeta_0} \rangle \}$,
+and $\vtpath{}_2(e_1,e_2) = \{ \langle \pathset{\xi,0,1,\zeta_1}, \pathset{\xi,0,1,\zeta_1} \rangle \}$.
+Finally, the $d$-depth approximations of $l_1 \indEq{} l_2$ are given by
 
-Since an ADT represents a `sum of product' type, each level of an ADT value (in its expression tree)
-corresponds to two levels -- \sumn{} and \prodn{} (in the value tree).
-Hence, a $d$-depth over-approximation of $l_1 \indEq{} l_2$ simply asserts equality of all
-leaf expressions between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$, up to a depth of $2d$.
-Similarly, the $d$-depth under-approximation of $l_1 \indEq{} l_2$ asserts the above,
-and in addition asserts the unreachability of all paths outgoing at level $2d$ i.e. paths
-incident at a depth of $2d+1$.
-Due to the canonical form property, this allows us to convert any proof obligation $P$ without
-a \recursiveRelation{} (but possibly its approximations) to its canonical form
-by converting it to the value tree representation, followed by extracting the expression at the root.
+\begin{equation}
+\label{eqn:valuetreeapprox}
+\begin{footnotesize}
+\begin{aligned}
+l_1 \indEqDepth{d} l_2 &= \sum_{\delta=0}^{2 \cdot d}  \Big( \bigwedge_{\substack{\langle p_1,p_2 \rangle \in \\ \vtpath{}_\delta(l_1,l_2)}} \begin{array}{c} {\tt pathcond}(p_1) = {\tt pathcond}(p_2) \\ {\tt value}(p_1) = {\tt value}(p_2) \end{array} \Big) \\
+l_1 \indEqUapprox{d} l_2 &= \sum_{\delta=0}^{2 \cdot d}  \Big( \bigwedge_{\substack{\langle p_1,p_2 \rangle \in \\ \vtpath{}_\delta(l_1,l_2)}} \begin{array}{c} {\tt pathcond}(p_1) = {\tt pathcond}(p_2) \\ {\tt value}(p_1) = {\tt value}(p_2) \end{array} \Big) \land \Big( \bigwedge_{\substack{\langle p_1,p_2 \rangle \in \\ \vtpath{}_{2\cdot d+1}(l_1,l_2)}} \begin{array}{c} \neg {\tt pathcond}(p_1) \\ \neg {\tt pathcond}(p_2) \end{array} \Big)
+\end{aligned}
+\end{footnotesize}
+\end{equation}
+
+Recall that the canonical deconstruction property ensures that the reductions in \cref{eqn:valuetreeapprox} are in the canonical form.
+Conider the \recursiveRelation{} $l \indEq{} \lifted{list}{\mem{}}{lnode}{p}$ and the value trees of its two arguments shown in
+\cref{fig:valuetreevar,fig:valuetreelifted} respectively.
+For $d = 1$, The above formulae reduces to the following conditions:
+
+The value trees $\mathcal{V}(l_1 \indEqDepth{d} l_2)$ and $\mathcal{V}(l_1 \indEqUapprox{d} l_2)$ contains a single (leaf) node with the boolean
+expressions given in \cref{eqn:valuetreeapprox} and indentity entry transfer functions.
+The conversion algorithm presented in \cref{sec:valuetreeconv} together with the handling of approximate \recursiveRelations{} described above
+allows us to reduce a proof obligation $P$ without \recursiveRelations{} directly to its canonical form by --
+(a) constructing $\mathcal{V}(P)$ and (b) extracting the boolean expression at its root.
 
 \subsubsection{Bisimilarity of Value Trees}
-Recall that, $l_1 \indEq{} l_2$ asserts exact equality of $l_1$ and $l_2$ up to an arbitrary depth.
-Using the program representation of value graphs, if we are able to establish bisimilarity
-between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$
-(similar to bisimilarity between their deconstruction programs),
-we have shown that $l_1 \indEq{} l_2$ holds.
-We can interpret value trees as non-deterministic Control Flow Graphs.
-The inputs include the free variables at the entry node $\xi$ and
-the observable outputs are the expressions contained in the leaf nodes.
-To make the search for a bisimulation easier, we can peel the value trees of $l_1$ and $l_2$
-to unify their tree structures.
-Next, the bisimulation relation requires us to prove that the outputs of
-each pair of leaf nodes are identical.
-Just like their deconstruction programs, we run our points-to analysis before the check
-for bisimilarity, to identify points-to invariants to help in the bisimulation process.
-Recall the \rhs{} of the type III proof obligation illustrated in \cref{sec:cat3}:
-$\lhs{} \Rightarrow \lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}$.
-Also recall that the points-to invariants available at \cpc{5} are (showing only the relevant ones):
+Recall that, $l_1 \indEq{} l_2$ asserts exact equality of $l_1$ and $l_2$ up to an arbitrary depth
+i.e. $l_1 \indEq{} l_2 \approx l_1 \indEqDepth{\infty} l_2$.
+This boils down to checking equality of all pairwise paths between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
+We start by giving a program interpretation of a value tree which allows us to repose $l_1 \indEq{} l_2$
+as a bisimilarity (and thus equivalence) check between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
+In the program interpretation,
+the inputs include the free variables at the entry node $\xi$
+and each leaf node is interpreted as an observable action returning its associated value.
+In this interpretation, value trees are analogous to non-deterministic Control-Flow Graphs.
+To make the search for a bisimulation relation easier, we can peel $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$
+to unify their static tree structures.
+Once unified, the bisimulation relation requires us to prove that the outputs of each leaf node pair are identical.
+Similar to deconstruction programs, we run our points-to analysis before the check
+for bisimilarity to identify points-to invariants to help in the bisimulation search.
+
+\input{chapters/figures/figValueTreeBisim.tex}
+
+Recall the type III proof obligation illustrated in \cref{sec:cat3}:
+\begin{equation}
+\label{eqn:cat3revisit}
+\lhs{} \Rightarrow \lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}
+\end{equation}
+Also recall the points-to invariants available at \cpc{5} (showing only the relevant ones):
 $\cv{p} \pointsTo{} \{ \mlrf{\cpc{4}} \}$
 $\cv{l} \pointsTo{} \{ \mlrs{\cpc{4}} \}$, $\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$,
 $\mlrs{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$, and
 $\heapr{} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$.
 \Cref{fig:valuetreebisim} shows the value trees of $\lifted{list}{\mem{}}{lnode}{\cv{l}}$
 and $\lifted{list}{\mem{}'}{lnode}{\cv{l}}$ along with the table of invariants
-required by the proof of equivalence through bisimulation.
-
-\input{chapters/figures/figValueTreeBisim.tex}
+required for a successful bisimulation check.
