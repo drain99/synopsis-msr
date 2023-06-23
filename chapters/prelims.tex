@@ -271,8 +271,11 @@ The start node (\scpc{0}{0}) of the product-CFG correlates the start nodes of CF
 Similarly, the exit node (\scpc{E}{E}) correlates the exit nodes of both programs.
 
 An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edges) in \sprog{}
-with a path in \cprog{}\footnote{TODO: to keep the discussion simple, we consider paths to be sequence of edges. however, a more general approach of pathset
-is used based on the Counter tool \cite{oopsla20}. We will explore pathsets in more detail later on.}.
+with a path in \cprog{}\footnote{
+For ease of exposition, we present product-CFG in the context of {\em path} correlations.
+However, a more general approach of pathset is used based on prior work \cite{oopsla20}
+for improved completeness of our algorithm.
+We will explore pathsets and its consequences on the algorithm in more detail in \cref{sec:pathsetcorrel}.}.
 A product-CFG edge encodes the lockstep execution of its correlated paths.
 For example, the product-CFG edge \scedge{2}{2}{2}{2} is formed by pairing
 \spath{2,5,2} and \cpath{2,4,2} in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} respectively,

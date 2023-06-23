@@ -22,7 +22,7 @@ This is followed by a dataflow formulation of our counterexample-guided invarian
 In the last chapter, we walked through our proof discharge algorithm (\curved{A3}) using examples, ending with
 the pseudo-code of proof discharge algorithm (\cref{algo:proofSummary} in \cref{sec:proofsummary}).
 In this chapter, we present pseudo-codes of the major subprocedures used as part of
-the proof discharge algorithm\footnote{TODO:keep the full proof discharge algo here or keep it at the end of examples where it is now?}.
+the proof discharge algorithm\footnote{\label{todo1}TODO:keep the full proof discharge algo here or keep it at the end of examples where it is now?}.
 
 \input{chapters/figures/figPointstoDFA.tex}
 
@@ -276,7 +276,8 @@ $l_1 \indEqDepth{\eta} l_2$ to false (effectively falsifying a weaker condition)
 
 \section{More on Proof Discharge Algorithm}
 \label{sec:proofalgo}
-TODO: write 1-2 lines about what "more" information this section contains
+TODO: write 1-2 lines about what "more" information this section contains.
+Need to finalize \cref{todo1} to do this.
 
 \subsection{Handling Proof Obligations On Pathsets}
 \label{sec:pathsethoaretriples}
@@ -593,7 +594,9 @@ In a type tree, each internal node represents either a product (\prodn{}) or a s
 The leaf nodes are the scalar types.
 Each outgoing edge of a \sumn{} node is associated with a data constructor of the corresponding ADT (i.e. \cons{LCons} for \type{List}).
 Similarly, each outgoing edge of a \prodn{} node is associated with a field of the corresponding data constructor (i.e. \field{val} for \type{LCons}).
-We assign integer indices to the internal nodes and use \ttedge{v}{label} to identify the edge outgoing at $v$ associated with {\tt label},
+We assign integer indices to the internal nodes and use \ttedge{v}{label}\footnote{
+The \ttedge{v}{label} syntax is chosen over $v_1 \rightarrow v_2$ because type trees may have multi-edges, in which case
+$v_1 \rightarrow v_2$ no longer represents an unique edge as shown in \cref{fig:typetreetree1}.} to identify the edge outgoing at $v$ associated with {\tt label},
 where {\tt label} is either a data constructor or a field name.
 The root node is denoted by $v_0$.
 The edges going outward from the root node are called {\em tree-edges} e.g., \ttedge{0}{LCons} and \ttedge{1}{val} in \cref{fig:typetreelist1}.
@@ -666,7 +669,7 @@ Next, we give an algorithm to convert an expression $e$ to its value tree repres
 \subsection{Conversion of Expressions to their Value Trees}
 \label{sec:valuetreeconv}
 In this section, we present an algorithm to recursively construct a value tree for any arbitrary expression $e$.
-We take a visual approach to match the graphical nature of value trees.
+We take a visual approach to align with the graphical nature of value trees.
 
 \begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
@@ -865,95 +868,105 @@ respectively (nodes 0 and 3 in \cref{fig:valuetreeconvvar}).
 \label{sec:valuetreeapps}
 With the conversion algorithm out of the way, we next discuss a handful of properties of value trees along with
 their applications, in the context of our proof discharge algorithm.
-Recall that, $\ttedge{v}{label}$ represents the edge outgoing at a \sumn{} or \prodn{} node $v$ and associated with
-the label {\tt label}.
-Generalizing, $\ttedge{v}{label_1,label_2,\dots label_n}$ represents the path starting at node $v$ where its $n$ edges
-are associated with the labels ${\tt label_i} \forall i \in [1,n]$ in order.
-Also, for a field \field{fi}, let $\consof{}(\field{fi})$ represent the data constructor of which \field{fi} is a field,
-e.g., $\consof{}(\field{tail}) = \cons{LCons}$.
+
+\subsubsection{Program Interpretation of Value Trees}
+\label{sec:valuetreeasprog}
+A value tree $\mathcal{V}$ can be interpreted as a {\em non-deterministic} Control-Flow Graph corresponding to a program.
+Similar to the CFG representation, every node $v$ is associated with a symbolic state $\Omega_n$.
+In this interpretation, edges without an edge condition (e.g., outgoing at a \prodn{} node) are assigned the {\tt true}
+edge condition. Similarly, edges without a transfer function (e.g., outgoing at a \sumn{} node) are assigned an
+identity transfer function.
+The entry node $\xi$ is the start node and each leaf node $\zeta$ represents an exit node.
+An edge incident on a leaf node $\zeta$ (containing an expression $e$) is called an exit edge and is associated
+with an observable action that returns $e$.
 
 \input{chapters/figures/figValueTreeApprox.tex}
 
 \subsubsection{Canonical Deconstruction Property}
-Let $e$ be an ADT expression and $\mathcal{V}(e)$ be its value tree.
-For any {\em scalar} expression $e_s = \prodAccess{e}{a_1,a_2,.,a_n}$,
-let $\vtpath{}(e_s)$ represent the path $\xi \rightarrow \ttedge{v_0}{\consof{}(\field{a_1}), \field{a_1}, \dots, \consof{}(\field{a_n}), \field{a_n}}$
-in the value tree $\mathcal{V}(e)$.
-Recall that $\xi$ and $v_0$ represents the entry and root nodes respectively.
-Moreoever, since $e_s$ is a scalar expression, the path $\vtpath{}(e_s)$ must also terminate at a leaf node (say $v_s$).
-Let, ${\tt pathcond}(\vtpath{}(e_s))$ and ${\tt value}(\vtpath{}(e_s))$ represent the path condition and
-the value associated with $v_s$ along the path $\vtpath{}(e_s)$.
+\label{sec:valuetreecanonicaldecons}
+A path originating at the entry node $\xi$ and terminating at an exit node $\zeta$ is called an
+{\em execution path} and is denoted by $\execpath{}$.
+Generalizing the edge syntax, $\ttedge{v}{label_1,label_2,\dots ,label_n}$ represents the path
+starting at $v$ such that its $n$ consecutive edges are associated with the labels ${\tt label}_i \forall i \in [1,n]$.
+Hence, an execution path \execpath{} can be written as $\xi \rightarrow \ttedge{v_0}{label_1,label_2,\dots ,label_n}$,
+or $\execpath{}[{\tt label_1,label_2,\dots,label_n}]$ in short.
+Recall that, edges leaving a \prodn{} node are associated with field names.
+The {\em field trace of \execpath{}}, $\ftrace{\execpath{}}$ is defiend as the ordered list of field names associated with edges in the path \execpath{}.
+For an execution path $\execpath{}[\cons{LCons},\field{tail},\cons{LCons},\field{val}]$ in the value tree shown in \cref{fig:valuetreevar},
+$\ftrace{\execpath{}}$ is given by $[\field{tail},\field{val}]$.
+Given a value tree $\mathcal{V}(e)$ and an execution path $\execpath{}$ with a field trace $[{\tt a_1,a_2,\dots,a_n}]$,
+$\prodAccess{e}{a_1,a_2,.,a_n}$ is defined as the component of $e$ with respect to $\execpath{}$, denoted by $\comp{e}{\execpath{}}$.
 The {\em canonical deconstruction property} for a value tree ensures that:
 
 \begin{enumerate}
-\item The condition under which $e_s$ is accessible is equal to ${\tt pathcond}(\vtpath{}(e_s))$.
-\item The value $e_s$ is equivalent to ${\tt value}(\vtpath{}(e_s))$.
-\item Both ${\tt pathcond}(\vtpath{}(e_s))$ and ${\tt value}(\vtpath{}(e_s))$ are in the canonical form (\cref{sec:canonicalalgo}).
+\item The condition under which $\comp{e}{\execpath{}}$ is accessible (i.e. is well-formed as discussed in \cref{sec:irconv})
+is equal to the path condition of $\execpath{}$, denoted by $\pathcond{\execpath{}}$.
+\item The value of $\comp{e}{\execpath{}}$ is equal to the value returned by $\mathcal{V}(e)$ (interpreted as a program) along the
+execution path $\execpath{}$. This is equivalent to the weakest-precondition of the value returned along the path $\execpath{}$
+and is denoted by $\retval{\execpath{}}$.
+\item Both $\pathcond{\execpath{}}$ and $\retval{\execpath{}}$ are in the canonical form (\cref{sec:canonicalalgo}).
 \end{enumerate}
 
-Consider the value tree corresponding to a \type{List} variable $l$, as shown in \cref{fig:valuetreevar}.
-For the expression $e_s = \prodAccess{l}{tail,val}$, $\vtpath{}(e_s)$ is given by $\xi \rightarrow \ttedge{v_0}{\cons{LCons},\field{tail},\cons{LCons},\field{val}}$
-i.e. $\pathset{\xi,0,1,0,1,\zeta_1}$.
-The corresponding ${\tt pathcond}(\vtpath{}(e_s))$ and ${\tt value}(\vtpath{}(e_s))$ are given by
-$(\sumIs{l}{LCons}) \oland (\sumIs{\prodAccess{l}{next}}{LCons})$ and
-$\prodAccess{l}{next,val}$ respectively.
+Consider the value tree corresponding to the lifted expression $e=\lifted{list}{\mem{}}{lnode}{p}$ as shown in \cref{fig:valuetreelifted}.
+The execution path $\execpath{}[\cons{LCons},\field{val}]$ corresponds to the component $\comp{e}{\execpath{}} = \prodAccess{\lifted{list}{\mem{}}{lnode}{p}}{val}$.
+The path condition and the value returned along $\execpath{}$ are given by $\pathcond{\execpath{}} = (p \neq 0)$ and
+$\retval{\execpath{}} = \structPointer{p}{\mem{}}{lnode}{val}$ respectively.
+Note that $\comp{e}{\execpath{}}$ is well-formed iff $\pathcond{\execpath{}}$ is true and
+$\comp{e}{\execpath{}} = \retval{\execpath{}}$.
+Furthermore, both are in canonical forms.
 
 \subsubsection{Reduction of Approximate Recursive Relations}
+\label{sec:valuetreeapprox}
 Since an ADT represents a `sum of product' type, each level of an ADT value
 (in its expression tree as shown in \cref{sec:adtdepth}) corresponds to two levels -- \sumn{} and \prodn{}
 in the value tree representation.
-Combining the above observation with the canonical deconstruction property allows us to construct the value trees of
-over- and under-approximate \recursiveRelations{} directly from the value trees of its argument pair.
-A $d$-depth over-approximation of $l_1 \indEq{} l_2$ simply asserts equality of all leaf values (along with their path conditions)
-between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ up to a depth of $2 \cdot d$.
-Similarly, the $d$-depth under-approximation of $l_1 \indEq{} l_2$ asserts the above in
-conjunction with the unreachability of all paths outgoing at depth $2 \cdot d$ (i.e. paths incident at depth $2 \cdot d + 1$).
-Let $\vtpath{}_D(e_1,e_2)$ be the set of all path pairs
-$\langle \xi \rightarrow \ttedge{v_0}{label_1,label_2,\dots label_n}, \xi \rightarrow \ttedge{v_0}{label_1,label_2,\dots label_n}\rangle$
-in $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$ respectively that --
-(a) originate at their entry nodes and (b) terminate at leaf nodes at depth equal to $D$ (i.e. spans $(D+1)$ edges).
-For example, consider the value trees shown in \cref{fig:valuetreeapproxeg} corresponding to the \type{List} values $e_1 = l$
-and $e_2 = \lifted{list}{\mem{}}{clode}{p}$ respectively.
-Then, $\vtpath{}_0(e_1,e_2) = \emptyset$, $\vtpath{}_1(e_1,e_2) = \{ \langle \pathset{\xi,0,\zeta_0}, \pathset{\xi,0,\zeta_0} \rangle \}$,
-and $\vtpath{}_2(e_1,e_2) = \{ \langle \pathset{\xi,0,1,\zeta_1}, \pathset{\xi,0,1,\zeta_1} \rangle \}$.
-Finally, the $d$-depth approximations of $l_1 \indEq{} l_2$ are given by
+Combining the above observation with the value tree properties discussed above (\cref{sec:valuetreeasprog,sec:valuetreecanonicaldecons})
+allow us reformulate approximate \recursiveRelations{} between $l_1$ and $l_2$ as {\em bounded} equivalence \cite{boundedmodelchecking}
+between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
+The $d$-depth over-approximation $l_1 \indEqDepth{d} l_2$ asserts that $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ are equivalent
+for all execution paths up to a depth\footnote{
+The depth of an execution path \execpath{} is defined as the depth of the exit node in the unrolled (executable) value tree.
+If \execpath{} contains $n$ edges (including the entry edge), then its depth is equal to $(n-1)$.} of $2 \cdot d$ .
+Clearly, this is a weaker condition because $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ may behave differently for longer execution paths.
+The $d$-depth under-approximation $l_1 \indEqUapprox{d} l_2$ asserts that $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ are equivalent for
+all execution paths up to a depth of $2 \cdot d$ and all other execution paths are unreachable.
+This is a stronger condition than general equivalence because paths deeper than $2 \cdot d$ may indeed be reachable.
+Let $\execpaths{\delta}{l_1}{l_2}$ be the set of all execution path pairs $\langle \execpath{}_1, \execpath{}_2 \rangle$
+such that $\ftrace{\execpath{}_1} = \ftrace{\execpath{}_2}$ and depth of $\execpath{}_1$ and $\execpath{}_2$ is $\delta$.
+For example, consider the value trees shown in \cref{fig:valuetreeapproxeg} corresponding to the \type{List} values
+$e_1 = l$ and $e_2 = \lifted{list}{\mem{}}{clnode}{p}$ respectively.
+Then, $\execpaths{0}{e_1}{e_2} = \emptyset$, $\execpaths{1}{e_1}{e_2} = \{ \langle \pathset{\xi,0,\zeta_0},\pathset{\xi,0,\zeta_0} \rangle \}$
+and $\execpaths{2}{e_1}{e_2} = \{ \langle \pathset{\xi,0,1,\zeta_1},\pathset{\xi,0,1,\zeta_1} \rangle \}$.
+Finally, the $d$-depth approximations of $l_1 \indEq{} l_2$ are given by:
 
 \begin{equation}
 \label{eqn:valuetreeapprox}
 \begin{footnotesize}
 \begin{aligned}
-l_1 \indEqDepth{d} l_2 &= \sum_{\delta=0}^{2 \cdot d}  \Big( \bigwedge_{\substack{\langle p_1,p_2 \rangle \in \\ \vtpath{}_\delta(l_1,l_2)}} \begin{array}{c} {\tt pathcond}(p_1) = {\tt pathcond}(p_2) \\ {\tt value}(p_1) = {\tt value}(p_2) \end{array} \Big) \\
-l_1 \indEqUapprox{d} l_2 &= \sum_{\delta=0}^{2 \cdot d}  \Big( \bigwedge_{\substack{\langle p_1,p_2 \rangle \in \\ \vtpath{}_\delta(l_1,l_2)}} \begin{array}{c} {\tt pathcond}(p_1) = {\tt pathcond}(p_2) \\ {\tt value}(p_1) = {\tt value}(p_2) \end{array} \Big) \land \Big( \bigwedge_{\substack{\langle p_1,p_2 \rangle \in \\ \vtpath{}_{2\cdot d+1}(l_1,l_2)}} \begin{array}{c} \neg {\tt pathcond}(p_1) \\ \neg {\tt pathcond}(p_2) \end{array} \Big)
+l_1 \indEqDepth{d} l_2 &= \sum_{\delta=0}^{2 \cdot d} \Bigg( \bigwedge_{\substack{\langle \execpath{}_1, \execpath{}_2 \rangle \\ \in \execpaths{\delta}{l_1}{l_2}}} \begin{array}{@{}c@{}} \pathcond{\execpath{}_1} = \pathcond{\execpath{}} \\ \retval{\execpath{}_1} = \retval{\execpath{}_2} \end{array} \Bigg) \\
+l_1 \indEqUapprox{d} l_2 &= \sum_{\delta=0}^{2 \cdot d} \Bigg( \bigwedge_{\substack{\langle \execpath{}_1, \execpath{}_2 \rangle \\ \in \execpaths{\delta}{l_1}{l_2}}} \begin{array}{@{}c@{}} \pathcond{\execpath{}_1} = \pathcond{\execpath{}} \\ \retval{\execpath{}_1} = \retval{\execpath{}_2} \end{array} \Bigg) \land \Bigg( \bigwedge_{\substack{\langle \execpath{}_1, \execpath{}_2 \rangle \\ \in \execpaths{2 \cdot d + 1}{l_1}{l_2}}} \begin{array}{@{}c@{}} \neg \pathcond{\execpath{}_1} \\ \neg \pathcond{\execpath{}_2} \end{array} \Bigg)
 \end{aligned}
 \end{footnotesize}
 \end{equation}
 
 Recall that the canonical deconstruction property ensures that the reductions in \cref{eqn:valuetreeapprox} are in the canonical form.
-Conider the \recursiveRelation{} $l \indEq{} \lifted{list}{\mem{}}{lnode}{p}$ and the value trees of its two arguments shown in
-\cref{fig:valuetreevar,fig:valuetreelifted} respectively.
-For $d = 1$, The above formulae reduces to the following conditions:
-
 The value trees $\mathcal{V}(l_1 \indEqDepth{d} l_2)$ and $\mathcal{V}(l_1 \indEqUapprox{d} l_2)$ contains a single (leaf) node with the boolean
-expressions given in \cref{eqn:valuetreeapprox} and indentity entry transfer functions.
+expressions given in \cref{eqn:valuetreeapprox}.
 The conversion algorithm presented in \cref{sec:valuetreeconv} together with the handling of approximate \recursiveRelations{} described above
-allows us to reduce a proof obligation $P$ without \recursiveRelations{} directly to its canonical form by --
+enables the reduction of a proof obligation $P$ without \recursiveRelations{} directly to its canonical form by --
 (a) constructing $\mathcal{V}(P)$ and (b) extracting the boolean expression at its root.
 
 \subsubsection{Bisimilarity of Value Trees}
-Recall that, $l_1 \indEq{} l_2$ asserts exact equality of $l_1$ and $l_2$ up to an arbitrary depth
-i.e. $l_1 \indEq{} l_2 \approx l_1 \indEqDepth{\infty} l_2$.
-This boils down to checking equality of all pairwise paths between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
-We start by giving a program interpretation of a value tree which allows us to repose $l_1 \indEq{} l_2$
-as a bisimilarity (and thus equivalence) check between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
-In the program interpretation,
-the inputs include the free variables at the entry node $\xi$
-and each leaf node is interpreted as an observable action returning its associated value.
-In this interpretation, value trees are analogous to non-deterministic Control-Flow Graphs.
-To make the search for a bisimulation relation easier, we can peel $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$
-to unify their static tree structures.
-Once unified, the bisimulation relation requires us to prove that the outputs of each leaf node pair are identical.
-Similar to deconstruction programs, we run our points-to analysis before the check
-for bisimilarity to identify points-to invariants to help in the bisimulation search.
+\label{sec:valuetreebisim}
+Unlike its approximations, a \recursiveRelation{} $l_1 \indEq{} l_2$ asserts complete equivalence between
+$\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ respectively.
+Similar to our top-level equivalence check between \sprog{} and \cprog{},
+we attempt to prove that $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ are bisimilar.
+To make the search for a bisimulation relation easier, we peel $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$
+to unify their static structures.
+Once unified, the bisimulation relation requires the inference of inductive invariants at correlated nodes such that
+under the precondition at $(\xi\!:\!\xi)$, inductive invariants hold and both $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$
+have equal observables at correlated exit nodes $(\zeta_i\!:\!\zeta_i)$.
 
 \input{chapters/figures/figValueTreeBisim.tex}
 
@@ -967,6 +980,8 @@ $\cv{p} \pointsTo{} \{ \mlrf{\cpc{4}} \}$
 $\cv{l} \pointsTo{} \{ \mlrs{\cpc{4}} \}$, $\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$,
 $\mlrs{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$, and
 $\heapr{} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$.
+Similar to a deconstruction program, we run our points-to analysis on the value trees to identify
+potentially beneficial points-to invariants at all correlated nodes.
 \Cref{fig:valuetreebisim} shows the value trees of $\lifted{list}{\mem{}}{lnode}{\cv{l}}$
 and $\lifted{list}{\mem{}'}{lnode}{\cv{l}}$ along with the table of invariants
 required for a successful bisimulation check.
