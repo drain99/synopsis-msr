@@ -20,8 +20,8 @@ product-CFG, and
 We describe our counterexample-guided best-first search algorithm for construction of a product-CFG (\curved{A1}) in \cref{sec:searchalgo}.
 This is followed by a dataflow formulation of our counterexample-guided invariant inference algorithm (\curved{A2}) in \cref{sec:invinferalgo}.
 The previous chapter walked through our proof discharge algorithm (\curved{A3}) using examples, ending with
-the pseudo-code of proof discharge algorithm (\cref{algo:proofSummary} in \cref{sec:proofsummary}).
-In this chapter, we present pseudo-code for multiple subprocedures used as part of our proof discharge algorithm.
+the pseudocode of proof discharge algorithm (\cref{algo:proofSummary} in \cref{sec:proofsummary}).
+In this chapter, we present pseudocode for multiple subprocedures used as part of our proof discharge algorithm.
 Additionally, we describe the process of encoding queries in SMT logic as well as recovering counterexamples from models returned by SMT solvers.
 
 \input{chapters/figures/figPointstoDFA.tex}
@@ -308,7 +308,7 @@ which trivially resolves the smaller proof obligations involving uncorrelated pa
 
 \input{chapters/figures/figCanonical.tex}
 
-\Cref{algo:canonical} shows the pseudo-code for the canonicalization procedure.
+\Cref{algo:canonical} shows the pseudocode for the canonicalization procedure.
 $Canonicalize(e)$ is responsible for converting an expression $e$ to its canonical form $\hat{e}$ (introduced in \cref{sec:unifyandrewrite}).
 Recall that a pseudo-variable is an expression of the form $\prodAccess{v}{a_1,a_2,.,a_n}$, where $v$ is a variable.
 Also recall that, an expression $e$ is canonical iff each {\em accessor} and {\em sum-is} expression operate on a pseudo-variable.
@@ -324,7 +324,7 @@ canonicalizes to $a + \prodAccess{l}{val}$ and $(p = 0)$ respectively.
 
 \input{chapters/figures/figUnification.tex}
 
-\Cref{algo:unification} shows the pseudo-code for the unification algorithm introduced in \cref{sec:unifyandrewrite}.
+\Cref{algo:unification} shows the pseudocode for the unification algorithm introduced in \cref{sec:unifyandrewrite}.
 $\theta(p_1,e_1,p_2,e_2)$ is responsible for unifying expressions $e_1$ and $e_2$ under the expression path
 conditions $p_1$ and $p_2$ respectively.
 $\theta$ either fails to unify with the \cons{Fail} output, or it successfully returns $\cons{Succ}(S)$, where $S$
@@ -348,7 +348,7 @@ $e_1 \oland e_2$ is equivalent to $e_1 \land (e_1 \rightarrow e_2)$.
 
 \input{chapters/figures/figIterUnifyAndRewrite.tex}
 
-\Cref{algo:unifyandrewrite} shows the pseudo-code for the iterative unification and rewriting procedure
+\Cref{algo:unifyandrewrite} shows the pseudocode for the iterative unification and rewriting procedure
 introduced in \cref{sec:unifyandrewrite}.
 $\Theta(p_a,e_a,p_b,e_b)$ is responsible for unifying expressions $e_a$ and $e_b$ under the expression
 path conditions $p_a$ and $p_b$ respectively.
@@ -367,7 +367,7 @@ $\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{tail}}{true}{\lifted{list}{\mem
 
 \input{chapters/figures/figDecompose.tex}
 
-\Cref{algo:decompose} shows the pseudo-code for the decomposition algorithm defined in \cref{sec:unifyandrewrite}.
+\Cref{algo:decompose} shows the pseudocode for the decomposition algorithm defined in \cref{sec:unifyandrewrite}.
 $Decompose(l_1, l_2)$ is responsible for computing the decomposition of the \recursiveRelation{} $l_1 \indEq{} l_2$.
 Recall that, decomposition of a \recursiveRelation{} $l_1 \indEq{} l_2$ requires the unification of (canonicalized)
 $l_1$ and $l_2$ through the top-level invocation of $\Theta(true,l_2,true,l_2)$.
@@ -406,7 +406,7 @@ reduce an overapproximate \recursiveRelation{} into its SMT-equivalent.
 The $D$-depth unification and `iterative unification and rewriting' procedures
 are represented by $\Theta_D(p_a,e_a,p_b,e_b,d)$ and $\theta_D(p_1,e_1,p_2,e_2,d)$
 respectively, where $D$ is a parameter of the algorithm.
-The pseudo-code for these two procedures are shown in \cref{algo:dunification,algo:dunifyandrewrite} respectively.
+The pseudocode for these two procedures are shown in \cref{algo:dunification,algo:dunifyandrewrite} respectively.
 The $D$-depth `iterative unification and rewriting' returns depth-augmented
 correlation tuples of the form $\corrtuple{p_1}{a_1}{p_2}{a_2}_d$ such that $d \geq D$
 for all correlation tuples relating ADT values.
@@ -447,7 +447,7 @@ where $\depthBound{d}{l}$ asserts that $l$ has a depth of at most $d$ (defined i
 The function responsible for computing $\depthBound{D}{l}$ is $isDepthBounded_D(l,p,d)$,
 where $p$ and $d$ represents the current expression path condition and depth of $l$,
 and $D$ is a parameter of the algorithm.
-\Cref{algo:depthbound} gives the pseudo-code for $isDepthBounded_D$.
+\Cref{algo:depthbound} gives the pseudocode for $isDepthBounded_D$.
 The top-level invocation is given by $isDepthBounded_D(l,true,0)$.
 $isDepthBounded_D$ recursively traverses the expression tree of $l$ (while rewriting as necessary),
 until it reaches a node at depth $>D$, at which point it returns the condition asserting the unreachability
@@ -463,7 +463,7 @@ $(\sumIs{l}{LNil}) \lor ((\sumIs{l}{LCons}) \land (\sumIs{\prodAccess{l}{tail}}{
 
 Finally, $Underapprox_D(l_1,l_2)$ is responsible for reducing the underapproximation $l_1 \indEqUapprox{D} l_2$
 into its SMT-encodable equivalent condition.
-The pseudo-code for $Underapprox_D$ is given in \cref{algo:underapprox}.
+The pseudocode for $Underapprox_D$ is given in \cref{algo:underapprox}.
 For example, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \depthBound{1}{l}
 \land \depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$.
 $\depthBound{1}{l}$ and $\depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}}$ reduces to the conditions

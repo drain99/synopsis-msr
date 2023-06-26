@@ -1,11 +1,12 @@
-\begin{table}[H]
+\begin{table}
 \begin{center}
 \caption{\label{tab:pointstoalgodfa}Dataflow Formulation of the Points-to Analysis}
-\begin{footnotesize}
+\vspace{10px}
+% \begin{footnotesize}
 \begin{tabular}{|l|l|}
 \hline
 \Tstrut \Bstrut Domain &
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}l@{\hskip 12mm}l@{}}
 $\Delta^{\cprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \rightarrow 2^{\memregions{}}$ &
 $\Delta^{\dprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{} \cup \pseudoregs{}^{\dprog{}}) \rightarrow 2^{\memregions{}}$ \\
 \end{tabular} \\
@@ -13,7 +14,7 @@ $\Delta^{\dprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{} \cup \pseudore
 \Tstrut \Bstrut Direction & Forward \\
 \hline
 Boundary Condition &
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}l@{\hskip 11mm}l@{}}
 \multicolumn{2}{@{}l}{\Tstrut \Bstrut $\Delta_n$ for start node :}\\
 $\Delta_n^{\cprog{}}(t) = \begin{dcases} \emptyset \ \ \  t \in \pseudoregs{}^{\cprog{}} \\ \memregions{} \ \ t \in \memregions{} \end{dcases}$ &
 $\Delta_n^{\dprog{}}(t) = \begin{dcases} \Delta_{n_C}^{\cprog{}}(t) \ \  t \in (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \\ \emptyset \ \ \ \ \ \ \ \ \ \  t \in \pseudoregs{}^{\dprog{}} \end{dcases}$ \\
@@ -30,6 +31,6 @@ Meet operator $\otimes$ &
 \Tstrut \Bstrut $\Delta_n(t) = \Delta^1_n(t) \cup \Delta^2_n(t) \ \  t \in {\tt Domain}(\Delta_n)$} \\
 \hline
 \end{tabular}
-\end{footnotesize}
+% \end{footnotesize}
 \end{center}
 \end{table}

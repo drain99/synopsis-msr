@@ -16,21 +16,20 @@
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \begin{footnotesize}
-\begin{tabular}{|c|lll|}
-\hline
-{\bf Node Pair} & \multicolumn{3}{c|}{\bf Invariants} \\
-\hline
-\hline
-$(\xi \!:\! \xi)$ & \multicolumn{3}{l|}{$\Tstrut\Bstrut \circled{\small P} \  \lhs{}$ in \cref{eqn:cat3revisit}} \\
-\hline
-\multirow{3}{*}{\makecell[c]{$(0 \!:\! 0)$ \\ $(1 \!:\! 1)$ }} & \multicolumn{3}{l|}{$\Tstrut\Bstrut \circled{\footnotesize I1} \  \vtse{1} = \vtse{2}$} \\
+\begin{tabular}{clll}
+\toprule
+{\bf Node Pair} & \multicolumn{3}{c}{\bf Invariants} \\
+\toprule
+$(\xi \!:\! \xi)$ & \multicolumn{3}{l}{$\Tstrut\Bstrut \circled{\small P} \  \lhs{}$ in \cref{eqn:cat3revisit}} \\
+\midrule
+\multirow{3}{*}{\makecell[c]{$(0 \!:\! 0)$ \\ $(1 \!:\! 1)$ }} & \multicolumn{3}{l}{$\Tstrut\Bstrut \circled{\footnotesize I1} \  \vtse{1} = \vtse{2}$} \\
 & $\Tstrut\Bstrut \circled{\footnotesize I2} \ \cv{p} \pointsTo{} \{ \mlrs{\cpc{4}} \} \qquad$ & $\circled{\footnotesize I3} \ \vtse{1} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr \} \qquad$ & $\circled{\footnotesize I4} \ \vtse{2} \pointsTo{} \{ \mlrf{\cpc{4}}, \heapr \}$ \\
 & $\Tstrut\Bstrut \circled{\footnotesize I5} \ \mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$ & $\circled{\footnotesize I6} \  \mlrs{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$ & $\circled{\footnotesize I7} \ \heapr{} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$ \\
-\hline
-$(\zeta_0 \!:\! \zeta_0)$ & \multicolumn{3}{l|}{$\Tstrut\Bstrut \circled{\scriptsize E1} \  () = ()$} \\
-\hline
-$(\zeta_1 \!:\! \zeta_1)$ & \multicolumn{3}{l|}{$\Tstrut\Bstrut \circled{\scriptsize E2} \  \structPointer{\vtse{1}}{\mem{}}{lnode}{val} = \structPointer{\vtse{2}}{\mem{}'}{lnode}{val}$} \\
-\hline
+\midrule
+$(\zeta_0 \!:\! \zeta_0)$ & \multicolumn{3}{l}{$\Tstrut\Bstrut \circled{\scriptsize E1} \  () = ()$} \\
+\midrule
+$(\zeta_1 \!:\! \zeta_1)$ & \multicolumn{3}{l}{$\Tstrut\Bstrut \circled{\scriptsize E2} \  \structPointer{\vtse{1}}{\mem{}}{lnode}{val} = \structPointer{\vtse{2}}{\mem{}'}{lnode}{val}$} \\
+\bottomrule
 \end{tabular}
 \end{footnotesize}
 \end{center}

@@ -1,9 +1,9 @@
 \begin{figure}
 \begin{tabular}{@{}c@{}c@{}}
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[b]{0.48\textwidth}
 \begin{center}
 \begin{spacing}{1.5}
-\begin{allLangEnvScript}
+\begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{D0:}}~ List ${\tt Clist_{\mem{}}^{lnode}}$(i32 l) {
 ~{\tiny \textcolor{mygray}{D1:}}~  if l = 0:
 ~{\tiny \textcolor{mygray}{D2:}}~   return LNil;
@@ -12,15 +12,15 @@
 ~{\tiny \textcolor{mygray}{D5:}}~   List tail $\coloneqq$ ${\tt Clist_{\mem{}}^{lnode}}$($\structPointer{\tt l}{\mem{}}{lnode}{next}$);
 ~{\tiny \textcolor{mygray}{D6:}}~   return LCons(val, tail);
 ~{\tiny \textcolor{mygray}{DE:}}~ }
-\end{allLangEnvScript}
+\end{allLangEnvFoot}
 \end{spacing}
 \end{center}
-\caption{\label{fig:clistdeconsIR}(Abstracted) IR \\ of Deconstruction Program}
+\caption{\label{fig:clistdeconsIR}(Abstracted) IR of Deconstruction Program}
 \end{subfigure}%
 &
-\begin{subfigure}[b]{0.55\textwidth}
+\begin{subfigure}[b]{0.52\textwidth}
 \begin{center}
-\includegraphics[scale=0.96]{chapters/figures/figClistDeconsCfg.pdf}
+\includegraphics[scale=1.1]{chapters/figures/figClistDeconsCfg.pdf}
 \end{center}
 \vspace{5px}
 \caption{\label{fig:clistdeconsCFG}CFG of Deconstruction Program}
