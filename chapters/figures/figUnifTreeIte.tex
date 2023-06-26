@@ -1,0 +1,24 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\node[draw,rounded rectangle,inner sep=0.55mm,font=\footnotesize] (0) {\tt if-then-else};
+\node[inner sep=0.55mm,font=\footnotesize]                        (1) [position=-137:9.05mm from 0] {$c_1$};
+\node[draw,rounded rectangle,inner sep=0.55mm,font=\footnotesize] (2) [position=-90:6mm from 0] {\cons{LNil}};
+\node[draw,rounded rectangle,inner sep=0.55mm,font=\footnotesize] (3) [position=-40:9.05mm from 0] {\cons{LCons}};
+\node[inner sep=0.55mm,font=\footnotesize]                        (4) [position=-127:7.7mm from 3] {$0$};
+\node[inner sep=0.55mm,font=\footnotesize]                        (5) [position=-50:7.5mm from 3] {$\lifted{list}{\mem{}}{lnode}{p}$};
+
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to (1);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to (2);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (0) to (3);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to (4);
+\draw[-{Straight Barb[length=2mm, width=1.5mm]}] (3) to (5);
+
+\end{tikzpicture}
+
+\end{document}

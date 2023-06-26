@@ -4,7 +4,8 @@
 \section{The Specification Language : \SpecL{}}
 \label{sec:speclang}
 We start with an introduction to our specification language, called \SpecL{}.
-\SpecL{} supports recursive algebraic data types (ADT) \cite{algebraicdatatypes} similar to the ones available in functional languages such as Haskell \cite{marlow2010haskell} and SML \cite{standardmlspec}.
+\SpecL{} supports recursive algebraic data types (ADT) \cite{algebraicdatatypes} similar to the
+ones available in functional languages such as Haskell \cite{marlow2010haskell} and SML \cite{standardmlspec}.
 \SpecL{} does not support universal types but does allow ADTs which are mutually recursive.
 Additionally, \SpecL{} is equipped with the following {\em scalar} types: \type{unit}, \type{bool} (boolean) and \type{i<N>} (fixed-width bitvectors).
 ADTs can be thought of as `sum of product' types where each {\em data constructor} represents a variant (of the sum-type)
@@ -13,13 +14,14 @@ For example, the \type{List} type (defined at \apc{0} in \cref{fig:llAllocSpec})
 \cons{LNil} has no fields while \cons{LCons} has two fields \field{val} and \field{tail} of types \type{i32} and \type{List} respectively.
 Additionally, \SpecL{} follows {\em equirecursive} typing rules i.e.
 a \type{List} value $l$ and $\cons{LCons}(1_\type{i32}, l)$ have {\em equal} types.
-Later in \cref{sec:valuegraph}, we further expand on ADTs in the context of a graphical representation of types and values.
+Later in \cref{sec:valuegraph}, we further expand on ADTs in the context of a
+graphical representation of values used as part of our proof discharge algorithm.
 The language also borrows its expression grammar heavily from functional languages.
 This includes {\tt let-in}, {\tt if-then-else}, {\tt match} and function application.
-Pattern matching (i.e. deconstruction) of ADT values is archieved through {\tt match}.
+Pattern matching (i.e. deconstruction) of ADT values is achieved through {\tt match}.
 Unlike functional languages, \SpecL{} only supports first order functions.
 Also, \SpecL{} does not support partial function application.
-Hence, we constrain our attention to C programs containing only first order functions.
+Hence, we limit our attention to C programs containing only first order functions.
 \SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing assertions.
 \SpecL{} also provides intrinsic scalar operators for expressing computation in C succintly yet explicitly.
 Examples of scalar operators include (a) logical operators (e.g., {\tt and}), (b) bitvector arithmatic operators (e.g., {\tt bvadd(+)}),
@@ -29,9 +31,9 @@ The equality operator ($=$) is only supported for scalar types.
 \input{chapters/figures/figSpecGrammar.tex}
 
 \Cref{fig:specgrammar} shows the simplified expression grammar for \SpecL{} language.
-\nonTerm{data-cons} represents a ADT data constructor.
-The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a \type{bool} and is used to test whether the top-level constructor
-of the ADT value \nonTerm{expr} is \nonTerm{data-cons}.
+\nonTerm{data-cons} represents an ADT data constructor.
+The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a value of \type{bool} type and is used to test whether
+the value \nonTerm{expr} is of kind \nonTerm{data-cons}.
 \nonTerm{scalar-op} includes the logical, arithmatic and relational operators supported by \SpecL{}.
 
 \input{chapters/figures/figSumListSpecAndC.tex}
@@ -44,7 +46,7 @@ abstract representation called the {\em Control Flow Graph} (CFG for short).
 This process involves converting both programs to a linear representation called the IR.
 This section presents both IR and CFG representations for the original \SpecL{} and C programs.
 
-\subsection{Conversion of Programs to their Intermediate Representation}
+\subsection{Conversion of Programs to Intermediate Representation}
 \label{sec:irconv}
 IR is a Three-Address-Code (3AC) style intermediate representation.
 We often omit intermediate registers in the IR for brevity, and refer to this as the {\em abstracted} IR.
@@ -68,7 +70,7 @@ Importantly, the expression `\prodAccess{e}{fi}' is well-formed iff `\sumIs{e}{\
 data constructor containing the field \field{fi}.
 The construction of the IR guarantees the well-formedness of all expressions.
 \item All tail-recursive calls are converted to loops in the IR. However, all non-tail procedure calls are preserved as is.
-This transformation enables direct correlation (during equivalence checking) of tail-recursion in \SpecL{} with native loops in C.
+This transformation enables direct correlation (during equivalence checking) of tail-calls in \SpecL{} with native loops in C.
 For example, the tail recursive function {\tt sum\_list\_impl} in \apc{2} (in \cref{fig:llTraverseSpec}) is converted to a non-recursive function with a loop.
 \item All {\em helper} functions\footnote{We use a special marker to designate a function as `helper' in \SpecL{}.
 For simplicity, this marker is omitted and instead helper function names are ended with the `{\tt \_impl}' suffix.}
@@ -95,7 +97,7 @@ Memory loads and stores are represented using explicit operations on \mem{}, e.g
 (a) memory load in \cpc{3} in \cpc{4} in \cref{fig:llTraverseCIR}, and
 (b) memory stores in \cpc{5} and \cpc{6} in \cref{fig:llAllocCIR}.
 The memory load and store operators are defined promptly in \cref{sec:irops}
-\item We annotate calls to memory allocation functions (e.g., {\tt malloc}) with their call-site.
+\item We annotate calls to memory allocation functions (e.g., {\tt malloc}) with their call-site, i.e., IR PC.
 For example, {\tt malloc$_\cpc{4}$} is annotated with its call-site \cpc{4} in \cref{fig:llAllocCIR}.
 These annotations are used by a points-to analysis done as part of our equivalence checking procedure,
 and defined subsequently in \cref{sec:pointsToFormal}.
@@ -189,7 +191,7 @@ using the {\tt assuming-do} statement form the UB assumptions.
 For brevity, we often represent a sequence of instructions with a single edge, e.g.,
 in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7,8,3}.
 In such a case, the transfer function of the edge is the composition of the sequence of instructions.
-A CFG must contain exactly one entry node (representing the entry to the function), but may contain
+A CFG must contain exactly one entry node (representing the entry to the function) and (possibly)
 multiple exit nodes (each representing an exit from the function).
 An edge incident on an exit node is called an {\em exit edge} and is only associated with an {\em action} representing
 the values returned, as a function of the symbolic state at the source node.
@@ -197,7 +199,7 @@ Actions form the observable behaviour of a CFG while transition through non-exit
 Recall that for a C CFG, the action includes both the returned value (if non-void) and the memory state.
 We omit these transfer functions in the CFG figures (as they are shown in their corresponding IR)
 and only show the edge conditions (unless they are {\em true}).
-Henceforth, we refer to the CFGs of \SpecL{} and C functions as \sprog{} and \cprog{} respectively.
+Henceforth, we refer to the CFGs of \SpecL{} and C procedures as \sprog{} and \cprog{} respectively.
 
 \section{Equivalence Definition}
 \label{sec:eqdef}
@@ -224,7 +226,7 @@ in which all memory allocation requests (through {\tt malloc} calls) are success
 
 Recall that the observables of \sprog{} and \cprog{} are the actions associated with their exit edges (i.e. returned values).
 For \sprog{}, observables include the explicit value returned.
-For \cprog{}, observables include the returned value alongside the memory state at program exit.
+For \cprog{}, observables include the returned value along with the memory state at program exit.
 The postcondition \post{} relates these outputs of the two programs.
 The pair $(\pre{},\post{})$ represents the input-output behaviour of \cprog{} in terms of the specification \sprog{},
 and is called the {\em input-output specification}.
@@ -285,7 +287,7 @@ In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in \spr
 \cv{\rho} in \cprog{}, written $e=(\sv{\rho},\cv{\rho})$.
 The empty path $\epsilon$ in \sprog{} may be correlated with a finite path in \cprog{},
 effectively simulating a {\em stuttering bisimulation} relation.
-However, a product-CFG is only well-formed (i.e. represents a valid bisimulation relation)
+A product-CFG is well-formed (i.e. represents a valid bisimulation relation)
 if no loop path in \cprog{} is correlated with $\epsilon$ in \sprog{}.
 For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs
 in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
@@ -313,7 +315,7 @@ while all inductive invariants are identified by an invariant inference algorith
 \section{Recursive Relation}
 \label{sec:recrel}
 In \cref{sec:motivatingexample}, we briefly introduced a lifting constructor (\lift{list}{\mem{}}{lnode})
-and \recursiveRelations{}.
+and associated \recursiveRelations{}.
 In \cref{fig:llTraverseProductInv}, the precondition (\circled{\small P}) is another instance
 of a \recursiveRelation{}:
 ``\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}'' where \sv{l} and \cv{l}
@@ -348,7 +350,7 @@ value for equality.
 As previously discussed, algorithms for (a) incremental construction of a Product-CFG
 and (b) inference of invariants at intermediate PCs in the (partially constructed) product-CFG, are
 based on prior work\cite{oopsla20} and discussed subsequently in \cref{sec:searchalgo,sec:invinferalgo}.
-For now, we discuss the proof obligations that arise from a given product-CFG.
+We discuss the proof obligations that arise from a given product-CFG.
 Recall that a bisimulation check involves checking that all inductive invariants
 (and the postcondition \post{}) hold at their associated product-CFG nodes.
 

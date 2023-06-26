@@ -1,6 +1,6 @@
-\begin{figure}[H]
-\begin{tabular}{cc}
-\begin{subfigure}[b]{0.37\textwidth}
+\begin{figure}
+\begin{tabular}{@{\hskip 12mm}c@{\hskip 14mm}c@{}}
+\begin{subfigure}[b]{0.32\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
 ~{\scriptsize \textcolor{mygray}{S0:}}~ List mk_list (i32 n) {
@@ -12,12 +12,12 @@
 ~{\scriptsize \textcolor{mygray}{S6:}}~   return l;
 ~{\scriptsize \textcolor{mygray}{SE:}}~ }
 \end{allLangEnvFoot}
-\vspace{35px}
+\vspace{40px}
 \end{center}
 \caption{\label{fig:llAllocSpecIR}(Abstracted) Spec IR}
 \end{subfigure}%
 &
-\begin{subfigure}[b]{0.63\textwidth}
+\begin{subfigure}[b]{0.50\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
 ~{\scriptsize \textcolor{mygray}{C0:}}~ i32 mk_list (i32 n) {
@@ -37,5 +37,5 @@
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:llAllocSpecIRAndCIR}IRs for the \SpecL{} and C Programs in \cref{fig:llAllocSpec,fig:llAllocC} respectively.}
+\caption{\label{fig:llAllocSpecIRAndCIR}IRs for the \SpecL{} and C programs in \cref{fig:llAllocSpec,fig:llAllocC} respectively.}
 \end{figure}

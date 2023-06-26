@@ -83,6 +83,11 @@ The categorization is based on a specialized unification procedure, which we des
 
 \section{Iterative Unification and Rewriting Procedure}
 \label{sec:unifyandrewrite}
+In this section, we introduce a unification procedure capable of decomposing an equality (e.g., a \recursiveRelation{})
+into a set of equalities (including scalar equalities and \recursiveRelations{}).
+
+\subsection{Atomic Expression}
+\label{sec:unifatomicexpr}
 We begin with some definitions.
 An expression $e$ whose top-level constructor is a lifting
 constructor, e.g., $e=\lifted{list}{\mem{}}{lnode}{\cv{l}}$,
@@ -91,7 +96,24 @@ An expression $e$ of the form \prodAccess{v}{a_1,a_2,.,a_n} i.e.
 a variable nested within {\em zero} or more {\em accessors},
 is called a {\em pseudo-variable}.
 Note that, a variable is itself a pseudo-variable.
-An expression $e$ in which (a) each accessor (e.g., `\prodAccess{\_}{tail}')
+Examples of pseudo-variable include the variable $l$ and $\prodAccess{l}{val}$.
+
+Pseudo-variables (scalar or ADT typed), scalar expressions (of \type{unit}, \type{bool} and \type{i<N>} types)
+and lifted expressions are collectively called {\em atomic expressions}, or {\em atoms} for short.
+Hence, a \type{List} variable $l$, a bitvector expression $e_\type{i32}$ and a lifted expression \lifted{list}{\mem{}}{lnode}{p}
+are all examples of atoms.
+With each atom of an ADT type, we associate an {\em unrolling procedure}.
+By definition, an ADT atom is either a pseudo-variable or a lifted expression.
+Each (pseudo-)variable is associated with its unrolling procedure governed by its type.
+For example, the unrolling procedure for a \type{List} variable $l$ is given by $U_S$ (\cref{eqn:specDeconstruct}).
+For lifted expressions, the unrolling procedure is given by its definition, e.g., $U_C$ (\cref{eqn:clist})
+for the lifting constructor \lift{list}{\mem{}}{lnode}.
+
+\input{chapters/figures/figUnifTrees.tex}
+
+\subsection{Expression Trees}
+\label{sec:unifytrees}
+An expression $e$ in which (a) each {\em accessor} (e.g., `\prodAccess{\_}{tail}')
 and (b) each {\em sum-is} operator (e.g., `\sumIs{\_}{LCons}') operate on a
 pseudo-variable, is called a {\em canonical expression}.
 It is possible to convert any expression $e$ into its canonical form $\hat{e}$.
@@ -99,13 +121,15 @@ For example, the canonical form of $a + \prodAccess{\cons{LCons}(b,l)}{tail,val}
 is given by $a + \prodAccess{l}{val}$, where \prodAccess{l}{val} is a pseudo-variable.
 The pseudo-code for the canonicalization procedure is given in \cref{sec:canonicalalgo}.
 
-Consider the expression tree of a canonical expression $\hat{e}$.
+Consider the expression tree of a canonical expression $\hat{e}$, as shown in \cref{fig:uniftrees}.
 The internal nodes of $\hat{e}$ represents ADT data constructors and
 the \sumDtor{} sum-deconstruction operator.
-The leaves of $\hat{e}$ (also called {\em atoms} of $\hat{e}$) are the
-pseudo-variables (of scalar and ADT type),
-the scalar expressions (of \type{unit}, \type{bool} and \type{i<N>} types),
-and lifted expressions.
+The leaves of $\hat{e}$ are the atomic subexpressions of $\hat{e}$.
+For example, in \cref{fig:uniftreelistvar}, \curved{\tt if-then-else}, \curved{\cons{LNil}}
+and \curved{\cons{LCons}} are the internal nodes, whereas \sumIs{l}{LNil}, \prodAccess{l}{val} and \prodAccess{l}{tail}
+are the (atomic) leaf expressions.
+Note that nullary data constructors (e.g. \cons{LNil}) are considered internal nodes even through
+they have no children.
 
 The {\em expression path} to a node $v$ in $\hat{e}$'s tree is the path from the root
 of $\hat{e}$ to the node $v$.
@@ -113,22 +137,33 @@ The {\em expression path condition} represents the conjunction of all the \under
 conditions (if the \underline{\tt then} branch of taken along the path), or their
 negation (if the \underline{\tt else} branch is taken along the path) for each \sumDtor{}
 along the path.
-For example, in the expression \sumIf{c} \sumThen{a} \sumElse{b},
-the expression path condition of $c$ is {\tt true}, of $a$ is $c$,
-and of $b$ is $\neg c$.
+Consider the expression \sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0, l)}
+and its associated expression tree in \cref{fig:uniftreeite}.
+The expression path condition of $c_1$ is {\tt true}, of $\cons{LNil}$ is $c_1$
+and of $\lifted{list}{\mem{}}{lnode}{p}$ is $\neg c_1$.
 
 \subsection{Unification Procedure}
 \label{sec:unify}
-An unification procedure attempts to unify two expressions by unifying
-their tree structures created by data constructors and the \sumDtor{} operator.
-The unification procedure either fails to unify, or it returns tuples \corrtuple{p_1}{a_1}{p_2}{e_2} where atom $a_1$
+For two expressions $e_1$ and $e_2$ under expression path conditions $p_1$ and $p_2$ respectively,
+a unification procedure $\theta(p_1,e_1,p_2,e_2)$ attempts to unify $e_1$ and $e_2$ by unifying
+their canonical expression trees (introduced in \cref{sec:unifytrees}) created by data constructors and the \sumDtor{} operator.
+The unification procedure either fails to unify, or it returns {\em correlation tuples} \corrtuple{p_1}{a_1}{p_2}{e_2} where atom $a_1$
 at expression path condition $p_1$ in one expression is correlated
 with expression $e_2$ at expression path condition $p_2$ in the other expression.
 
-For two non-atomic expressions, $e_1$ and $e_2$ to unify successfully,
+If {\em at least} one of $e_1$ and $e_2$ (say $e_2$) is atomic, unification always succeeds and returns
+a single correlation tuple: \corrtuple{p_2}{e_2}{p_1}{e_1}.
+Recall that a variable is an atom and evidently, $l$ and $\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$
+successfully unifies and yields \corrtuple{p_1}{l}{p_2}{\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})}.
+
+For two non-atomic expressions $e_1$ and $e_2$ to unify successfully,
 it must be true that either the top-level operator in $e_1$ and $e_2$ is
 the same data constructor (in which case an unification is attempted for each
 of their children), {\em or} the top-level operator in atleast one of $e_1$ or $e_2$ is \sumDtor{}.
+For example, unification of $\cons{LCons}(e_1,e_2)$ and $\cons{LCons}(e'_1,e'_2)$ proceeds by recursive attempts
+to unify $e_1$ with $e'_1$, and $e_2$ with $e'_2$ respectively.
+On the other hand, unification of $\cons{LCons}(e_1,e_2)$ and $\cons{LNil}$ fails due to mismatched
+top-level data constructor.
 
 If the top-level operator in {\em exactly one} of $e_1$ and $e_2$ (say $e_2$) is \sumDtor{},
 then $e_1$ must have a data constructor at its root.
@@ -136,6 +171,15 @@ Given $e_2 = $ \sumIf{c} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}},
 we first attempt to unify $e_1$ with the \underline{if} branch $e_2^{\tt th}$ --- if unification succeeds,
 we also unify $c$ (\underline{then} condition) with {\em true}.
 Otherwise, we unify $e_1$ with the \underline{else} branch $e_2^{\tt el}$ and $\neg c$ (\underline{else} condition) with {\em true}.
+Consider the unification of a \type{List} variable $l$ expanded through its unrolling procedure (\cref{eqn:specDeconstruct})
+(i.e. \sumIf{\sumIs{l}{LNil}} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(\prodAccess{l}{val}, \prodAccess{l}{tail})})
+with the expression $\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$.
+The first unification attempt (\underline{then} branch) unifying $\cons{LNil}$ and $\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$ fails due to mismatched data constructor.
+The second unification attempt (\underline{else} branch) results in the unification of --
+(a) $\neg \sumIs{l}{LNil}$ with {\em true},
+and (b) $\cons{LCons}(\prodAccess{l}{val}, \prodAccess{l}{tail})$ with $\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$,
+which eventually succeeds and returns correlation tuples.
+
 
 If the top-level operator in both $e_1$ and $e_2$ is \sumDtor{},
 we unify each child (condition and branch expressions) of the corresponding
@@ -146,24 +190,23 @@ has $V$ in its top-level.
 Whenever we descend down an \sumDtor{} operator, we conjunct the \underline{\tt if} condition (if \underline{\tt then} branch is taken)
 or its negation (if \underline{\tt else} branch is taken) with its associated expression path condition.
 This allows us to keep track of the expression path conditions for both expressions
-during recursive descent to their children.
-
-If one of $e_1$ and $e_2$ (say $e_2$) is atomic,
-unification always succeeds and returns \corrtuple{p_2}{e_2}{p_1}{e_1}.
+during recursive descent into their children.
+For example, consider the unification of \sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0, l)}
+and \sumIf{c_2} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{p})}
+under expression path conditions $p_1$ and $p_2$ respectively.
+The above results in the following three recursive calls to the unification procedure $\theta$ --
+(a) $\theta(p_1,c_1,p_2,c_2)$, (b) $\theta(p_1 \land c_1, \cons{LNil}, p_2 \land c_2, \cons{LNil})$,
+(c) $\theta(p_1 \land \neg c_1, \cons{LCons}(0, l), p_2 \land \neg c_2, \cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{p}))$.
 The pseudo-code for the unification procedure is given in \cref{sec:unifalgo}.
-With each atom of an ADT type, we associate an {\em unrolling procedure}.
-By definition, an ADT atom is either a pseudo-variable or a lifted expression.
-Each (pseudo-)variable is associated with its unrolling procedure governed by its type.
-For example, the unrolling procedure for a \type{List} variable $l$ is given by $U_S$ (\cref{eqn:specDeconstruct}).
-For lifted expressions, the unrolling procedure is given by its definition, e.g., $U_C$ (\cref{eqn:clist})
-for the lifting constructor \lift{list}{\mem{}}{lnode}.
 
 \subsection{Unification under Rewriting}
 \label{sec:unifyunderrewriting}
+Recall that our unification procedure $\theta$ either fails or successfully unifies two expressions
+yielding correlation tuples relating atoms to (possibly) non-atomic expressions.
 Given two {\em canonical} expressions $e_a$ and $e_b$ at expression path conditions $p_a$ and $p_b$
 respectively, an {\em iterative unification and rewriting procedure}
 $\Theta(p_a,e_a,p_b,e_b)$ is used to identify a set of correlation tuples
-between the atoms in the two expressions.
+relating {\em only} atoms in the two expressions.
 This iterative procedure begins with an attempt to unify $e_a$ and $e_b$.
 If this unification fails, we return a failure for the original expressions $e_a$ and $e_b$.
 Else, we obtain correlation tuples between atoms and expressions
@@ -175,7 +218,17 @@ to a non-atomic expression $e_2$ at expression path condition $p_2$,
 we {\em rewrite} $a_1$ using its unrolling procedure to obtain expression $e_1$.
 The unification algorithm then proceeds by unifying $e_1$ and $e_2$ through
 a recursive call to $\Theta(p_1,e_1,p_2,e_2)$.
-The maximum number of rewrites performed by $\Theta(p_a,e_a,p_b,e_b)$ (before termination)
+
+For example, consider the unification of a \type{List} variable $l$ with $\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$
+through $\theta$, yielding the only correlation tuple \corrtuple{p_1}{l}{p_2}{\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})}.
+The above tuple relates an atom to a non-atomic expression and hence $\Theta$ rewrites $l$ to
+its expansion \sumIf{\sumIs{l}{LNil}} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(\prodAccess{l}{val}, \prodAccess{l}{tail})},
+followed by another unification attempt.
+The last attempt returns the correlation tuples:
+$\corrtuple{true}{\neg \sumIs{l}{LNil}}{true}{true}$, $\corrtuple{\neg \sumIs{l}{LNil}}{\prodAccess{l}{val}}{true}{42}$ and
+$\corrtuple{\neg \sumIs{l}{LNil}}{\prodAccess{l}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{p}}$.
+The tuples relate only atomic expressions and thus $\Theta$ successfully terminates, yielding the same correlation tuples.
+In general, the maximum number of rewrites performed by $\Theta(p_a,e_a,p_b,e_b)$ (before termination)
 is bounded by the sum of number of ADT data constructors in $e_a$ and $e_b$.
 The pseudo-code for iterative unification and rewriting is given in \cref{sec:unifyandrewritealgo}.
 
@@ -188,28 +241,26 @@ If the $n$ tuples obtained after a successful unification are \corrtuple{p_1^i}{
 
 \begin{equation}
 \label{eqn:decompose}
-l_1 \indEq{} l_2 \Leftrightarrow \bigwedge \limits_{i=1}^n (p_1^i \land p_2^i \rightarrow (a_1^i = a_2^i))
+l_1 \indEq{} l_2 \Leftrightarrow \bigwedge \limits_{i=1}^n ((p_1^i \land p_2^i) \rightarrow (a_1^i = a_2^i))
 \end{equation}
 
-For example, the unification of `\sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0,l_1)}'
-and `\sumIf{c_2} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}'
-yields the correlation tuples: $\corrtuple{true}{c_1}{true}{c_2}$, $\corrtuple{\neg c_1}{0}{\neg c_2}{i}$ and
-$\corrtuple{\neg c_1}{l_1}{\neg c_2}{\lifted{list}{\mem{}}{lnode}{l_2}}$.
-Consequently, the \recursiveRelation{} ``\sumIf{c_1} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(0,l_1)} \indEq{}
-\sumIf{c_2} \sumThen{\cons{LNil}} \sumElse{\cons{LCons}(i, \lifted{list}{\mem{}}{lnode}{l_2})}''
-decomposes into $(c_1 = c_2) \land (\neg c_1 \land \neg c_2 \rightarrow 0 = i)
-\land (\neg c_1 \land \neg c_2 \rightarrow l_1 \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$.
-Similarly, the decomposition of $l_1 \indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ is given by
-$(\sumIs{l_1}{LCons}) \land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{val}=42)
-\land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$
-\footnote{(\sumIs{l_1}{LCons}) is equivalent to $\neg (\sumIs{l_1}{LNil}$).
+Recall that the unification of $l$ and $\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$
+yields the correlation tuples:\\
+$\corrtuple{true}{\neg \sumIs{l}{LNil}}{true}{true}$, $\corrtuple{\neg \sumIs{l}{LNil}}{\prodAccess{l}{val}}{true}{42}$ and
+$\corrtuple{\neg \sumIs{l}{LNil}}{\prodAccess{l}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{p}}$.
+Consequently, the \recursiveRelation{} $l \indEq{} \cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$
+decomposes into\footnote{
+(\sumIs{l}{LCons}) is equivalent to $\neg (\sumIs{l}{LNil}$).
 In general, for an ADT value $v$ of type $T$ (with data constructors $V_{\tt 1}, V_{\tt 2}, \dots, V_{\tt k}$),
-exactly one of (\sumIs{v}{\mathnormal{V}_{\tt i}}) is true.}.
+exactly one of (\sumIs{v}{\mathnormal{V}_{\tt i}}) is true.}:
+\vspace{-7px}
+$$(\sumIs{l}{LCons}) \land (\sumIs{l}{LCons} \rightarrow \prodAccess{l}{val}=42)
+\land (\sumIs{l}{LCons} \rightarrow \prodAccess{l}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{p})$$
 In case of a failed unification, the {\em decomposition} is defined to be {\em false},
 e.g., $\cons{LNil} \indEq{} \cons{LCons}(0, l)$ decomposes into $false$.
 
-Each conjunctive clause of the form $(p_1^i \land p_2^i \rightarrow (a_1^i = a_2^i))$\footnote{
-If $a_1^i$ and $a_2^i$ are ADT values, then we replace $a_1^i = a_2^i$ with $a_1^i \indEq{} a_2^i$.}
+Each conjunctive clause of the form $((p_1^i \land p_2^i) \rightarrow (a_1^i = a_2^i))$\footnote{
+If $a_1^i$ and $a_2^i$ are ADT values, we replace $a_1^i = a_2^i$ with $a_1^i \indEq{} a_2^i$.}
 in the decomposition is called a {\em decomposition clause}.
 A decomposition clause may relate only atomic values, i.e.,
 it may relate (a) two scalars or (b) two ADT variable(s) and/or lifted expression(s).
@@ -220,16 +271,35 @@ We {\em decompose} a \recursiveRelation{} by replacing it with its decomposition
 We {\em decompose} a proof obligation by decomposing all \recursiveRelations{} in it.
 
 \section{Categorization of Proof Obligations}
-We {\em unroll a \recursiveRelation{} $l_1 \indEq{} l_2$} by rewriting the
-top-level expressions $l_1$ and $l_2$ through their unrolling procedures (if possible)
-and decomposing it.
-We {\em unroll an expression $e$} by unrolling each \recursiveRelation{} in $e$.
-More generally, the $k$-unrolling of $e$ is found by unrolling the $(k-1)$-unrolling
-of $e$ recursively.
+\label{sec:categorization}
+
+\subsection{$k$-Unrolling of Recursive Relations}
+\label{sec:kunrolling}
+Consider a \recursiveRelation{} $l_1 \indEq{} l_2$.
+We {\em unroll} $l_1 \indEq{} l_2$ by rewriting the top-level lifted expressions in $l_1$ and $l_2$
+using their respective unrolling procedures {\em and} decomposing the new \recursiveRelation{}.
+We {\em unroll an expression} $e$ by unrolling each \recursiveRelation{} in $e$.
+More generally, the $k$-unrolling of $e$ is found by unrolling the $(k-1)$-unrolling of $e$ recursively.
+For example, the one-unrolling of $\lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{p}$
+is given by the decomposition of $\lhs{} \Rightarrow l \indEq{}$ \sumIf{p=0} \sumThen{\cons{LNil}}
+\sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})},
+which evaluates to:
+\begin{equation*}
+\begin{footnotesize}
+\begin{aligned}
+\lhs{} \Rightarrow (\sumIs{l}{LNil}) = (p = 0) &\land (\sumIs{l}{LCons} \land p \neq 0) \rightarrow (\prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val}) \\
+&\land (\sumIs{l}{LCons} \land p \neq 0) \rightarrow (\prodAccess{l}{tail} \indEq{} \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})
+\end{aligned}
+\end{footnotesize}
+\end{equation*}
+
+\subsection{Categorization Procedure}
+\label{sec:categorizationproc}
 For a decomposed proof obligation $P_D:\lhs{} \Rightarrow \rhs{}$, we identify its $k$-unrolling (say $P_K$),
-where $k$ is a fixed parameter called the {\em unrolling parameter}.
+where $k$ is a fixed parameter of the algorithm called the {\em unrolling parameter}.
+We use a small value for $k$ e.g., five.
 After $k$-unrolling, we {\em eliminate} those decomposition clauses $(p_1 \land p_2 \rightarrow (a_1 = a_2))$
-in $P_K$ whose $(p_1 \land p_2)$ evaluates to false under \lhs{} ignoring all \recursiveRelations{},
+in $P_K$ whose antecedent $(p_1 \land p_2)$ evaluates to false under \lhs{} ({\em ignoring} all \recursiveRelations{}),
 yielding an equivalent proof obligation, say $P_E$.
 For example, the one-unrolling of $P: \lhs{} \Rightarrow l \indEq{} \lifted{list}{\mem{}}{lnode}{0}$,
 after elimination, yields $P_E: \lhs{} \Rightarrow \sumIs{l}{LNil}$.
@@ -242,12 +312,12 @@ of its decomposition (i.e. $P_E$) as follows:
 \item Type III: $P_E$ contains \recursiveRelations{} in the \rhs{}
 \end{itemize}
 
-The categorization method is {\em sound} as long as the elimination of decomposition
-clauses is sound (but possibly not precise).
-In other words, it is possible that we are unable to eliminate a \recursiveRelation{} in $P_K$,
-due to an imprecise algorithm for elimination of decomposition clauses.
-However, our proof discharge algorithm remains sound irrespective of such imprecision
-during categorization.
+Observe that the process of elimination of decomposition clauses (i.e. $P_K \rightarrow P_E$) itself requires
+a precise solver to identify {\em all} decomposition clauses that may be eliminated.
+An imprecise (but sound) solver may only identify a subset of these decomposition clauses
+and evidently classify a type I (and II) proof obligation as type II (and III).
+Our proof discharge algorithm ensures that it is sound as long as the conversion of $P_K$ to $P_E$ is sound, i.e.
+we {\em only} remove those decomposition clauses whose antecedent definitely evaluates to false.
 Henceforth, we will simply use $k$-unrolling of $P$ to refer to $P_E$ directly.
 Next, we describe the algorithm for each type of proof obligations
 in \cref{sec:cat1,sec:cat2,sec:cat3}.
@@ -339,14 +409,14 @@ first introduce the notion of {\em depth of an ADT value}.
 
 \subsection{Depth of ADT Values}
 \label{sec:adtdepth}
-To define depth of an ADT value $v$, we view the value as a tree $\mathcal{T}(v)$.
-The internal nodes of $\mathcal{T}(v)$ represent ADT data constructors and
+To define depth of an ADT value $v$, we view the value as its expression tree.
+The internal nodes represent ADT data constructors and
 the leafs (also called {\em terminals}) represent scalar values (e.g. bitvector literals).
-The depth of a data constructor or a scalar in $v$ is simply the depth of
-its associated node in $\mathcal{T}(v)$.
-The {\em depth} of ADT value $v$ is defined as the depth of $\mathcal{T}(v)$.
+The depth of a data constructor or a scalar literal in $v$ is simply the depth of
+its associated node in the expression tree of $v$.
+The {\em depth} of ADT value $v$ is defined as the depth of its expression tree.
 For example, the depth of $\cons{LCons}(1, \cons{LCons}(4, \cons{LNil}))$ is {\tt 2}.
-\Cref{fig:exprtrees} shows the tree representation and depths for multiple ADT values.
+\Cref{fig:exprtrees} shows the expression tree representation and depths for multiple ADT values.
 
 \subsection{Approximation of Recursive Relations}
 \label{sec:approxdefs}

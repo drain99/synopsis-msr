@@ -1,5 +1,5 @@
-\begin{figure}[H]
-\begin{tabular}{cc}
+\begin{figure}
+\begin{tabular}{@{}c@{}c@{}}
 \begin{subfigure}[b]{\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
@@ -12,7 +12,7 @@
 ~{\scriptsize \textcolor{mygray}{A6:}}~ fn mk_list (n:i32) : List = mk_list_impl(n, ${\tt 0_{i32}}$, LNil).
 \end{allLangEnvFoot}
 \end{center}
-\caption{\label{fig:llAllocSpec}Spec Program}
+\caption{\label{fig:llAllocSpec}Spec program}
 \end{subfigure}%
 \\
 \begin{subfigure}[b]{\textwidth}
@@ -32,9 +32,9 @@
 ~{\scriptsize \textcolor{mygray}{B11:}}~ }
 \end{allLangEnvFoot}
 \end{center}
-\caption{\label{fig:llAllocC}C Program with {\tt malloc()}}
+\caption{\label{fig:llAllocC}C program with {\tt malloc()}}
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:llAllocSpecAndC}Spec and C Programs constructing a Linked List.}
+\caption{\label{fig:llAllocSpecAndC}Spec and C programs each constructing a Linked List.}
 \end{figure}
