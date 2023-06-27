@@ -1,35 +1,33 @@
 \begin{figure}
-\begin{tabular}{cc}
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{tabular}{@{}c@{}c@{}}
+\begin{subfigure}[b]{0.5\textwidth}
 \begin{center}
-{\includegraphics[scale=1.1]{chapters/figures/figSumListProductCfg.pdf}}
+{\includegraphics[scale=1.25]{chapters/figures/figSumListProductCfg.pdf}}
 \end{center}
-\caption{\label{fig:llTraverseProduct}Product-CFG}
+\caption{\label{fig:llTraverseProduct}Product-CFG between \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}}
 \end{subfigure}%
 &
-\begin{subfigure}[b]{0.55\textwidth}
+\begin{subfigure}[b]{0.5\textwidth}
 \begin{center}
 \begin{footnotesize}
-\begin{tabular}{|c|l|}
-\hline
-{\bf PC-Pair} & \multicolumn{1}{c|} {\bf Invariants} \\
-\hline
-\hline
-(\scpc{0}{0}) &
-\Tstrut $\circled{P}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\
-\multirow{2}{*}{(\scpc{2}{2})} &
-\Tstrut $\circled{\scriptsize I1}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\ &
-\Tstrut $\circled{\scriptsize I2}\  \sv{sum} = \cv{sum}$ \\
-(\scpc{E}{E}) &
-\Tstrut $\circled{\scriptsize E}\  \sv{ret} = \cv{ret}$ \\
-\hline
+\begin{tabular}{cl}
+\toprule
+{\bf PC-Pair} & \multicolumn{1}{c} {\bf Invariants} \\
+\toprule
+(\scpc{0}{0}) & $\circled{P}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\
+\midrule
+\multirow{2}{*}{(\scpc{2}{2})} & $\circled{\scriptsize I1}\  \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ \\ &
+$\circled{\scriptsize I2}\  \sv{sum} = \cv{sum}$ \\
+\midrule
+(\scpc{E}{E}) & $\circled{\scriptsize E}\  \sv{ret} = \cv{ret}$ \\
+\bottomrule
 \end{tabular}
 \end{footnotesize}
-\vspace{13px}
 \end{center}
-\caption{\label{fig:llTraverseProductInv}Node Invariants of the Product-CFG}
+\caption{\label{fig:llTraverseProductInv}Node invariants for product-CFG in \cref{fig:llTraverseProduct}}
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:llTraverseProductCFGInvs} Product-CFG between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}. The inductive invariants of the Product-CFG are given in \cref{fig:llTraverseProductInv}.}
+\caption{\label{fig:llTraverseProductCFGInvs}Product-CFG between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}.
+\Cref{fig:llTraverseProductInv} contains the corresponding node invariants for the product-CFG.}
 \end{figure}

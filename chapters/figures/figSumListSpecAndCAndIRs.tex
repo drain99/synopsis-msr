@@ -1,0 +1,79 @@
+\begin{figure}
+\begin{tabular}{@{}c@{}c@{}}
+\begin{subfigure}[b]{0.63\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{A0:}}~ type List = LNil | LCons (val:i32, tail:List).
+~{\scriptsize \textcolor{mygray}{A1:}}~
+~{\scriptsize \textcolor{mygray}{A2:}}~ fn sum_list_impl (l:List) (sum:i32) :i32 =
+~{\scriptsize \textcolor{mygray}{A3:}}~    match l with
+~{\scriptsize \textcolor{mygray}{A4:}}~    | LNil => sum
+~{\scriptsize \textcolor{mygray}{A5:}}~    | LCons(x, rest) =>
+~{\scriptsize \textcolor{mygray}{A6:}}~                sum_list_impl(rest, sum + x).
+~{\scriptsize \textcolor{mygray}{A7:}}~
+~{\scriptsize \textcolor{mygray}{A8:}}~ fn sum_list (l:List) : i32 =
+~{\scriptsize \textcolor{mygray}{A9:}}~    sum_list_impl(l, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:llTraverseSpec}Spec Program}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.37\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{S0:}}~ i32 sum_list (List l) {
+~{\scriptsize \textcolor{mygray}{S1:}}~   i32 sum $\coloneqq$ ${\tt 0_{i32}}$;
+~{\scriptsize \textcolor{mygray}{S2:}}~   while $\neg$(l is LNil):
+~{\scriptsize \textcolor{mygray}{S3:}}~     // (l is LCons);
+~{\scriptsize \textcolor{mygray}{S4:}}~     sum $\coloneqq$ sum + l.val;
+~{\scriptsize \textcolor{mygray}{S5:}}~     l   $\coloneqq$ l.next;
+~{\scriptsize \textcolor{mygray}{S6:}}~   return sum;
+~{\scriptsize \textcolor{mygray}{SE:}}~ }
+~{\scriptsize \textcolor{mygray}{}}~
+~{\scriptsize \textcolor{mygray}{}}~
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:llTraverseSpecIR}(Abstracted) Spec IR}
+\end{subfigure}%
+\\
+\begin{subfigure}[b]{0.63\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{B0: }}~ typedef struct lnode {
+~{\scriptsize \textcolor{mygray}{B1: }}~   unsigned val; struct lnode* next; } lnode;
+~{\scriptsize \textcolor{mygray}{B2: }}~ 
+~{\scriptsize \textcolor{mygray}{B3: }}~ unsigned sum_list(lnode* l) {
+~{\scriptsize \textcolor{mygray}{B4: }}~   unsigned sum = 0;
+~{\scriptsize \textcolor{mygray}{B5: }}~   while (l) {
+~{\scriptsize \textcolor{mygray}{B6: }}~     sum += l$\rightarrow$val;
+~{\scriptsize \textcolor{mygray}{B7: }}~     l = l$\rightarrow$next;
+~{\scriptsize \textcolor{mygray}{B8: }}~   }
+~{\scriptsize \textcolor{mygray}{B9: }}~   return sum;
+~{\scriptsize \textcolor{mygray}{B10:}}~ }
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:llTraverseC}C Program}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.37\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{C0:}}~ i32 sum_list (i32 l) {
+~{\scriptsize \textcolor{mygray}{C1:}}~   i32 sum $\coloneqq$ ${\tt 0_{i32}}$;
+~{\scriptsize \textcolor{mygray}{C2:}}~   while ${\tt l \neq 0_{i32}}$:
+~{\scriptsize \textcolor{mygray}{C3:}}~     sum $\coloneqq$ sum + $\structPointer{\tt l}{\mem{}}{lnode}{val}$;
+~{\scriptsize \textcolor{mygray}{C4:}}~     l   $\coloneqq$ $\structPointer{\tt l}{\mem{}}{lnode}{next}$;
+~{\scriptsize \textcolor{mygray}{C5:}}~   return sum;
+~{\scriptsize \textcolor{mygray}{CE:}}~ }
+~{\scriptsize \textcolor{mygray}{}}~
+~{\scriptsize \textcolor{mygray}{}}~
+~{\scriptsize \textcolor{mygray}{}}~
+\end{allLangEnvFoot}
+\vspace{7px}
+\end{center}
+\caption{\label{fig:llTraverseCIR}(Abstracted) C IR}
+\end{subfigure}%
+\\
+\end{tabular}
+\caption{\label{fig:llTraverseSpecAndCAndIRs}Spec and C programs along with their corresponding IRs for traversing a Linked List.}
+\end{figure}

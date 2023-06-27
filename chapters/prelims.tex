@@ -1,6 +1,8 @@
 \chapter{Preliminaries}
 \label{sec:prelims}
 
+\input{chapters/figures/figIsEmptySpecAndCAndIRs.tex}
+
 \section{The Specification Language : \SpecL{}}
 \label{sec:speclang}
 We start with an introduction to our specification language, called \SpecL{}.
@@ -23,6 +25,10 @@ Unlike functional languages, \SpecL{} only supports first order functions.
 Also, \SpecL{} does not support partial function application.
 Hence, we limit our attention to C programs containing only first order functions.
 \SpecL{} is equipped with a special {\tt assuming-do} construct for explicitly providing assertions.
+\Cref{fig:isemptyspec} shows a \SpecL{} program with the {\tt assuming-do} construct, with its C equivalent
+shown in \cref{fig:isemptyc}.
+The corresponding IRs are shown in \cref{fig:isemptyspecir,fig:isemptycir} respectively.
+The significance of explicit assertions in \SpecL{} is further discussed throughout this chapter.
 \SpecL{} also provides intrinsic scalar operators for expressing computation in C succintly yet explicitly.
 Examples of scalar operators include (a) logical operators (e.g., {\tt and}), (b) bitvector arithmatic operators (e.g., {\tt bvadd(+)}),
 and (c) relational operators for comparing bitvectors interpreted as unsigned or signed integers (e.g., {\tt $\leq_{\tt u,s}$}).
@@ -36,8 +42,7 @@ The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a value of \
 the value \nonTerm{expr} is of kind \nonTerm{data-cons}.
 \nonTerm{scalar-op} includes the logical, arithmatic and relational operators supported by \SpecL{}.
 
-\input{chapters/figures/figSumListSpecAndC.tex}
-\input{chapters/figures/figSumListSpecAndCIRAndCFG.tex}
+\input{chapters/figures/figSumListSpecAndCAndIRs.tex}
 
 \section{Abstract Representation of Programs}
 \label{sec:ir}
@@ -53,8 +58,8 @@ We often omit intermediate registers in the IR for brevity, and refer to this as
 We have already seen the IRs (in \cref{fig:llAllocSpecIR,fig:llAllocCIR}) for the \SpecL{} and C programs
 that construct lists in \cref{fig:llAllocSpec,fig:llAllocC}.
 \Cref{fig:llTraverseSpec,fig:llTraverseC} show \SpecL{} and C programs that traverse a list of integers
-and return the sum of all the values in it.
-The corresponding IR programs for the above are shown in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR}.
+and compute their sum.
+The corresponding IR programs for the above are shown in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
 
 The following major steps are performed during conversion of a \SpecL{} source to its IR representation:
 
@@ -78,6 +83,11 @@ are inlined at their call-site.
 We are only interested in proving equivalence of non-helper functions in \SpecL{} with their C counterparts.
 For example, the helper function {\tt sum\_list\_impl} (now non-recursive due to previous step), is inlined
 at call-site \apc{7} in \cref{fig:llTraverseSpec}.
+\item {\tt assuming-do} statements are converted to their equivalent {\tt assume} instruction in the IR.
+A \SpecL{} program is {\em well-defined} iff it satisfies all {\tt assume} clauses encountered during its execution.
+These conditions are called {\em undefined behaviour assumes} or UB {\em assumes} for short.
+For example, the {\tt assuming-do} statement in \apc{4} in \cref{fig:isemptyspec} is converted to an {\tt assume}
+instruction in \spc{1} in \cref{fig:isemptyspecir}.
 \end{enumerate}
 
 Similarly, the following transformations are carried out during conversion of a C source to its IR:
@@ -138,7 +148,7 @@ For example, an \sumDtor{} expression for the \type{List} type must be of the fo
 \Cref{eqn:specDeconstruct} is called the {\em unrolling procedure} for the \type{List} variable $l$.
 We can similarly define the unrolling procedure for any ADT variable (based on the definition of the ADT).
 
-On the C side, the size of a pointer is fixed\footnote{We choose an address width of 4 bytes or 32 bits for our evaluation.}
+On the C side, the size of a pointer is fixed\footnote{We choose an address width of 4 bytes or 32 bits throughout this thesis.}
 and the memory state is modeled as a byte-addressable array over bitvectors (represented by \mem{}).
 ``\memRead{\mem{}}{p}{T}'' represents a memory load operation and is equal to the bytes
 at addresses [$p$, $p$+\sizeof{T}) in \mem{}, interpreted as a value of type \type{T}.
@@ -166,10 +176,15 @@ For example, at PC \cpc{5} in \cref{fig:llAllocCIR}, $\addrof{\structPointer{\ma
 Additionally, given a bitvector expression $e$, ``$e{\tt [ub:lb]}$'' represents a bitvector extract operation that extracts the bits
 in the range [lb,ub] from $e$ resulting in a $(ub-lb+1)$-sized bitvector expression.
 
+\input{chapters/figures/figIsEmptySpecAndCCFG.tex}
+\input{chapters/figures/figSumListSpecAndCCFG.tex}
+
 \subsection{Control-Flow Graph Representation}
 \label{sec:cfg}
 \Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
 of the \SpecL{} and C IRs in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
+Additionally, the CFG representation of IRs in \cref{fig:isemptyspecir,fig:isemptycir} are
+shown in \cref{fig:isemptyspeccfg,fig:isemptyccfg} respectively.
 The Control-Flow Graph is an alternate graphical representation of an IR program that emphasizes
 the control flow structures of the static program.
 Each CFG node represents a program point (i.e. IR PC) and is denoted by $n$.
@@ -183,9 +198,10 @@ from $n$ to $n'$ through execution of instructions and is associated with:
 to trigger the edge $\omega$.
 \item A {\em transfer function} representing the symbolic state at $n'$ ($\Omega_{n'}$) as a function of $\Omega_n$
 i.e. how the machine state is mutated along the edge $\omega$.
-\item An {\em UB condition} representing the condition that must be satisfied by $\Omega_n$ for
-the transition $\omega$ to be well-defined. For a \SpecL{} function, assertions expressed
-using the {\tt assuming-do} statement form the UB assumptions.
+\item An UB {\em assume} representing the condition that must be satisfied by $\Omega_n$ for
+the transition $\omega$ to be well-defined.
+For a \SpecL{} procedure, the {\tt assume} clauses form its UB assumes.
+Recall that, a C procedure is determinized during conversion to CFG and thus do not contain UB assumes.
 \end{enumerate}
 
 For brevity, we often represent a sequence of instructions with a single edge, e.g.,
@@ -193,12 +209,15 @@ in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7
 In such a case, the transfer function of the edge is the composition of the sequence of instructions.
 A CFG must contain exactly one entry node (representing the entry to the function) and (possibly)
 multiple exit nodes (each representing an exit from the function).
+For example, the CFG in \cref{fig:isemptyccfg} contains an entry node \cpc{0} and two exit nodes
+\cpc{E_1} and \cpc{E_2} representing exits through the IR PCs \cpc{1} and \cpc{2} in \cref{fig:isemptycir} respectively.
 An edge incident on an exit node is called an {\em exit edge} and is only associated with an {\em action} representing
 the values returned, as a function of the symbolic state at the source node.
 Actions form the observable behaviour of a CFG while transition through non-exit edges are internal to the program.
-Recall that for a C CFG, the action includes both the returned value (if non-void) and the memory state.
-We omit these transfer functions in the CFG figures (as they are shown in their corresponding IR)
+For a C CFG, the action includes both the returned value (if non-void) and the memory state.
+We often omit these transfer functions in the CFG figures (if they are shown in their corresponding IR)
 and only show the edge conditions (unless they are {\em true}).
+The UB assumes are shown inside curved rectangles (e.g., \cref{fig:isemptyccfg}), unless they are {\em true}.
 Henceforth, we refer to the CFGs of \SpecL{} and C procedures as \sprog{} and \cprog{} respectively.
 
 \section{Equivalence Definition}
@@ -226,7 +245,7 @@ in which all memory allocation requests (through {\tt malloc} calls) are success
 
 Recall that the observables of \sprog{} and \cprog{} are the actions associated with their exit edges (i.e. returned values).
 For \sprog{}, observables include the explicit value returned.
-For \cprog{}, observables include the returned value along with the memory state at program exit.
+For \cprog{}, observables include the returned value (if non-void) along with the memory state at program exit.
 The postcondition \post{} relates these outputs of the two programs.
 The pair $(\pre{},\post{})$ represents the input-output behaviour of \cprog{} in terms of the specification \sprog{},
 and is called the {\em input-output specification}.
@@ -234,23 +253,37 @@ In general, \SpecL{} and C sources may contain multiple top-level procedures, wi
 In this case, we are interested in finding equivalence between each pair
 of \sprog{} and \cprog{} procedures with respect to their input-output specification.
 
+\subsection{Constraining Inputs to C}
+\label{sec:cinputcons}
 Sometimes, the user may be interested in constraining the nature of inputs to \cprog{}
-for the purpose of checking equivalence only for {\em well-defined} inputs.
-In those circumstances, we use a combination of \pre{} and \sdef{} to constrain
+for the purpose of checking equivalence only for {\em well-formed} inputs.
+In those circumstances, we use a combination of \sdef{} and \pre{} to constrain
 the execution of \cprog{} to inputs for which we are interested in proving equivalence.
-For example, the C library function {\tt strlen(\type{char}* \cv{str})} is well-defined only if \cv{str}
-represents a valid null character terminated string.
-This includes the assumption that the pointer \cv{str} may not be null.
-Since \SpecL{} has no notion of pointers, we expose this conditional well-definedness of C strings
-through an explicit constructor e.g. \cons{SInvalid} for the \type{String} ADT defined as:
-$$
-\type{Str} = \cons{SInvalid}\ |\ \cons{SNil}\ |\ \cons{SCons}(\type{i8}, \type{Str})
-$$
-\sdef{} asserts $\neg(\sumIs{\sv{str}}{SInvalid})$ (using {\tt assuming-do}) and
-the precondition \pre{} contains the relation $(\sumIs{\sv{str}}{SInvalid}) \Leftrightarrow (\cv{str}=0)$.
-Hence, \sdef{} and \pre{} ensure that we compute equivalence for those
-executions of \sprog{} and \cprog{} where the input strings are well-defined.
-A similar strategy is employed for other functions as explored later in \cref{sec:results}.
+For example, consider the function {\tt is\_empty} (shown in \cref{fig:isemptyspec,fig:isemptyc})
+that accepts a string and checks whether is it empty or contains at least one character.
+A string is represented as a list of characters (i.e. \type{i8}) in the \SpecL{} procedure.
+On the other hand, its C analogue expects a standard null-character terminated string represented by a pointer
+to its first character, say \cv{s}.
+A {\em well-formed} null-terminated string must point to an allocated region of memory terminating with a null (i.e. {\em zero}) character
+and thus \cv{s} may not be the null pointer.
+Observe that the well-formedness of \cv{s} is an entry assumption that must be ensured by the caller.
+Evidently, we are only interested in verifying the behaviour of the C procedure (against its specification) for
+well-formed inputs.
+Note that in \bpc{3} in \cref{fig:isemptyc}, we handle the case of \cv{s} being the null pointer for safety,
+even though a well-formed input may not trigger it.
+
+\input{chapters/figures/figIsEmptyProductCFGAndInvs.tex}
+
+Since \SpecL{} has no notion of pointers, we expose this conditional well-formedness of C input \cv{s}
+through an explicit data constructor \cons{SInvalid} for the \type{Str} ADT defined in \apc{0} in \cref{fig:isemptyspec}.
+Additionally, \sdef{} asserts $\neg(\sumIs{\sv{s}}{SInvalid})$ (in \apc{4} and \spath{1,2} in \cref{fig:isemptyspecir}) and the precondition \pre{}
+(labeled \circled{P} in \cref{fig:isemptyinvs}) relates $(\sumIs{\sv{s}}{SInvalid}) \Leftrightarrow (\cv{s} = 0_\type{i32})$\footnote{
+The relation is implied by the \recursiveRelation{} $\sv{l} \indEq{} \lifted{str}{\mem{}}{u8[]}{\cv{l}}$ as part of \pre{} shown in \cref{fig:isemptyinvs}.
+The lifting constructor $\lift{str}{\mem{}}{u8[]}$ is defined subsequently in \cref{sec:recrel}.}.
+Combined, \sdef{} and \pre{} ensure that we constrain the inputs of \sprog{} and in turn, \cprog{} to only well-formed values
+during equivalence check.
+A similar strategy is employed for functions from the standard library (e.g. {\tt strchr}) and is explored in detail
+during evaluation in \cref{sec:strchrexample}.
 
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
 
@@ -287,16 +320,6 @@ In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in \spr
 \cv{\rho} in \cprog{}, written $e=(\sv{\rho},\cv{\rho})$.
 The empty path $\epsilon$ in \sprog{} may be correlated with a finite path in \cprog{},
 effectively simulating a {\em stuttering bisimulation} relation.
-A product-CFG is well-formed (i.e. represents a valid bisimulation relation)
-if no loop path in \cprog{} is correlated with $\epsilon$ in \sprog{}.
-For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs
-in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
-The edges \scedge{3}{3}{3}{4} and \scedge{3}{4}{3}{5} correlate the empty path $\epsilon$
-with the non-empty paths \cpath{3,4} and \cpath{4,5} respectively.
-However, the only loop path \cpath{3,4,5,3} in \cprog{} is still correlated with the non-empty path \spath{3,5,3}
-in \sprog{} and thus, the product-CFG in \cref{fig:llAllocProductCFG} satisfies this well-formedness criterion.
-This well-formedness condition is required to preserve {\em divergence}, i.e. either both programs terminate or
-both continue indefinitely.
 
 At the start node (\scpc{0}{0}) of the product-CFG in \cref{fig:llTraverseProduct},
 the precondition \pre{} (labeled \circled{\small P})
@@ -304,13 +327,33 @@ ensures equality of input lists \sv{l} and \cv{l} at procedure entries.
 {\em Inductive invariants} (labeled \circled{I}) are inferred
 at each intermediate product-CFG node (e.g., (\scpc{2}{2})) that relate
 the values of \sprog{} with values and memory state of \cprog{}.
-At the exit node (\scpc{E}{E}) of the product-CFG, the postcondition \post{} (labeled \circled{\small P})
+At the exit node (\scpc{E}{E}) of the product-CFG, the postcondition \post{} (labeled \circled{\small E})
 represents equality of observable outputs and forms our overall proof obligation.
 Assuming that the precondition \pre{} (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
 a bisimulation check involves checking that the inductive invariants (\circled{\small I}) hold too,
 and consequently the postcondition \post{} (\circled{\small E}) holds at the exit node (\scpc{E}{E}).
 The input-output specification (i.e. $(\pre{},\post{})$) is manually provided by the user
 while all inductive invariants are identified by an invariant inference algorithm described in \cref{sec:invinferalgo}.
+
+\subsection{Well-formedness of Product-CFG}
+A product-CFG is well-formed (i.e. represents a valid bisimulation relation) if it correlates every {\em possibly} executable
+edge (as part of a path) in \cprog{} with a path in \sprog{}.
+An edge deemed to be unreachable (due to an unsatisfiable path condition) represents {\em dead code} and can be
+safely ignored and remain uncorrelated in the final product-CFG.
+For example, the \sdef{} and \pre{} conditions assert unreachability of the edge \cpath{0,E_1} in \cref{fig:isemptyccfg},
+and remain uncorrelated in the product-CFG in \cref{fig:isemptyproductcfg}.
+Without \sdef{} and \pre{}, our equivalence checker would fail because the edge \cpath{0,E_1} is only triggered for ill-formed
+inputs and has no correlated paths in its specification.
+
+Additionally, a well-formed product-CFG may not correlate a loop path in \cprog{} with the empty path $\epsilon$ in \sprog{}.
+For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs
+in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
+The edges \scedge{3}{3}{3}{4} and \scedge{3}{4}{3}{5} correlate the empty path $\epsilon$
+with the non-empty paths \cpath{3,4} and \cpath{4,5} respectively.
+However, the only loop path \cpath{3,4,5,3} in \cprog{} is still correlated with the non-empty path \spath{3,5,3}
+in \sprog{} and thus, the product-CFG in \cref{fig:llAllocProductCFG} satisfies this well-formedness criterion.
+This well-formedness condition ensures {\em divergence}, i.e. either both programs terminate or
+both continue indefinitely.
 
 \section{Recursive Relation}
 \label{sec:recrel}
@@ -331,9 +374,10 @@ and is defined through its {\em unrolling procedure} as follows:
 
 \begin{equation}
 \label{eqn:clist}
-\begin{split}
-U_C:\ &\lifted{list}{\mem{}}{lnode}{p \ctype{i32}} = \sumIf{p=0} \ \sumThen{\cons{LNil}} \\ & \qquad\qquad\ \ \ \sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})}
-\end{split}
+\begin{aligned}
+U_C:\ \lifted{list}{\mem{}}{lnode}{p \ctype{i32}} = \ & \sumIf{p=0} \ \sumThen{\cons{LNil}} \\
+                                                      & \sumElse{\cons{LCons}(\structPointer{p}{\mem{}}{lnode}{val}, \lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}})}
+\end{aligned}
 \end{equation}
 
 Note the recursive nature of the lifting constructor \lift{list}{\mem{}}{lnode}: if the pointer $p$ is zero
@@ -345,6 +389,22 @@ lifting \structPointer{p}{\mem{}}{lnode}{next} through \lift{list}{\mem{}}{lnode
 in the memory \mem{}) to a \type{List} value and compare it with a \SpecL{} \type{List}
 value for equality.
 
+Also, consider the \type{Str} lifting constructor \lift{str}{\mem{}}{u8[]} (in \cref{fig:isemptyinvs}) used to lift a null-character
+terminated C string into a \type{Str} value.
+Similar to the \type{List} lifting constructor, \lift{str}{\mem{}}{u8[]} is also defined through its unrolling procedure as follows:
+
+\begin{equation}
+\label{eqn:cstr}
+\begin{aligned}
+\lifted{str}{\mem{}}{u8[]}{p \ctype{i32}} = \ & \sumIf{p=0} \ \sumThen{\cons{SInvalid}} \\
+                                              & \sumElif{\arrIndex{p}{0}{\mem{}}{i8} = 0} \ \sumThen{\cons{SNil}} \\
+                                              & \sumElse{\cons{SCons}(\arrIndex{p}{0}{\mem{}}{i8}, \lifted{str}{\mem{}}{u8[]}{p+1})}
+\end{aligned}
+\end{equation}
+
+Observe that an ill-formed string is related to the pointer being null,
+while a null character represents the empty string.
+
 \section{Proof Obligations}
 \label{sec:proofobl}
 As previously discussed, algorithms for (a) incremental construction of a Product-CFG
@@ -353,6 +413,11 @@ based on prior work\cite{oopsla20} and discussed subsequently in \cref{sec:searc
 We discuss the proof obligations that arise from a given product-CFG.
 Recall that a bisimulation check involves checking that all inductive invariants
 (and the postcondition \post{}) hold at their associated product-CFG nodes.
+Additionally, if a product-CFG correlates paths $\sv{\rho}$ and $\cv{\rho}$ (in \sprog{} and \cprog{}),
+a bisimulation check must ensure that their respective path conditions are {\em compatible}\footnote{
+Paths $\sv{\rho}$ and $\cv{\rho}$ are {\em compatible} if whenever \cprog{} executes $\cv{\rho}$,
+\sprog{} executes $\sv{\rho}$, i.e. ${\tt pathcond}_{\cv{\rho}} \Rightarrow {\tt pathcond}_{\sv{\rho}}$.}
+(under the appropriate node invariants).
 
 We use relational Hoare triples to express these proof obligations \cite{relationalHoareLogic,hoareTriple}.
 If $\phi$ denotes a predicate relating the machine states of \sprog{} and \cprog{}, then
@@ -394,11 +459,10 @@ Using weakest precondition predicate transformer, the proof obligation \circled{
 
 \begin{equation}
 \label{eqn:firstOrderFormulaExample}
-\begin{split}
-\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}} \land \sv{sum} = \cv{sum}
-\land (\sumIs{\sv{l}}{LCons}) \land (\cv{l} \neq 0) \\ \Rightarrow
-\prodAccess{\sv{l}}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{\structPointer{\cv{l}}{\mem{}}{lnode}{next}}
-\end{split}
+\begin{aligned}
+\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}} &\land \sv{sum} = \cv{sum} \land (\sumIs{\sv{l}}{LCons}) \land (\cv{l} \neq 0) \\
+&\Rightarrow \prodAccess{\sv{l}}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{\structPointer{\cv{l}}{\mem{}}{lnode}{next}}
+\end{aligned}
 \end{equation}
 
 Due to the presence of \recursiveRelations{}, these proof queries

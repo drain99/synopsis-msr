@@ -1,0 +1,57 @@
+\begin{figure}
+\begin{tabular}{@{}c@{}c@{}}
+\begin{subfigure}[b]{0.55\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{A0:}}~ type Str = SInvalid | SNil
+~{\scriptsize \textcolor{mygray}{A1:}}~          | SCons (ch:i8, tail:Str).
+~{\scriptsize \textcolor{mygray}{A2:}}~
+~{\scriptsize \textcolor{mygray}{A3:}}~ fn is_empty (s : Str) : bool =
+~{\scriptsize \textcolor{mygray}{A4:}}~    assuming $\neg$(s is SInvalid) do
+~{\scriptsize \textcolor{mygray}{A5:}}~      s is SNil.
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:isemptyspec}Spec program}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.45\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{B0:}}~ #include <stdbool.h>
+~{\scriptsize \textcolor{mygray}{B1:}}~
+~{\scriptsize \textcolor{mygray}{B2:}}~ bool is_empty(char* s) {
+~{\scriptsize \textcolor{mygray}{B3:}}~   if (!s) return false;
+~{\scriptsize \textcolor{mygray}{B4:}}~   return *s == 0;
+~{\scriptsize \textcolor{mygray}{B5:}}~ }
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:isemptyc}C program}
+\end{subfigure}%
+\\
+\begin{subfigure}[b]{0.55\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{S0:}}~ bool is_empty(Str s) {
+~{\scriptsize \textcolor{mygray}{S1:}}~   assume $\neg$(s is Sinvalid);
+~{\scriptsize \textcolor{mygray}{S2:}}~   return s is SNil;
+~{\scriptsize \textcolor{mygray}{SE:}}~ }
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:isemptyspecir}(Abstracted) Spec IR}
+\end{subfigure}%
+&
+\begin{subfigure}[b]{0.45\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\scriptsize \textcolor{mygray}{C0: }}~ bool is_empty(i32 s) {
+~{\scriptsize \textcolor{mygray}{C1: }}~   if $(s = 0_{i32})$: return false;
+~{\scriptsize \textcolor{mygray}{C2: }}~   return $\memRead{\mem{}}{0_{i32}}{i8}$ = $0_{i8}$;
+~{\scriptsize \textcolor{mygray}{CE: }}~ }
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:isemptycir}(Abstracted) C IR}
+\end{subfigure}%
+\\
+\end{tabular}
+\caption{\label{fig:isemptyspecandcandirs}\SpecL{} and C programs along with their corresponding IRs for the {\tt is\_empty} procedure.}
+\end{figure}

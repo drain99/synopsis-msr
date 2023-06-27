@@ -1,0 +1,20 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\node[circle,inner sep=0.4mm,minimum size=16.5,draw,font=\footnotesize] (0) {\cpc{0}};
+\node[circle,inner sep=0.4mm,minimum size=16.5,draw,font=\footnotesize] (1) [position=0:15mm from 0] {\cpc{E_1}};
+\node[circle,inner sep=0.4mm,minimum size=16.5,draw,font=\footnotesize] (2) [position=-90:2mm from 1] {\cpc{E_2}};
+
+% \draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (0) to node[rectangle,line width=0.30pt,draw,midway,inner sep=0.2mm,above,font=\scriptsize,xshift=0mm,yshift=2.5mm] (ub) {$\neg(\sumIs{\tt s}{SInvalid})$} (1);
+
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (0) to                             node[near start,above,font=\footnotesize,xshift=2mm,yshift=-0.4mm] {$s = 0_\type{i32}$} (1);
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (0) to[out=-90,in=180,looseness=0.8] node[midway,below,font=\footnotesize,xshift=2.4mm,yshift=0.4mm] {$s \neq 0_\type{i32}$} (2);
+
+\end{tikzpicture}
+
+\end{document}

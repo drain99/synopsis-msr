@@ -1,0 +1,16 @@
+\documentclass[tikz,border=3.14mm,margin=0pt,fontsize=12pt]{standalone}
+\input{common_tikz.tex}
+\begin{document}
+
+\tikzset{every picture/.style={line width=0.40pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}
+
+\node[circle,inner sep=0.4mm,minimum size=16.5,draw,font=\footnotesize] (0) {\spc{0}};
+\node[circle,inner sep=0.4mm,minimum size=16.5,draw,font=\footnotesize] (1) [position=0:24mm from 0] {\spc{E}};
+
+\draw [-{Straight Barb[length=2.2mm, width=1.5mm]}] (0) to node[rounded rectangle,line width=0.30pt,draw,midway,inner sep=0.3mm,above,font=\scriptsize,xshift=-1mm,yshift=1.5mm] (ub) {$\neg(\sumIs{\tt s}{SInvalid})$} (1);
+
+\end{tikzpicture}
+
+\end{document}
