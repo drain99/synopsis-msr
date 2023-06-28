@@ -80,7 +80,7 @@ and (b) it uses specialized bit manipulations to identify a null character in a 
 for both implementations against the unaltered specification.
 \Cref{fig:StrlenProductCFGsAndInvs} shows the product-CFG and invariants for each implementation.
 
-\input{chapters/figures/figStrlenCfgsWithInvs.tex}
+\input{chapters/figures/figSynStrlenCfgsWithInvs.tex}
 
 Lifting constructors are named based on the C data layout being lifted
 and the \SpecL{} ADT type of the lifted value.
@@ -148,7 +148,7 @@ constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
 to compute equivalence with their specifications. For functions that
 take two or more data structures as arguments, we show
 results for different combinations of data layouts for {\parfillskip=0pt\par}
-\input{chapters/figures/figEvalTable.tex}
+\input{chapters/figures/figSynEvalTable.tex}
 \noindent each argument.
 We also show the minimum under-approximation ($d_u$) and over-approximation ($d_o$) depths
 at which the equivalence proof completed (keeping all other parameters to their

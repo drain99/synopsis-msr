@@ -66,6 +66,8 @@ List the other ADTs and their layouts considered
 Thank you slide
 
 TODO:
-(1) fill in all the TODOs unless they are questions
-(2) do a rewrite pass over properties and applications of value graphs
-(3) add the figDIAGRAM somewhere
+(1) remove horizontal rules for invinfer xfer
+(2) ask whether to copy C IR and CFG during points-to intro in chapter 3
+(3) fix the pathset algorithm explanation
+(4) do a full read over "More on Proof Discharge Algorithm"
+(5) format and submit

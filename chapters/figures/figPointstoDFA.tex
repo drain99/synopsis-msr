@@ -7,8 +7,8 @@
 \hline
 \Tstrut \Bstrut Domain &
 \begin{tabular}{@{}l@{\hskip 12mm}l@{}}
-$\Delta^{\cprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \rightarrow 2^{\memregions{}}$ &
-$\Delta^{\dprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{} \cup \pseudoregs{}^{\dprog{}}) \rightarrow 2^{\memregions{}}$ \\
+$\Delta^{C} : (\pseudoregs{}^{C} \cup \memregions{}) \rightarrow 2^{\memregions{}}$ &
+$\Delta^{D} : (\pseudoregs{}^{C} \cup \memregions{} \cup \pseudoregs{}^{D}) \rightarrow 2^{\memregions{}}$ \\
 \end{tabular} \\
 \hline
 \Tstrut \Bstrut Direction & Forward \\
@@ -16,8 +16,8 @@ $\Delta^{\dprog{}} : (\pseudoregs{}^{\cprog{}} \cup \memregions{} \cup \pseudore
 Boundary Condition &
 \begin{tabular}{@{}l@{\hskip 11mm}l@{}}
 \multicolumn{2}{@{}l}{\Tstrut \Bstrut $\Delta_n$ for start node :}\\
-$\Delta_n^{\cprog{}}(t) = \begin{dcases} \emptyset \ \ \  t \in \pseudoregs{}^{\cprog{}} \\ \memregions{} \ \ t \in \memregions{} \end{dcases}$ &
-$\Delta_n^{\dprog{}}(t) = \begin{dcases} \Delta_{n_C}^{\cprog{}}(t) \ \  t \in (\pseudoregs{}^{\cprog{}} \cup \memregions{}) \\ \emptyset \ \ \ \ \ \ \ \ \ \  t \in \pseudoregs{}^{\dprog{}} \end{dcases}$ \\
+$\Delta_n^{C}(t) = \begin{dcases} \emptyset \ \ \  t \in \pseudoregs{}^{C} \\ \memregions{} \ \ t \in \memregions{} \end{dcases}$ &
+$\Delta_n^{D}(t) = \begin{dcases} \Delta_{n_C}^{C}(t) \ \  t \in (\pseudoregs{}^{C} \cup \memregions{}) \\ \emptyset \ \ \ \ \ \ \ \ \ \  t \in \pseudoregs{}^{D} \end{dcases}$ \\
 \end{tabular} \\
 \hline
 \Tstrut \Bstrut Initialization to $\top$ & $\Delta_n$ for non-start nodes : $\Delta_n(t) = \emptyset \ \  t \in {\tt Domain}(\Delta_n)$ \\

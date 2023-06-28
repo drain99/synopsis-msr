@@ -1,18 +1,21 @@
 \begin{figure}
 \begin{center}
-\begin{subfigure}[b]{.58\textwidth}
+\begin{subfigure}[b]{.54\textwidth}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
+\SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$f_e(\phi_s, \Gamma_s)$}{
-  $\Gamma^{can}_{d} \coloneqq \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$;\\
-  $\phi^{can}_{d} \coloneqq StrongestInvCover(\Gamma^{can}_{d})$;\\
-  \While{$Prove(\hoareTriple{\phi_s}{e}{\phi^{can}_d}) = \cons{False}(\gamma_s)$}{
-    $\gamma_{d} \ \ \ \coloneqq {\tt exec}_e(\gamma_s)$;\\
-    $\Gamma^{can}_{d} \coloneqq \Gamma^{can}_{d}\cup\gamma_{d}$;\\
-    $\phi^{can}_{d} \coloneqq StrongestInvCover(\Gamma^{can}_{d})$;\\
+  $\Gamma^{can}_{d} \mapsfrom \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$\\
+  $\phi^{can}_{d} \mapsfrom {\tt strongestInvCover}(\Gamma^{can}_{d})$\\
+  \While{$prove(\hoareTriple{\phi_s}{e}{\phi^{can}_d}) = \cons{False}(\gamma_s)$}{
+    $\gamma_{d} \ \ \ \mapsfrom {\tt exec}_e(\gamma_s)$\\
+    $\Gamma^{can}_{d} \mapsfrom \Gamma^{can}_{d}\cup\gamma_{d}$\\
+    $\phi^{can}_{d} \mapsfrom {\tt strongestInvCover}(\Gamma^{can}_{d})$\\
   }
-  \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$};\\
+  \Return{$(\phi^{can}_{d}, \Gamma^{can}_{d})$}\\
 }
 \end{footnotesize}
 \end{algorithm}
@@ -21,14 +24,14 @@
 \hfill
 \rulesep
 \hfill
-\begin{subfigure}[b]{.40\textwidth}
-\begin{center}
-\begin{footnotesize}
-\begin{tabular}{p{0.45cm}p{0.15cm}l}
+\begin{subfigure}[b]{.43\textwidth}
+\begin{center}  
+% \begin{footnotesize}
+\begin{tabular}{@{}ccc@{}}
 {\tt Inv} & $\rightarrow$ & $\sum_{i}{c^i v^i}=c$ $|$ $v^1 \odot v^2$  \\
-& $\ \ |$ & $\alpha_S \indEq{} \lifted{lift}{\mem{}}{T}{v_C \ldots}$ \\
+& $|$ & $\alpha_S \indEq{} \lifted{lift}{\mem{}}{T}{v_C \ldots}$ \\
 \end{tabular}
-\end{footnotesize}
+% \end{footnotesize}
 \end{center}
 \caption{\label{fig:invinfergrammar} Predicate grammar \invgrammar{} for constructing invariants.
 $v$ represents a bitvector variable in either \sprog{} or \cprog{}.
@@ -37,14 +40,14 @@ $\odot$ $\in$ $\{<,\leq\}$.
 $\alpha_S$ represents an ADT variable in \sprog{}. $v_C$ represents a bitvector variable in \cprog{}.
 \mem{} represents the current \cprog{} memory state.}
 \end{subfigure}%
-\caption{Transfer function $f_e$ and Predicate grammar \invgrammar{} for invariant inference dataflow analysis in \cref{tab:invinferalgodfa}.
+\caption{Transfer function $f_e$ and predicate grammar \invgrammar{} for invariant inference dataflow analysis in \cref{tab:invinferalgodfa}.
 Given invariants $\phi_{s}$ and counterexamples $\Gamma_{s}$ at node $s$,
 $f_e$ returns the updated
 invariants $\phi_{d}$ and counterexamples $\Gamma_{d}$ at
 node $d$.
-$StrongestInvCover(\Gamma)$ computes the strongest invariant cover for counterexamples $\Gamma$.
+${\tt strongestInvCover}(\Gamma)$ computes the strongest invariant cover for counterexamples $\Gamma$.
 {\tt exec}$_e$($\Gamma$) (concretely) executes
 counterexamples $\Gamma$ over edge $e$.
-$Prove(P)$ (in \cref{algo:proofSummary}) discharges the proof obligation $P$, and returns either \cons{True} or $\cons{False}(\Gamma)$.}
+$prove(P)$ (in \cref{algo:proofSummary}) discharges a proof obligation $P$, and returns either \cons{True} or $\cons{False}(\Gamma)$.}
 \end{center}
 \end{figure}

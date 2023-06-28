@@ -9,7 +9,7 @@
 \node[draw,circle,minimum size=8mm,font=\small] (0) {$\cv{p}$};
 \node[draw,circle,minimum size=8mm,font=\small] (1) [position=0:7mm from 0] {$\cv{l}$};
 \node[draw,circle,minimum size=8mm,font=\small] (2) [position=0:7mm from 1] {$\cv{i}$};
-\node[draw,circle,inner sep=0.4mm,minimum size=8mm,font=\footnotesize] (3) [position=-90:7mm from 0] {$\mlrf{\cpc{4}}$};
+\node[draw,circle,inner sep=0.4mm,minimum size=8mm,font=\footnotesize] (3) [position=-90:5.5mm from 0] {$\mlrf{\cpc{4}}$};
 \node[draw,circle,inner sep=0.4mm,minimum size=8mm,font=\footnotesize] (4) [position=0:7mm from 3] {$\mlrs{\cpc{4}}$};
 \node[draw,circle,inner sep=0.4mm,minimum size=8mm,font=\footnotesize] (5) [position=0:7mm from 4] {$\heapr{}$};
 
@@ -20,11 +20,11 @@
 \draw (4) edge [out=30,in=150,-{Straight Barb[length=2mm, width=1.5mm]},decorate, decoration={snake,amplitude=.6mm,segment length=2.5mm,post length=1mm}] (5);
 \draw (5) edge [out=210,in=-30,-{Straight Barb[length=2mm, width=1.5mm]},decorate, decoration={snake,amplitude=.6mm,segment length=2.5mm,post length=1mm}] (4);
 
-\draw (4) edge [out=-60,in=-120,looseness=8,decorate, decoration={snake,amplitude=.6mm,segment length=2.5mm,post length=1mm},-{Straight Barb[length=2mm, width=1.5mm]}] (4);
-\draw (5) edge [out=-60,in=-120,looseness=8,decorate, decoration={snake,amplitude=.6mm,segment length=2.5mm,post length=1mm},-{Straight Barb[length=2mm, width=1.5mm]}] (5);
+\draw (4) edge [out=-60,in=-120,looseness=6.6,decorate, decoration={snake,amplitude=.6mm,segment length=2.5mm,post length=1mm},-{Straight Barb[length=2mm, width=1.5mm]}] (4);
+\draw (5) edge [out=-60,in=-120,looseness=6.6,decorate, decoration={snake,amplitude=.6mm,segment length=2.5mm,post length=1mm},-{Straight Barb[length=2mm, width=1.5mm]}] (5);
 
-\draw[thick,dotted] ($(3.north west) +(-2.5mm,5mm)$) rectangle ($(5.south east) +(2.5mm,-11mm)$);
-\node (6) at ($(3) +(-2.5mm,-12mm)$) {$\mem{}$};
+\draw[dashed,gray] ($(3.north west) +(-2.5mm,4mm)$) rectangle ($(5.south east) +(2.5mm,-9mm)$);
+\node (6) at ($(3) +(-2.5mm,-9.5mm)$) {$\mem{}$};
 
 \end{tikzpicture}
 

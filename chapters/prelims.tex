@@ -340,6 +340,7 @@ The input-output specification (i.e. $(\pre{},\post{})$) is manually provided by
 while all inductive invariants are identified by an invariant inference algorithm described in \cref{sec:invinferalgo}.
 
 \subsection{Well-formedness of Product-CFG}
+\label{sec:wellformedproductcfg}
 A product-CFG is well-formed (i.e. represents a valid bisimulation relation) if it correlates every {\em possibly} executable
 edge (as part of a path) in \cprog{} with a path in \sprog{}.
 An edge deemed to be unreachable (due to an unsatisfiable path condition) represents {\em dead code} and can be
@@ -417,9 +418,9 @@ based on prior work\cite{shubhanipdhthesis} and discussed subsequently in \cref{
 We discuss the proof obligations that arise from a given product-CFG.
 Recall that a bisimulation check involves checking that all inductive invariants
 (and the postcondition \post{}) hold at their associated product-CFG nodes.
-Additionally, if a product-CFG correlates paths $\sv{\rho}$ and $\cv{\rho}$ (in \sprog{} and \cprog{}),
-a bisimulation check must ensure that whenever \cprog{} executes $\cv{\rho}$, \sprog{} executes $\sv{\rho}$\footnote{
-This is equivalent to the condition ${\tt pathcond}_{\cv{\rho}} \Rightarrow {\tt pathcond}_{\sv{\rho}}$.}.
+% Additionally, if a product-CFG correlates paths $\sv{\rho}$ and $\cv{\rho}$ (in \sprog{} and \cprog{}),
+% a bisimulation check must ensure that \cprog{} executes $\cv{\rho}$ iff \sprog{} executes $\sv{\rho}$\footnote{
+% This is equivalent to the condition ${\tt pathcond}_{\cv{\rho}} \Leftrightarrow {\tt pathcond}_{\sv{\rho}}$.}.
 
 We use relational Hoare triples to express these proof obligations \cite{relationalHoareLogic,hoareTriple}.
 If $\phi$ denotes a predicate relating the machine states of \sprog{} and \cprog{}, then
@@ -454,7 +455,7 @@ the implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.
 
 For example, checking that the loop invariant \circled{\small I1}
 $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}$ holds at (\scpc{2}{2}) in \cref{fig:llTraverseProduct}
-requires proving that \circled{\small I1} holds along the two product-CFG edges \scedge{0}{0}{2}{2} and \scedge{2}{2}{2}{2} terminating at (\scpc{2}{2}),
+requires that \circled{\small I1} is provable along the two product-CFG edges \scedge{0}{0}{2}{2} and \scedge{2}{2}{2}{2} terminating at (\scpc{2}{2}),
 which further reduces to the following two proof obligations:
 \begin{equation*}
 \begin{aligned}

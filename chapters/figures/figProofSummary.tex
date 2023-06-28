@@ -1,52 +1,55 @@
 \begin{figure}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$Prove(\hoareTriple{\phi_s}{e}{\phi_d}, k, d_o, d_u)$}{
-  $F \mapsfrom LowerToFOL(\hoareTriple{\phi_s}{e}{\phi_d})$;\\
-  \ForEach{$\lhs{} \Rightarrow \rhs{}_i \keyword{in} RHSBreak(F)$}{
-    \If{$Solve(\lhs{}, \rhs{}_i, k, d_o, d_u) = \cons{False}(\Gamma)$}{
-      \Return{$\cons{False}(\Gamma)$};
+\Fn{$prove(\hoareTriple{\phi_s}{e}{\phi_d}, k, d_o, d_u)$}{
+  $F \mapsfrom {\tt lowerWP}(\hoareTriple{\phi_s}{e}{\phi_d})$\\
+  \ForEach{$\lhs{} \Rightarrow \rhs{}_i \keyword{in} {\tt RHSBreak}(F)$}{
+    \If{$solve(\lhs{}, \rhs{}_i, k, d_o, d_u) = \cons{False}(\Gamma)$}{
+      \Return{$\cons{False}(\Gamma)$}
     }
   }
-  \Return{$\cons{True}$};
+  \Return{$\cons{True}$}
 }
-\Fn{$Solve(\lhs{}, \rhs{}, k, d_o, d_u)$}{
-  $(\lhs{}_k, \rhs{}_k) \mapsfrom DecomposeAndUnroll(\lhs{}, \rhs{}, k)$;\\
-  \Switch{$Categorize(\lhs{}_k, \rhs{}_k)$}{
+\Fn{$solve(\lhs{}, \rhs{}, k, d_o, d_u)$}{
+  $(\lhs{}_k, \rhs{}_k) \mapsfrom {\tt decomposeAndUnroll}(\lhs{}, \rhs{}, k)$\\
+  \Switch{${\tt categorize}(\lhs{}_k, \rhs{}_k)$}{
     \uCase{${\tt Type\ I}$}{
-      \Return{$SMTProve(\lhs{}_k \Rightarrow \rhs{}_k)$};
+      \Return{${\tt solveSMT}(\lhs{}_k \Rightarrow \rhs{}_k)$}
     }
     \uCase{${\tt Type\ II}$}{
-      $\lhs{}_o \mapsfrom Overapproximate(\lhs{}, d_o)$;\\
-      \If{$SMTProve(\lhs{}_o \Rightarrow \rhs{}_k) = \cons{True}$}{
-        \Return{$\cons{True}$};
+      $\lhs{}_o \mapsfrom {\tt overapproximate}(\lhs{}, d_o)$\\
+      \If{${\tt solveSMT}(\lhs{}_o \Rightarrow \rhs{}_k) = \cons{True}$}{
+        \Return{$\cons{True}$}
       }
-      $\lhs{}_u \mapsfrom Underapproximate(\lhs{}, d_u)$;\\
-      \If{$SMTProve(\lhs{}_u \Rightarrow \rhs{}_k) = \cons{False}(\Gamma)$}{
-        \Return{$\cons{False}(\Gamma)$};
+      $\lhs{}_u \mapsfrom {\tt underapproximate}(\lhs{}, d_u)$\\
+      \If{${\tt solveSMT}(\lhs{}_u \Rightarrow \rhs{}_k) = \cons{False}(\Gamma)$}{
+        \Return{$\cons{False}(\Gamma)$}
       }
-      \Return{$\cons{False}(\emptyset)$};
+      \Return{$\cons{False}(\emptyset)$}
     }
     \Case{${\tt Type\ III}$}{
-      $\rhs{}' \mapsfrom RewriteRHSUsingLHS(\lhs{}, \rhs{})$;\\
-      \ForEach{${\tt P}_i \Rightarrow \rhs{}_i \keyword{in} DecomposeAndRHSBreak(\rhs{}')$}{
+      $\rhs{}' \mapsfrom {\tt rewriteRHSUsingLHS}(\lhs{}, \rhs{})$\\
+      \ForEach{${\tt P}_i \Rightarrow \rhs{}_i \keyword{in} {\tt decompose}(\rhs{}')$}{
         \uIf{$\rhs{}_i = l_1\indEq{}l_2$}{
-          $(\dprog{}_1,\dprog{}_2) \mapsfrom GetDeconstructionPrograms(l_1,l_2)$;\\
-          \If{$CheckEquivalence(\lhs{} \land {\tt P}_i,\dprog{}_1,\dprog{}_2) = \cons{False}$}{
-            \Return{$\cons{False}(\emptyset)$};
+          $(\dprog{}_1,\dprog{}_2) \mapsfrom {\tt getDeconstructionPrograms}(l_1,l_2)$\\
+          \If{${\tt checkEquivalence}(\lhs{} \land {\tt P}_i,\dprog{}_1,\dprog{}_2) = \cons{False}$}{
+            \Return{$\cons{False}(\emptyset)$}
           }
         }
-        \ElseIf{$Solve(\lhs{} \land {\tt P}_i, \rhs{}_i, k, d_o, d_u) = \cons{False}(\Gamma)$}{
-          \Return{$\cons{False}(\Gamma)$};
+        \ElseIf{$solve(\lhs{} \land {\tt P}_i, \rhs{}_i, k, d_o, d_u) = \cons{False}(\Gamma)$}{
+          \Return{$\cons{False}(\Gamma)$}
         }
       }
-      \Return{$\cons{True}$};
+      \Return{$\cons{True}$}
     }
   }
 }
 \end{footnotesize}
-\caption{\label{algo:proofSummary} Summary of the Proof Discharge Algorithm}
+\caption{Algorithm for discharging proof obligations containing \recursiveRelations{}}
 \end{algorithm}
+\caption{\label{algo:proofSummary}Pseudocode of the algorithm responsible for discharging proof obligations containing \recursiveRelations{}}
 \end{figure}

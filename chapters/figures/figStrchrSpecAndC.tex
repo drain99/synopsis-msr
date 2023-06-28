@@ -1,5 +1,5 @@
 \begin{figure}
-\begin{tabular}{cc}
+\begin{tabular}{@{}c@{}c@{}}
 \begin{subfigure}[b]{0.52\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
@@ -15,10 +15,10 @@
 ~{\tiny \textcolor{mygray}{SE:}}~ }
 \end{allLangEnvFoot}
 \end{center}
-\caption{\label{fig:llStrchrSpecIR}Strchr Specification}
+\caption{\label{fig:llStrchrSpecIR}Strchr specification}
 \end{subfigure}%
 &
-\begin{subfigure}[b]{0.46\textwidth}
+\begin{subfigure}[b]{0.48\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{\ \ \ }}~ char* strchr(char* t, int c);
@@ -33,7 +33,7 @@
 ~{\tiny \textcolor{mygray}{CE:}}~ }
 \end{allLangEnvFoot}
 \end{center}
-\caption{\label{fig:llStrchrCArrIR}Strchr Implementation using Array}
+\caption{\label{fig:llStrchrCArrIR}Strchr implementation}
 \end{subfigure}%
 \\
 \begin{subfigure}[b]{0.52\textwidth}
@@ -41,34 +41,35 @@
 \includegraphics[scale=1.05]{chapters/figures/figStrchrProductCfg.pdf}
 \end{center}
 \vspace{2ex}
-\caption{\label{fig:llStrchrProductCFG}Product CFG for programs \cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR}}
+\caption{\label{fig:llStrchrProductCFG}Product-CFG for programs \cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR}}
 \end{subfigure}%
 &
-\begin{subfigure}[b]{0.46\textwidth}
+\begin{subfigure}[b]{0.48\textwidth}
 \begin{center}
 \begin{footnotesize}
-\begin{tabular}{|c|l|}
-\hline
-{\bf PC-Pair} & \multicolumn{1}{c|}{\bf Invariants} \\
-\hline
-\hline
+\begin{tabular}{cl}
+\toprule
+{\bf PC-Pair} & \multicolumn{1}{c}{\bf Invariants} \\
+\toprule
 \multirow{2}{*}{(\scpc{0}{0})} &
-\Tstrut $\circled{\scriptsize P1} \  \sv{s} \indEq{} \lifted{str}{\mem{}}{u8[]}{\cv{t}}$ \\ &
-\Tstrut $\circled{\scriptsize P2} \  \sv{c} = \cv{c}[7:0]$ \\
+$\circled{\scriptsize P1} \  \sv{s} \indEq{} \lifted{str}{\mem{}}{u8[]}{\cv{t}}$ \\ &
+$\circled{\scriptsize P2} \  \sv{c} = \cv{c}[7:0]$ \\
+\midrule
 \multirow{2}{*}{(\scpc{1}{2})} &
-\Tstrut $\circled{I1} \  \sv{s} \indEq{} \lifted{str}{\mem{}}{u8[]}{\cv{t}}$ \\ &
-\Tstrut $\circled{I2} \  \sv{c} = \cv{ch}$ \\
+$\circled{I1} \  \sv{s} \indEq{} \lifted{str}{\mem{}}{u8[]}{\cv{t}}$ \\ &
+$\circled{I2} \  \sv{c} = \cv{ch}$ \\
+\midrule
 (\scpc{E}{E}) &
-\Tstrut \Bstrut $\circled{E} \  \sv{ret} \indEq{} \lifted{optstr}{\mem{}}{u8[]}{\cv{ret}}$ \\
-\hline
+$\circled{E} \  \sv{ret} \indEq{} \lifted{optstr}{\mem{}}{u8[]}{\cv{ret}}$ \\
+\bottomrule
 \end{tabular}
 \end{footnotesize}
 \end{center}
-\caption{\label{fig:llStrchrInvs}Invariants table for \cref{fig:llStrchrProductCFG}}
+\caption{\label{fig:llStrchrInvs}Node invariants for product-CFG in \cref{fig:llStrchrProductCFG}}
 \end{subfigure}%
 \\
 \end{tabular}
-\caption{\label{fig:llStrchrSpecAndCAndCFGAndInvs}\Cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR} shows the (abstracted) IRs of \SpecL{} specification and a generic array-based C implementation.
-\Cref{fig:llStrchrProductCFG} presents the Product-CFG showing a bisimulation relation between \cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR}.
-The node invariants for the product-CFG in \cref{fig:llStrchrProductCFG} are shown in \cref{fig:llStrchrInvs}.}
+\caption{\label{fig:llStrchrSpecAndCAndCFGAndInvs}\Cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR} show the (abstracted) IRs for the \SpecL{} specification and a generic nul-terminated array based C implementation of {\tt strchr}.
+\Cref{fig:llStrchrProductCFG} shows the product-CFG representing a bisimulation relation between \cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR}.
+The node invariants for the product-CFG in \cref{fig:llStrchrProductCFG} are given in \cref{fig:llStrchrInvs}.}
 \end{figure}

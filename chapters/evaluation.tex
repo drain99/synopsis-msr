@@ -7,18 +7,18 @@ SMT proof obligations discharged by our proof discharge algorithm:
 {\tt z3-4.8.7}, {\tt z3-4.8.14} \cite{z3}, {\tt Yices2-45e38fc} \cite{yices}, and {\tt cvc4-1.7} \cite{cvc4solver}.
 An unroll factor of {\em four} is used to handle loop unrolling in the C implementation.
 We use a default value of {\em eight} for over- and under-approximation depths ($d_o$ and $d_u$).
-The default value of our unrolling parameter $k$ (used for categorization of proof obligations) is {\em five}.
-We use a value of {\em five} for $\eta$ (used by {\em StrongestInvCover()} during weakening of \recursiveRelation{} invariants).
+The default values for unrolling parameter $k$ (used for categorization of proof obligations)
+and $\eta$ (used by {\tt strongestInvCover()} during weakening of \recursiveRelation{} invariants) are {\em five}.
 
 \toolName{} requires the user to provide a \SpecL{} program $S$ (specification), a C implementation $C$,
 and a file that contains their input-output specifications.
 For each function pair, \toolName{} attempts to find equivalence between their CFGs \sprog{} and \cprog{}
 under their respective \pre{} and \post{} (given as part of input-output specification).
-An equivalence check requires the identification of lifting constructors to relate C
-values to the ADT values in \SpecL{} through  \recursiveRelations{}.
+An equivalence check requires the identification of lifting constructors to relate \cprog{}
+values to the ADT values in \sprog{} through  \recursiveRelations{}.
 Such relations may be required at the entry of both programs (i.e. in the precondition \pre{}),
-in the middle of both programs (i.e., in the invariants at intermediate product-CFG nodes),
-and at the exit of both programs (i.e., in the postcondition \post{}).
+in the middle of both programs (i.e. as invariants at intermediate product-CFG nodes),
+and at the exit of both programs (i.e. in the postcondition \post{}).
 \pre{} and \post{} are user-specified, whereas the inductive invariants are
 inferred automatically by our algorithm.
 During invariant inference, \toolName{} derives the candidate lifting constructors
@@ -28,11 +28,11 @@ More sophisticated approaches to finding lifting constructors are left as future
 \section{Experiments}
 \label{sec:experiments}
 We consider programs involving four distinct ADTs, namely,
-\inv{\small T1} \type{String}, \inv{\small T2} \type{List}, \inv{\small T3} \type{Tree}
+\inv{\small T1} \type{Str}, \inv{\small T2} \type{List}, \inv{\small T3} \type{Tree}
 and \inv{\small T4} \type{Matrix}.
 For each \SpecL{} program specification, we consider multiple
-C implementations that differ in their (a) layout and representation of ADTs, and
-(b) algorithmic strategies. For example, a \type{Matrix}, in C, may be laid out
+C implementations that differ in their (a) memory layout of ADTs, and
+(b) algorithmic strategies. For example, a \type{Matrix} in C may be laid out
 in a two-dimensional array, a one-dimensional array using row or column major
 layouts etc. On the other hand, an optimized implementation may choose manual vectorization
 of an inner-most loop. Next, we consider each ADT in more detail. For each,
@@ -50,11 +50,10 @@ program, we took multiple C implementations of that program, drawn from popular
 libraries like {\tt glibc} \cite{glibc}, {\tt klibc} \cite{klibc}, {\tt newlib} \cite{newlib},
 {\tt openbsd} \cite{openbsdlibc}, {\tt uClibc} \cite{uclibc},
 {\tt dietlibc} \cite{dietlibc}, {\tt musl} \cite{musl}, and {\tt netbsd} \cite{netbsd}.
-Some of these libraries implement the same function in two ways: one that is optimized
-for code size and another that is optimized for runtime.
-All these library implementations use a {\em null character} terminated array to represent
-a string, and the
-corresponding lifting constructor is \lift{str}{\mem{}}{u8[]}.
+% Some of these libraries implement the same function in two ways: one that is optimized
+% for code size and another that is optimized for runtime.
+These library implementations use a nul-terminated array to represent
+a string, and the corresponding lifting constructor is \lift{str}{\mem{}}{u8[]}.
 \type{u<N>} represents the N-bit unsigned integer type in C.
 For example, \type{u8} represents \type{unsigned char} type.
 
@@ -77,67 +76,66 @@ and $i$ represents the position of the initial character in the chunk.
 \subsubsection{An Example : strchr}
 \label{sec:strchrexample}
 Additionally, we define an optional string type \type{OptStr} to specify
-behaviour of functions that conditionally return a string (e.g., {\tt strchr}, {\tt strpbrk}).
-The \type{OptStr} ADT along with its three lifting constructors for the three layouts of the \type{Str} ADT
+behaviour of functions that conditionally return a string (e.g. {\tt strchr}, {\tt strpbrk}).
+The \type{OptStr} ADT along with three (pairs of) lifting constructors for the three layouts of the \type{Str} ADT
 are shown in \cref{tab:LiftingConsStr}.
 {\tt strchr} accepts a string $t$ and a character $c$\footnote{Due to historical reasons,
 the type of $c$ is declared as \type{int}
 to maintain backward compatibility with pre C-98 code.
 However, the function is specified to cast it to a character and use it instead.} and returns
-the longest substring of $t$ that begins with $c$, otherwise it returns a null pointer to indicate
+the longest suffix of $t$ that begins with $c$, otherwise it returns the null pointer to indicate
 failure to find $c$ in the string $t$.
-In case $c$ is the null character, {\tt strchr} is defined to return the empty string ({\em not} the null value).
-\Cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR} shows the IRs of the {\tt strchr} \SpecL{} specification and
+In case $c$ is the null character (i.e. nul), {\tt strchr} is defined to return the empty string (instead of the null pointer).
+\Cref{fig:llStrchrSpecIR,fig:llStrchrCArrIR} show the IRs of the {\tt strchr} specification and
 a generic C implementation respectively.
-We demonstrate two important aspects of \toolName{} using this example -- (a) use of \sdef{} and \pre{} to restrict the C implementation
-to only well-formed inputs (in \cref{sec:eqdef}),
+We demonstrate two important aspects of \toolName{} using this example -- (a) use of \sdef{} and \pre{} to constrain the C implementation
+to only well-formed inputs (in \cref{sec:cinputcons}),
 and (b) need for correlating pathsets (instead of paths) (in \cref{sec:pathsetcorrel}).
 
-Recall that a null-character terminated C string is only well-formed if the string itself does not belong to a region of memory containing the null pointer.
-This wellformedness condition is necessary to prove that the pointer to the string returned in \cpc{6} (in \cref{fig:llStrchrCArrIR})
-does not equal the null pointer (used uniquely to indicate a failure to find the character $c$ in the string $t$).
-As previously discussed in \cref{sec:eqdef}, we expose this wellformedness condition in the specification using
+Recall that a nul-terminated C string is only well-formed if the string itself does not belong to a region of memory containing the null pointer.
+This well-formedness condition is necessary to prove that the pointer to the string returned in \cpc{6} (in \cref{fig:llStrchrCArrIR})
+is non-null (used uniquely to indicate a failure to find the character $c$ in the string $t$).
+As previously discussed in \cref{sec:eqdef}, we expose this well-formedness condition in the specification using
 the explicit \type{Str} data constructor \cons{SInvalid}.
-Finally, we assert that \sv{s} in \cref{fig:llStrchrSpecIR} is wellformed using the {\tt assuming-do} statement
-(\spc{3} in \cref{fig:llStrchrSpecIR}) and relate the non-null wellformedness condition of the C input string \cv{t}
-with the condition of \sv{s} being \cons{SInvalid} using \pre{} (labeled \circled{\scriptsize P1} in \cref{fig:llStrchrInvs}).
+Finally, we assert that \sv{s} in \cref{fig:llStrchrSpecIR} is well-formed using the {\tt assuming-do} statement
+(\spc{3} in \cref{fig:llStrchrSpecIR}) and relate the non-null well-formedness condition of the C input string \cv{t}
+with the condition of \sv{s} being \cons{SInvalid} using \pre{} (labeled \circled{\footnotesize P1} in \cref{fig:llStrchrInvs}).
 Note the use of \lift{optstr}{\mem{}}{u8[]} in the postcondition (labeled \circled{E} in \cref{fig:llStrchrInvs}).
 
 \Cref{fig:llStrchrProductCFG} shows the product-CFG showing the path correlations between \sprog{} and \cprog{}.
 Consider the product-CFG edge \scedge{1}{2}{E}{E} correlating the pathsets:
-$\pathset{S1,S3,(S4 \pathpar (\pathset{S4,S5}) \pathpar S7), SE}$ (in \sprog{}) and
-$\pathset{C2,((\pathset{C3,C4}) \pathpar C6),CE}$ (in \cprog{}).
+{\small $\pathset{S1,S3,(S4 \pathpar (\pathset{S4,S5}) \pathpar S7), SE}$} (in \sprog{}) and
+{\small $\pathset{C2,((\pathset{C3,C4}) \pathpar C6),CE}$} (in \cprog{}).
 The $\rightarrow$ and $\pathpar$ operators are used to represent `series' and `parallel' path combinations.
 The above two pathsets represent the following two sets
-$\{ \spath{1,3,4,E},\spath{1,3,4,5,E},\spath{1,3,7,E} \}$ and
-$\{ \cpath{2,3,4,E}, \cpath{2,6,E} \}$ respectively.
-In \sprog{}, the case of \sv{c} being the null character is handled explicitly in \spc{4} while
-\spc{7} handles the case where the string \sv{s} contains the (non-null) character \sv{c}.
-However in \cprog{}, the above two cases are taken care of by the singular exit edge in \cpc{6}.
+{\small $\{ \spath{1,3,4,E},\ \spath{1,3,4,5,E},\ \spath{1,3,7,E} \}$} and
+{\small $\{ \cpath{2,3,4,E},\ \cpath{2,6,E} \}$} respectively.
+In \sprog{}, the case of \sv{c} being nul is handled explicitly in \spc{4}, whereas
+\spc{7} handles the case of \sv{s} containing the (non-nul) character \sv{c}.
+Interestingly in \cprog{}, both these cases are taken care of by the singular exit edge outgoing at \cpc{6}.
 For a successful bisimulation proof, we are required to correlate the \cprog{} path
 \cpath{2,6,E} with the \sprog{} pathset $\{ \spath{1,3,4,E}, \spath{1,3,7,E} \}$.
-Such cases are rather frequent because the strongly-typed specification has to handle
-each case explicitly while its C implementation may take advantage of the
+Such situations are rather frequent because the strongly-typed specification is forced to handle
+each case explicitly while a C implementation may take advantage of the
 underlying representation to generalize multiple explicit cases into one.
 
 \input{chapters/figures/figStrlenSpecAndC.tex}
-
 \input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
 \subsubsection{Another Example : strlen}
 \Cref{fig:strlenSpecAndC} shows the {\tt strlen} specification and two vastly
 different $C$ implementations. \Cref{fig:llStrlenCArrIR} is a generic implementation
-using a null character terminated array to represent a string similar to a C-style string.
+using a C-style nul-terminated array to represent a string.
 The second implementation in \cref{fig:llStrlenCClistIR} differs from \cref{fig:llStrlenCArrIR}
 in the following: (a) it uses a chunked linked list data layout for the input string
-and (b) it uses specialized bit manipulations to identify a null character in a chunk at a time.
+and (b) it uses specialized bit manipulations to identify whether a (4 byte) chunk contains the nul character simultaneously.
 \toolName{} is able to automatically find a bisimulation relation
 for both implementations against the unaltered specification.
-\Cref{fig:StrlenProductCFGsAndInvs} shows the product-CFG and invariants for each implementation.
+\Cref{fig:StrlenProductCFGsAndInvs} shows the product-CFG and its associated node invariants for each implementation.
 
 Lifting constructors are named based on the C data layout being lifted
-and the \SpecL{} ADT type of the lifted value.
-For example, \lift{str}{}{u8[]} represents a \type{String} lifting constructor
+and the type of the lifted value.
+For example, \lift{str}{}{u8[]} represents a \type{Str} lifting constructor
 for an array layout.
 In general, we use the following naming convention for different C data layouts:
 \type{T[]} represents an array of type \type{T} (e.g., \type{u8[]}).
@@ -156,29 +154,29 @@ data layouts for a list in C: array (\lift{list}{\mem{}}{u32[]}),
 linked list (\lift{list}{\mem{}}{lnode(u32)}), and
 a chunked linked list (\lift{list}{\mem{}}{clnode(u32)}).
 The lifting constructors are shown in \cref{tab:LiftingConsList}.
-Although similar to the String lifting constructors, these lifting
+Although similar to the string lifting constructors, these lifting
 constructors differ widely in their data encoding. For example,
 \lifted{list}{\mem{}}{u32[]}{p,i,n} represents a \type{List} value constructed
-from a C array $p$ of size $n$ starting at the $i^{th}$ index. The list becomes empty
-when we are at the end of the array. (\lift{list}{\mem{}}{lnode(u32)})
-and (\lift{list}{\mem{}}{clnode(u32)}), on the other hand, encodes empty
-lists (\cons{LNil}) using {\em null pointers}. These layouts are in contrast to the
-\type{String} layouts, all of which uses a {\em null character} to
-indicate the empty string.
+from a C array of size $n$, pointed to by $p$ and starting at the $i^{th}$ index.
+The list becomes empty when we are at the end of the array.
+\lift{list}{\mem{}}{lnode(u32)} and \lift{list}{\mem{}}{clnode(u32)}, on the other hand, encodes the
+empty list (i.e. \cons{LNil}) using the null pointer.
+These layouts are in contrast to the \type{Str} layouts, all of which uses the nul character
+to indicate the empty string.
 
 \input{chapters/figures/figThesisLiftingConsTree.tex}
 
 \subsection{Tree}
 \label{sec:exptree}
-We wrote a \SpecL{} program that sums all the nodes in a tree
+We wrote a \SpecL{} program that computes the sum of the elements of a binary tree
 through an inorder traversal using recursion. We use two different data layouts for a tree: 
-(1) a flat array where a
+(a) a flat array where a
 {\em complete} binary tree is laid out in breadth-first search order commonly used for heaps (\lift{tree}{\mem{}}{u32[]}),
-and (2) a linked tree node with two pointers for the left and right children (\lift{tree}{\mem{}}{tnode(u32)}) (shown in \cref{tab:LiftingConsTree}).
+and (b) a linked tree node with two pointers for the left and right children (\lift{tree}{\mem{}}{tnode(u32)}) (shown in \cref{tab:LiftingConsTree}).
 Both \SpecL{} and C programs contain non-tail recursive procedure calls for left and right children.
 \toolName{} is able to correlate these recursive calls using user-provided \pre{} and \post{} as discussed in \cref{sec:correlfcalls}.
 At the entry of the recursive calls, \toolName{} is required to prove that \pre{} holds for the arguments
-and at the exit of the recursive calls, \toolName{} assumes \post{} on the returned states.
+and at the exit of the recursive calls, \toolName{} assumes \post{} on the values returned.
 
 \input{chapters/figures/figThesisLiftingConsMatrix.tex}
 
@@ -190,17 +188,17 @@ The C implementations for a \type{Matrix} object include
 (a) a two-dimensional array (\lift{mat}{\mem{}}{u32[][]}), (b) a flattened row-major array (\lift{mat}{\mem{}}{u32[r]}),
 (c) a flattened column-major array (\lift{mat}{\mem{}}{u32[c]}), (d) a linked list of 1D arrays (\lift{mat}{\mem{}}{lnode(u32[])}),
 (e) a 1D array of linked lists (\lift{mat}{\mem{}}{lnode(u32)[]}) and (f) a 1D array of chunked linked list (\lift{mat}{\mem{}}{clnode(u32)[]})
-data layouts. Note that both \type{T[r]} and \type{T[c]} represent a 1D array of type {\tt T}. The {\em r} and {\em c} simply
+memory layouts. Note that both \type{T[r]} and \type{T[c]} represent a 1D array of type {\tt T}; {\em r} and {\em c}
 emphasizes that these arrays are used to represent matrices in row-major and column-major encodings respectively.
-We also introduce two auxiliary lifting constructors, \lift{list}{\mem{}}{u32[r]} and \lift{list}{\mem{}}{u32[c]}
+We also introduce two auxiliary lifting constructors \lift{list}{\mem{}}{u32[r]} and \lift{list}{\mem{}}{u32[c]}
 for lifting each row of matrices lifted using the corresponding \lift{mat}{\mem{}}{u32[r]} and \lift{mat}{\mem{}}{u32[c]} \type{Matrix} lifting
-constructors. These constructors are listed in \cref{tab:LiftingConsMatrix}.
+constructors. These lifting constructors are listed in \cref{tab:LiftingConsMatrix}.
 
-\input{chapters/figures/figEvalTable.tex}
+\input{chapters/figures/figEvalTable.tex}   
 
 \section{Results}
 \label{sec:results}
-\Cref{tab:results} lists the various C implementations and the time it took
+\Cref{tab:results} lists the various C implementations and the time \toolName{} took
 to compute equivalence with their specifications. For functions that
 take two or more data structures as arguments, we show
 results for different combinations of data layouts for each argument.
@@ -208,43 +206,53 @@ We also show the minimum under-approximation ($d_u$) and over-approximation ($d_
 at which the equivalence proof completed (keeping all other parameters to their
 default values).
 
-During the verification of {\tt strchr} and {\tt strpbrk} implementations,
-we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
-return null pointers to signify absence of the required character(s) in the input string,
-we additionally need to model the UB assumption that the zero
-address does not belong to the null character terminated array representing the string.
-We use an explicit constructor \cons{SInvalid} to expose this well-formedness property in a \SpecL{} \type{String}.
-Furthermore, we relate \cons{SInvalid} to the condition of C character pointer being null using the
-lifting constructors \lifted{str}{\mem{}}{T}{p\ctype{i32},\dots} (as defined in \cref{tab:LiftingConsList}).
-These lifting constructors are used as part of \pre{} to equate $S$ and $C$ input strings.
-Finally in $S$, we model the absence of \cons{SInvalid} in the input string as a UB assumption using
-the {\tt assuming-do} statement introduced in \cref{sec:speclang}.
-Due to the \sdef{} assumption, this constraints the inputs to $S$ as well as $C$ to well-formed strings only.
-This is an example where \sdef{} and \pre{} can be used to model wellformedness of values in $C$.
+% During the verification of {\tt strchr} and {\tt strpbrk} implementations,
+% we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
+% return null pointers to signify absence of the required character(s) in the input string,
+% we additionally need to model the UB assumption that the zero
+% address does not belong to the null character terminated array representing the string.
+% We use an explicit constructor \cons{SInvalid} to expose this well-formedness property in a \SpecL{} \type{String}.
+% Furthermore, we relate \cons{SInvalid} to the condition of C character pointer being null using the
+% lifting constructors \lifted{str}{\mem{}}{T}{p\ctype{i32},\dots} (as defined in \cref{tab:LiftingConsList}).
+% These lifting constructors are used as part of \pre{} to equate $S$ and $C$ input strings.
+% Finally in $S$, we model the absence of \cons{SInvalid} in the input string as a UB assumption using
+% the {\tt assuming-do} statement introduced in \cref{sec:speclang}.
+% Due to the \sdef{} assumption, this constraints the inputs to $S$ as well as $C$ to well-formed strings only.
+% This is an example where \sdef{} and \pre{} can be used to model wellformedness of values in $C$.
 
 \section{Limitations}
 \label{sec:limitations}
 \toolName{} is not without limitations.
 Since \toolName{} is only interested in finding a bisimulation relation,
 a whole class of non-bisimilar but equivalent program pairs is beyond our scope.
-\toolName{} currently only supports bitvector affine and inequality relations, in addition to \recursiveRelations{}
-based on the lifting constructors provided as part of \pre{} and \post{}.
+In addition to \recursiveRelations{} based on the lifting constructors provided as part of \pre{} and \post{},
+\toolName{} currently only supports bitvector affine and inequality relations.
 Consequently, non-linear bitvector invariants (such as polynomial invariants) are not supported.
 More importantly, \toolName{} does not attempt to infer lifting constructors and merely
 uses the lifting constructors (with different arguments) provided as part of the input-output characteristics.
-While our correlation and invariant inference algorithms are based on the Counter tool \cite{oopsla20}
-designed primarily for translation validation between (C-like) unoptimized IR and assembly, we found them to be
-quite effective for \SpecL{} to (C-like) IR as well.
+While our correlation and invariant inference algorithms are based on the Counter tool \cite{oopsla20},
+which is designed primarily for equivalence checking between (C-like) unoptimized IR and assembly, we found them to be
+quite effective for equivalence checking between \SpecL{} and deterministic C as well.
 However, \toolName{} inherits many of the limitations of the Counter tool.
-For example, \toolName{} supports path specializations from \SpecL{} to C, but does not
-search for path merging correlations.
 
-In case of our proof discharge algorithm, we have identified a source of inefficiency for type II
-proof obligations.
-For a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree},
-its $d$-depth approximation results in $\mathcal{O}(2^d)$ scalar equalities.
-This is a source of major inefficiency due to generation of large SMT queries.
-The completely of type III proof obligations is highly contingent on the precision
+For example, \toolName{} fails to find a proof of equivalence if the unrolling
+in the C implementation is higher than the unrolling parameter $\mu$ used during path
+enumeration as part of the product-CFG construction algorithm.
+Larger values of $\mu$ would significantly increase the correlation search space and likely
+have negative implications on the runtime of the algorithm.
+Additionally, \toolName{} suffers from a similar trade-off with regards to the approximation parameters $d_o$ and $d_u$
+-- a smaller than necessary value would cause a failed equivalence check while a larger value may
+have major impact on the size of queries and counterexamples for reasons discussed next.
+Consider a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree}.
+It's $d$-depth approximation reduces into $\mathcal{O}(2^d)$ scalar equalities resulting in large SMT queries,
+which to our experience is a major source of SMT solver timeouts during evaluation.
+We partially subvert this issue by using an iterative deepening strategy for type II queries --
+we try prove and disprove attempts with approximation parameters smaller than the maximum $d_o$ and $d_u$,
+in hopes that either attempt would succeed saving valuable
+time waiting on SMT solvers.
+We would this strategy to be rather helpful during our evaluation.
+
+Also, the completeness of type III proof obligations is highly contingent on the precision
 of our points-to analysis on \cprog{} as well as the deconstruction programs being
 checked for equivanece as part of the nested bisimulation check.
 We found our coarse-grained {\tt \{1,2+\}} categorization of allocation recency

@@ -1,28 +1,31 @@
 \begin{figure}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$bestFirstSearch(\sprog{},\cprog{},\mu)$}{
-  $\pi_{init} \mapsfrom createInitProductCFG(\sprog{},\cprog{})$;\\
+  $\pi_{init} \mapsfrom {\tt createInitProductCFG}(\sprog{},\cprog{})$;\\
   $Q \mapsfrom \{ \pi_{init} \}$;\\
   \While{$Q \keyword{is\ not} empty$}{
-    $\pi_{cur} \mapsfrom extractMostPromising(Q)$;\\
+    $\pi_{cur} \mapsfrom {\tt extractMostPromising}(Q)$;\\
     ${\tt InferInvariantsAndCounterexamples}(\pi_{cur})$;\\
     \
-    \uIf{$getPathsetToCorrelate(\cprog{},\pi_{cur}) = \cons{Found}(\xi_C)$}{
-      \ForEach{$\xi_S \keyword{in} enumeratePathsetsInS(\sprog{},\xi_C,\mu)$}{
-        $\pi_{next} \mapsfrom extendProductCFG(\pi_{cur},\xi_S,\xi_C)$;\\
+    \uIf{${\tt getPathsetToCorrelateInC}(\cprog{},\pi_{cur}) = \cons{Found}(\xi_C)$}{
+      \ForEach{$\xi_S \keyword{in} {\tt enumeratePathsetsInS}(\sprog{},\xi_C,\mu)$}{
+        $\pi_{next} \mapsfrom {\tt extendProductCFG}(\pi_{cur},\xi_S,\xi_C)$;\\
         $Q \mapsfrom Q \cup \{ \pi_{next} \}$;\\
       }
     }
-    \ElseIf{$productCFGRepresentsBisim(\pi_{cur})$}{
+    \ElseIf{${\tt productCFGRepresentsBisim}(\pi_{cur})$}{
       \Return{$\cons{Found}(\pi_{cur})$};\\
     }
   }
   \Return{$\cons{NotFound}$};\\
 }
 \end{footnotesize}
-\caption{\label{algo:search}Pseudocode for Best-First-Search Procedure for construction of Product-CFG}
+\caption{Best-first search algorithm for incremental construction of a product-CFG between \sprog{} and \cprog{}}
 \end{algorithm}
+\caption{\label{algo:search}Pseudocode of the best-first search algorithm responsible for incremental construction of a product-CFG between \sprog{} and \cprog{}}
 \end{figure}

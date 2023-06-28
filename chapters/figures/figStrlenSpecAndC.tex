@@ -1,5 +1,5 @@
 \begin{figure}
-\begin{subfigure}[b]{0.55\textwidth}
+\begin{subfigure}[b]{0.5\textwidth}
 \begin{center}
 \begin{allLangEnvFoot}
 ~{\tiny \textcolor{mygray}{S0:}}~ i32 strlen (Str s) {
@@ -13,9 +13,9 @@
 ~{\tiny \textcolor{mygray}{SE:}}~ }
 \end{allLangEnvFoot}
 \end{center}
-\caption{\label{fig:llStrlenSpecIR}Strlen Specification}
+\caption{\label{fig:llStrlenSpecIR}Strlen specification}
 \end{subfigure}%
-\begin{subfigure}[b]{0.45\textwidth}
+\begin{subfigure}[b]{0.5\textwidth}
 \begin{center}
 \vspace{5px}
 \begin{allLangEnvFoot}
@@ -30,7 +30,7 @@
 ~{\tiny \textcolor{mygray}{CE:}}~ }
 \end{allLangEnvFoot}
 \end{center}
-\caption{\label{fig:llStrlenCArrIR}Strlen Implementation using Array}
+\caption{\label{fig:llStrlenCArrIR}Generic strlen implementation using array}
 \end{subfigure}
 \begin{subfigure}[b]{1\textwidth}
 \begin{center}
@@ -54,9 +54,10 @@
 ~{\tiny \textcolor{mygray}{CE\phantom{ }:}}~ }
 \end{allLangEnvFoot}
 \end{center}
-\caption{\label{fig:llStrlenCClistIR}Optimized Strlen Implementation using Chunked Linked List}
+\caption{\label{fig:llStrlenCClistIR}Optimized strlen implementation using chunked linked list}
 \end{subfigure}%
-\caption{\label{fig:strlenSpecAndC}Specification of Strlen along with two possible C implementations.\\
-\Cref{fig:llStrlenCArrIR} is a generic implementation using a null-terminated array for \type{String}.\\
-\Cref{fig:llStrlenCClistIR} is an optimized implementation using a chunked linked list for \type{String}.}
+\caption{\label{fig:strlenSpecAndC}\Cref{fig:llStrlenSpecIR} shows the (abstracted) IR for the \SpecL{} specification of {\tt strlen}.
+\Cref{fig:llStrlenCArrIR,fig:llStrlenCClistIR} show the (abstracted) IRs for two C implementations of {\tt strlen}.
+\Cref{fig:llStrlenCArrIR} is a generic implementation using a nul-terminated array to represent a string, whereas
+\cref{fig:llStrlenCClistIR} is an optimized implementation with a chunked linked list memory layout for a string.}
 \end{figure}
