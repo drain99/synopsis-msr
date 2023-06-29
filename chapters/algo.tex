@@ -104,6 +104,7 @@ the previously-allocated objects (as in the \type{List}
 construction example). The coarse-grained $\{1, 2+\}$
 categorization of allocation recency is effective for such disambiguation.
 
+\input{chapters/figures/figMallocAllCfgs.tex}
 \input{chapters/figures/figSearch.tex}
 
 \section{Counterexample-guided Product-CFG Construction}
@@ -120,8 +121,8 @@ CFG nodes (i.e. IR PCs) being considered for correlation.
 The algorithm ensures that every cycle in both \sprog{} and \cprog{} contains at least one anchor node.
 The start and exit nodes are always anchor nodes.
 Also, for every function call, the nodes just before and after its callsite are considered anchor nodes.
-For example, in \cref{fig:llAllocCCFG}, \cpc{4} and \cpc{5} are anchor nodes around the call to {\tt malloc}.
-A valid selection of anchor nodes for the CFGs in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} are:
+For example, in \cref{figrr:llAllocCCFG}, \cpc{4} and \cpc{5} are anchor nodes around the call to {\tt malloc}.
+A valid selection of anchor nodes for the CFGs in \cref{figrr:llAllocSpecIRCFG,figrr:llAllocCCFG} are:
 $\{ \spc{0},\spc{3},\spc{E} \}$ and $\{ \cpc{0}, \cpc{3}, \cpc{4}, \cpc{5}, \cpc{E} \}$ respectively.
 For each anchor node in \cprog{}, our search algorithm searches for a correlated anchor node in \sprog{} --- if
 a (partially constructed) product-CFG $\pi$ contains a product-CFG node  $(n_S\!:\!n_C)$, then $\pi$
@@ -132,38 +133,42 @@ $\pi_{init}$ contains exactly one node (\scpc{0}{0}) that encodes the correlatio
 
 \subsection{Correlating Pathsets}
 \label{sec:pathsetcorrel}
-At each step of the incremental construction process, a node $(n_S\!:\!n_C)$ is chosen in a product-CFG $\pi$
-and a 1-{\em pathset} $\xi_C$ in \cprog{} starting at $n_C$ (and ending at an anchor node in \cprog{}) is selected ({\tt getPathsetToCorrelateInC()}).
-Then, we enumerate potentially correlated $\mu$-{\em pathsets} in \sprog{} for the pathset $\xi_C$ in \cprog{} ({\tt enumeratePathsetsInS()}).
-A {\em pathset} $\xi$ is essentially a set of paths with the following additional properties:
-(a) all paths $\rho \in \xi$ begin at the same node and terminate at the same node,
-(b) all paths $\rho \in \xi$ are mutually-exclusive i.e. {\em at most} one of ${\tt pathcond}_\rho$ can be true.
-A $\mu$-pathset $\xi$ is a pathset where each path $\rho \in \xi$ contains {\em at most} $\mu$ occurrences of any node
-as the destination (to-PC) of an edge in $\rho$.
-$\mu$-pathsets are based on earlier work on the Counter tool \cite{oopsla20}\footnote{
-Counter tool \cite{oopsla20} considers $(\mu,\delta)$-unrolled pathsets in its correlation search algorithm.
-Our $\mu$-pathsets are a special case of $(\mu,\delta)$-unrolled pathsets where $\delta = \mu$.}
-and helps improve the completeness of the bisimulation search
-by attempting to correlate a set of \cprog{} paths with a set of \sprog{} paths,
-where individual paths of \cprog{} and \sprog{} may be uncorrelated.
+Recall that a product-CFG edge correlates transitions in \sprog{} and \cprog{}.
+The examples presented so far only considers correlations between {\em paths} in \sprog{} and \cprog{}.
+However, we consider a more general approach of {\em pathset} correlations in the context of product-CFG construction.
+Pathsets are based on earlier work on the Counter tool \cite{oopsla20,shubhanipdhthesis}
+and help improve the completeness of the bisimulation search by considering correlations of a single path in \cprog{}
+with a set of paths in \sprog{} and vice versa, where individual paths may be uncorrelated.
 An example of such a scenario is depicted in \cref{sec:strchrexample}.
-\Cref{sec:pathsethoaretriples} briefly discusses the techniques of handling Hoare triples (i.e. proof obligations)
-involving pathsets.
+For now, we briefly summarize pathsets in the context of \SpecL{}-C bisimulation search.
+A {\em pathset} $\xi$ is essentially a set of paths with the following additional properties:
+(a) all paths $\rho \in \xi$ begin at the same node and terminate at the same node, and
+(b) all paths $\rho \in \xi$ are mutually exclusive i.e. {\em at most} one of ${\tt pathcond}_{\rho}$ can be true.
+A $(\mu,\delta)$-{\em unrolled pathset} $\xi$ is a pathset from $n_s$ to $n_d$ such that:
+(a) all paths $\rho \in \xi$ contains {\em at most} $\mu$ occurrences of {\em any} node except $n_d$ as the end node (to-PC) of an edge in $\rho$, and
+(b) all paths $\rho \in \xi$ contains {\em exactly} $\delta$ occurrences of $n_d$ as the end (to-PC) of an edge in $\rho$.
+Intuitively, $\delta$ represents the number of iterations of a loop (ending at $n_d$) considered as part of a path in $\xi$,
+whereas $\mu$ bounds the number of times any node is visited by a path in $\xi$.
+$(\mu,\delta)$-unrolled pathsets have been shown to be quite effective at identifying correlations in the presence of
+compiler transformations such as unrolling and vectorization \cite{shubhanipdhthesis} and we also found it to be
+suitable in the context of \SpecL{}-C equivalence.
 
-Revisiting our incremental construction process, recall that we choose a 1-pathset $\xi_C$ in \cprog{}
-and enumerate potentially correlated $\mu$-pathsets $\xi_S$ in \sprog{}.
-Hence, $\mu$ represents the maximum number of iterations of a loop (in \sprog{}),
-that may be correlated with a pathset in \cprog{} consisting of acyclic paths.
-$\mu$ is a fixed parameter of the \toolName{} algorithm and is called the {\em unroll factor}.
-For example, during construction of the product-CFG shown in \cref{fig:llAllocProductCFG},
+At each step of the incremental construction process, a node $(n_S \! : \! n_C)$ is chosen in a product-CFG $\pi$
+and a (1,1)-unrolled pathset $\xi_C$ in \cprog{} starting at $n_C$ (and ending at an anchor node) is selected ({\tt getPathsetToCorrelateInC()}).
+Then, we enumerate $(\mu_S,\delta)$-unrolled pathsets in \sprog{} (for $\delta \in [0,\mu_S]$) as potential correlations for
+the pathset $\xi_C$ in \cprog{} ({\tt enumeratePathsetsInS()}).
+$\mu_S$ is a fixed parameter of \toolName{} and is called the {\em unroll factor}.
+For example, during construction of the product-CFG shown in \cref{figrr:llAllocProductCFG},
 say we select the product-CFG node (\scpc{3}{3}).
-We choose the \cprog{} path(set) \cpath{3,4} and enumerate its potential correlations (i.e. $\mu$-pathsets in \sprog{} starting at \spc{3}):
-$\epsilon$, \spath{3,5,3}, \ldots, $\pathset{S3,(\pathset{S5,S3})^{\mu}}$.
+We choose the \cprog{} path(set) \cpath{3,4} and enumerate its potential correlations (i.e. $(\mu_S,\delta)$-unrolled pathsets in \sprog{} starting at \spc{3}):
+$\epsilon$, \spath{3,5,3}, \ldots, $\pathset{S3,(\pathset{S5,S3})^{\mu_S}}$.
 Importantly, for pathsets $\xi_S$ (in \sprog{}) and $\xi_C$ (in \cprog{}) to be considered for correlation,
 they must originate and terminate at anchor nodes, i.e. the path \spath{3,5} is skipped during enumeration.
 Moreover, the pathset $\xi_C$ may only contain anchor nodes as its source and destination.
-Hence, the path \cpath{3,4,5} is not considered for $\xi_C$,
+Thus, the path \cpath{3,4,5} is not considered for $\xi_C$,
 instead we attempt to correlate the subpaths \cpath{3,4} and \cpath{4,5} individually.
+\Cref{sec:pathsethoaretriples} briefly discusses the techniques of handling Hoare triples (i.e. proof obligations)
+involving pathsets.
 
 For each enumerated correlation possibility $(\xi_S,\xi_C)$, a separate product-CFG $\pi'$ is
 created (by cloning $\pi$) and a new product-CFG edge $e=(\xi_S,\xi_C)$ is added to $\pi'$ ({\tt extendProductCFG()}).
@@ -214,7 +219,7 @@ e.g., C memory allocation, recursive traversal of a tree data structure.
 Recall that the nodes just before and after a function call are always considered anchor nodes.
 Calls to memory allocation functions in \cprog{} (i.e. {\tt malloc}) are handled by correlating
 the function call edge with the empty path ($\epsilon$) in \sprog{}.
-For example, in the product-CFG shown in \cref{fig:llAllocProductCFG}, the {\tt malloc} edge \cpath{4,5} in \cprog{}
+For example, in the product-CFG shown in \cref{figrr:llAllocProductCFG}, the {\tt malloc} edge \cpath{4,5} in \cprog{}
 is correlated with $\epsilon$ in \sprog{}.
 
 For all other calls, our correlation algorithm (in \cref{sec:searchalgo}) ensures that the anchor nodes
@@ -258,10 +263,10 @@ the counterexamples obtained by executing $\Gamma_s$ on edge $e$ (through {\tt e
 The candidate invariant at $d$ ($\phi^{can}_d$) is computed as the strongest cover
 of $\Gamma^{can}_{d}$ ({\tt strongestInvCover()}).
 At each step, the transfer function attempts to prove $\{\phi_s\} (e) \{\phi^{can}_d\}$
-(through a call to $prove()$).
-If the proof succeeds ($prove()$ returns \cons{True}), the candidate invariant $\phi^{can}_d$ is returned along with
+(through a call to {\tt prove()}).
+If the proof succeeds ({\tt prove()} returns \cons{True}), the candidate invariant $\phi^{can}_d$ is returned along with
 the counterexamples $\Gamma^{can}_d$ learned so far.
-Otherwise, $prove()$ returns $\cons{False}(\gamma_s)$.
+Otherwise, {\tt prove()} returns $\cons{False}(\gamma_s)$.
 The candidate invariant $\phi^{can}_d$ is weakened using the counterexamples obtained
 (i.e. $\gamma_s$) and the proof attempt is repeated.
 
@@ -285,31 +290,42 @@ $l_1 \indEqDepth{\eta} l_2$ to false (effectively falsifying a weaker condition 
 \section{More on Proof Discharge Algorithm}
 \label{sec:proofalgo}
 
-\subsection{Handling Proof Obligations On Pathsets}
+\input{chapters/figures/figProofPathset.tex}
+
+\subsection{Handling Proof Obligations on Pathsets}
 \label{sec:pathsethoaretriples}
 Recall that our correlation algorithm attempts to correlate pathsets (instead of paths) between \sprog{} and \cprog{}.
-Evidently, each edge of a (possibly partial) product-CFG $\pi$ is associated with a pair of pathsets $(\xi_S,\xi_C)$.
-Proof obligations originating across a product-CFG edge $e[s \rightarrow d]=(\xi_S,\xi_C)$ are of
+Evidently, each edge of a (partially constructed) product-CFG $\pi$ is associated with a pair of pathsets $(\xi_S,\xi_C)$.
+A proof obligation originating across a product-CFG edge $e[s \rightarrow d]=(\xi_S,\xi_C)$ is of
 the form \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d}.
-A Hoare triple of the above form can be broken down into a conjunction of Hoare triples involving purely paths as follows:
+A Hoare triple of the above form can be broken down into a conjunction of Hoare triples involving only path correlations as follows:
 
 \begin{equation}
 \label{eqn:hoaretriplepathset}
 \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d} \Leftrightarrow \bigwedge_{\substack{\rho_S \in \xi_S \\ \rho_C \in \xi_C}} \hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d}
 \end{equation}
 
-Recall that our proof discharge algorithm requires that proof obligations satisfy the conjunctive \recursiveRelation{} property (defined in \cref{sec:proofalgoprops}).
-If the original proof obligation \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d} satisfies this property, so does each of the smaller
-proof obligation \hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d}.
+Recall that our proof discharge algorithm requires that proof obligations satisfy the conjunctive \recursiveRelation{} property (\cref{sec:proofalgoprops}).
+If the original proof obligation \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d} satisfies this property, so does each of \hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d}.
 Hence, the proof discharge algorithm presented in \cref{sec:examples} is capable of handling these smaller proof obligations
-and by \cref{eqn:hoaretriplepathset}, also the original proof obligations.
+and by extension (\cref{eqn:hoaretriplepathset}), the original proof obligation \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d}.
 If $|\xi|$ represents the number of paths in a pathset $\xi$, the proof obligation \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d} results
 in $|\xi_S| \times |\xi_C|$ smaller proof obligations.
-In practice, the number of paths in \sprog{} that are correlated with a path in \cprog{} is quite low
-and consequently, most of these proof obligations usually end up with a {\tt false} \lhs{} when lowered to
-first-order logic (through \cref{eqn:firstOrderFormula}), due to the presence of {\tt pathcond}$_{\rho_S}$ and {\tt pathcond}$_{\rho_C}$.
-Our proof discharge procedure begins with an attempt to disprove \lhs{} (overapproximated in case of \recursiveRelations{}),
-which trivially resolves the smaller proof obligations involving uncorrelated paths to {\tt true}.
+
+\Cref{algo:provepathset} shows the pseudocode for discharging proof obligations over pathsets.
+The function $prove(\hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d}, k, d_o, d_u)$ is responsible for discharging
+$\hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d}$ with parameters $k$, $d_o$ and $d_u$.
+Consider a product-CFG edge $e[s \rightarrow d]=(\xi_S,\xi_C)$.
+We call a pair of paths $\rho_S \in \xi_S$ and $\rho_C \in \xi_C$ {\em simultaneously active} if there exists a combined machine state
+at $s$ (satisfying the node invariants $\phi_s$) for which \sprog{} and \cprog{} takes the paths $\rho_S$ and $\rho_C$ respectively.
+In practice, the number of paths in \sprog{} that are simultaneously active with a path in \cprog{} (and vice versa) is quite low
+and consequently, most of these proof obligations usually end up with an unsatisfiable \lhs{} when lowered to
+first-order logic (through \cref{eqn:firstOrderFormula}) due to presence of {\tt pathcond}$_{\rho_S}$ and {\tt pathcond}$_{\rho_C}$.
+Our proof discharge procedure begins with an attempt to disprove \lhs{} ($0$-depth overapproximate) which trivially resolves the
+smaller proof obligations to {\tt true} for path pairs that are not simultaneously active ({\tt areSimultaneouslyActive()}).
+For path pairs that are simultaneously active, we discharge the smaller Hoare triple queries through {\tt prove()} in \cref{algo:proofSummary}.
+Additionally, a counterexample to any one of \hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d} is also a counterexample to the original
+proof obligation \hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d}.
 
 \subsection{Canonicalization Procedure}
 \label{sec:canonicalalgo}
@@ -317,23 +333,24 @@ which trivially resolves the smaller proof obligations involving uncorrelated pa
 \input{chapters/figures/figCanonical.tex}
 
 \Cref{algo:canonical} shows the pseudocode for the canonicalization procedure.
-$Canonicalize(e)$ is responsible for converting an expression $e$ to its canonical form $\hat{e}$ (introduced in \cref{sec:unifyandrewrite}).
+$canonicalize(e)$ is responsible for converting an expression $e$ to its canonical form $\hat{e}$ (introduced in \cref{sec:unifytrees}).
 Recall that a pseudo-variable is an expression of the form $\prodAccess{v}{a_1,a_2,.,a_n}$, where $v$ is a variable.
 Also recall that, an expression $e$ is canonical iff each {\em accessor} and {\em sum-is} expression operate on a pseudo-variable.
 An ADT expression with a data constructor, a lifting constructor or the \sumDtor{}-operator at its top-level, is called a {\em foldable} expression.
-$Canonicalize(e)$ iteratively folds each {\em accessor} and {\em sum-is} subexpressions of $e$ that operate on a foldable argument.
-Thus, $Canonicalize(e)$ returns an expression where none of the {\em accessor} or {\em sum-is} subexpressions is foldable.
-This condition entails the requirements of the canonical form.
+$canonicalize(e)$ iteratively folds each {\em accessor} and {\em sum-is} subexpressions of $e$ that operate on a foldable argument.
+Thus, $canonicalize(e)$ returns an expression where none of the {\em accessor} or {\em sum-is} subexpressions is foldable.
+This condition implies the requirements of the canonical form.
 For example, $a + \prodAccess{\cons{LCons}(b,l)}{tail,val}$ and $\sumIs{\lifted{list}{\mem{}}{lnode}{p}}{LNil}$
 canonicalizes to $a + \prodAccess{l}{val}$ and $(p = 0)$ respectively.
+$\{ e_1 \mapsto e_2 \} e$ represents the expression obtained by substituting all instances of $e_1$ with $e_2$ in $e$.
 
 \subsection{Unification Procedure}
 \label{sec:unifalgo}
 
 \input{chapters/figures/figUnification.tex}
 
-\Cref{algo:unification} shows the pseudocode for the unification algorithm introduced in \cref{sec:unifyandrewrite}.
-$\theta(p_1,e_1,p_2,e_2)$ is responsible for unifying expressions $e_1$ and $e_2$ under the expression path
+\Cref{algo:unification} shows the pseudocode for the unification algorithm introduced in \cref{sec:unify}.
+The function $\theta(p_1,e_1,p_2,e_2)$ is responsible for unifying expressions $e_1$ and $e_2$ under the expression path
 conditions $p_1$ and $p_2$ respectively.
 $\theta$ either fails to unify with the \cons{Fail} output, or it successfully returns $\cons{Succ}(S)$, where $S$
 is the set of correlation tuples that relate (a) either two atomic expressions, or (b) an atom with an non-atomic expression.
@@ -341,14 +358,14 @@ $\theta(p_1,e_1,p_2,e_2)$ terminates when one of $e_1$ and $e_2$ is an atomic ex
 In case both $e_1$ and $e_2$ contains a data constructor at their top-level, 
 $\theta$ attempts to recursively unify the data constructors and their corresponding children.
 If exactly one of $e_1$ and $e_2$ is a \sumDtor{} expression,
-$\theta$ attempts to unify both branches of \sumDtor{} (along with the path conditions) with the other expression
-and return whichever succeeds.
+$\theta$ attempts to unify both branches of \sumDtor{} with the other expression.
+Additionally, $\theta$ unifies the \sumDtor{} condition of the successful branch (if any) with {\tt true}.
 If both $e_1$ and $e_2$ are \sumDtor{} expressions, $\theta$ attempts to recursively unify their children.
 $\theta$ uses the $\sqcup$ -operator to combine the results of successive self-calls.
 $A \sqcup B$ is equal to $\cons{Succ}(S_1 \cup S_2)$ if $A = \cons{Succ}(S_1)$ and $B = \cons{Succ}(S_2)$;
 otherwise (if one of $A$ and $B$ is \cons{Fail}), $A \sqcup B = \cons{Fail}$.
 Additionally, for a \sumDtor{} expression with \underline{\tt if} condition $c$, $c$ is well-formed under the expression path condition.
-Hence, when conjuncting $c$ to the expression path condition, we use an `ordered and' operator \oland;
+Hence, when conjuncting $c$ to the expression path condition, we use an `ordered and' operator \oland, where
 $e_1 \oland e_2$ is equivalent to $e_1 \land (e_1 \rightarrow e_2)$.
 
 \subsection{Iterative Unification and Rewriting Procedure}
@@ -357,38 +374,42 @@ $e_1 \oland e_2$ is equivalent to $e_1 \land (e_1 \rightarrow e_2)$.
 \input{chapters/figures/figIterUnifyAndRewrite.tex}
 
 \Cref{algo:unifyandrewrite} shows the pseudocode for the iterative unification and rewriting procedure
-introduced in \cref{sec:unifyandrewrite}.
+introduced in \cref{sec:unifyunderrewriting}.
 $\Theta(p_a,e_a,p_b,e_b)$ is responsible for unifying expressions $e_a$ and $e_b$ under the expression
 path conditions $p_a$ and $p_b$ respectively.
 $\Theta$ either fails to unify with the \cons{Fail} output, or it successfully returns $\cons{Succ}(S)$, where $S$
 is the set of correlation tuples that relate {\em only} atomic expressions.
-$\Theta$ attempts to iteratively (a) unify the expressions (through a call to the unification procedure $\theta$ in \cref{sec:proofalgo}),
+$\Theta$ attempts to iteratively (a) unify the expressions (through a call to the unification procedure $\theta$ in \cref{sec:unifalgo}),
 and (b) perform rewriting (of atom $a_1$ for those correlation tuples \corrtuple{p_1}{a_1}{p_2}{e_2} where $e_2$ is non-atomic), followed by
 a recursive call to $\Theta$.
-For example, the unification of $l_1$ and $\cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$
+For example, the unification of $l$ and $\cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{p})$
 yields the correlation tuples:
-$\corrtuple{true}{\sumIs{l_1}{LCons}}{true}{true}$, $\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{val}}{true}{42}$ and
-$\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{l_2}}$.
+$\corrtuple{true}{\sumIs{l}{LCons}}{true}{true}$, $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{true}{42}$ and
+$\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{p}}$.
 
 \subsection{Decomposition Procedure for Recursive Relations}
 \label{sec:decomposealgo}
 
 \input{chapters/figures/figDecompose.tex}
 
-\Cref{algo:decompose} shows the pseudocode for the decomposition algorithm defined in \cref{sec:unifyandrewrite}.
-$Decompose(l_1, l_2)$ is responsible for computing the decomposition of the \recursiveRelation{} $l_1 \indEq{} l_2$.
+\Cref{algo:decompose} shows the pseudocode for the decomposition algorithm defined in \cref{sec:decomprecrel}.
+The function $decompose(l_1, l_2)$ is responsible for computing the decomposition of the \recursiveRelation{} $l_1 \indEq{} l_2$.
 Recall that, decomposition of a \recursiveRelation{} $l_1 \indEq{} l_2$ requires the unification of (canonicalized)
 $l_1$ and $l_2$ through the top-level invocation of $\Theta(true,l_2,true,l_2)$.
 If the $n$ correlation tuples obtained after a successful unification are \corrtuple{p_1^i}{a_1^i}{p_2^i}{a_2^i}
-(for $i=1\ldots n$), then the decomposition of $l_1 \indEq{} l_2$ is defined by \cref{eqn:decompose}.
+(for $i=1\ldots n$), then the decomposition of $l_1 \indEq{} l_2$ is defined as:
+\begin{equation}
+\label{eqn:decompose2}
+l_1 \indEq{} l_2 \Leftrightarrow \bigwedge \limits_{i=1}^n ((p_1^i \land p_2^i) \rightarrow (a_1^i = a_2^i))
+\end{equation}
 If the unification fails (with a \cons{Fail} output), the decomposition is defined to be {\tt false}.
-For example, recall that the unification of $l_1$ and $\cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$
+For example, recall that the unification of $l$ and $\cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{p})$
 yields the correlation tuples:
-$\corrtuple{true}{\sumIs{l_1}{LCons}}{true}{true}$, $\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{val}}{true}{42}$ and
-$\corrtuple{\sumIs{l_1}{LCons}}{\prodAccess{l_1}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{l_2}}$.
+$\corrtuple{true}{\sumIs{l}{LCons}}{true}{true}$, $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{true}{42}$ and
+$\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{true}{\lifted{list}{\mem{}}{lnode}{p}}$.
 Consequently, $l_1 \indEq{} \cons{LCons}(42, \lifted{list}{\mem{}}{lnode}{l_2})$ decomposes into the conjunctive predicate:
-$(\sumIs{l_1}{LCons}) \land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{val}=42)
-\land (\sumIs{l_1}{LCons} \rightarrow \prodAccess{l_1}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{l_2})$.
+$(\sumIs{l}{LCons}) \land (\sumIs{l}{LCons} \rightarrow \prodAccess{l}{val}=42)
+\land (\sumIs{l}{LCons} \rightarrow \prodAccess{l}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{p})$.
 
 \subsection{Reduction Procedures for Approximate Recursive Relations}
 \label{sec:approxalgo}
@@ -403,25 +424,25 @@ with its $d_u$-depth underapproximation $l_1 \indEqDepth{d_u} l_2$.
 \subsubsection{$D$-depth Iterative Unification and Rewriting Procedure}
 \label{sec:dunifyandrewritealgo}
 
-\input{chapters/figures/figDUnification.tex}
+% \input{chapters/figures/figDUnification.tex}
 \input{chapters/figures/figDIterUnifyAndRewrite.tex}
 
-Recall that, \cref{sec:approxdecomp} briefly describes the process of reducing an
+\Cref{sec:approxdecomp} briefly describes the process of reducing an
 overapproximate \recursiveRelation{} into its SMT-encodable equivalent absent of \recursiveRelations{}.
-We use modified versions of unification and `iterative unification and rewriting' procedures
+We use modified versions of unification and `iterative unification and rewriting' algorithms
 (defined in \cref{sec:unifalgo,sec:unifyandrewritealgo} respectively) to
-reduce an overapproximate \recursiveRelation{} into its SMT-equivalent.
+reduce an approximate \recursiveRelation{} into its SMT-equivalent.
 The $D$-depth unification and `iterative unification and rewriting' procedures
 are represented by $\Theta_D(p_a,e_a,p_b,e_b,d)$ and $\theta_D(p_1,e_1,p_2,e_2,d)$
 respectively, where $D$ is a parameter of the algorithm.
-The pseudocode for these two procedures are shown in \cref{algo:dunification,algo:dunifyandrewrite} respectively.
+The pseudocode for these two procedures are shown in \cref{algo:dunifyandrewrite}.
 The $D$-depth `iterative unification and rewriting' returns depth-augmented
 correlation tuples of the form $\corrtuple{p_1}{a_1}{p_2}{a_2}_d$ such that $d \geq D$
 for all correlation tuples relating ADT values.
 Unlike $\Theta$ which terminates unification iff both expressions are atomic,
 $\Theta_D$ performs rewriting of both ADT atomic expressions and continues to
 unify deeper into their respective expression trees until all correlation tuples relate
-expressions at depth $\geq D$.
+ADT expressions at depth $\geq D$.
 For example, the $1$-depth unification of $l$ and $\lifted{list}{\mem{}}{lnode}{p}$ yields the
 (depth augmented) correlation tuples:
 $\corrtuple{true}{\sumIs{l}{LNil}}{true}{p=0}_0$, $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{p \neq 0}{\structPointer{p}{\mem{}}{lnode}{val}}_1$
@@ -432,9 +453,9 @@ and $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{p \neq 0}{\lifted{list}{
 
 \input{chapters/figures/figOverapprox.tex}
 
-$Overapprox_D(l_1,l_2)$ is responsible for reducing the overapproximation $l_1 \indEqDepth{D} l_2$
+$overapprox_D(l_1,l_2)$ is responsible for reducing the overapproximation $l_1 \indEqDepth{D} l_2$
 into its SMT-encodable equivalent condition.
-$Overapprox_D$ is similar to the decomposition procedure in \cref{sec:decomposealgo} except it only preserves
+$overapprox_D$ is similar to the decomposition procedure in \cref{sec:decomposealgo} except it only preserves
 scalar equalities till a maximum depth of $D$ (inclusive).
 This essentially asserts that both $l_1$ and $l_2$ have identical structures (by equating expression path conditions)
 and equal scalar values (by equating scalar leaf expressions) till a depth of $D$.
@@ -451,7 +472,7 @@ $((\sumIs{l}{LNil}) = (p = 0)) \land ((\sumIs{l}{LCons}) \land (p \neq 0) \right
 
 Recall that, an underapproximate \recursiveRelation{} $l_1 \indEqUapprox{d_u} l_2$
 is equivalent to $\depthBound{d_u}{l_1} \land \depthBound{d_u}{l_2} \land l_1 \indEqDepth{d_u} l_2$,
-where $\depthBound{d}{l}$ asserts that $l$ has a depth of at most $d$ (defined in \cref{sec:approxdefs}).
+where $\depthBound{d}{l}$ asserts that $l$ has a maximum depth of $d$ (defined in \cref{sec:approxdefs}).
 The function responsible for computing $\depthBound{D}{l}$ is $isDepthBounded_D(l,p,d)$,
 where $p$ and $d$ represents the current expression path condition and depth of $l$,
 and $D$ is a parameter of the algorithm.
@@ -460,48 +481,53 @@ The top-level invocation is given by $isDepthBounded_D(l,true,0)$.
 $isDepthBounded_D$ recursively traverses the expression tree of $l$ (while rewriting as necessary),
 until it reaches a node at depth $>D$, at which point it returns the condition asserting the unreachability
 of such a node.
-For example, for a \type{List} variable $l$, $\depthBound{2}{l}$ (i.e. $isDepthBounded_2(l,true,0)$)
+For example, for a \type{List} variable $l$, $\depthBound{1}{l}$ (i.e. $isDepthBounded_1(l,true,0)$)
 returns the predicate:
-$\neg(\sumIs{l}{LCons} \oland \sumIs{\prodAccess{l}{tail}}(LCons))$.
+$\neg(\sumIs{l}{LCons} \oland \sumIs{\prodAccess{l}{tail}}{LCons})$.
 Expanding $e_1 \oland e_2$ to $e_1 \land (e_1 \rightarrow e_2)$ and using the identity $\neg (\sumIs{e}{LNil}) = \sumIs{e}{LCons}$,
 the above reduces to the equivalent condition:
 $(\sumIs{l}{LNil}) \lor ((\sumIs{l}{LCons}) \land (\sumIs{\prodAccess{l}{tail}}{LNil}))$.
 
 \input{chapters/figures/figUnderapprox.tex}
 
-Finally, $Underapprox_D(l_1,l_2)$ is responsible for reducing the underapproximation $l_1 \indEqUapprox{D} l_2$
+Finally, $underapprox_D(l_1,l_2)$ is responsible for reducing the underapproximation $l_1 \indEqUapprox{D} l_2$
 into its SMT-encodable equivalent condition.
-The pseudocode for $Underapprox_D$ is given in \cref{algo:underapprox}.
+The pseudocode for $underapprox_D$ is given in \cref{algo:underapprox}.
 For example, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \depthBound{1}{l}
 \land \depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$.
 $\depthBound{1}{l}$ and $\depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}}$ reduces to the conditions
-$\sumIs{l}{LNil}$ and $(p = 0)$ resectively.
-Finally, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p}$ reduces to the condition:
-$\sumIs{l}{LNil} \land (p = 0) \land ((\sumIs{l}{LNil}) = (p = 0)) \land ((\sumIs{l}{LCons}) \land (p \neq 0) \rightarrow \prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val})$.
+$(\sumIs{l}{LNil}) \lor ((\sumIs{l}{LCons}) \land (\sumIs{\prodAccess{l}{tail}}{LNil}))$
+and $(p = 0) \lor ((p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$ respectively.
+Finally, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p}$ reduces to:
+\begin{gather*}
+(\sumIs{l}{LNil}) \lor ((\sumIs{l}{LCons}) \land (\sumIs{\prodAccess{l}{tail}}{LNil})) \ \land \\
+(p = 0) \lor ((p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0)) \ \land \\
+((\sumIs{l}{LNil}) = (p = 0)) \land ((\sumIs{l}{LCons}) \land (p \neq 0) \rightarrow \prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val})
+\end{gather*}
 
 \subsection{SMT Encoding of First Order Logic Formula}
 \label{sec:smtencoding}
 As summarized in \cref{algo:proofSummary}, our proof discharge algorithm solves a proof obligation $P: \lhs{} \Rightarrow \rhs{}$,
-through a sequence of queries $P_i : \lhs{}_i \Rightarrow \rhs{}_i$ to off-the-shelf SMT solvers.
+through a sequence of queries ($P_i : \lhs{}_i \Rightarrow \rhs{}_i$) to off-the-shelf SMT solvers.
 Recall that $P$ may contain \recursiveRelations{}.
 However, our algorithm ensures that each $P_i$ is free of \recursiveRelations{} and only contain
 scalar equalities.
 We encode each query $P_i$ in SMT logic with bitvector and array theories.
-In this section, we describe the process of encoding a proof obligation $P_i$ into SMT logic.
-We begin by converting $P_i : \lhs{}_i \Rightarrow \rhs{}_i$ into its canonical form $\hat{P}_i$
+% In this section, we describe the process of encoding a proof obligation $P_i$ into SMT logic.
+We begin by converting $P_i$ to its canonical form $\hat{P}_i$
 (as described in \cref{sec:canonicalalgo}).
 Although $\hat{P}_i$ does not contain \recursiveRelations{}, it may still contain
-ADT variables alongside {\em accessor} and {\em sum-is} expressions.
-Due to canonicalization, all top-level {\em accessor} and {\em sum-is} expressions must be of the form
-$\prodAccess{v}{a_1,a_2,.,a_n}$ and $\sumIs{\prodAccess{v}{a_1,a_2,.,a_n}}{\textnormal{V}}$ respectively.
-We call such an expression $e$ {\em flattenable} and the ADT variable $v$ is called the {\em index} of $e$.
-$\hat{P}_i$ is lowered into an intermediate expression $P_i^f$ through a process called {\em flattening}.
-This involves `flattening' all flattenable expressions to variables such that
-$P_i^f$ only contains scalar values with scalar and memory operations (but importantly not ADT values).
-The flattening process is described below.
+ADT variables, as well as {\em accessor} and {\em sum-is} expressions.
+Recall that in the canonicalized form, all {\em accessor} and {\em sum-is} expressions are of the forms
+$\prodAccess{v}{a_1,a_2,.,a_n}$ and $\sumIs{\prodAccess{v}{a_1,a_2,.,a_n}}{\mathnormal{V}}$ respectively.
+Such an expression $e$ is called {\em flattenable} and the {\em name} of the ADT variable $v$ is called the {\em index} of $e$.
+$\hat{P}_i$ is lowered into an intermediate expression $\hat{P}_i^f$ through a process called {\em flattening}.
+This involves `flattening' all flattenable subexpressions of $\hat{P}_i$ to variables such that
+$\hat{P}_i^f$ only contains scalar values with scalar and memory operations (but importantly not ADT values).
+Flattening is a two step process as described next.
 
 \begin{enumerate}
-\item For each top-level {\em accessor} expression $e = \prodAccess{v}{a_1,a_2,.,a_n}$, we replace it with a
+\item For each {\em accessor} expression $e = \prodAccess{v}{a_1,a_2,.,a_n}$, we replace it with a
 variable named $v \strcat{} \field{a_1} \strcat{} \field{a_2} \strcat{} \dots \strcat{} \field{a_n}$,
 where \strcat{} concatenates two strings with a `\strsep{}' character in between i.e.
 $"a" \strcat{} "b" = "a \strsep{} b"$.
@@ -509,24 +535,23 @@ $"a" \strcat{} "b" = "a \strsep{} b"$.
 \item For each ADT $T$ with data constructors $V_1,V_2,\dots,V_k$,
 we define an enumeration type $\mathcal{E}(T)$ in SMT logic with items
 $\mathcal{E}(V_1),\mathcal{E}(V_2),\dots,\mathcal{E}(V_k)$ respectively.
-In the canonical form, each {\em sum-is} expression $e$ must operate on a pseudo-variable.
-The last step guarantees that $e$ must be of the form: $e = \sumIs{v}{\textnormal{V}}$.
-We replace $e$ with the its SMT equivalent: $(v \strcat{} tag) = \mathcal{E}(V)$
+The last step guarantees that each {\em sum-is} expression $e$ must be of the form: $\sumIs{v}{\mathnormal{V}}$.
+We replace $e$ with the its SMT equivalent: $(v \strcat{} "tag") = \mathcal{E}(V)$
 \footnote{\SpecL{} does not allow naming a field of a data constructor \field{tag}.
 Furthermore, fields cannot contain the `\_' character.
 Combined, these two conditions prevent collision between variable names obtained due to flattening.}.
 \end{enumerate}
 
-For example, the canonical expression $a + \prodAccess{l}{val}$ flattens to $a + l \strsep{} val$.
-Similarly, $(\sumIs{\prodAccess{l}{tail}}{LCons})$ flattens to $l \strsep{} tail \strsep{} tag = \mathcal{E}(\cons{LCons})$.
-Due to flattening, each flattenable expression $e$ in $\hat{P}_i$ with index $v$ gets lowered
-into a variable in $P_i^f$ whose name begins with $v \strsep$.
-For the ADT variable $v$, let $\mathcal{F}(v)$ be the set of all such lowered variables in $P_i^f$.
+For example, the canonical expression $a + \prodAccess{l}{val}$ flattens to $a + {\tt l \strsep{} val}$.
+Similarly, $(\sumIs{\prodAccess{l}{tail}}{LCons})$ flattens to ${\tt l \strsep{} tail \strsep{} tag} = \mathcal{E}(\cons{LCons})$.
+Due to flattening, each flattenable subexpression $e$ in $\hat{P}_i$ with index $"str"$ gets lowered
+into a variable in $\hat{P}_i^f$ whose name begins with $"str \strsep"$.
+For the ADT variable $v$, let $\mathcal{F}(v)$ be the set of all such lowered variables in $\hat{P}_i^f$.
 For example, flattening of an expression with $\prodAccess{l}{val}$ and $\sumIs{l}{LCons}$
-results in $\mathcal{F}(l) = \{ l \strsep{} val, l \strsep tag \}$.
-Importantly, $P_i^j$ may only contain scalar and memory operations (but not ADT values).
+results in $\mathcal{F}(l) = \{ {\tt l \strsep{} val, l \strsep tag} \}$.
+Importantly, $\hat{P}_i^f$ may only contain scalar and memory operations (but not ADT values).
 
-Scalar types and their operations map one-to-one to their SMT equivalents.
+Scalar types and their operations map one-to-one with their SMT equivalents.
 The memory element \mem{} is represented as a byte-addressable (i.e. \type{i8}) array.
 A memory load \memRead{\mem{}}{a}{T} is expanded into the concatenation of \sizeof{T} {\em array-select} operations.
 A memory write \memWrite{\mem{}}{a}{v}{T} is expanded into \sizeof{T} nested {\em array-store} operations.
@@ -536,45 +561,46 @@ A memory write \memWrite{\mem{}}{a}{v}{T} is expanded into \sizeof{T} nested {\e
 
 \input{chapters/figures/figReconcile.tex}
 
-As detailed in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
-variables $\mathcal{F}(v)$ during SMT encoding.
+As previously discussed in \cref{sec:smtencoding}, each ADT variable $v$ gets lowered into a set of scalar
+variables $\mathcal{F}(v)$ in its SMT encoding.
 Evidently, the models returned by SMT solvers map these variables (in $\mathcal{F}(v)$ instead of $v$)
 to constant values.
 We are interested in recovering a counterexample for the original query from a
-model returned by the SMT solver.
+model returned by an SMT solver.
 Recall that, these counterexamples help guide the correlation search (in \cref{sec:searchalgo})
 and invariant inference (in \cref{sec:invinferalgo}) procedures.
-The process of constructing a constant for $v$ from the constant values returned for $\mathcal{F}(v)$
+The process of constructing a concrete value for $v$ from the constants returned for $\mathcal{F}(v)$
 by an SMT solver is called {\em reconciliation}.
 Obviously, the reconciled counterexample must be a valid counterexample to the original proof obligation.
-$Reconcile(v:T, \gamma)$ is responsible for performing reconciliation for variable $v$ (of type $T$)
-from the model $\gamma$ (returned by a SMT solver).
-$Rand(T)$ returns an arbitrary constant of type $T$.
+
+The function $reconcile(v, T, \gamma)$ is responsible for reconciling a concrete value for the variable $v$ (of type $T$)
+from the model $\gamma$ (returned by an SMT solver).
+${\tt rand}(T)$ returns an arbitrary constant of type $T$.
 For example, consider the rather contrived proof obligation $P: {\tt true} \Rightarrow \sumIs{l}{\cons{LNil}}$.
 Clearly, any valuation of $l$ where $l$ is a non-empty list is a valid counterexample to $P$.
-However, a counterexample $\gamma$ returned by an SMT solver would instead contain
-the mapping $\{ l \strsep{} tag \mapsto \mathcal{E}(\cons{LCons}) \}$.
-During reconciliation, we find that $l \strsep{} tag$ is mapped to the data constructor \cons{LCons}
-and recurse for each of its fields \cons{val} and \cons{tail}.
-Since $\gamma$ do not contain a mapping for either of these fields, we soundly generate random constants
-for these instead.
-Indeed, $Reconcile$ correctly constructs a non-empty but otherwise arbitrary list for $l$, which
-is a counterexample to $P$.
+However, a counterexample $\gamma$ returned by an SMT solver would instead
+map ${\tt l \strsep{} tag}$ to $\mathcal{E}(\cons{LCons})$.
+$reconcile()$ identifies that ${\tt l \strsep{} tag}$ maps to the data constructor \cons{LCons}
+and attempts to recursively reconcile values for each of its fields \cons{val} and \cons{tail}.
+Since $\gamma$ do not contain a mapping for either of these fields (${\tt l \strsep{} val}$ and ${\tt l \strsep{} tail \strsep{} tag}$),
+we soundly generate random constants for these instead (through {\tt rand()}).
+$reconcile()$ returns a non-empty but otherwise arbitrary list for $l$,
+which is indeed a valid counterexample to the original proof obligation $P$.
 
 \subsection{Value Tree Representation}
 \label{sec:valuegraph}
 This section presents a graphical representation of expressions that helps us simplify the
 implementation of multiple subprocedures used by our proof discharge algorithm.
-This includes the process of canonicalization, reducing approximate \recursiveRelations{} as well as
-construction of deconstruction programs as part of type III proof obligations.
-We call this the {\em Value Tree} representation and use $\mathcal{V}(e)$ to denote a value tree associated with $e$.
+This includes the process of canonicalization, reduction of approximate \recursiveRelations{}, as well as
+the creation of deconstruction programs as part of type III proof obligations.
+We call this the {\em value tree} representation and use $\mathcal{V}(e)$ to denote a value tree associated with $e$.
 We give an algorithm to convert an expression $e$ into $\mathcal{V}(e)$ and list its applications.
 
-Before diving into value trees, we start by introducing an analogous (but simpler) representation for types, called {\em Type Trees}.
+Before diving into value trees, we start by introducing an analogous (but simpler) representation for types, called {\em type trees}.
 We use $\mathcal{T}(\tau)$ to denote a type tree associated with $\tau$.
 % To define type trees, we begin with a formal description of ADTs.
-Recall that ADTs are simply `sum of product' types where each data construction represents a variant (of the sum-type) and
-each data construction contains values for each of its fields (of the product-type).
+Recall that ADTs are simply `sum of product' types where each data constructor represents a variant (of the sum-type) and
+contains values for each of its fields (of the product-type).
 On top of ADTs, IR has build-in scalar types: \type{unit}, \type{bool} and \type{i<N>}.
 Types in IR can be represented in {\em first order recursive types} \cite{recursivetypestrees} using the product ($\times$) and sum ($+$) type
 constructors; and the scalar types (i.e. nullary type constructors).
@@ -594,19 +620,21 @@ at their definitions respectively.
 
 \input{chapters/figures/figTypeTrees.tex}
 
-\Cref{fig:typetrees} shows the type trees for three ADTs \type{List}, \type{Tree}, and \type{Matrix} respectively.
+\Cref{fig:typetrees} shows the type trees for three ADTs -- \type{List}, \type{Tree}, and \type{Matrix} respectively.
 In a type tree, each internal node represents either a product (\prodn{}) or a sum (\sumn{}) type constructor.
 The leaf nodes are the scalar types.
 Each outgoing edge of a \sumn{} node is associated with a data constructor of the corresponding ADT (i.e. \cons{LCons} for \type{List}).
 Similarly, each outgoing edge of a \prodn{} node is associated with a field of the corresponding data constructor (i.e. \field{val} for \type{LCons}).
 We assign integer indices to the internal nodes and use \ttedge{v}{label}\footnote{
-The \ttedge{v}{label} syntax is chosen over $v_1 \rightarrow v_2$ because type trees may have multi-edges, in which case
-$v_1 \rightarrow v_2$ no longer represents an unique edge as shown in \cref{fig:typetreetree1}.} to identify the edge outgoing at $v$ associated with {\tt label},
+The \ttedge{v}{label} syntax is chosen over $v_1 \rightarrow v_2$ because
+type trees may have multi-edges (e.g. \cref{fig:typetreetree1}), in which case
+$v_1 \rightarrow v_2$ no longer represents an unique edge.}
+to identify the edge outgoing at $v$ associated with {\tt label},
 where {\tt label} is either a data constructor or a field name.
 The root node is denoted by $v_0$.
-The edges going outward from the root node are called {\em tree-edges} e.g., \ttedge{0}{LCons} and \ttedge{1}{val} in \cref{fig:typetreelist1}.
-Edges that are not tree-edges, are called {\em back-edges} e.g., \ttedge{1}{cols} in \cref{fig:typetreematrix1}.
-Every back-edge induces an unique simple cycle in the type tree representation.
+The edges going outward from the root node are called {\em tree-edges}, e.g., \ttedge{0}{LCons} and \ttedge{1}{val} in \cref{fig:typetreelist1}.
+Edges that are not tree-edges, are called {\em backedges}, e.g., \ttedge{1}{cols} in \cref{fig:typetreematrix1}.
+Every backedge induces an unique simple cycle in the type tree representation.
 
 \input{chapters/figures/figTypeTreesPeel.tex}
 
@@ -615,17 +643,17 @@ $\mu \alpha. T$ and $T[\mu \alpha. T/\alpha]$ in \typegrammar{} are {\em equal} 
 where $T[\mu \alpha. T/\alpha]$ represents the new type obtained by substituting all free
 instances of $\alpha$ with $\mu \alpha. T$, and is defined as the {\em unfolding} of $\mu \alpha. T$.
 In general, under equirecursive typing, two types are equal iff their infinite expansions (through unfolding) are equal.
-In the type tree representation, two types are equal iff their infinite expansions are equivalent.
+In the type tree representation, two types are equal iff their infinite expansions are equal.
 Such type trees are called isomorphic and two types are isomorphic iff they represent the same type.
 An unfolding in the term representation corresponds to {\em unrolling} one iteration of a simple cycle in its type tree.
 \Cref{fig:typetreespeel} shows three type trees for the \type{List} type.
 \Cref{fig:typetreelistpeel1} corresponds to the canonical (intuitively the `smallest') type tree for the \type{List} type.
 The type trees \cref{fig:typetreelistpeel2,fig:typetreelistpeel3} are obtained by {\em peeling} and unrolling
-the back-edge \ttedge{1}{tail} (in \cref{fig:typetreelistpeel1}) respectively.
-Peeling is a form of partial unrolling which only extracts the starting node of the cycle.
+the backedge \ttedge{1}{tail} (in \cref{fig:typetreelistpeel1}) respectively.
+Peeling is a form of partial unrolling which only extracts the head of a cycle.
 In practice, equality of two types (encoded in \typegrammar{}) can be reposed as syntactic
 equality of their {\em canonical forms} \cite{canonicalrecursivetypes}.
-In general, type trees may contain cycles (due to back-edges) and hence are not quite `trees'.
+In general, type trees may contain cycles (due to backedges) and hence are not quite `trees'.
 However, they represent the actual (possibly infinite) trees obtained through repeated unrolling of cycles.
 
 \input{chapters/figures/figValueTrees.tex}
@@ -636,24 +664,24 @@ Note that, all three value trees are isomorphic to one of the
 \type{List} type trees shown in \cref{fig:typetreespeel}, e.g.,
 \cref{fig:valuetreelist2} is isomorphic to \cref{fig:typetreelistpeel2}.
 In general, for an expression $e$ of type $\tau$, its value tree $\mathcal{V}(e)$ resembles
-its type tree with the following distinctions:
+a type tree $\mathcal{T}(\tau)$ with the following distinctions:
 
 \begin{enumerate}
-\item Similar to a type tree, each internal node is either a \sumn{} or a \prodn{} node.
-\item Instead of a scalar type $\tau_s$, each leaf node in $\mathcal{V}(e)$ contains an expression
-of type $\tau_s$.
-\item Similar to the Control-Flow Graph representation (presented in \cref{sec:cfg}), each node $v$
-is associated with a symbolic state $\Omega_v$.
-\item In addition to a data constructor, each edge originating at a \sumn{} node $v$ also contains
-an edge condition expression (a boolean valued function over $\Omega_v$).
-We identify such an edge with \vtedge{v}{\mathnormal{V}}{c}, where $v$ is the sum node,
+\item Similar to a type tree, each internal node in $\mathcal{V}(e)$ is either a \sumn{} or a \prodn{} node.
+\item Each node $v$ in $\mathcal{V}(e)$ is associated with a symbolic state $\Omega_v$
+similar to the control-flow graph representation (presented in \cref{sec:cfg}) of a program.
+\item Recall that an edge leaving a \sumn{} node is labeled with a data constructor.
+These edges are additionally labeled with an {\em edge condition} (a boolean valued function over $\Omega_n$).
+We identify such an edge with \vtedge{v}{\mathnormal{V}}{c}, where $v$ is the \sumn{} node,
 $V$ is a data constructor and $c$ is the edge condition.
-The set of edge conditions for all outgoing edges at a \sumn{} node must be mutually exclusive and exhaustive.
-\item In addition to a field name, each edge $v \rightarrow v'$ originating at a \prodn{} node $v$ also contains
-a transfer function ($\Omega_{v'}$ as a function of $\Omega_v$).
-We identify such an edge with \vtedge{v}{fi}{\xfer{}}, where $v$ is the product node,
+The set of edge conditions of all edges leaving a \sumn{} node must be mutually exclusive and exhaustive.
+\item Recall that an edge $v \rightarrow v'$ leaving a \prodn{} node is labeled with a field name.
+Such an edge is also associated with a transfer function ($\Omega_{v'}$ as a function of $\Omega_v$),
+and is denoted by \vtedge{v}{fi}{\xfer{}}, where $v$ is the \prodn{} node,
 \field{fi} is a field name and \xfer{} is the transfer function.
-\item Additionally, a value tree also contains a special node (called the {\em entry node}), and a special edge
+\item Instead of a scalar type $\tau_s$, each leaf node $v$ in $\mathcal{V}(e)$ contains an expression
+of type $\tau_s$ (as a function of $\Omega_{v}$).
+\item Additionally, a value tree contains a special node (called the {\em entry node}), and a special edge
 (called the {\em entry edge}) from the entry node to $v_0$ (i.e. the root of the tree).
 We use $\xi$ to denote the entry node.
 The entry edge is associated with a transfer function $\xfer{}_\xi$.
@@ -666,10 +694,10 @@ The resulting type tree $\mathcal{T}$ represents the type $\tau$ of the expressi
 \end{enumerate}
 
 Intuitively, a value tree simultaneously represents the value of the expression as well as
-the CFG of its {\em abstracted} deconstruction program.
+the canonical CFG of its deconstruction program.
 We will subsequently discuss these properties along with their applications in the context
 of our proof discharge algorithm.
-Next, we give an algorithm to convert an expression $e$ to its value tree representation $\mathcal{V}(e)$.
+First, we give an algorithm to convert an expression $e$ to its value tree representation $\mathcal{V}(e)$.
 
 \subsection{Conversion of Expressions to their Value Trees}
 \label{sec:valuetreeconv}
@@ -691,13 +719,15 @@ Given an expression $e = e_1 \odot e_2$,
 \cref{fig:valuetreeconvscalar} shows the construction of $\mathcal{V}(e)$
 from $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$ respectively.
 Since $e_1$ and $e_2$ have scalar types, their value trees must have exactly one
-node (i.e. the leaf node) containing an expression ($e'_1$ and $e'_2$ respectively) of the same type.
-$\odot$ represents an aribtrary scalar operator, i.e. an operator whose arguments
-are scalar-typed values (e.g., bitvector arithmatic and relational operators).
+node (i.e. a leaf node) containing an expression ($e'_1$ and $e'_2$ respectively) of the same type.
+$\odot$ represents an aribtrary scalar operator, i.e. an operator that accepts
+scalar values and produce another scalar value.
+Importantly, arrays over bitvectors are considered scalar types and thus
+memory load and store satisfy the properties of scalar operators.
 Given an expression $s$ and a transfer function \xfer{}, $\xfer{}(s)$
 represents the expression obtained by applying \xfer{}, interpreted as a substitution,
 to $s$. This is equivalent to the weakest-precondition of $s$ along an edge associated
-with the \xfer{}.
+with \xfer{}.
 The construction shown in \cref{fig:valuetreeconvscalar} can be generalized to
 $n$-ary scalar operators for $n>2$.
 
@@ -716,7 +746,7 @@ Given an expression $e = \cons{LCons}(e_1, e_2)$,
 \cref{fig:valuetreeconvcons} depicts the construction of $\mathcal{V}(e)$
 from $\mathcal{V}(e_1)$ and $\mathcal{V}(e_2)$ respectively.
 In general, for an arbitrary data constructor $V$ of ADT $T$,
-the process begins with a \sumn{} node (0 in \cref{fig:valuetreeconvcons})
+the construction begins with a \sumn{} node (0 in \cref{fig:valuetreeconvcons})
 such that the outgoing edge associated with the value constructor $V$ (\cons{LCons} in \cref{fig:valuetreeconvcons})
 has an edge condition of {\tt true} while all other edges are assigned the edge condition {\tt false}.
 For each data constructor $V' \neq V$ of $T$, we append a random value tree corresponding to the product-type
@@ -739,7 +769,7 @@ value trees corresponding to the arguments $e_i$ as children of the product node
 \end{center}
 \end{subfigure}
 \caption{\label{fig:valuetreeconvsumis} Construction of $\mathcal{V}(\sumIs{e}{MCons})$ from $\mathcal{V}(e)$.\\
-The dashed edge represents the (possibly empty) set of backedges originating in $v_2$ that terminates at 0.}
+The dashed edge represents the (possibly empty) set of backedges originating in the subtree rooted at $v_2$ that terminates at 0.}
 \end{figure}
 
 \subsubsection{Sum-Is Operator}
@@ -747,9 +777,9 @@ Given a {\em sum-is} expression $e' = \sumIs{e}{MCons}$,
 \cref{fig:valuetreeconvsumis} shows the construction of $\mathcal{V}(e')$
 from $\mathcal{V}(e)$.
 The process is rather straightforward and for a general expression $\sumIs{e}{\mathnormal{V}_i}$, entails extracting the
-edge condition $c$ ($c_2$ in \cref{fig:valuetreeconvsumis}) from the $\mathcal{V}(\sumIs{e}{\mathnormal{V}_i})$ edge
-\vtedge{v_0}{V}{c} (\vtedge{0}{MCons}{c_2} in \cref{fig:valuetreeconvsumis}).
-Notice that the entry transfer function $\xfer{}_\xi$ during this conversion.
+edge condition $c$ ($c_2$ in \cref{fig:valuetreeconvsumis}) from $\mathcal{V}(\sumIs{e}{\mathnormal{V}_i})$ edge
+\vtedge{v_0}{\mathnormal{V}}{c} (\vtedge{0}{MCons}{c_2} in \cref{fig:valuetreeconvsumis}).
+Notice that the entry transfer function $\xfer{}$ is preserved during this construction.
 
 \begin{figure}[H]
 \begin{subfigure}[b]{\textwidth}
@@ -766,15 +796,15 @@ Given an expression $e' = \prodAccess{e}{cols}$,
 \cref{fig:valuetreeconvprodaccess} depicts the construction of $\mathcal{V}(e')$
 from $\mathcal{V}(e)$.
 Intuitively, $\mathcal{V}(e')$ represents the subtree of $\mathcal{V}(e)$ rooted at the \sumn{} node reached by taking
-the edges \vtedge{0}{MCons}{c_2} followed by \vtedge{1}{cols}{\Omega_2}.
+the edges \vtedge{0}{MCons}{c_2} followed by \vtedge{1}{cols}{\xfer{}_2}.
 However, this path may contain backedges or the subtree itself may contain backedges leaving the subtree.
 In such a case, we perform peeling until all such backedges strickly terminate within this subtree.
 For example, in \cref{fig:valuetreeconvprodaccess}, the edge \vtedge{1}{cols}{\Omega_2} is a backedge and hence we peel it once.
-In the resulting (equivalent) value tree, the subtree (rooted at 2) contains a backedge leaving the subtree which requires
-one more peeling operation.
+In the resulting (equivalent) value tree, the subtree (rooted at 2) contains a backedge leaving the subtree (dashed edge \ttedge{2}{MCons})
+which requires one more peeling operation.
 The resulting value tree contains the subtree rooted at the \sumn{} node 2 which satisfies the two conditions above and
-hence $\mathcal{V}(e')$ is simply constructed by extracting the subtree rooted at \sumn{} node 2.
-Note that we preserve the transfer functions from the entry to the \sumn{} node 2 during extraction.
+hence $\mathcal{V}(e')$ is simply constructed by extracting the subtree rooted at node 2.
+Note that we preserve the transfer functions from the entry to node 2 during extraction.
 $\xfer{}_1 \cdot \xfer{}_2$ represents the composition of the transfer functions $\xfer{}_1$ and $\xfer{}_2$ respectively.
 
 \begin{figure}[H]
@@ -807,7 +837,7 @@ the arguments $e_i^j$ as its children.
 \end{center}
 \end{subfigure}
 \caption{\label{fig:valuetreeconvlift} Construction of $\mathcal{V}(\lifted{list}{\mem{}}{lnode}{p})$ from $\mathcal{V}(p)$.\\
-The process involves assuming $v_\vtse{1}^\lift{list}{}{}$ to be the value tree of $\lifted{list}{\mem{}}{lnode}{\vtse{1}}$,
+The process involves assuming that $v_\vtse{1}^\lift{list}{}{}$ is the value tree of $\lifted{list}{\mem{}}{lnode}{\vtse{1}}$,
 followed by expansion of $v_\vtse{1}^\lift{list}{}{}$ using the definition of \lift{list}{\mem{}}{lnode} (in \cref{eqn:clist})
 and, finally folding the tree-edge \ttedge{1}{tail} incident on the self-referencial subtree $v_\vtse{1}^\lift{list}{}{}$ into a backedge.}
 \end{figure}
@@ -826,7 +856,7 @@ entry edge.
 Next, we expand the subtree $v_\vtse{1}^\lift{list}{}{}$ based on the unrolling procedure of \lift{list}{\mem{}}{lnode}
 (defined in \cref{eqn:clist}) until the entire value tree becomes a self-referencial structure.
 For example, after expanding through \cref{eqn:clist} once in \cref{fig:valuetreeconvlift},
-the value tree contains an tree-edge \ttedge{1}{tail} incident on the self-referencial subtree $v_\vtse{1}^\lift{list}{}{}$.
+the value tree contains a tree-edge \ttedge{1}{tail} incident on the self-referencial subtree $v_\vtse{1}^\lift{list}{}{}$.
 In the last step, we fold all self-referencial tree-edges (\ttedge{1}{tail} in \cref{fig:valuetreeconvlift})
 by converting them into backedges terminating at the root of the subtree being referenced
 (0 for $v_\vtse{1}^\lift{list}{}{}$ in \cref{fig:valuetreeconvlift}).
@@ -838,15 +868,15 @@ by converting them into backedges terminating at the root of the subtree being r
 \end{center}
 \end{subfigure}
 \caption{\label{fig:valuetreeconvvar} Construction of $\mathcal{V}(m)$ for a \type{Matrix} variable $m$.
-The process is identical to the construction of value trees for lifted expressions as shown in \cref{fig:valuetreeconvlift}.}
+The process is analogous to the construction of value trees for lifted expressions as shown in \cref{fig:valuetreeconvlift}.}
 \end{figure}
 
 \subsubsection{Variables}
 Finally, we are interested in constructing the value tree for a variable.
 Recall that, every ADT (pseudo-)variable is associated with an unrolling procedure
-characterized by the ADT itself. e.g. \cref{eqn:specDeconstruct}
+characterized by the ADT itself, e.g., \cref{eqn:specDeconstruct}
 for the \type{List} variable $l$.
-The \type{Matrix} ADT is defined as:
+The \type{Matrix} ADT is defined as
 $\type{Matrix} = \cons{MNil} \ | \ \cons{MCons}(\type{List},\type{Matrix})$,
 and thus the unrolling procedure for a \type{Matrix} variable $m$ is given by:
 
@@ -861,11 +891,10 @@ for a lifted expression -- assume, expand and fold.
 First, we assume that $v_\vtse{1}^\type{Mat}$ and $v_\vtse{2}^\type{Lis}$ are the value trees
 corresponding to the pseudo-variables \vtse{1} and \vtse{2} of \type{Matrix} and \type{List}
 types respectively.
-Thus, $\mathcal{V}(m)$ is equal to $v_\vtse{1}^\type{Mat}$ with the entry edge transfer function
-$\{ \vtse{1} \mapsfrom m \}$.
+Thus, $\mathcal{V}(m)$ is equal to $v_\vtse{1}^\type{Mat}$ except for $\xfer{}_\xi = \{ \vtse{1} \mapsfrom m \}$.
 We expand the definitions of $v_\vtse{1}^\type{Mat}$ and $v_\vtse{2}^\type{Lis}$ once each before
 the value tree becomes self-referencial.
-Finally, we fold the treeedges \ttedge{1}{cols} and \ttedge{3}{tail} into the back-edges
+Finally, we fold the tree-edges \ttedge{1}{cols} and \ttedge{3}{tail} into the backedges
 terminating at the roots of the subtrees representing $v_\vtse{1}^\type{Mat}$ and $v_\vtse{2}^\type{Lis}$
 respectively (nodes 0 and 3 in \cref{fig:valuetreeconvvar}).
 
@@ -873,13 +902,14 @@ respectively (nodes 0 and 3 in \cref{fig:valuetreeconvvar}).
 \label{sec:valuetreeapps}
 With the conversion algorithm out of the way, we next discuss a handful of properties of value trees along with
 their applications, in the context of our proof discharge algorithm.
+This allows us to formulate the value tree construction algorithms for approximate \recursiveRelations{}.
 
 \subsubsection{Program Interpretation of Value Trees}
 \label{sec:valuetreeasprog}
 A value tree $\mathcal{V}$ can be interpreted as a {\em non-deterministic} Control-Flow Graph corresponding to a program.
 Similar to the CFG representation, every node $v$ is associated with a symbolic state $\Omega_n$.
-In this interpretation, edges without an edge condition (e.g., outgoing at a \prodn{} node) are assigned the {\tt true}
-edge condition. Similarly, edges without a transfer function (e.g., outgoing at a \sumn{} node) are assigned an
+In this interpretation, edges without an edge condition (e.g. outgoing at a \prodn{} node) are assigned the {\tt true}
+edge condition. Similarly, edges without a transfer function (e.g. outgoing at a \sumn{} node) are assigned an
 identity transfer function.
 The entry node $\xi$ is the start node and each leaf node $\zeta$ represents an exit node.
 An edge incident on a leaf node $\zeta$ (containing an expression $e$) is called an exit edge and is associated
@@ -926,7 +956,7 @@ Since an ADT represents a `sum of product' type, each level of an ADT value
 (in its expression tree as shown in \cref{sec:adtdepth}) corresponds to two levels -- \sumn{} and \prodn{}
 in the value tree representation.
 Combining the above observation with the value tree properties discussed above (\cref{sec:valuetreeasprog,sec:valuetreecanonicaldecons})
-allow us reformulate approximate \recursiveRelations{} between $l_1$ and $l_2$ as {\em bounded} equivalence \cite{boundedmodelchecking}
+allow us to reformulate approximate \recursiveRelations{} between $l_1$ and $l_2$ as {\em bounded} equivalence \cite{boundedmodelchecking}
 between $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$.
 The $d$-depth over-approximation $l_1 \indEqDepth{d} l_2$ asserts that $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ are equivalent
 for all execution paths up to a depth\footnote{
@@ -936,8 +966,8 @@ Clearly, this is a weaker condition because $\mathcal{V}(l_1)$ and $\mathcal{V}(
 The $d$-depth under-approximation $l_1 \indEqUapprox{d} l_2$ asserts that $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ are equivalent for
 all execution paths up to a depth of $2 \cdot d$ and all other execution paths are unreachable.
 This is a stronger condition than general equivalence because paths deeper than $2 \cdot d$ may indeed be reachable.
-Let $\execpaths{\delta}{l_1}{l_2}$ be the set of all execution path pairs $\langle \execpath{}_1, \execpath{}_2 \rangle$
-such that $\ftrace{\execpath{}_1} = \ftrace{\execpath{}_2}$ and depth of $\execpath{}_1$ and $\execpath{}_2$ is $\delta$.
+Let $\execpaths{\delta}{l_1}{l_2}$ be the set of all execution path pairs $\langle \execpath{}_1, \execpath{}_2 \rangle$ in $l_1$ and $l_2$,
+such that $\ftrace{\execpath{}_1} = \ftrace{\execpath{}_2}$ and depths of $\execpath{}_1$ and $\execpath{}_2$ are equal to $\delta$.
 For example, consider the value trees shown in \cref{fig:valuetreeapproxeg} corresponding to the \type{List} values
 $e_1 = l$ and $e_2 = \lifted{list}{\mem{}}{clnode}{p}$ respectively.
 Then, $\execpaths{0}{e_1}{e_2} = \emptyset$, $\execpaths{1}{e_1}{e_2} = \{ \langle \pathset{\xi,0,\zeta_0},\pathset{\xi,0,\zeta_0} \rangle \}$
@@ -955,15 +985,15 @@ l_1 \indEqUapprox{d} l_2 &= \sum_{\delta=0}^{2 \cdot d} \Bigg( \bigwedge_{\subst
 \end{equation}
 
 Recall that the canonical deconstruction property ensures that the reductions in \cref{eqn:valuetreeapprox} are in the canonical form.
-The value trees $\mathcal{V}(l_1 \indEqDepth{d} l_2)$ and $\mathcal{V}(l_1 \indEqUapprox{d} l_2)$ contains a single (leaf) node with the boolean
-expressions given in \cref{eqn:valuetreeapprox}.
+Thus, the value trees corresponding to $l_1 \indEqDepth{d} l_2$ and $l_1 \indEqUapprox{d} l_2$ are constructed by creating a single (leaf) node
+with the boolean expressions given in \cref{eqn:valuetreeapprox}.
 The conversion algorithm presented in \cref{sec:valuetreeconv} together with the handling of approximate \recursiveRelations{} described above
 enables the reduction of a proof obligation $P$ without \recursiveRelations{} directly to its canonical form by --
 (a) constructing $\mathcal{V}(P)$ and (b) extracting the boolean expression at its root.
 
 \subsubsection{Bisimilarity of Value Trees}
 \label{sec:valuetreebisim}
-Unlike its approximations, a \recursiveRelation{} $l_1 \indEq{} l_2$ asserts complete equivalence between
+Unlike its approximations, a \recursiveRelation{} $l_1 \indEq{} l_2$ asserts general equivalence between
 $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ respectively.
 Similar to our top-level equivalence check between \sprog{} and \cprog{},
 we attempt to prove that $\mathcal{V}(l_1)$ and $\mathcal{V}(l_2)$ are bisimilar.
@@ -978,9 +1008,19 @@ have equal observables at correlated exit nodes $(\zeta_i\!:\!\zeta_i)$.
 Recall the type III proof obligation illustrated in \cref{sec:cat3}:
 \begin{equation}
 \label{eqn:cat3revisit}
-\lhs{} \Rightarrow \lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}
+\begin{aligned}
+(\sv{i}=\cv{i}) \land \cv{p} = {\tt malloc()} &\land \sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}} \land (\cv{p} \neq 0) \\
+&\Rightarrow \lifted{list}{\mem{}}{lnode}{\cv{l}} \indEq{} \lifted{list}{\mem{}'}{lnode}{\cv{l}}
+\end{aligned}
 \end{equation}
-Also recall the points-to invariants available at \cpc{5} (showing only the relevant ones):
+
+The memory $\mem{}'$ is defined as:
+\begin{equation*}
+\mem{}' \Leftrightarrow \memWrite{\memWrite{\mem{}}{\addrof{\structPointer{\cv{p}}{}{lnode}{val}}}{\cv{i}}{i32}}{\addrof{\structPointer{\cv{p}}{}{lnode}{next}}}{\cv{l}}{i32}
+\end{equation*}
+
+The points-to invariants available at \cpc{5} (in \cref{figr:llAllocCIR}) are discussed in \Cref{sec:pointsToAsInvariants}.
+The relevant ones for a successful bisimulation are as follows:
 $\cv{p} \pointsTo{} \{ \mlrf{\cpc{4}} \}$
 $\cv{l} \pointsTo{} \{ \mlrs{\cpc{4}} \}$, $\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$,
 $\mlrs{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}}, \heapr{} \}$, and
@@ -990,3 +1030,5 @@ potentially beneficial points-to invariants at all correlated nodes.
 \Cref{fig:valuetreebisim} shows the value trees of $\lifted{list}{\mem{}}{lnode}{\cv{l}}$
 and $\lifted{list}{\mem{}'}{lnode}{\cv{l}}$ along with the table of invariants
 required for a successful bisimulation check.
+Unlike deconstruction programs, value trees do not contain procedure calls
+and instead represent values of arbitrary depth using cycles.

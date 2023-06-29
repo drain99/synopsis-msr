@@ -25,13 +25,13 @@
 
 \end{scope}
 
-\node (out1) [shift={($(scope1.east)+(1mm,0mm)$)}] {$\xRightarrow[{\tt [1:\field{cols}]}]{{\tt unroll}}$};
+\node (out1) [shift={($(scope1.east)+(1mm,0mm)$)}] {$\xRightarrow[\ttedge{1\;}{\;cols}]{{\tt unroll}}$};
 
 \begin{scope}[local bounding box=scope2,shift={($(out1.east)+(2mm,20mm)$)}]
 
 \node[ttinner={75:0}]  (0)                             {$+$};
 \node[ttleaf]          (1) [position=-120:10mm from 0] {$s_1$};
-\node[ttinner={45:1}]  (2) [position=-60:10mm from 0]  {$\times$};
+\node[ttinner={85:1}]  (2) [position=-60:10mm from 0]  {$\times$};
 \node[tttree]          (3) [position=-110:10mm from 2] {$v_2$};
 \node[ttinner={75:2}]  (4) [position=-60:10mm from 2]  {$+$};
 \node[ttleaf]          (5) [position=-120:10mm from 4] {$s_1$};
@@ -48,6 +48,7 @@
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (4) to node[ttannot={left},right,xshift=0.5mm]  {\astcons{MCons} \\ $c_2$}                     (6);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) to node[ttannot={right},left,xshift=-0.5mm]  {$\compacttfbox{\xfer{}_1}$ \\ \olifield{row}} (7.90);
 
+\draw[-{Straight Barb[length=2mm, width=1.5mm]},dashed,gray] (4) .. controls ++(-20:13mm) and ++(35:20mm) .. (2);
 \draw[-{Straight Barb[length=2mm, width=1.5mm]}] (6) .. controls ++(-45:17mm) and ++(30:22mm) .. node[ttannot={left},right,yshift=-1.6mm] {$\compacttfbox{\xfer{}_2}$ \\ \olifield{cols}} (4);
 
 \end{scope}

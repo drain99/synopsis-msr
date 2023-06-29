@@ -1,0 +1,22 @@
+\begin{figure}
+\begin{algorithm}[H]
+\begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
+\SetAlgoLined
+\SetKwProg{Fn}{Function}{}{end}
+\Fn{$prove(\hoareTriple{\phi_s}{\xi_S,\xi_C}{\phi_d}, k, d_o, d_u)$}{
+  \ForEach{$(\rho_S,\rho_C) \keyword{in} (\xi_S,\xi_C)$}{
+    \If{${\tt areSimultaneouslyActive(\rho_S,\rho_C)}$}{
+      \If{${\tt prove}(\hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d}) = \cons{False}(\Gamma)$}{
+        \Return{$\cons{False}{\Gamma}$}
+      }
+    }
+  }
+  \Return{$\cons{True}$}
+}
+\end{footnotesize}
+\caption{Algorithm for discharging proof obligations over pathset correlations}
+\end{algorithm}
+\caption{\label{algo:provepathset}Pseudocode of the algorithm responsible for discharging proof obligations over pathset correlations between \sprog{} and \cprog{}.}
+\end{figure}

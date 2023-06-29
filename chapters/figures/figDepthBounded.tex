@@ -1,6 +1,8 @@
 \begin{figure}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$isDepthBounded_D(l,p,d)$}{
@@ -8,20 +10,22 @@
   \uIf{$l \keyword{is} atomic$}{
     \lIf{$l \keyword{is} scalar$}{\Return{$true$}}
     \Else{
-      $l_r \mapsfrom rewrite(l)$;\\
-      \Return{$isDepthBounded_D(l_r,p,d)$};
+      $l_r \mapsfrom {\tt rewrite}(l)$\\
+      \Return{$isDepthBounded_D(l_r,p,d)$}
     }
   }
   \uElseIf{$l = V^{(n)}(l^1,l^2,\dots,l^n)$}{
     \Return{$\bigwedge_{i \in [1,n]} isDepthBounded_D(l^i,p,d+1)$}
   }
   \Else($l = $ \sumIf{c} \sumThen{l^{\tt th}} \sumElse{l^{\tt el}}){
-    $cond^{\tt th} \mapsfrom isDepthBounded_D(l^{\tt th},p \oland c, d)$;\\
-    $cond^{\tt el} \mapsfrom isDepthBounded_D(l^{\tt el},p \oland \neg c , d)$;\\
-    \Return{$cond^{\tt th} \land cond^{\tt el}$}
+    $c^{\tt th} \mapsfrom isDepthBounded_D(l^{\tt th},p \oland c, d)$\\
+    $c^{\tt el} \mapsfrom isDepthBounded_D(l^{\tt el},p \oland \neg c , d)$\\
+    \Return{$c^{\tt th} \land c^{\tt el}$}
   }
 }
 \end{footnotesize}
-\caption{\label{algo:depthbound}Pseudocode for $isDepthBounded$ Procedure}
+\caption{Algorithm for computing a predicate bounding the maximum depth of a value to $D$}
 \end{algorithm}
+\caption{\label{algo:depthbound}Pseudocode of the algorithm responsible for computing an SMT-encodable
+predicate bounding the maximum depth of a value to $D$.}
 \end{figure}

@@ -326,8 +326,9 @@ in \cref{sec:cat1,sec:cat2,sec:cat3}.
 
 \section{Handling Type I Proof Obligations}
 \label{sec:cat1}
-Recall the product-CFG and its associated node invariants shown in \cref{figr:llallocProductCFGAndInvs},
-representing a bisimulation relation for the {\tt mk\_list} procedure pair introduced in \cref{sec:intro}.
+Recall the {\tt mk\_list} \SpecL{} and C procedures introduced in \cref{sec:intro} (\cref{fig:llAllocSpec,fig:llAllocC}).
+\Cref{figr:llallocProductCFGAndInvs} shows their corresponding IRs, along with the product-CFG and its
+associated node invariants representing a bisimulation relation.
 In \cref{figr:llAllocProductCFG}, consider a proof obligation generated
 across the product-CFG edge \scedge{0}{0}{3}{3}
 while checking if the {\circled{\footnotesize I4}} invariant in \cref{tabr:llproductInv},
@@ -342,7 +343,7 @@ $\sv{n} = \cv{n} \Rightarrow true$ which trivially resolves to true.
 
 Consider the following example of a proof obligation:
 \hoareTriple{\scpcinv{0}{0}}{\spath{0,3,5,3},\cpath{0,3}}{\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}}}.
-Notice, we have changed the path in \sprog{} (with CFG \cref{fig:llAllocSpecIRCFG}) to \spath{0,3,5,3} here.
+Notice, we have changed the path in \sprog{} (with IR \cref{figr:llAllocSpecIR}) to \spath{0,3,5,3} here.
 In this case, the corresponding first-order logic formula evaluates to:
 $(\sv{n} = \cv{n}) \land (0 <_u \sv{n}) \Rightarrow \cons{LCons}(0, \cons{LNil}) \indEq{} \lifted{list}{\mem{}}{lnode}{0}$,
 where $(0 <_u \sv{n})$ is the path condition for the path \spath{0,3,5,3}.
@@ -370,8 +371,9 @@ If it evaluates to false, we also obtain counterexamples.
 
 \section{Handling Type II Proof Obligations}
 \label{sec:cat2}
-Recall the product-CFG and its node invariants shown in \cref{figr:llTraverseProductCFGInvs},
-representing a bisimulation relation for the {\tt sum\_list} procedure pair introduced in \cref{sec:prelims}.
+Recall the {\tt sum\_list} \SpecL{} and C procedures introduced in \cref{sec:prelims} (\cref{fig:llTraverseSpec,fig:llTraverseC}).
+\Cref{figr:llTraverseProductCFGInvs} shows their corresponding IRs, along with the product-CFG and its
+associated node invariants representing a bisimulation relation.
 Consider the proof obligation for \circled{\small I2} invariant $\sv{sum} = \cv{sum}$
 across edge \scedge{2}{2}{2}{2} in \cref{figr:llTraverseProduct}:
 \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2},\\ \cpath{2,4,2}}{\sv{sum} = \cv{sum}}, where
@@ -389,8 +391,8 @@ proof, we need the proof discharge algorithm to evaluate it to true. Let's call 
 requirement \circled{\footnotesize R1}.
 
 Now, consider the proof obligation formed by correlating two iterations
-of the loop in \sprog{} (with CFG \cref{fig:llTraverseSpecCFG}) with
-one iteration of the loop in \cprog{} (with CFG \cref{fig:llTraverseCCFG}):
+of the loop in \sprog{} (with IR \cref{figr:llTraverseSpecIR}) with
+one iteration of the loop in \cprog{} (with IR \cref{figr:llTraverseCIR}):
 \hoareTriple{\scpcinv{2}{2}}{\spath{2,5,2,5,2},\\ \cpath{2,4,2}}{\sv{sum} = \cv{sum}}.
 The equivalent first-order logic formula is:
 $\sv{l} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{l}} \land (\sv{sum} = \cv{sum}) \land (\sumIs{\sv{l}}{LCons}) \land (\sumIs{\prodAccess{\sv{l}}{tail}}{LCons}) \Rightarrow (\sv{sum} + \prodAccess{\sv{l}}{val} + \prodAccess{\sv{l}}{tail,val}) = (\cv{sum} + \structPointer{\cv{l}}{\mem{}}{lnode}{val})$.
@@ -494,12 +496,12 @@ $$
 $\depthBound{d}{l}$ is equivalent to the condition that the tree nodes at depths $>d$ are unreachable.
 This is achieved through expanding (canonicalized) $l$ through rewriting till depth $d$ and asserting the unreachability
 of \sumDtor{} paths that reach nodes with depths $>d$ (i.e. asserting the negation of their expression path conditions).
-For example, for a \type{List} variable $l$, the condition $\depthBound{2}{l}$ is equivalent to
+For example, for a \type{List} variable $l$, the condition $\depthBound{1}{l}$ is equivalent to
 $(\sumIs{l}{LNil}) \vee ((\sumIs{l}{LCons}) \land (\sumIs{\prodAccess{l}{tail}}{LNil}))$.
-Similarly, $\depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
+Similarly, $\depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
 $(p = 0) \vee ((p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$.
-Finally, $l \indEqUapprox{2} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \depthBound{2}{l}
-\land \depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{2} \lifted{list}{\mem{}}{lnode}{p}$.
+Finally, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \depthBound{1}{l}
+\land \depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$.
 The algorithms for reduction of over- and under-approximate \recursiveRelations{}
 are given in \cref{sec:overapproxalgo,sec:underapproxalgo}.
 \end{itemize}
@@ -842,7 +844,7 @@ We write $p \pointsTo{} \{ R_1, R_{2+} \}$ to represent the condition that value
 
 We populate the set of all region labels using {\em allocation sites} of $C$
 i.e., PCs where a call to {\tt malloc} occurs.
-For example, \cpc{4} in \cref{fig:llAllocCIR} is an allocation site.
+For example, \cpc{4} in \cref{figr:llAllocCIR} is an allocation site.
 For each allocation site $A$, we create two region labels:
 (a) the first region label, called $A_1$, identifies the set of memory objects
 that were allocated by the most recent execution of $A$, and (b) the second region
@@ -852,7 +854,7 @@ We also include a special heap region, $\mathcal{H}$ to represent
 the rest of the memory not covered by the allocation site regions
 associated with {\tt malloc} calls.
 
-For example, at the start of PC \cpc{7} in \cref{fig:llAllocCIR},
+For example, at the start of PC \cpc{7} in \cref{figr:llAllocCIR},
 $\cv{i} \pointsTo{} \emptyset$, $\cv{p} \pointsTo{} \{ \mlrf{\cpc{4}} \}$,
 and $\cv{l} \pointsTo{} \{ \mlrs{\cpc{4}} \}$.
 Since the may-point-to analysis determines the sets of objects pointed-to
@@ -866,7 +868,7 @@ For region labels $R_1$, $R_2$ and $R_3$:
 $R_1 \pointsTo{} \{ R_2, R_3 \}$ represents the condition that
 the values (pointers) stored in objects identified by $R_1$ may point to objects
 identified by either $R_2$ or $R_3$ (but not to any other object outside $R_2$ and $R_3$).
-In \cref{fig:llAllocCIR}, at PC \cpc{7}, we get
+In \cref{figr:llAllocCIR}, at PC \cpc{7}, we get
 $\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$ and
 $\mlrs{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}}, \mathcal{H} \}$.
 The condition $\mlrf{\cpc{4}} \pointsTo{} \{ \mlrs{\cpc{4}} \}$ holds
@@ -893,7 +895,7 @@ Thus, to successfully discharge these proof obligations, it suffices to show tha
 cannot alias with the memory writes that distinguish \mem{} and $\mem{}'$.
 
 \Cref{fig:clistdeconspointstoinvs} shows the may-point-to relations identified by our
-points-to analysis on \cprog{} in \cref{fig:llAllocCIR} at the program point \cpc{5}.
+points-to analysis on \cprog{} in \cref{figr:llAllocCIR} at the program point \cpc{5}.
 The points-to analysis determines that at \cpc{5}
 (i.e. start of the product-CFG edge \scedge{3}{5}{3}{3} across which the proof obligation
 is generated), the pointer to the {\em head} of the list, i.e. \circled{\small J3} $\cv{l} \pointsTo{} \{ \mlrs{C4} \}$.
@@ -929,7 +931,7 @@ The same analysis is run for both \cprog{}, and the deconstruction programs \fdp
 For a deconstruction program \dprog{}, the boundary condition (at entry) for the
 points-to analysis is based on the results of the points-to analysis on \cprog{}
 at the PC where the proof obligation is being discharged.
-For example, the points-to information of \cprog{} PC \cpc{5} (in \cref{fig:llAllocCIR})
+For example, the points-to information of \cprog{} PC \cpc{5} (in \cref{figr:llAllocCIR})
 is used during the points-to analysis on \fdprog{} and \sdprog{}.
 
 During proof query discharge, the points-to invariants are encoded as SMT constraints.

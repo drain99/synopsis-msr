@@ -10,7 +10,7 @@
 \Fn{$f_e(\phi_s, \Gamma_s)$}{
   $\Gamma^{can}_{d} \mapsfrom \Gamma_{d} \cup {\tt exec}_e(\Gamma_s)$\\
   $\phi^{can}_{d} \mapsfrom {\tt strongestInvCover}(\Gamma^{can}_{d})$\\
-  \While{$prove(\hoareTriple{\phi_s}{e}{\phi^{can}_d}) = \cons{False}(\gamma_s)$}{
+  \While{${\tt prove}(\hoareTriple{\phi_s}{e}{\phi^{can}_d}) = \cons{False}(\gamma_s)$}{
     $\gamma_{d} \ \ \ \mapsfrom {\tt exec}_e(\gamma_s)$\\
     $\Gamma^{can}_{d} \mapsfrom \Gamma^{can}_{d}\cup\gamma_{d}$\\
     $\phi^{can}_{d} \mapsfrom {\tt strongestInvCover}(\Gamma^{can}_{d})$\\
@@ -48,6 +48,6 @@ node $d$.
 ${\tt strongestInvCover}(\Gamma)$ computes the strongest invariant cover for counterexamples $\Gamma$.
 {\tt exec}$_e$($\Gamma$) (concretely) executes
 counterexamples $\Gamma$ over edge $e$.
-$prove(P)$ (in \cref{algo:proofSummary}) discharges a proof obligation $P$, and returns either \cons{True} or $\cons{False}(\Gamma)$.}
+${\tt prove}(P)$ (in \cref{algo:proofSummary}) discharges a proof obligation $P$, and returns either \cons{True} or $\cons{False}(\gamma_s)$.}
 \end{center}
 \end{figure}

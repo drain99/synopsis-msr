@@ -1,43 +1,47 @@
 \begin{figure}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$\theta(p_1,e_1,p_2,e_2)$}{
   \uIf{$e_1 \keyword{is} atomic$}{
-    \Return{$\cons{Succ}(\{ \corrtuple{p_1}{e_1}{p_2}{e_2} \})$};
+    \Return{$\cons{Succ}(\{ \corrtuple{p_1}{e_1}{p_2}{e_2} \})$}
   }
   \uElseIf{$e_2 \keyword{is} atomic$}{
-    \Return{$\cons{Succ}(\{ \corrtuple{p_2}{e_2}{p_1}{e_1} \})$};
+    \Return{$\cons{Succ}(\{ \corrtuple{p_2}{e_2}{p_1}{e_1} \})$}
   }
   \uElseIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n) \keyword{and} e_2 = V_2^{(m)}(e_2^1,e_2^2,\dots,e_2^m)$}{
     \If{$V_1^{(n)} \neq V_2^{(m)}$}{
-      \Return{$\cons{Fail}$};
+      \Return{$\cons{Fail}$}
     }
-    \Return{$\bigsqcup_{i \in [1,n]} \theta(p_1,e_1^i,p_2,e_2^i)$};
+    \Return{$\bigsqcup_{i \in [1,n]} \theta(p_1,e_1^i,p_2,e_2^i)$}
   }
   \uElseIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n) \keyword{and} e_2 = $ \sumIf{c_2} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}}}{
-    $R^{\tt th} \mapsfrom \theta(p_1,true,p_2,c_2) \sqcup \theta(p_1,e_1,p_2 \oland c_2, e_2^{\tt th})$;\\
+    $R^{\tt th} \mapsfrom \theta(p_1,true,p_2,c_2) \sqcup \theta(p_1,e_1,p_2 \oland c_2, e_2^{\tt th})$\\
     \lIf{$R^{\tt th} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
     $R^{\tt el} \mapsfrom \theta(p_1,true,p_2,\neg c_2) \sqcup \theta(p_1,e_1,p_2 \oland \neg c_2, e_2^{\tt el})$;\\
     \lIf{$R^{\tt el} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
-    \Return{$\cons{Fail}$};
+    \Return{$\cons{Fail}$}
   }
   \uElseIf{$e_1 = $ \sumIf{c_1} \sumThen{e_1^{\tt th}} \sumElse{e_1^{\tt el}} $\keyword{and} e_1 = V_2^{(m)}(e_2^1,e_2^2,\dots,e_2^m)$}{
-    $R^{\tt th} \mapsfrom \theta(p_1,c_1,p_2,true) \sqcup \theta(p_1 \oland c_1,e_1^{\tt th},p_2, e_2)$;\\
+    $R^{\tt th} \mapsfrom \theta(p_1,c_1,p_2,true) \sqcup \theta(p_1 \oland c_1,e_1^{\tt th},p_2, e_2)$\\
     \lIf{$R^{\tt th} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
     $R^{\tt el} \mapsfrom \theta(p_1,\neg c_1,p_2,true) \sqcup \theta(p_1 \oland \neg c_2,e_1^{\tt el},p_2, e_2)$;\\
     \lIf{$R^{\tt el} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
-    \Return{$\cons{Fail}$};
+    \Return{$\cons{Fail}$}
   }
   \Else($e_1 = $ \sumIf{c_1} \sumThen{e_1^{\tt th}} \sumElse{e_1^{\tt el}} $\keyword{and} e_2 = $ \sumIf{c_2} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}}){
     $R_1 \mapsfrom \theta(p_1,c_1,p_2,c_2)$;\\
-    $R_2 \mapsfrom \theta(p_1 \oland c_1, e_1^{\tt th}, p_2 \oland c_2, e_2^{\tt th})$;\\
-    $R_3 \mapsfrom \theta(p_1 \oland \neg c_1, e_1^{\tt el}, p_2 \oland \neg c_2, e_2^{\tt el})$;\\
-    \Return{$R_1 \sqcup R_2 \sqcup R_3$};
+    $R_2 \mapsfrom \theta(p_1 \oland c_1, e_1^{\tt th}, p_2 \oland c_2, e_2^{\tt th})$\\
+    $R_3 \mapsfrom \theta(p_1 \oland \neg c_1, e_1^{\tt el}, p_2 \oland \neg c_2, e_2^{\tt el})$\\
+    \Return{$R_1 \sqcup R_2 \sqcup R_3$}
   }
 }
 \end{footnotesize}
-\caption{\label{algo:unification}Pseudocode for Unification Procedure}
+\caption{Algorithm for unifying two expressions}
 \end{algorithm}
+\caption{\label{algo:unification}Pseudocode of the algorithm responsible for unifying two expressions yielding correlation
+tuples relating atoms with (possibly) non-atoms in case of a successful unification.}
 \end{figure}

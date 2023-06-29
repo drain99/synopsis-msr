@@ -236,9 +236,9 @@ quite effective for equivalence checking between \SpecL{} and deterministic C as
 However, \toolName{} inherits many of the limitations of the Counter tool.
 
 For example, \toolName{} fails to find a proof of equivalence if the unrolling
-in the C implementation is higher than the unrolling parameter $\mu$ used during path
+in the C implementation is higher than the unrolling parameter $\mu_S$ used during path
 enumeration as part of the product-CFG construction algorithm.
-Larger values of $\mu$ would significantly increase the correlation search space and likely
+Larger values of $\mu_S$ would significantly increase the correlation search space and likely
 have negative implications on the runtime of the algorithm.
 Additionally, \toolName{} suffers from a similar trade-off with regards to the approximation parameters $d_o$ and $d_u$
 -- a smaller than necessary value would cause a failed equivalence check while a larger value may

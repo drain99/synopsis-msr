@@ -1,35 +1,73 @@
 \begin{figure}
 \begin{algorithm}[H]
-\begin{footnotesize}
+\begin{scriptsize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
 \Fn{$\Theta_D(p_a,e_a,p_b,e_b,d)$}{
-  $R \mapsfrom \emptyset$;\\
-  $S \mapsfrom \Theta_D(p_a,e_a,p_b,e_b,d)$;\\
+  $R \mapsfrom \emptyset$\\
+  $S \mapsfrom \Theta_D(p_a,e_a,p_b,e_b,d)$\\
   \lIf{$S = \cons{Fail}$}{\Return{$\cons{Fail}$}}
   \ForEach{$\corrtuple{p_1}{a_1}{p_2}{e_2}_{d'} \keyword{in} S$}{
     \uIf{$e_2 \keyword{is} atomic$}{
       \uIf{$d' \leq D \keyword{and} a_1 \keyword{is\ not} scalar$}{
-        $e_1 \mapsfrom rewrite(a_1)$;\\
-        $e_2^r \mapsfrom rewrite(e_2)$;\\
+        $e_1 \mapsfrom {\tt rewrite}(a_1)$\\
+        $e_2^r \mapsfrom {\tt rewrite}(e_2)$\\
         $R_1 \mapsfrom \Theta_D(p_1,e_1,p_2,e_2^r,d')$
         \lIf{$R_1 = \cons{Fail}$}{\Return{$\cons{Fail}$}}
-        $R \mapsfrom R \cup R_1$;\\
+        $R \mapsfrom R \cup R_1$\\
       }
       \Else{
-        $R \mapsfrom R \cup \{ \corrtuple{p_1}{a_1}{p_2}{e_2}_{d'} \}$;\\
+        $R \mapsfrom R \cup \{ \corrtuple{p_1}{a_1}{p_2}{e_2}_{d'} \}$\\
       }
     }
     \Else{
-      $e_1 \mapsfrom rewrite(a_1)$;\\
-      $R_1 \mapsfrom \Theta_D(p_1,e_1,p_2,e_2,d')$;\\
+      $e_1 \mapsfrom {\tt rewrite}(a_1)$\\
+      $R_1 \mapsfrom \Theta_D(p_1,e_1,p_2,e_2,d')$\\
       \lIf{$R_1 = \cons{Fail}$}{\Return{$\cons{Fail}$}}
-      $R \mapsfrom R \cup R_1$;\\
+      $R \mapsfrom R \cup R_1$\\
     }
   }
-  \Return{$\cons{Succ}(R)$};
+  \Return{$\cons{Succ}(R)$}
 }
-\end{footnotesize}
-\caption{\label{algo:dunifyandrewrite}Pseudocode for $D$-Depth Iterative Unification and Rewriting Procedure}
+\Fn{$\theta_D(p_1,e_1,p_2,e_2,d)$}{
+  \uIf{$e_1 \keyword{is} atomic$}{
+    \Return{$\cons{Succ}(\{ \corrtuple{p_1}{e_1}{p_2}{e_2}_d \})$}
+  }
+  \uElseIf{$e_2 \keyword{is} atomic$}{
+    \Return{$\cons{Succ}(\{ \corrtuple{p_2}{e_2}{p_1}{e_1}_d \})$}
+  }
+  \uElseIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n) \keyword{and} e_2 = V_2^{(m)}(e_2^1,e_2^2,\dots,e_2^m)$}{
+    \If{$V_1^{(n)} \neq V_2^{(m)}$}{
+      \Return{$\cons{Fail}$}
+    }
+    \Return{$\bigsqcup_{i \in [1,n]} \theta_D(p_1,e_1^i,p_2,e_2^i,d+1)$}
+  }
+  \uElseIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n) \keyword{and} e_2 = $ \sumIf{c_2} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}}}{
+    $R^{\tt th} \mapsfrom \theta_D(p_1,true,p_2,c_2,d) \sqcup \theta_D(p_1,e_1,p_2 \oland c_2, e_2^{\tt th},d)$\\
+    \lIf{$R^{\tt th} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
+    $R^{\tt el} \mapsfrom \theta_D(p_1,true,p_2,\neg c_2,d) \sqcup \theta_D(p_1,e_1,p_2 \oland \neg c_2, e_2^{\tt el},d)$\\
+    \lIf{$R^{\tt el} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
+    \Return{$\cons{Fail}$}
+  }
+  \uElseIf{$e_1 = $ \sumIf{c_1} \sumThen{e_1^{\tt th}} \sumElse{e_1^{\tt el}} $\keyword{and} e_1 = V_2^{(m)}(e_2^1,e_2^2,\dots,e_2^m)$}{
+    $R^{\tt th} \mapsfrom \theta_D(p_1,c_1,p_2,true,d) \sqcup \theta_D(p_1 \oland c_1,e_1^{\tt th},p_2, e_2,d)$\\
+    \lIf{$R^{\tt th} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
+    $R^{\tt el} \mapsfrom \theta_D(p_1,\neg c_1,p_2,true,d) \sqcup \theta_D(p_1 \oland \neg c_2,e_1^{\tt el},p_2, e_2,d)$\\
+    \lIf{$R^{\tt el} = \cons{Succ}(S)$}{\Return{$\cons{Succ}(S)$}}
+    \Return{$\cons{Fail}$}
+  }
+  \Else($e_1 = $ \sumIf{c_1} \sumThen{e_1^{\tt th}} \sumElse{e_1^{\tt el}} $\keyword{and} e_2 = $ \sumIf{c_2} \sumThen{e_2^{\tt th}} \sumElse{e_2^{\tt el}}){
+    $R_1 \mapsfrom \theta_D(p_1,c_1,p_2,c_2,d)$\\
+    $R_2 \mapsfrom \theta_D(p_1 \oland c_1, e_1^{\tt th}, p_2 \oland c_2, e_2^{\tt th},d)$\\
+    $R_3 \mapsfrom \theta_D(p_1 \oland \neg c_1, e_1^{\tt el}, p_2 \oland \neg c_2, e_2^{\tt el},d)$\\
+    \Return{$R_1 \sqcup R_2 \sqcup R_3$}
+  }
+}
+\end{scriptsize}
+\caption{Algorithm for $D$-depth unifying two expressions under rewriting of ADT atoms}
 \end{algorithm}
+\caption{\label{algo:dunifyandrewrite}Pseudocode of the algorithm responsible for $D$-depth unifying
+two expressions yielding depth-augmented correlation tuples relating only atoms in case of a successful unification.}
 \end{figure}

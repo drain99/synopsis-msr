@@ -5,8 +5,8 @@
 \everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$prove(\hoareTriple{\phi_s}{e}{\phi_d}, k, d_o, d_u)$}{
-  $F \mapsfrom {\tt lowerWP}(\hoareTriple{\phi_s}{e}{\phi_d})$\\
+\Fn{$prove(\hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d}, k, d_o, d_u)$}{
+  $F \mapsfrom {\tt lowerWP}(\hoareTriple{\phi_s}{\rho_S,\rho_C}{\phi_d})$\\
   \ForEach{$\lhs{} \Rightarrow \rhs{}_i \keyword{in} {\tt RHSBreak}(F)$}{
     \If{$solve(\lhs{}, \rhs{}_i, k, d_o, d_u) = \cons{False}(\Gamma)$}{
       \Return{$\cons{False}(\Gamma)$}

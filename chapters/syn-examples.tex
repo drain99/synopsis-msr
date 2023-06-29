@@ -233,9 +233,9 @@ scalar expressions and can be encoded in SMT logic.
 For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$
 reduces to the SMT-encodable predicate:
 $(\sumIs{l}{LNil} = (p = 0)) \land (\neg(\sumIs{l}{LNil}) \rightarrow (\prodAccess{l}{val} = \structPointer{p}{\mem{}}{lnode}{val}))$.
-Similarly, $\depthBound{2}{l}$ is equivalent to
+Similarly, $\depthBound{1}{l}$ is equivalent to
 $(\sumIs{l}{LNil}) \vee (\neg(\sumIs{l}{LNil}) \land (\sumIs{\prodAccess{l}{tail}}{LNil}))$
-and $\depthBound{2}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
+and $\depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}}$ is equivalent to
 $(p = 0) \vee ((p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$.
 
 Thus, for a {\em Type II} proof obligation $P: \hoareTriple{\phi_s}{e}{\phi_d}$,

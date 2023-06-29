@@ -1,22 +1,26 @@
 \begin{figure}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$Overapprox_D(l_1,l_2)$}{
-  $ret \mapsfrom true$;\\
-  $\hat{l_1} \mapsfrom Canonicalize(l_1)$;\\
-  $\hat{l_2} \mapsfrom Canonicalize(l_2)$;\\
-  $R   \mapsfrom \Theta_D(true,\hat{l_1},true,\hat{l_2},0)$;\\
+\Fn{$overapprox_D(l_1,l_2)$}{
+  $P \mapsfrom true$\\
+  $\hat{l}_1 \mapsfrom {\tt canonicalize}(l_1)$\\
+  $\hat{l}_2 \mapsfrom {\tt canonicalize}(l_2)$\\
+  $R   \mapsfrom \Theta_D(true,\hat{l}_1,true,\hat{l}_2,0)$\\
   \lIf{$R = \cons{Fail}$}{\Return{$false$}}
   \ForEach{$\corrtuple{p_1}{a_1}{p_2}{a_2}_d \keyword{in} R$}{
     \If{$a_1 \keyword{is} scalar \keyword{and} d \leq D$}{
-      $ret \mapsfrom ret \land (p_1 \land p_2) \rightarrow (a_1 = a_2)$;\\
+      $P \mapsfrom P \land ((p_1 \land p_2) \rightarrow (a_1 = a_2))$\\
     }
   }
-  \Return{$ret$};
+  \Return{$P$}
 }
 \end{footnotesize}
-\caption{\label{algo:overapprox}Pseudocode of Reduction Procedure for Overapproximated Recursive Relations}
+\caption{Algorithm for reducing an overapproximate \recursiveRelation{} into an equivalent SMT-encodable condition}
 \end{algorithm}
+\caption{\label{algo:overapprox}Pseudocode of the algorithm responsible for reducing an overapproximate \recursiveRelation{}
+into an equivalent SMT-encodable condition free of \recursiveRelations{}.}
 \end{figure}

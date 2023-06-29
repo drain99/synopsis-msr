@@ -1,25 +1,29 @@
 \begin{figure}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$Decompose(l_1,l_2)$}{
-  $ret \mapsfrom true$;\\
-  $\hat{l_1} \mapsfrom Canonicalize(l_1)$;\\
-  $\hat{l_2} \mapsfrom Canonicalize(l_2)$;\\
-  $R   \mapsfrom \Theta(true,\hat{l_1},true,\hat{l_2})$;\\
+\Fn{$decompose(l_1,l_2)$}{
+  $P \mapsfrom true$\\
+  $\hat{l}_1 \mapsfrom {\tt canonicalize}(l_1)$\\
+  $\hat{l}_2 \mapsfrom {\tt canonicalize}(l_2)$\\
+  $R   \mapsfrom \Theta(true,\hat{l}_1,true,\hat{l}_2)$\\
   \lIf{$R = \cons{Fail}$}{\Return{$false$}}
   \ForEach{$\corrtuple{p_1}{a_1}{p_2}{a_2} \keyword{in} R$}{
     \uIf{$a_1 \keyword{is} scalar$}{
-      $ret \mapsfrom ret \land ((p_1 \land p_2) \rightarrow (a_1 = a_2))$;\\
+      $P \mapsfrom P \land ((p_1 \land p_2) \rightarrow (a_1 = a_2))$\\
     }
     \Else{
-      $ret \mapsfrom ret \land ((p_1 \land p_2) \rightarrow (a_1 \indEq{} a_2))$;\\
+      $P \mapsfrom P \land ((p_1 \land p_2) \rightarrow (a_1 \indEq{} a_2))$\\
     }
   }
-  \Return{$ret$};
+  \Return{$P$}
 }
 \end{footnotesize}
-\caption{\label{algo:decompose}Pseudocode of Decomposition Procedure for Recursive Relations}
+\caption{Algorithm for decomposing a \recursiveRelation{}}
 \end{algorithm}
+\caption{\label{algo:decompose}Pseudocode of the algorithm responsible for decomposing
+a \recursiveRelation{} through unification.}
 \end{figure}

@@ -5,7 +5,7 @@
 \everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$bestFirstSearch(\sprog{},\cprog{},\mu)$}{
+\Fn{$bestFirstSearch(\sprog{},\cprog{},\mu_S)$}{
   $\pi_{init} \mapsfrom {\tt createInitProductCFG}(\sprog{},\cprog{})$;\\
   $Q \mapsfrom \{ \pi_{init} \}$;\\
   \While{$Q \keyword{is\ not} empty$}{
@@ -13,7 +13,7 @@
     ${\tt InferInvariantsAndCounterexamples}(\pi_{cur})$;\\
     \
     \uIf{${\tt getPathsetToCorrelateInC}(\cprog{},\pi_{cur}) = \cons{Found}(\xi_C)$}{
-      \ForEach{$\xi_S \keyword{in} {\tt enumeratePathsetsInS}(\sprog{},\xi_C,\mu)$}{
+      \ForEach{$\xi_S \keyword{in} {\tt enumeratePathsetsInS}(\sprog{},\xi_C,\mu_S)$}{
         $\pi_{next} \mapsfrom {\tt extendProductCFG}(\pi_{cur},\xi_S,\xi_C)$;\\
         $Q \mapsfrom Q \cup \{ \pi_{next} \}$;\\
       }

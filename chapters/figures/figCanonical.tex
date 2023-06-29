@@ -1,20 +1,22 @@
 \begin{figure}
 \begin{algorithm}[H]
 \begin{footnotesize}
+\DontPrintSemicolon
+\everypar={\nl}
 \SetAlgoLined
 \SetKwProg{Fn}{Function}{}{end}
-\Fn{$Canonicalize(e)$}{
-  $\hat{e} \mapsfrom e$;\\
+\Fn{$canonicalize(e)$}{
+  $\hat{e} \mapsfrom e$\\
   \While{$e \keyword{contains} e' = \prodAccess{e_1}{a^i} \keyword{where} e_1 \keyword{is} foldable$}{
     \uIf{$e_1 = V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n)$}{
-      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{e_1^i}$;\\
+      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{e_1^i}$\\
     }
     \uElseIf{$e_1 = $ \sumIf{c_1} \sumThen{V_1^{(n)}(e_1^1,e_1^2,\dots,e_1^n)} \sumElse{e_1^{\tt el}}}{
       \lIf{$V_1^{(n)} \keyword{contains} {\tt a^i}$}{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{e_1^i}$}
       \lElse{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{e_1^{\tt el}}{a^i}}$}
     }
     \Else($e_1 = \lifted{lift}{\mem{}}{T}{e^1,e^2,\dots,e^n}$){
-      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{rewrite(e_1)}{a^i}}$;\\
+      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{{\tt rewrite}(e_1)}{a^i}}$\\
     }
   }
   \While{$e \keyword{contains} e' = \sumIs{e_1}{\mathnormal{V_2^{(m)}}} \keyword{where} e_1 \keyword{is} foldable$}{
@@ -27,12 +29,13 @@
       \lElse{$\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\neg c_1 \land (\sumIs{e_1^{\tt el}}{\mathnormal{V_2^{(m)}}})}$}
     }
     \Else($e_1 = \lifted{lift}{\mem{}}{T}{e^1,e^2,\dots,e^n}$){
-      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{rewrite(e_1)}{a^i}}$;\\
+      $\hat{e} \mapsfrom \subst{\hat{e}}{e'}{\prodAccess{{\tt rewrite}(e_1)}{a^i}}$\\
     }
   }
-  \Return{$\hat{e}$};
+  \Return{$\hat{e}$}
 }
 \end{footnotesize}
-\caption{\label{algo:canonical}Pseudocode for Canonicalization Procedure}
+\caption{Algorithm for converting an expression to its canonical form}
 \end{algorithm}
+\caption{\label{algo:canonical}Pseudocode of the canonicalization procedure responsible for converting an expression to its canonical form.}
 \end{figure}
