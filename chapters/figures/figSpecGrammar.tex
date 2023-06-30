@@ -1,7 +1,8 @@
-\begin{figure}
-\begin{raggedleft}
-\begin{small}
-\begin{tabular}{rcl}
+% \begin{figure}
+\begin{center}
+\begin{footnotesize}
+\begin{tabular}{@{}cc@{}}
+\begin{tabular}{@{}r@{\hskip 1.5mm}c@{\hskip 1.5mm}l@{}}
 \nonTerm{expr} & $\rightarrow$ & \term{if} \nonTerm{expr} \term{then} \nonTerm{expr} \term{else} \nonTerm{expr} \\
 & $|$ & \term{let} \nonTerm{id} \term{=} \nonTerm{expr} \term{in} \nonTerm{expr} \\
 & $|$ & \term{match} \nonTerm{expr} \term{with} \nonTerm{match-clause-list} \\
@@ -11,7 +12,9 @@
 & $|$ & \nonTerm{expr} \term{is} \nonTerm{data-cons} \\
 & $|$ & \nonTerm{expr} \nonTerm{scalar-op} \nonTerm{expr} \\
 & $|$ & \nonTerm{literal$_\type{unit}$} $|$ \nonTerm{literal$_\type{bool}$} $|$ \nonTerm{literal$_\type{iN}$} \\
-\\
+\end{tabular}
+&
+\begin{tabular}{@{}r@{\hskip 1.5mm}c@{\hskip 1.5mm}l@{}}
 \nonTerm{match-clause-list} & $\rightarrow$ & \nonTerm{match-clause}$^*$ \\
 \nonTerm{match-clause} & $\rightarrow$ & \term{$|$} \nonTerm{data-cons} \term{(} \nonTerm{id-list} \term{)} \term{$\Rightarrow$} \nonTerm{expr} \\
 \nonTerm{expr-list} & $\rightarrow$ & \term{$\epsilon$} \term{$|$} \nonTerm{expr} \term{,} \nonTerm{expr-list} \\
@@ -20,8 +23,11 @@
 \nonTerm{literal$_\type{unit}$} & $\rightarrow$ & \term{()} \\
 \nonTerm{literal$_\type{bool}$} & $\rightarrow$ & \term{false} $|$ \term{true} \\
 \nonTerm{literal$_\type{iN}$} & $\rightarrow$ & [\term{${\tt 0 \ldots 2^{N}\!-\!1}$}] \\
+\\
 \end{tabular}
-\end{small}
-\end{raggedleft}
+\\
+\end{tabular}
+\end{footnotesize}
+\end{center}
 \caption{\label{fig:specgrammar}Simplified expression grammar of \SpecL{} language}
 \end{figure}

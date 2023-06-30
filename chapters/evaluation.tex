@@ -1,6 +1,6 @@
 \chapter{Evaluation}
 \label{sec:eval}
-
+\vspace{-10px}
 We have implemented \toolName{} on top of the Counter tool \cite{oopsla20}.
 We use {\em four} SMT solvers running in parallel for solving
 SMT proof obligations discharged by our proof discharge algorithm:
@@ -27,9 +27,10 @@ More sophisticated approaches to finding lifting constructors are left as future
 
 \section{Experiments}
 \label{sec:experiments}
+\vspace{-5px}
 We consider programs involving four distinct ADTs, namely,
-\inv{\small T1} \type{Str}, \inv{\small T2} \type{List}, \inv{\small T3} \type{Tree}
-and \inv{\small T4} \type{Matrix}.
+\curvedtype{T1} \type{Str}, \curvedtype{T2} \type{List},, \curvedtype{T3} \type{Tree},
+and \curvedtype{T4} \type{Matrix}.
 For each \SpecL{} program specification, we consider multiple
 C implementations that differ in their (a) memory layout of ADTs, and
 (b) algorithmic strategies. For example, a \type{Matrix} in C may be laid out
@@ -38,11 +39,11 @@ layouts etc. On the other hand, an optimized implementation may choose manual ve
 of an inner-most loop. Next, we consider each ADT in more detail. For each,
 we discuss (a) its corresponding programs, (b) C memory layouts and their lifting
 constructors, and (c) varying algorithmic strategies.
-
 \input{chapters/figures/figThesisLiftingConsStr.tex}
-
+\vspace{-5px}
 \subsection{String}
 \label{sec:expstring}
+\vspace{-5px}
 We wrote a single specification in \SpecL{} for each of the following
 common string library functions: {\tt strlen}, {\tt strchr}, {\tt strcmp}, {\tt strspn},
 {\tt strcspn}, and {\tt strpbrk}.  For each specification
@@ -70,9 +71,7 @@ argument $p$ representing the pointer to the list node.
 On the other hand, \lift{str}{\mem{}}{clnode(u8)} requires two arguments $p$
 and $i$, where $p$ represents the pointer to the chunked linked list node
 and $i$ represents the position of the initial character in the chunk.
-
 \input{chapters/figures/figStrchrSpecAndC.tex}
-
 \subsubsection{An Example : strchr}
 \label{sec:strchrexample}
 Additionally, we define an optional string type \type{OptStr} to specify
@@ -113,15 +112,14 @@ The above two pathsets represent the following two sets
 In \sprog{}, the case of \sv{c} being nul is handled explicitly at \spc{4}, whereas
 \spc{7} handles the case of \sv{s} containing the (non-nul) character \sv{c}.
 Interestingly in \cprog{}, both these cases are taken care of by the singular exit edge outgoing at \cpc{6}.
-For a successful bisimulation proof, we are required to correlate the \cprog{} path
+This is an example where a path in \cprog{} (i.e. \cpath{2,6,E}) is simultaneously active with
+two paths in \sprog{} (i.e. \spath{1,3,4,E} and \spath{1,3,7,E}).
+Evidently, for a successful bisimulation proof, we are required to correlate the \cprog{} path
 \cpath{2,6,E} with the \sprog{} pathset $\{ \spath{1,3,4,E}, \spath{1,3,7,E} \}$.
 Such situations are rather frequent because the strongly-typed specification is forced to handle
 each case explicitly while a C implementation may take advantage of the
 underlying representation to generalize multiple explicit cases into one.
-
 \input{chapters/figures/figStrlenSpecAndC.tex}
-\input{chapters/figures/figStrlenCfgsWithInvs.tex}
-
 \subsubsection{Another Example : strlen}
 \Cref{fig:strlenSpecAndC} shows the {\tt strlen} specification and two vastly
 different $C$ implementations. \Cref{fig:llStrlenCArrIR} is a generic implementation
@@ -132,6 +130,7 @@ and (b) it uses specialized bit manipulations to identify whether a (4 byte) chu
 \toolName{} is able to automatically find a bisimulation relation
 for both implementations against the unaltered specification.
 \Cref{fig:StrlenProductCFGsAndInvs} shows the product-CFG and its associated node invariants for each implementation.
+\input{chapters/figures/figStrlenCfgsWithInvs.tex}
 
 Lifting constructors are named based on the C data layout being lifted
 and the type of the lifted value.
@@ -142,8 +141,6 @@ In general, we use the following naming convention for different C data layouts:
 \type{lnode(T)} represents a linked list node type containing a value of type \type{T}.
 Similarly, \type{clnode(T)} and \type{tnode(T)} represent a chunked linked list and a tree node
 with values of type \type{T} respectively.
-
-\input{chapters/figures/figThesisLiftingConsList.tex}
 
 \subsection{List}
 \label{sec:explist}
@@ -163,9 +160,8 @@ The list becomes empty when we are at the end of the array.
 empty list (i.e. \cons{LNil}) using the null pointer.
 These layouts are in contrast to the \type{Str} layouts, all of which uses the nul character
 to indicate the empty string.
-
+\input{chapters/figures/figThesisLiftingConsList.tex}
 \input{chapters/figures/figThesisLiftingConsTree.tex}
-
 \subsection{Tree}
 \label{sec:exptree}
 We wrote a \SpecL{} program that computes the sum of the elements of a binary tree
@@ -177,11 +173,10 @@ Both \SpecL{} and C programs contain non-tail recursive procedure calls for left
 \toolName{} is able to correlate these recursive calls using user-provided \pre{} and \post{} as discussed in \cref{sec:correlfcalls}.
 At the entry of the recursive calls, \toolName{} is required to prove that \pre{} holds for the arguments
 and at the exit of the recursive calls, \toolName{} assumes \post{} on the values returned.
-
 \input{chapters/figures/figThesisLiftingConsMatrix.tex}
-
 \subsection{Matrix}
 \label{sec:expmat}
+\vspace{-5px}
 We wrote a \SpecL{} program to count the frequency of a value appearing in a 2D matrix.
 A matrix is represented as an ADT that resembles a \type{List} of \type{List}s (\inv{\small T4} in \cref{tab:LiftingConsMatrix}).
 The C implementations for a \type{Matrix} object include

@@ -11,7 +11,7 @@ and we finish with an overview of the algorithm.
 
 \section{Properties of Proof Discharge Algorithm}
 \label{sec:proofalgoprops}
-
+\vspace{-10px}
 \subsection{Soundness of Proof Discharge Algorithm}
 \label{sec:proofalgosound}
 An algorithm that evaluates the truth value of a proof obligation is called a
@@ -80,12 +80,12 @@ Our algorithm begins by categorizing a proof obligation into
 one of three types; each type is discussed separately in subsequent
 sections.
 The categorization is based on a specialized unification procedure, which we describe next.
-
+\vspace{-10px}
 \section{Iterative Unification and Rewriting Procedure}
 \label{sec:unifyandrewrite}
 In this section, we introduce a unification procedure capable of decomposing an equality (e.g., a \recursiveRelation{})
 into an equivalent set of equalities (including scalar equalities and \recursiveRelations{}).
-
+\vspace{-10px}
 \subsection{Atomic Expression}
 \label{sec:unifatomicexpr}
 We begin with some definitions.
@@ -234,7 +234,7 @@ The pseudocode for iterative unification and rewriting is given in \cref{sec:uni
 
 \subsection{Decomposition of Recursive Relations}
 \label{sec:decomprecrel}
-For a \recursiveRelation{} $l_1 \indEq{} l_2$, we unify (canonicalized) $l_1$ and $l_2$ through a
+For a \recursiveRelation{} $l_1 \indEq{} l_2$, we unify the canonicalized trees of $l_1$ and $l_2$ through a
 call to $\Theta(true,l_1,true,l_2)$.
 If the $n$ tuples obtained after a successful unification are \corrtuple{p_1^i}{a_1^i}{p_2^i}{a_2^i}
 (for $i=1\ldots n$), then the {\em decomposition} of $l_1 \indEq{} l_2$ is defined as:
@@ -258,7 +258,6 @@ $$(\sumIs{l}{LCons}) \land (\sumIs{l}{LCons} \rightarrow \prodAccess{l}{val}=42)
 \land (\sumIs{l}{LCons} \rightarrow \prodAccess{l}{next} \indEq{} \lifted{list}{\mem{}}{lnode}{p})$$
 In case of a failed unification, the {\em decomposition} is defined to be {\em false},
 e.g., $\cons{LNil} \indEq{} \cons{LCons}(0, l)$ decomposes into $false$.
-
 Each conjunctive clause of the form $((p_1^i \land p_2^i) \rightarrow (a_1^i = a_2^i))$\footnote{
 If $a_1^i$ and $a_2^i$ are ADT values, we replace $a_1^i = a_2^i$ with $a_1^i \indEq{} a_2^i$.}
 in the decomposition is called a {\em decomposition clause}.
@@ -297,7 +296,7 @@ which evaluates to:
 \label{sec:categorizationproc}
 For a decomposed proof obligation $P_D:\lhs{} \Rightarrow \rhs{}$, we identify its $k$-unrolling (say $P_K$),
 where $k$ is a fixed parameter of the algorithm called the {\em unrolling parameter}.
-We use a small value for $k$ e.g., five.
+We use a small value for $k$, e.g., five.
 After $k$-unrolling, we {\em eliminate} those decomposition clauses $(p_1 \land p_2) \rightarrow (a_1 = a_2)$
 in $P_K$ whose antecedent $(p_1 \land p_2)$ evaluates to false under \lhs{} ({\em ignoring} all \recursiveRelations{}),
 yielding an equivalent proof obligation, say $P_E$.
@@ -321,9 +320,7 @@ we {\em only} remove those decomposition clauses whose antecedent definitely eva
 Henceforth, we will simply use $k$-unrolling of $P$ to refer to $P_E$ directly.
 Next, we describe the algorithm for each type of proof obligations
 in \cref{sec:cat1,sec:cat2,sec:cat3}.
-
 \input{chapters/figures/figrMallocProductCFGAndInvs.tex}
-
 \section{Handling Type I Proof Obligations}
 \label{sec:cat1}
 Recall the {\tt mk\_list} \SpecL{} and C procedures introduced in \cref{sec:intro} (\cref{fig:llAllocSpec,fig:llAllocC}).
@@ -366,9 +363,7 @@ Assuming a capable enough SMT solver,
 all proof obligations in type I can be discharged precisely, i.e., we can always
 decide whether the proof obligation evaluates to true or false.
 If it evaluates to false, we also obtain counterexamples.
-
 \input{chapters/figures/figrSumListProductCFGAndInvs.tex}
-
 \section{Handling Type II Proof Obligations}
 \label{sec:cat2}
 Recall the {\tt sum\_list} \SpecL{} and C procedures introduced in \cref{sec:prelims} (\cref{fig:llTraverseSpec,fig:llTraverseC}).
@@ -414,9 +409,7 @@ versions of precondition $\phi_s$ respectively, and $d_1$ and $d_2$ represent
 {\em depth parameters} that indicate the degree of over- and under-approximation.
 To explain our over- and under-approximation scheme, we
 first introduce the notion of {\em depth} for an ADT value.
-
 \input{chapters/figures/figExprtrees.tex}
-
 \subsection{Depth of ADT Values}
 \label{sec:adtdepth}
 To define depth of an ADT value $v$, we view the value as its expression tree.
@@ -484,8 +477,8 @@ Finally, we only keep those correlation tuples at depth $\leq d$ that relate sca
 
 For example, the condition $l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$ is computed
 through iterative unification and rewriting till depth one; yielding the correlation tuples:
-$\corrtuple{true}{\sumIs{l}{LNil}}{true}{p=0}$, $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{p \neq 0}{\structPointer{p}{\mem{}}{lnode}{val}}$
-and $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{p \neq 0}{\lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}}}$.
+{\small $\corrtuple{true}{\sumIs{l}{LNil}}{true}{p=0}$}, {\em $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{val}}{p \neq 0}{\structPointer{p}{\mem{}}{lnode}{val}}$}
+and {\small $\corrtuple{\sumIs{l}{LCons}}{\prodAccess{l}{tail}}{p \neq 0}{\lifted{list}{\mem{}}{lnode}{\structPointer{p}{\mem{}}{lnode}{next}}}$}.
 Keeping only those correlation tuples that relate scalar expressions, the above condition
 reduces to the SMT-encodable predicate:
 $$
@@ -503,7 +496,7 @@ $(p = 0) \vee ((p \neq 0) \land (\structPointer{p}{\mem{}}{lnode}{next} = 0))$.
 Finally, $l \indEqUapprox{1} \lifted{list}{\mem{}}{lnode}{p} \Leftrightarrow \depthBound{1}{l}
 \land \depthBound{1}{\lifted{list}{\mem{}}{lnode}{p}} \land l \indEqDepth{1} \lifted{list}{\mem{}}{lnode}{p}$.
 The algorithms for reduction of over- and under-approximate \recursiveRelations{}
-are given in \cref{sec:overapproxalgo,sec:underapproxalgo}.
+are given in \cref{sec:approxalgo}.
 \end{itemize}
 
 \subsection{Summary of Type II Proof Discharge Algorithm}
@@ -566,37 +559,11 @@ map program variables to their concrete values.
 The following is a possible counterexample to the depth {\tt 2} underapproximate
 proof obligation.
 
-% \begin{small}
-% \begin{raggedleft}
-% \begin{tabular}{@{}l@{}l@{}l@{}}
-% \{ & & \\
-% &
-% \begin{tabular}{l@{ $\mapsto$ }l}
-% \sv{sum} & {\tt 3}, \\
-% \cv{sum} & {\tt 3}, \\
-% \sv{l}   & {\tt LCons(42,LCons(43, LNil))}, \\
-% \cv{l}   & {\tt 0x123}, \\
-% \end{tabular}
-% &
-% \begin{tabular}{l@{ $\mapsto$ }l}
-% \mem{} & $\Biggl\{$
-% \begin{tabular}{l}
-% {\tt 0x123} $\mapsto_\type{lnode}$ (.\field{val} $\mapsto$ {\tt 42}, .\field{next} $\mapsto$ {\tt 0x456}), \\
-% {\tt 0x456} $\mapsto_\type{lnode}$ (.\field{val} $\mapsto$ {\tt 43}, .\field{next} $\mapsto$ {\tt 0},) \\
-% () $\mapsto$ {\tt 77} \\
-% \end{tabular}
-% $\Biggr\}$ \\
-% \end{tabular}
-% \\
-% \} & & \\
-% \end{tabular}
-% \end{raggedleft}
-% \end{small}
-
 \begin{small}
 \begin{raggedleft}
 \begin{tabular}{@{}ll@{ $\mapsto$ }l}
-\{ & \sv{sum} & {\tt 3},\\
+\{ \\
+   & \sv{sum} & {\tt 3},\\
    & \cv{sum} & {\tt 3},\\
    & \sv{l} & {\tt LCons(42,LCons(43,LNil))},\\
    & \cv{l} & {\tt 0x123},\\
@@ -606,7 +573,7 @@ proof obligation.
               & {\tt 0x456} $\mapsto_\type{lnode}$ (.\field{val} $\mapsto$ {\tt 43}, .\field{next} $\mapsto$ {\tt 0}),\\
               & {\tt()} $\mapsto$ {\tt 77}\\
            \end{tabular}$\Bigg\}$ \\
-\}\\
+\}\\ \\
 \end{tabular}
 \end{raggedleft}
 \end{small}
@@ -711,7 +678,7 @@ Hence, we are interested in proving equality between two \type{List} values lift
 \cprog{} values under a precondition.
 Next, we show how the above can be reposed as the problem of showing equivalence between
 two procedures through bisimulation.
-
+\input{chapters/figures/figClistDeconsIRAndCFG.tex}
 \subsection{Deconstruction Programs for Lifted Values}
 \label{sec:deconsprogram}
 Consider a program that recursively calls the definition (i.e. unrolling procedure)
@@ -728,8 +695,6 @@ on the lifting constructor \lift{list}{\mem{}}{lnode}.
 \Cref{fig:clistdecons} show the IR and CFG representations for the deconstruction program
 based on \lift{list}{\mem{}}{lnode}.
 
-\input{chapters/figures/figClistDeconsIRAndCFG.tex}
-
 \begin{theorem}
 \label{theorem:clistsEqual}
 Under an antecedent \lhs{},
@@ -741,6 +706,7 @@ The equivalence must ensure that the observables generated by both programs
 is provided to both programs respectively {\em and}
 the antecedent \lhs{} holds at the program entries.
 \end{theorem}
+\vspace{-20px}
 \begin{proofsketch}
 The proof follows from noting that the only observables of $\dprog{}_1$ and $\dprog{}_2$ are their output \type{List} values.
 Also, the value represented by a lifted expression is equal to the output of its deconstruction program.
@@ -752,9 +718,7 @@ holds; we instead check if a bisimulation relation exists between their respecti
 deconstruction programs \fdprog{} and \sdprog{} (implying equivalence).
 \Cref{theorem:clistsEqual} generalizes to arbitrary lifted expressions
 with potentially different arguments and memory states.
-
 \input{chapters/figures/figClistDeconsProductCFGAndInvs.tex}
-
 \subsection{Checking Bisimulation between Deconstruction Programs}
 \label{sec:reconsbisim}
 To check bisimulation, we attempt to show that both deconstructions
@@ -986,9 +950,9 @@ where $\Gamma$ is a set of counterexamples.
 Recall that our proof discharge algortihm is {\em sound} and may return \cons{False}($\emptyset$)
 to indicate a failed (proof and counterexample generation) attempt.
 As discussed in \cref{sec:proofobl}, we lower the Hoare triple into a first-order logic
-formula using weakest-precondition predicate transformer ({\tt lowerWP()}).
+formula using weakest-precondition predicate transformer (\fref{lowerWP}{2}).
 This is followed by \rhs{}-breaking (introduced in \cref{sec:proofalgoprops}),
-which results in multiple smaller proof obligations ({\tt RHSBreak()}).
+which results in multiple smaller proof obligations (\fref{RHSBreak}{3}).
 Next, we attempt to prove each of these proof obligations individually through a call to $solve()$.
 If any one of these queries fail, we immediately stop and return \cons{False} with the
 counterexamples in $\Gamma$ --- a counterexample to one of the smaller queries is also a counterexample
@@ -997,24 +961,24 @@ to the original query.
 $solve()$ is responsible for discharging these smaller queries.
 The inputs include \lhs{}, \rhs{} (representing the proof obligation $P :\lhs{} \Rightarrow \rhs{}$);
 along with the parameters $k$, $d_o$ and $d_u$.
-We start by decomposing and finding the $k$-unrolled form of $P$, say $P_E : \lhs{}_k \Rightarrow \rhs{}_k$ through {\tt decomposeAndUnroll()}.
-Next, we categorize $P_E$ into into one of the three types ({\tt categorize()}).
-As discussed in \cref{sec:cat1}, we simply discharge a type I query using SMT solvers (through {\tt solveSMT()}).
-{\tt solveSMT()} is responsible for (a) translating the input formula (absent of \recursiveRelations{})
+We start by decomposing and finding the $k$-unrolled form of $P$, say $P_E : \lhs{}_k \Rightarrow \rhs{}_k$ through \fref{decomposeAndUnroll}{11}.
+Next, we categorize $P_E$ into one of the three types (\fref{categorize}{12}).
+As discussed in \cref{sec:cat1}, we simply discharge a type I query using SMT solvers (through \fref{solveSMT}{14}).
+\func{solveSMT} is responsible for (a) translating the input formula (absent of \recursiveRelations{})
 to SMT logic, (b) discharging SMT solver queries, and
 (c) reconstructing counterexamples from the models returned by the SMT solvers.
 The steps (a) and (c) are further explored in \cref{sec:smtencoding,sec:cerecons} respectively.
-As summarized in \cref{sec:cat2summary}, for a type II query, we overapproximate \lhs{} into $\lhs{}_o$ (through {\tt overapproximate()})
-and attempt to prove $\lhs{}_o \Rightarrow \rhs{}_k$ through {\tt solveSMT()}.
-In case the proof attempt fails, we underapproximate \lhs{} into $\lhs{}_u$ (through {\tt underapproximate()})
-and attempt to disprove (i.e. generate counterexamples) $\lhs{}_u \Rightarrow \rhs_k{}$ through {\tt solveSMT()}.
+As summarized in \cref{sec:cat2summary}, for a type II query, we overapproximate \lhs{} into $\lhs{}_o$ (through \fref{overapproximate}{16})
+and attempt to prove $\lhs{}_o \Rightarrow \rhs{}_k$ through \fref{solveSMT}{17}.
+In case the proof attempt fails, we underapproximate \lhs{} into $\lhs{}_u$ (through \fref{underapproximate}{20})
+and attempt to disprove (i.e. generate counterexamples) $\lhs{}_u \Rightarrow \rhs_k{}$ through \fref{solveSMT}{21}.
 If both attempts fail, we {\em soundly} return \cons{False} (without counterexamples).
 Lastly, a type III query $P_E$ is discharged as detailed in \cref{sec:cat3summary}.
-In brief, we rewrite \rhs{} using \recursiveRelations{} in \lhs{} ({\tt rewriteRHSUsingLHS()}) and decompose ({\tt decompose()}) $P_E$.
+In brief, we rewrite \rhs{} using \recursiveRelations{} in \lhs{} (\fref{rewriteRHSUsingLHS}{26}) and decompose (\fref{decompose}{27}) $P_E$.
 This results in smaller proof obligations; ones without a \recursiveRelation{} in its \rhs{}
 are type II queries and discharged through a recursive call to $solve$.
 For those containing a \recursiveRelation{} $l_1 \indEq{} l_2$ in their \rhs{},
-we attempt to show equivalence (through {\tt checkEquivalence()}) between the deconstruction programs
-of $l_1$ and $l_2$ constructed through {\tt getDeconstructionPrograms()}.
+we attempt to show equivalence (through \fref{checkEquivalence}{30}) between the deconstruction programs
+of $l_1$ and $l_2$ constructed through \fref{getDeconstructionPrograms}{29}.
 If any one of these queries fail, we immediately return \cons{False} with the counterexamples (if available).
 Otherwise, we have successfully proven a type III query and return \cons{True}.

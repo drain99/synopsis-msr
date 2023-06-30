@@ -5,7 +5,7 @@
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{epsfig}
-\usepackage[labelfont=bf,justification=centering,skip=0px]{caption}
+\usepackage[labelfont=bf,skip=0px]{caption}
 \usepackage{subfloat}
 \usepackage[labelfont=bf,justification=centering,skip=0px]{subcaption}
 \usepackage{booktabs}
@@ -43,6 +43,7 @@
 \usepackage{longtable}
 \usepackage{etoolbox}
 \usepackage{wrapfig}
+\usepackage{relsize}
 \usepackage[noline,ruled]{algorithm2e}
 \usepackage{fontspec}
 \usepackage{arydshln}
@@ -115,13 +116,15 @@
 
 \cleardoublepage
 \pagestyle{fancy}
-\begin{spacing}{0.95}
+\begin{spacing}{0.8}
 \tableofcontents
 \end{spacing}
 
 \cleardoublepage
+% \begin{spacing}{0.92}
 \listoffigures
 \addcontentsline{toc}{chapter}{\listfigurename}
+% \end{spacing}
 
 \cleardoublepage
 \listoftables

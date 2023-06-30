@@ -1,8 +1,7 @@
 \chapter{Preliminaries}
 \label{sec:prelims}
-
 \input{chapters/figures/figIsEmptySpecAndCAndIRs.tex}
-
+\input{chapters/figures/figSpecGrammar.tex}
 \section{The Specification Language : \SpecL{}}
 \label{sec:speclang}
 We start with an introduction to our specification language, called \SpecL{}.
@@ -34,16 +33,12 @@ Examples of scalar operators include (a) logical operators (e.g., {\tt and}), (b
 and (c) relational operators for comparing bitvectors interpreted as unsigned or signed integers (e.g., $\leq_{u,s}$).
 The equality operator ($=$) is only supported for scalar types.
 
-\input{chapters/figures/figSpecGrammar.tex}
-
 \Cref{fig:specgrammar} shows the simplified expression grammar for \SpecL{} language.
 \nonTerm{data-cons} represents an ADT data constructor.
 The `\nonTerm{expr} {\tt is} \nonTerm{data-cons}' construct returns a value of \type{bool} type and is used to test whether
 the value \nonTerm{expr} is of kind \nonTerm{data-cons}.
 \nonTerm{scalar-op} includes the logical, arithmatic and relational operators supported by \SpecL{}.
-
 \input{chapters/figures/figSumListSpecAndCAndIRs.tex}
-
 \section{Abstract Representation of Programs}
 \label{sec:ir}
 As outlined in \cref{sec:motivatingexample}, we convert both \SpecL{} and C programs to a common
@@ -62,7 +57,6 @@ and compute their sum.
 The corresponding IR programs for the above are shown in \cref{fig:llTraverseSpecIR,fig:llTraverseCIR} respectively.
 
 The following major steps are performed during conversion of a \SpecL{} source to its IR representation:
-
 \begin{enumerate}
 \item {\tt match} statements are converted to explicit {\tt if-else} conditionals where each branch is
 associated with a {\tt match} branch. The {\em sum-is} operator is used to query
@@ -91,7 +85,6 @@ instruction at \spc{1} in \cref{fig:isemptyspecir}.
 \end{enumerate}
 
 Similarly, the following transformations are carried out during conversion of a C source to its IR:
-
 \begin{enumerate}
 \item Non-determinism in the original C program is determinized in the IR.
 This includes concretizing the size and memory layouts of both scalar (e.g. \type{int})
@@ -175,10 +168,9 @@ We use the `\addrof{}' operator to extract the address of a memory load expressi
 For example, at PC \cpc{5} in \cref{fig:llAllocCIR}, $\addrof{\structPointer{\mathnormal{p}}{\mem{}}{lnode}{val}} \Leftrightarrow p+\offsetof{lnode}{val}$.
 Additionally, given a bitvector expression $e$, ``$e{\tt [ub:lb]}$'' represents a bitvector of size $(ub-lb+1)$,
 such that the $i^{th}$ bit is equal to the $(i+lb)^{th}$ bit in $e$.
-
+\newpage
 \input{chapters/figures/figIsEmptySpecAndCCFG.tex}
 \input{chapters/figures/figSumListSpecAndCCFG.tex}
-
 \subsection{Control-Flow Graph Representation}
 \label{sec:cfg}
 \Cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} show the Control-Flow Graph (CFG) representation
@@ -192,7 +184,6 @@ The CFG representation is analogous to a deterministic labeled transition system
 uses a symbolic state $\Omega_n$ to represent the machine state at node $n$.
 An edge from $n$ to $n'$ (denoted by $\omega[n \rightarrow n']$) represents transition
 from $n$ to $n'$ through execution of instructions and is associated with:
-
 \begin{enumerate}
 \item An {\em edge condition} representing the condition that must be satisfied by $\Omega_n$
 to trigger the edge $\omega$.
@@ -221,7 +212,7 @@ We often omit the transfer functions in the CFG figures (if they are shown in th
 and only show the edge conditions (unless they are {\em true}).
 The UB assumes are shown inside curved rectangles (e.g., \cref{fig:isemptyccfg}), unless they are {\em true}.
 Henceforth, we refer to the CFGs of \SpecL{} and C procedures as \sprog{} and \cprog{} respectively.
-
+\newpage
 \section{Equivalence Definition}
 \label{sec:eqdef}
 Given (1) a \SpecL{} function specification \sprog{}, (2) a C implementation \cprog{},
@@ -275,9 +266,7 @@ Evidently, we are only interested in verifying the behaviour of the C procedure 
 well-formed inputs.
 Note that at \bpc{3} in \cref{fig:isemptyc}, we handle the case of \cv{s} being null for safety,
 even though a well-formed input would never trigger it.
-
 \input{chapters/figures/figIsEmptyProductCFGAndInvs.tex}
-
 Since \SpecL{} has no notion of pointers, we expose this conditional well-formedness of C input \cv{s}
 through an explicit data constructor \cons{SInvalid} for the \type{Str} ADT defined at \apc{0} in \cref{fig:isemptyspec}.
 Additionally, \sdef{} asserts $\neg(\sumIs{\sv{s}}{SInvalid})$ (at \apc{4} and \spath{1,2} in \cref{fig:isemptyspecir}) and the precondition \pre{}
@@ -288,9 +277,7 @@ Combined, \sdef{} and \pre{} ensure that we constrain the inputs of \sprog{} and
 during equivalence check.
 A similar strategy is employed for string functions from the standard library (e.g. {\tt strchr}) and is explored in detail
 during evaluation in \cref{sec:strchrexample}.
-
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
-
 \section{Bisimulation Relation}
 \label{sec:bisim}
 Recall that,

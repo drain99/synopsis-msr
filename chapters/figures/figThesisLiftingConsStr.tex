@@ -1,13 +1,14 @@
-\begin{table}[H]
+\begin{table}[t!]
 \begin{center}
-\caption{\label{tab:LiftingConsStr}String lifting constructors and their definitions.}
-\begin{footnotesize}
+\caption{\label{tab:LiftingConsStr}String lifting constructors and their definitions}
+\begin{scriptsize}
+\relscale{1.15}
 \begin{tabular}{|l|l|}
 \hline
 \multicolumn{1}{|c|}{\Tstrut \Bstrut\footnotesize \bf Lifting Constructor} & \multicolumn{1}{c|}{\Tstrut \Bstrut \footnotesize \bf Definition} \\
 \hline
 \hline
-\multicolumn{2}{|c|}{\makecell[c]{\Tstrut \Bstrut \inv{T1} {\tt Str = SInvalid | SNil | SCons(ch:i8, tail:Str)}  \qquad  {\tt OptStr = NotFound | Found(str:Str)} }} \\
+\multicolumn{2}{|c|}{\makecell[c]{\Tstrut \Bstrut \curvedtype{T1} {\tt Str = SInvalid | SNil | SCons(ch:i8, tail:Str)}  \qquad  {\tt OptStr = NotFound | Found(str:Str)} }} \\
 \hline
 \lifted{str}{\mem{}}{u8[]}{p\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{SInvalid}} \\
                                                         \Tstrut \sumElif{\arrIndex{p}{0_\type{i32}}{\mem{}}{i8}=0_\type{i8}} \ \sumThen{\cons{SNil}} \\
@@ -28,6 +29,6 @@
 \lifted{optstr}{\mem{}}{clnode(u8)}{p\ctype{i32},i\ctype{i2}} & \makecell[l]{\Tstrut \Bstrut \sumIf{p=0_\type{i32}} \ \sumThen{\cons{NotFound}} \sumElse{\cons{Found}(\lifted{str}{\mem{}}{clnode(u8)}{p,i})}} \\
 \hline
 \end{tabular}
-\end{footnotesize}
+\end{scriptsize}
 \end{center}
 \end{table}

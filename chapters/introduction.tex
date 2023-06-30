@@ -45,9 +45,10 @@ a {\em single} functional specification.
 This opens the possibility of regression verification \cite{strichman_regressverify,felsing14},
 where \toolName{} can be used to automate verification across
 software updates that change memory layouts of data structures.
-
+\vspace{-5px}
 \section{A Motivating Example}
 \label{sec:motivatingexample}
+\vspace{-5px}
 We start by restricting our attention to programs that construct, read, and write
 to recursive data structures. In languages like C, pointer and array based
 implementations of these data-structures are prone to safety and liveness bugs.
@@ -60,7 +61,6 @@ and succinct specification of programs manipulating and traversing recursive dat
 We motivate our work by considering example \SpecL{} and C programs.
 The major hurdles of our approach are listed alongside an informal discussion of our proposed solutions.
 We state our primary contributions in \cref{sec:contribs} and finish with the organization of the rest of the thesis in \cref{sec:outline}.
-
 \input{chapters/figures/figMallocSpecAndC.tex}
 
 \Cref{fig:llAllocSpec,fig:llAllocC} show the construction of lists in \SpecL{} and C respectively.
@@ -119,7 +119,6 @@ To further emphasize the fact that we are comparing (a) a \SpecL{} ADT value wit
 lifted from C values using a lifting constructor, we use `\indEq{}' instead of `$=$'
 and call it a \recursiveRelation{}:
 $\sv{ret} \indEq{} \lifted{list}{\mem{}}{lnode}{\cv{ret}}$.
-
 \input{chapters/figures/figMallocSpecCFGAndCCFG.tex}
 
 Consequently, we are interested in proving that given $\sv{n} = \cv{n}$ at the procedure entries,
@@ -134,7 +133,6 @@ In essence, each node represents a PC location of its IR, and each edge represen
 transition between PCs through instruction execution.
 For brevity, we often represent a sequence of instructions with a single edge, e.g.,
 in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7,8,3} in \cref{fig:llAllocCIR}.
-
 \input{chapters/figures/figMallocProductCFGAndInvs.tex}
 
 A common approach for showing equivalence between a pair of procedures involve finding a

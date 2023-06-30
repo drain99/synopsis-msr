@@ -1,13 +1,14 @@
-\begin{table}[H]
+\begin{table}[t!]
 \begin{center}
-\caption{\label{tab:LiftingConsMatrix}Matrix and auxiliary List lifting constructors and their definitions.}
-\begin{footnotesize}
+\caption{\label{tab:LiftingConsMatrix}Matrix and auxiliary List lifting constructors with their definitions}
+\begin{scriptsize}
+\relscale{1.25}
 \begin{tabular}{|l|l|}
 \hline
 \multicolumn{1}{|c|}{\Tstrut \Bstrut \footnotesize \bf Lifting Constructor} & \multicolumn{1}{c|}{\Tstrut \Bstrut \footnotesize \bf Definition} \\
 \hline
 \hline
-\multicolumn{2}{|c|}{\Tstrut \Bstrut \inv{T4} {\tt Matrix = MNil | MCons(row:List, cols:Matrix)}} \\
+\multicolumn{2}{|c|}{\Tstrut \Bstrut \curvedtype{T4} {\tt Matrix = MNil | MCons(row:List, cols:Matrix)}} \\
 \hline
 \lifted{mat}{\mem{}}{u32[][]}{p\ i\ u\ v\ctype{i32}} & \makecell[l]{\Tstrut \sumIf{i \geq_u u} \  \sumThen{\cons{MNil}} \\
                                                             \Tstrut \Bstrut \sumElse{\cons{MCons}(\lifted{list}{\mem{}}{u32[]}{\arrIndex{p}{i}{\mem{}}{i32}, 0_\type{i32}, v}, \lifted{mat}{\mem{}}{u32[][]}{p, i+1_\type{i32}, u, v})}} \\
@@ -34,6 +35,6 @@
                                                            \Tstrut \Bstrut \sumElse{\cons{MCons}(\lifted{list}{\mem{}}{clnode(u32)}{\arrIndex{p}{i}{\mem{}}{i32}, 0_\type{i2}}, \lifted{mat}{\mem{}}{clnode(u32)[]}{p,i+1_\type{i32},u})}} \\
 \hline
 \end{tabular}
-\end{footnotesize}
+\end{scriptsize}
 \end{center}
 \end{table}

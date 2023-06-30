@@ -124,6 +124,8 @@
 \newcommand{\retval}[1]{{\ensuremath{{\tt Retval}(#1)}}}%
 \newcommand{\pathcond}[1]{{\ensuremath{{\tt Pathcond}(#1)}}}%
 \newcommand{\execpaths}[3]{{\ensuremath{{\tt EP}_{#1}(#2,#3)}}}%
+\newcommand{\func}[1]{{\tt #1()}}%
+\newcommand{\fref}[2]{{\tt #1()} in L#2}%
 
 \newcommand{\keyword}[1]{{\ensuremath{\ \textnormal{\textbf{#1}}\ }}}%
 \newcommand{\subst}[3]{{\ensuremath{\{ #2 \mapsto #3 \} #1}}}%
@@ -137,6 +139,8 @@
                           \node[shape=circle,draw,inner sep=1pt] (char) {#1};}}
 \newcommand*{\curved}[1]{\tikz[baseline=(char.base)]{
                       \node[shape=rounded rectangle,draw,inner sep=3pt] (char) {\footnotesize #1};}}
+\newcommand*{\curvedtype}[1]{\tikz[baseline=(char.base)]{
+                      \node[shape=rounded rectangle,draw,inner sep=3pt] (char) {#1};}}
 \newcommand*{\inv}[1]{\tikz[baseline=(char.base)]{
                       \node[shape=rounded rectangle,draw,inner sep=2pt] (char) {\scriptsize {\tt #1}};}}
 \newcommand*{\pred}[1]{\fbox{\scriptsize {\tt #1}}}
