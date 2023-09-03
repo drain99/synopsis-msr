@@ -202,7 +202,7 @@ The major topics discussed include our specification language, logical represent
 in the context of \SpecL{}-C equivalence.
 We finish \cref{sec:prelims} with a logical encoding of proof obligations generated during an equivalence check.
 
-The next chapter, \cref{sec:examples} illustrates our proof discharge algorithm (\curved{A1}) through
+The next chapter, \cref{sec:examples} illustrates our proof discharge algorithm (\curved{A3}) through
 proof obligations originating from equivalence checks between previously shown program-pairs.
 In the context of our proof discharge algorithm, we introduce a decomposition procedure based on unification
 to reduce a \recursiveRelation{} to an equivalent set of equalities.
@@ -212,8 +212,8 @@ We finish with a summary and pseudocode of the algorithm.
 
 \Cref{sec:spectocalgo} gives an exhaustive overview of the major components of our Spec-to-C equivalence checker tool, \toolName{}.
 We begin with a dataflow formulation of the points-to analysis introduced as part of our proof discharge algorithm in \cref{sec:examples}.
-Next, we summarize the counterexample driven algorithms for product-CFG construction (\curved{A2})
-and invariant inference (\curved{A3}) based on prior work \cite{shubhanipdhthesis}.
+Next, we summarize the counterexample driven algorithms for product-CFG construction (\curved{A1})
+and invariant inference (\curved{A2}) based on prior work \cite{shubhanipdhthesis}.
 \Cref{sec:spectocalgo} presents the pseudocode for the major subprocedures used as part of our
 proof discharge algorithm, in addition to details of SMT encoding of proof obligations and
 recovery of counterexamples from SMT models.
