@@ -30,7 +30,7 @@ correctness predicates through SMT solvers.
 Additionally, there exists significant prior work on translation validation
 \cite{tvi,tristan_tv_eqsat11,stepp_eqsat_llvm11,eqsat,pec,zuck03,zuck05,heffter05,covac,c_to_verilog,kanade09,lopes16,tvoc_cav05,ddec,semalign,oopsla20,tv_oskernel,namjoshi13}
 across multiple programming languages with similar models of computation.
-In most of these applications, soundness in critial,
+In most of these applications, soundness is critial,
 i.e., if the equivalence checker determines the programs to be equivalent, then the programs are indeed equivalent
 and evidently have equivalent runtime observable behaviour. On the other hand, a sound equivalence checker may be incomplete
 and fail to prove equivalence of a program pair, even if they were equivalent.
@@ -94,7 +94,7 @@ and inlined in the top-level function {\tt mk\_list} in the IR.
 In case of the C program in \cref{fig:llAllocC}, the memory state is made explicit (represented by \mem{}),
 and the size and memory layout of each type is concretized in the IR.
 For example, the \type{unsigned} and pointer types are encoded as the \type{i32} bitvector type.
-A comprehensive description of the logical model is given in \cref{sec:ir}. 
+A comprehensive description of the logical model is given in \cref{sec:ir}.
 
 To reiterate, we are interested in showing equivalence of the \SpecL{} and C IRs.
 Since the argument {\tt n} to both procedures have identical types (i.e. \type{i32}),
@@ -135,7 +135,7 @@ For brevity, we often represent a sequence of instructions with a single edge, e
 in \cref{fig:llAllocCCFG}, the edge \cpath{5,3} represents the path \cpath{5,6,7,8,3} in \cref{fig:llAllocCIR}.
 \input{chapters/figures/figMallocProductCFGAndInvs.tex}
 
-A common approach for showing equivalence between a pair of procedures involve finding a
+A common approach for showing equivalence between a pair of procedures involves finding a
 bisimulation relation across the said procedure-pair.
 Intuitively, a bisimulation relation (a) correlates program transitions across the specification
 and implementation procedures, and (b) asserts inductively-provable invariants between

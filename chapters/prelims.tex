@@ -182,7 +182,7 @@ the control flow structures of the static program.
 Each CFG node represents a program point (i.e. IR PC) and is denoted by $n$.
 The CFG representation is analogous to a deterministic labeled transition systems and
 uses a symbolic state $\Omega_n$ to represent the machine state at node $n$.
-An edge from $n$ to $n'$ (denoted by $\omega[n \rightarrow n']$) represents transition
+An edge $\omega$ from $n$ to $n'$ (denoted by $\omega[n \rightarrow n']$) represents transition
 from $n$ to $n'$ through execution of instructions and is associated with:
 \begin{enumerate}
 \item An {\em edge condition} representing the condition that must be satisfied by $\Omega_n$
@@ -321,7 +321,7 @@ the values of \sprog{} with values and memory state of \cprog{}.
 At an exit node (\scpc{E}{E}) of the product-CFG, the postcondition \post{} (labeled \circled{\small E})
 represents equality of observable outputs and forms our top-level proof obligation.
 Assuming that the precondition \pre{} (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
-a bisimulation check involves checking that the inductive invariants (\circled{\small I}) hold too,
+a bisimulation check involves checking that the inductive invariants (\circled{\small I}) hold too (at all intermediate product-CFG nodes),
 and consequently the postcondition \post{} (\circled{\small E}) holds at each exit node (\scpc{E}{E}).
 The input-output specification (i.e. $(\pre{},\post{})$) is manually provided by the user
 while all inductive invariants are identified by an invariant inference algorithm described in \cref{sec:invinferalgo}.
@@ -332,7 +332,7 @@ A product-CFG is well-formed (i.e. represents a valid bisimulation relation) if 
 edge (as part of a path) in \cprog{} with a path in \sprog{}.
 An edge deemed to be unreachable (due to an unsatisfiable path condition) represents {\em dead code} and can be
 safely ignored and remain uncorrelated in the final product-CFG.
-For example, the \sdef{} and \pre{} conditions assert unreachability of the edge \cpath{0,E_1} in \cref{fig:isemptyccfg},
+For example, the \sdef{} and \pre{} conditions entail unreachability of the edge \cpath{0,E_1} in \cref{fig:isemptyccfg},
 and remain uncorrelated in the product-CFG in \cref{fig:isemptyproductcfg}.
 Without \sdef{} and \pre{}, our equivalence checker would fail because the edge \cpath{0,E_1} is only triggered for ill-formed
 inputs and has no correlated paths in its specification.
@@ -415,8 +415,8 @@ for a product-CFG edge $e=(\sv{\rho},\cv{\rho})$, \hoareTriple{\phi_s}{e}{\phi_d
 denotes the condition:
 if any machine states \sv{\sigma} and \cv{\sigma} of programs \sprog{} and \cprog{} are related through
 precondition $\phi_s(\sv{\sigma},\cv{\sigma})$ and the finite paths \sv{\rho} and \cv{\rho}
-are executed in \sprog{} and \cprog{} respectively,
-then execution terminates normally in states $\sv{\sigma}^{'}$ (for \sprog{}) and
+are executed in \sprog{} and \cprog{} respectively without triggering undefined behaviour,
+then execution terminates in states $\sv{\sigma}^{'}$ (for \sprog{}) and
 $\cv{\sigma}^{'}$ (for \cprog{}) and postcondition $\phi_d(\sv{\sigma}^{'},\cv{\sigma}^{'})$ holds.
 
 For every product-CFG edge $e[s \rightarrow d] = (\sv{\rho}, \cv{\rho})$,

@@ -154,7 +154,7 @@ with expression $e_2$ at expression path condition $p_2$ in the other expression
 If {\em at least} one of $e_1$ and $e_2$ (say $e_2$) is atomic, unification always succeeds and returns
 a single correlation tuple: \corrtuple{p_2}{e_2}{p_1}{e_1}.
 Recall that a variable is an atom and evidently, $l$ and $\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})$
-successfully unifies and yields \corrtuple{p_1}{l}{p_2}{\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})}.
+successfully unifies (under expression path conditions $p_1$ and $p_2$) yielding \corrtuple{p_1}{l}{p_2}{\cons{LCons}(42,\lifted{list}{\mem{}}{lnode}{p})}.
 
 For two non-atomic expressions $e_1$ and $e_2$ to unify successfully,
 it must be true that either the top-level operator in $e_1$ and $e_2$ is
@@ -788,7 +788,7 @@ We capture this aliasing information using a points-to analysis described next i
 
 Notice that a bisimulation check between the deconstruction programs is
 significantly easier than the top-level bisimulation check between \sprog{} and \cprog{}:
-here, the correlation of PC traisitons is trivially identified by unifying the
+here, the correlation of PC transitions is trivially identified by unifying the
 unrolling procedures of both lifted expressions, and the candidate invariants
 are obtained by equating each pair of terminal values that form the observables
 of both programs.
