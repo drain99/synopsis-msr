@@ -1,0 +1,440 @@
+Review of thesis titled "Counterexample-Guided Verification of
+Imperative Programs Against Functional Specifications" by Indrajit
+Banerjee.
+
+The thesis looks at the important problem of proving correctness of C
+implementations of library functions with respect to a functional
+specification in a high-level functional language. The basic technique
+used is similar to those used in refinement of abstract data types,
+and requires us to show that if the abstract and concrete inputs are
+"glued" together by an abstraction (or gluing) relation (in this case
+supplied by the user, like a linked-list to classical list
+abstraction), then the outputs will also be similarly related. The
+first challenge in doing this (both manually and automatically) is that
+there may be different ways of achieving the end result in the
+abstract and concrete implementations (involving for example looping
+and branching constructs), and one needs to identify joint points in the two
+programs that "correspond" to each other. The second challenge (which
+is the main focus of the thesis) is automatically checking the
+correspondence proof obligations. This is challenging because the
+abstraction relation may be defined recursively (for example to
+extract a list from a linked list), and one needs to reason about
+the abstraction relation in the presence of imperative updates.
+
+The thesis proposes ways to handle this reasoning in three categories,
+based on where the recursive abstraction function appears in the proof
+obligation. In the first two categories the thesis gives a nice way to
+reduce the problem (albeit in an unavoidably incomplete way) to checks that
+can be carried out by standard logic solvers like Z3 and CVC4. The
+third category reduces the check to another equivalence check between
+two programs. While this appears circular at first sight, maybe the
+latter problem is simpler and it seems to be effective in practice.
+
+The thesis implements (building on existing equivalence checking
+infrastructure in the group) and evaluates the proposed techniques on several
+C library implementations of string, list, tree, and matrix data
+structures, and is able to come up with correctness proofs for many
+(or maybe even all?) of them. 
+
+In summary, I find the thesis quite impressive: it is very substantial
+in content for a masters thesis (understanding some difficult notions
+and techniques in equivalence checking and logic, coming up
+non-trivial ideas to handle proof obligations involving recursive
+abstraction functions, and building on earlier tools in the
+group to implement and evaluation the ideas). I am very happy to recommend
+acceptance.
+
+There are a few questions I would like the candidate to clarify in the
+viva as well as the revised version of the thesis. I list some of
+these below. There are also some minor typos and other issues which I
+have listed separately.
+
+Questions
+=========
+
+1. Questions about the basic proof technique based on product CFGs:
+
+Inductiveness of the product graph does not seem to be enough to
+guarantee the post condition. If we have two executions of S and C, why
+should they form a path in the product graph? Don't we also have to
+show this?
+
+##
+Indeed. A product-CFG P is well-formed (i.e. a witness of equivalence between S and C) if and only if:
+(a) P is a CFG i.e. P is deterministic (non-overlapping outgoing edge conditions) and
+                    P is non-blocking (sum of outgoing edge conditions is true)
+(b) Coverage property:
+    At any node (n,m), for executions paths p and q, either an edge (a,b) that justifies them exists
+    i.e. path_cond(p) -> path_cond(a) AND path_cond(q) -> path_cond(b), or
+    p and q represent exclusive executions i.e. path_cond(p) AND path_cond(q) -> False
+(c) Divergence preservance:
+    No empty path in S is correlated with a cycle in C and vice versa.
+(d) Inductivity of invariants:
+    For node n, invariants inferred at n holds along all incoming edges.
+(e) Validity of observables:
+    For node n, observables associated with n are also valid invariants at n.
+
+We will revise section 2.4 to state these properties clearly.
+Additionally, we will explain in brief how each property is maintained during construction of
+a product-CFG in section 4.2.
+##
+
+Page 22 (Sec 2.4):
+
+This section is not at all clear to me. Firstly, you should give a
+clear proof technique based on constructing a product CFG of S and C,
+which *implies* the semantic notion of equivalence defined
+earlier. I.e. we just need a *sufficient* condition for equivalence,
+based on product CFGs. Though there is a lot of verbose text around
+this in the thesis, I find a clearly spelt out condition missing.
+
+It is also important to argue that this condition is indeed sufficient.
+Make sure you understand it formally, and at least state it informally 
+in the thesis. In particular, what worries me is that you need some
+kind of requirement (of the product CFG) that every well-defined
+execution of S should have a (joint) execution in the product. Maybe
+the well-formedness condition addresses this, but the condition has
+not been spelt out clearly.
+
+##
+We will update the thesis to include a proof sketch of "valid product-CFG -> equivalent".
+Firstly, the coverage property ensures that a valid product-CFG represents a lock-step execution
+between S and C. Additionally, equivalence of observables hold by definition.
+Lastly, for S and C to be equivalent, either both terminates together or loops forever.
+This property is satisfied due to divergence preservance.
+##
+
+Secondly, I am not sure why you need "bisimulations" instead of just a
+*simulation*. The definition of equivalence is one way: if S has a
+well-defined execution from an initial state, then C must have one
+from every glued initial state (assuming mallocs always succeed),
+ending in a glued final state. So we just need to say that the
+concrete (C) can simulate the abstract (S).
+
+##
+We do find a simulation relation. However, since both S and C are deterministic
+programs (after converting them to IR), a simulation relation degenerates
+into a bisimulation relation.
+##
+
+2. Sec 2.4.1 (Well-Formedness): How do you check the executable edge
+condition?
+
+##
+By construction, our product graph only correlates finite paths
+between S and C. Under this condition, we can find the exact condition
+under which a path is taken at the source of the path in a CFG.
+Algorithmically, this condition can be found taking the conjunction
+of the weakest preconditions of all edge conditions in the path at
+the source node. We say a path is (possibly) executable if
+we are unable to prove: pathcond -> False. Recall that our
+solver is sound i.e. it will only return "proven" iff the query
+is true.
+##
+
+3. Evaluation.
+
+Were you able to find equivalence proofs for *all* the C
+implementations you considered? How did you come up with the specs?
+Was this based on the man page of the library functions or did you
+have to fine-tune to conform to the implementation? Did you not find
+any implementation that did not conform to its spec (or for which you
+could not find a proof of equivalence)? These need to be clarified.
+
+##
+No, we were unable to find equivalence proofs for some C implementations
+(against S). Most of these are not bisimilar to the specification
+and hence cannot be proven equivalent through a product graph.
+We will include these results in the thesis as well.
+The specifications were written based on native algorithms that conform
+to the function specifications. The specs were written without any
+consideration to the actual implementations.
+##
+
+Also, is your technique able to find counterexamples to conformance of
+the implementation to a spec?
+
+##
+We preserve counterexamples (generated from proof queries) at product
+graph nodes where the query was carried out. These counterexamples
+help purely with our product graph construction and invariant inference procedures.
+We do not use these to generate non-conforming inputs to the implementation.
+For acyclic programs, this can be trivially done.
+However, in general this would require "reverse executing" the counterexamples
+back to the program entry which is a research problem in itself,
+and we do not claim any contribution in this regard.
+##
+
+Would be good to give an idea of how many of the proof obligations
+were in Category I, II, and III respectively.
+
+##
+We will add these statistics in the revised version of the thesis.
+##
+
+4. In terms of related work.
+
+Many of the proof obligations seem like they could be specified in
+Separation Logic. Did you explore using this logic? In particular,
+there are tools like Grasshopper which can automatically prove some
+pre/post specs in SP for list-manipulating programs. Could such tools
+be used in your setting?
+
+##
+We are aware of Separation logic and tools such as Grasshopper and Dafny.
+However, our goal was to create an
+end-to-end verification tool and based on our prior work (Counter tool),
+we found counterexamples to be extremely effective at pruning the
+search space for product graph construction and invariant inference.
+Hence, we focused our attention to logical encoding into SMT such that
+we can recover counterexamples for the original query.
+Indeed, it may be possible to extend our logical model with separation logic
+and encode into existing solvers in a way that counterexamples can be easily
+recovered. However, this is beyond the scope of our current work.
+##
+
+There is quite a bit of work on proving functional correctness,
+including some from my group at IISc (Sumesh Divakaran's thesis on
+functional correctness of Free-RTOS, and Inzemamul Haque's thesis on
+functional correctness of a separation kernel) in the context of
+correctness of Abstract Data Types. These approaches use
+existing code-level verifiers like VCC/Boogie for C, and SPARK for
+Ada. They use auxiliary or "ghost" state to capture the spec and
+basically show that in a glued ghost-and-concrete state, the join
+ghost-and-concrete function establishes a glued post state. Although
+this involves more manual effort than your approach which is fully
+automated, it would be good to consider automating your problem in
+that setting. In particular, VCC/Boogie already seem to be able to do
+some reasoning about recursive abstraction functions.
+
+
+Minor Issues
+============
+
+Chapter 1 (Introduction)
+
+Page 2: "soundness *is* critical"
+## DONE ##
+
+Use one of "fig" and "Figure" consistently.
+##
+For start of sentance, we use the full form i.e. Figure(s).
+Otherwise, we use the shorthand i.e. fig(s).
+##
+
+Not clear how an i32 value can represent a list (or a node in a linked
+list).
+##
+The i32 (lnode*) value represents the address of the head of the linked list.
+Together with the memory, it fully represents the complete linked list and
+hence the abstract list.
+##
+
+"A common approach ... *involves*"
+## DONE ##
+
+In Fig 1.4(a), shouldn't the path label from (S3:C5) to (S3:C3) be
+"S3-S4-S5-S3"? Ok, I see that you have shortened the CFGs. Not
+sure why you would want to do that when there are already 3-4
+different versions of the program the reader has to digest!
+##
+We felt this would make the CFG figures more readable and expose
+the basic structure of the program more easily.
+##
+
+In Fig 1.4(b), (S3:C4) and (S3:C5) have the same gluing invariant?
+##
+Yes, (S3:C3) also has the same invariant.
+(S3:C3) had to be separated from {(S3:C4),(S3:C5)} because of
+invariant (I3) and (I7).
+##
+
+Why not pair states more naturally as:
+(S3:C3) -> (S4:C4) -> (S5:C8) -> (S3:C3)?
+##
+As explained in section 4.2.3, our corelation algorithm correlates
+malloc function call edges in C with the empty path in S.
+This is not a requirement in theory, however it makes the proofs
+simpler and also the generated proof queries are easier to explain.
+##
+
+Chapter 2 (Preliminaries)
+	
+How can a list value and list have the same type?
+##
+Need source.
+##
+
+Page 18: What is the notation "\omega[n->n']"? What is \omega? Maybe
+say "an edge omega from n to n'...."?
+## DONE ##
+
+Page 20:
+
+Def of equivalence: Are you assuming that S and C always terminate and
+produce output on all well-defined executions?
+##
+No. S and C may be non-terminating, in which case S and C are equivalent if and only if
+they are both non-terminating and produce equivalent observable behaviour forever.
+##
+
+(bottom line):  "S and C" should be in \mathcal.
+##
+We reserve the mathcal S and C to represent the CFGs of Spec and C functions respectively.
+Italic S and C represent the original Spec and C functions.
+##
+
+Not sure why you need "SInvalid"; why not use Pre to say that we only
+want non-null strings pointers in the C input?
+##
+This does work for the example function pair is_empty.
+However, there are functions (e.g. strchr) where we need to assert that all
+string pointers (reached by chasing the head pointer) are non-null.
+Asserting this condition at the entry (as part of Pre) is possible with more complex logical predicate.
+Hence, we chose to use the assuming-do statement that can assert well-formedness
+at any point in Spec (not just the entry), leading to much simpler assertions.
+##
+
+"a bisimulation check involves checking that the inductive invariants
+(I) hold too" [Need to say more clearly what this means: Usually an
+inductive is local (in particular you don't need the Pre assumption
+everywhere) in that you show that if I holds at (S1:C1), and we have an
+edge e to (S2:C2), then I holds at (S2:C2)].
+##
+DONE
+What we meant to write is that: a bisimulation check involves proving that all invariants (and
+observable equivalence) hold at each node n' along all incoming edges w[n->n'] at n',
+(in addition to the other well-formedness properties of product-CFG).
+If n is the entry node, precondition = Pre,
+otherwise, precondition = invariants at node n.
+##
+
+"assert unreachability" [maybe "entail" is more accurate?]
+## DONE ##
+
+Sec 2.6 (Proof Obligations)
+
+"if any machine states \sigma S and \sigma C of programs S and C are related through
+precondition \varphi s (\sigma S , \sigma C ) and the finite paths
+\rho_S and \rho_C are
+executed in S and C respectively, then execution terminates normally
+in states \sigma_S (for S) and \sigma_C (for C) and postcondition
+... holds." [Doesn't this seem too strong? What if the execution in S is
+not well-defined?] I see this is fixed in the formal condition
+(2.4). Need to fix the text as well.
+## DONE ##
+
+Isn't it more natural to write (2.4) as
+
+  (phi_s \And path-formula_rhoS \And path-formula_rhoC \And ubfree_rhoS)
+  => phi_d,
+where path-formula expresses the sequence of updates corresponding to
+a path in the CFG? Do you do this to cut down on the number of variables?
+##
+Question is unclear to me.
+We have to introduce WP_{rhoS,rhoC}(.) to get the correct first order equivalent
+of the Hoare triple.
+##
+
+Chapter 3 (Proof Obligations)
+
+Instead of returning "False" when the prover does not for sure that
+the obligation does not hold, why not return "Unkown"?
+##
+We formulated our solver to either return True or False(\Gamma),
+where \Gamma is a set of counterexamples.
+Hence, if \Gamma = \phi, it is equivalent to returning "Unknown".
+We chose to consolidate the False and Unknown cases to simplify
+the presentation of the algorithm, e.g. figure 3.8 (algorithm 1).
+##
+
+Not clear why the claim that in formula (3.1) the conjunctive
+recursive relation property holds, should be true.
+##
+This is true since:
+(a) The WP transformation is a substitution from variables to expressions only : { v_i |-> e_i }.
+(b) Spec only supports equality operator between scalar types (section 2.1), hence no computation
+in the CFG may contain equality between ADT values (aka recursive relations) -> e_i may not contain recursive relations.
+##
+
+Say early on why unification is even useful in your overall problem.
+##
+We will give a brief motivation for unification early on.
+##
+
+Page 31: "evidently, l and LCons(42,Clist(p)) successfully unifies and
+yields (p1, l, p2,...)" [What are p1 and p2 here?]
+##
+Made the sentance clearer.
+The unification procedure \theta(p1,e1,p2,e2) unifies e1 and e2 under
+the expression path conditions p1 and p2 respectively.
+##
+
+Is Fig 3.2 a repeat of Fig. 1.4? Similarly, Fig 3.3? This should be
+avoided.
+##
+We are aware of this issue. However, since we walk through the same examples
+through introduction, preliminaries and proof obligations, we felt it would
+significantly impact readability to refer to figures in chapter 1 from
+chapter 3.
+##
+
+Sec 3.5: Not clear why of the two approximated proof obligations, the
+second one is necessary. If the overapproximation of phi_s implies
+phi_d under e, isn't that sufficient to conclude that phi_s implies
+phi_d under e? Ok, I see that it is useful in disproving an
+obligation.
+
+Technique for handling Type II obligations is nicely written and the
+idea is interesting.
+
+Type III: Formula (3.4) is no more in the form where you have an
+implication on the current state (since it talks about m' and
+P_C). Why aren't you using the WP here?
+##
+Question is unclear to me.
+For ease of exposition, instead of writing the WP expression of the memory m (RHS of formula (3.5)),
+we break it into two formulas (3.4) and (3.5).
+Algorithmically, formula (3.4) would contain the WP of m' in the expression itself.
+##
+
+Page 49: "PC traisitons"
+## DONE ##
+
+Chapter 5 (Evaluation)
+
+"Recall that a nul-terminated C string is only well-formed if the
+string itself does not belong to a region of memory containing the
+null pointer" [What does this mean?].
+##
+A standard (nul-terminated) C string represented by a char* value must
+point to a contiguous region of allocated memory ending with the nul (zero)
+character.
+Otherwise, the behaviour of C library functions accepting such a string is undefined.
+This is an example where the behaviour of a function is contingent on the
+assumption that the inputs are well-formed.
+A subset of these input well-formedness conditions must be assumed
+for some equivalence checks to go through, e.g., section 5.1.1 [An Example : strchr].
+##
+
+Page 108: "We would this strategy..." ["found"?]
+## DONE ##
+
+Bibliography:
+
+[38] Fix author names
+## DONE ##
+[48] Shubhani [Gupta]?
+##
+As per my knowledge, she only uses her first name.
+The name is only "Shubhani" in her PhD thesis as well.
+##
+
+General:
+
+- The writing should be more sequential. There are too many places
+  where you say "Note that", "Observe that", "Recall that" in the part
+  of the thesis where one would expect self-contained
+  definitions. Even if you have alluded to these constraints earlier
+  in the introduction or elsewhere, they need to be defined in the
+  main part of the thesis formally and afresh.
