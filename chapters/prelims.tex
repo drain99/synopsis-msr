@@ -184,17 +184,18 @@ The CFG representation is analogous to a deterministic labeled transition system
 uses a symbolic state $\Omega_n$ to represent the machine state at node $n$.
 An edge $\omega$ from $n$ to $n'$ (denoted by $\omega[n \rightarrow n']$) represents transition
 from $n$ to $n'$ through execution of instructions and is associated with:
+\vspace{-10px}
 \begin{enumerate}
 \item An {\em edge condition} representing the condition that must be satisfied by $\Omega_n$
-to trigger the edge $\omega$.
+to trigger $\omega$.
 \item A {\em transfer function} representing the symbolic state at $n'$ ($\Omega_{n'}$) as a function of $\Omega_n$
 i.e. how the machine state is mutated along the edge $\omega$.
-\item An UB {\em assume} representing the condition that must be satisfied by $\Omega_n$ for
+\item An UB {\em assumption} representing the condition that must be satisfied by $\Omega_n$ for
 the transition $\omega$ to be well-defined.
 For a \SpecL{} procedure, the {\tt assume} clauses form its UB assumes.
 Recall that, a C procedure is determinized during conversion to CFG and thus do not require UB assumes.
 \end{enumerate}
-
+\vspace{-10px}
 For brevity, we often represent a sequence of instructions with a single edge, e.g.,
 in \cref{fig:llTraverseSpecCFG}, the edge \spath{2,5} represents the path \spath{2,3,4,5} in \cref{fig:llTraverseSpecIR}.
 In such a case, the transfer function of the edge is the composition of the sequence of instructions.
@@ -202,6 +203,16 @@ A CFG must contain exactly one entry node (representing the entry to the functio
 multiple exit nodes (each representing an exit from the function).
 For example, the CFG in \cref{fig:isemptyccfg} contains an entry node \cpc{0} and two exit nodes
 \cpc{E_1} and \cpc{E_2} representing exits through the IR PCs \cpc{1} and \cpc{2} in \cref{fig:isemptycir} respectively.
+Additionally, a CFG must satisfy the following
+two properties:
+\vspace{-10px}
+\begin{enumerate}
+\item[] (deterministic) For any non-exit node n, the edge conditions associated with its outgoing edges are non-overlapping.
+This condition ensures that at most one execution path can be taken at any node.
+\item[] (non-blocking) For any non-exit node n, the conjunction of edge conditions associated with its outgoing edges equal true.
+This condition ensures that at least one execution path will be taken at any node.
+\end{enumerate}
+\vspace{-10px}
 An edge incident on an exit node is called an {\em exit edge}, and is associated with an {\em action} representing
 the returned value as a function of the symbolic state at the source node.
 Actions form the observable behaviour of a CFG while transition through non-exit edges are internal to the program.
@@ -280,8 +291,7 @@ during evaluation in \cref{sec:strchrexample}.
 \input{chapters/figures/figSumListProductCFGAndInvs.tex}
 \section{Bisimulation Relation}
 \label{sec:bisim}
-Recall that,
-we construct a {\em bisimulation relation} to identify equivalence between the CFGs of \SpecL{} and C procedures.
+We construct a {\em bisimulation relation} to identify equivalence between the CFGs of \SpecL{} and C procedures.
 A bisimulation relation correlates the transitions of \sprog{} and \cprog{} in lockstep, such that the
 lockstep execution ensures identical observable behaviour.
 A bisimulation relation between two programs can be represented using a {\em product program}
@@ -289,35 +299,46 @@ A bisimulation relation between two programs can be represented using a {\em pro
 \Cref{fig:llTraverseProduct} shows a product-CFG, that encodes the lockstep execution
 (bisimulation relation) between the CFGs in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG}.
 
-A node in the product-CFG is formed by pairing nodes of \sprog{} and \cprog{},
-e.g., (\scpc{2}{2}) is formed by pairing \spc{2} and \cpc{2}.
+A node in the product-CFG, say (\prodpc{n_1}{n_2}), is formed by pairing nodes \pc{n_1} and \pc{n_2} of \sprog{} and \cprog{} respectively.
+For example, (\scpc{2}{2}) is formed by pairing \spc{2} and \cpc{2}.
 If the lockstep execution of both programs is at node (\scpc{2}{2}) in the product-CFG,
 then \sprog{}'s execution is at \spc{2} and \cprog{}'s execution is at \cpc{2}.
 The start node (\scpc{0}{0}) of the product-CFG correlates the start nodes of CFGs of \sprog{} and \cprog{}.
 Similarly, an exit node (\scpc{E}{E}) correlates exit nodes of both programs.
 
-An edge in the product-CFG is formed by pairing a {\em path} (a sequence of edges) in \sprog{}
+An edge in the product-CFG is formed by pairing a {\em path} (a finite sequence of edges) in \sprog{}
 with a path in \cprog{}\footnote{
 For ease of exposition, we present product-CFG in the context of {\em path} correlations.
 However, a more general approach of pathset is used based on prior work \cite{oopsla20}
 for improved completeness of our algorithm.
 We will explore pathsets and its consequences on the algorithm in more detail in \cref{sec:pathsetcorrel}.}.
+An edge $e$ (from (\prodpc{s_1}{s_2}) to (\prodpc{d_1}{d_2})) formed by pairing paths \cfgpath{1} and \cfgpath{2} is simply denoted by
+$e[\prodedge{s_1}{s_2}{d_1}{d_2}]=(\cfgpath{1},\cfgpath{2})$.
 A product-CFG edge encodes the lockstep execution of its correlated paths.
-For example, the product-CFG edge \scedge{2}{2}{2}{2} is formed by pairing
+For example, the product-CFG edge \scedge{2}{2}{2}{2} in \cref{fig:llTraverseProduct} is formed by pairing
 \spath{2,5,2} and \cpath{2,4,2} in \cref{fig:llTraverseSpecCFG,fig:llTraverseCCFG} respectively,
 and represents that when \sprog{} makes the transition \spath{2,5,2}, \cprog{} makes the transition \cpath{2,4,2}
 in lockstep.
-In general, a product-CFG edge $e$ may correlate a finite path \sv{\rho} in \sprog{} with a finite path
-\cv{\rho} in \cprog{}, written $e=(\sv{\rho},\cv{\rho})$.
-The empty path $\epsilon$ in \sprog{} may be correlated with a finite path in \cprog{},
-effectively simulating a {\em stuttering bisimulation} relation.
+
+Being a Control-Flow Graph (CFG), a product-CFG itself represents a program.
+For a product-CFG node $n = (\prodpc{n_1}{n_2})$, its symbolic state $\Omega_n$ is the union of
+the symbolic states $\Omega_{n_1}$ and $\Omega_{n_2}$ of CFGs \sprog{} and \cprog{} respectively.
+For an edge $e[\prodedge{s_1}{s_2}{d_1}{d_2}]=(\cfgpath{1},\cfgpath{2})$, its edge condition is defined
+as $\pathcond{\cfgpath{1}} \land \pathcond{\cfgpath{2}}$, where $\pathcond{\cfgpath{X}}$ represents
+the condition at the source node $\pc{s_X}$ under which the path $\cfgpath{X}$ is taken.
+Our product-CFG only correlates finite paths and thus the exact path condition can be found by taking the
+conjunction of the weakest preconditions of all edge conditions in the path at the source node.
+Similarly, the UB assumption for the edge $e$ is defined as $\ubfree{\cfgpath{1}} \land \ubfree{\cfgpath{2}}$,
+where $\ubfree{\cfgpath{X}}$ represents the condition that execution along $\cfgpath{X}$ is free of
+undefined behaviour.
+The transfer function is given by the union of the transfer functions associated with $\cfgpath{1}$
+and $\cfgpath{2}$.
 
 At the start node (\scpc{0}{0}) of the product-CFG in \cref{fig:llTraverseProduct},
 the precondition \pre{} (labeled \circled{\small P})
 ensures equality of input lists \sv{l} and \cv{l} at procedure entries.
-{\em Inductive invariants} (labeled \circled{I}) are inferred
-at each intermediate product-CFG node (e.g., (\scpc{2}{2})) that relate
-the values of \sprog{} with values and memory state of \cprog{}.
+Each intermediate (non-start and non-exit) product-CFG node (e.g., (\scpc{2}{2})) contains a set of logical predicates called
+{\em inductive invariants} (labeled \circled{I}) that relate the program states of \sprog{} and \cprog{}.
 At an exit node (\scpc{E}{E}) of the product-CFG, the postcondition \post{} (labeled \circled{\small E})
 represents equality of observable outputs and forms our top-level proof obligation.
 Assuming that the precondition \pre{} (\circled{\small P}) holds at the entry node (\scpc{0}{0}),
@@ -328,24 +349,50 @@ while all inductive invariants are identified by an invariant inference algorith
 
 \subsection{Well-formedness of Product-CFG}
 \label{sec:wellformedproductcfg}
-A product-CFG is well-formed (i.e. represents a valid bisimulation relation) if it correlates every {\em possibly} executable
-edge (as part of a path) in \cprog{} with a path in \sprog{}.
-An edge deemed to be unreachable (due to an unsatisfiable path condition) represents {\em dead code} and can be
-safely ignored and remain uncorrelated in the final product-CFG.
-For example, the \sdef{} and \pre{} conditions entail unreachability of the edge \cpath{0,E_1} in \cref{fig:isemptyccfg},
-and remain uncorrelated in the product-CFG in \cref{fig:isemptyproductcfg}.
-Without \sdef{} and \pre{}, our equivalence checker would fail because the edge \cpath{0,E_1} is only triggered for ill-formed
-inputs and has no correlated paths in its specification.
+A product-CFG is called {\em well-formed} if it represents a valid bisimulation relation. For a product-CFG to be well-formed,
+the following conditions must hold:
+\begin{itemize}
+\item[] (valid control-flow graph) Since a product-CFG is a Control-Flow Graph,
+it must satisfy the {\em deterministic} and {\em non-blocking} properties of a CFG.
 
-Additionally, a well-formed product-CFG may not correlate a loop in \cprog{} with the empty path $\epsilon$ in \sprog{}.
-For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs
-in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
-The edges \scedge{3}{3}{3}{4} and \scedge{3}{4}{3}{5} correlate the empty path $\epsilon$
-with the non-empty paths \cpath{3,4} and \cpath{4,5} respectively.
-However, the only loop path \cpath{3,4,5,3} in \cprog{} is still correlated with the non-empty path \spath{3,5,3}
-in \sprog{} and thus, the product-CFG in \cref{fig:llAllocProductCFG} satisfies this well-formedness criterion.
-This well-formedness condition ensures {\em divergence}, i.e. either both programs terminate or
-both continue indefinitely.
+\item[] (coverage property) At any product-CFG node (\prodpc{n_1}{n_2}), for (possibly) executable paths $\cfgpath{1}$ and $\cfgpath{2}$,
+either an outgoing edge $e=(\cfgpath{1}',\cfgpath{2}')$ exists, i.e., $\pathcond{\cfgpath{1}} \rightarrow \pathcond{\cfgpath{1}'}$
+and $\pathcond{\cfgpath{2}} \rightarrow \pathcond{\cfgpath{2}'}$, or $\cfgpath{1}$ and $\cfgpath{2}$ represent exclusive
+executions, i.e. $\pathcond{\cfgpath{1}}$ $\land \ \pathcond{\cfgpath{2}} \rightarrow {\tt False}$.
+An edge deemed to be unreachable (due to an unsatisfiable path condition) represents {\em dead code} and may remain uncorrelated
+in the product-CFG. Otherwise, the edge represents a possibly executable path.
+For CFGs \sprog{} and \cprog{}, our product-CFG construction algorithm ensures that: (a) all possibly executable paths in \cprog{}
+are correlated in the product-CFG, and (b) for an edge $e = (\cfgpath{1}, \cfgpath{2})$, $\pathcond{\cfgpath{1}} = \pathcond{\cfgpath{2}}$.
+These two conditions are sufficient to satisfy the coverage property.
+For example, \sdef{} and \pre{} conditions entail unreachability of the edge \cpath{0,E_1} in \cref{fig:isemptyccfg}.
+Without \sdef{}, our equivalence checker would fail because the edge \cpath{0,E_1} is only triggered for ill-formed
+inputs and has no ``equivalent'' transitions in its specification.
+
+\item[] (divergence preservation) No empty path in \sprog{} is correlated with a cycle in \cprog{} and vice versa.
+An edge $e$ in the product-CFG may correlate the empty path $\epsilon$ in \sprog{} with a non-empty path $\cfgpath{}$ in \cprog{},
+effectively simulating a {\em stuttering bisimulation} relation.
+The product-CFG construction algorithm ensures that the resulting product-CFG still satisfies the divergence preservation property.
+For example, \cref{fig:llAllocProductCFG} shows the product-CFG between the programs in \cref{fig:llAllocSpecIRCFG,fig:llAllocCCFG} respectively.
+The edges \scedge{3}{3}{3}{4} and \scedge{3}{4}{3}{5} correlate the empty path $\epsilon$ with the non-empty paths \cpath{3,4} and \cpath{4,5}
+respectively.
+However, the only cycle \cpath{3,4,5,3} in \cprog{} is still correlated with the non-empty path \spath{3,5,3} in \sprog{}
+and thus, the product-CFG in \cref{fig:llAllocProductCFG} preserves divergence.
+
+\item[] (inductivity of invariants) At any intermediate node $n$, the inductive invariants inferred at $n$
+hold along all incoming edges. In other words, whenever the product-CFG transitions to the node $n$, its symbolic state $\Omega_n$
+satisfies the inferred logical predicates.
+
+\item[] (validity of postcondition) At any exit node $n$, the postcondition \post{} holds. Since the only observables of \sprog{}
+and \cprog{} are its returned values, this property ensures that whenever the product-CFG transitions to an exit node,
+the observables satisfy the required postcondition.
+\end{itemize}
+
+Intuitively, a well-formed product-CFG between \sprog{} and \cprog{} represents a combined program which simulates both
+programs in lock-step. In this combined execution, invariants relate the combined program states of \sprog{} and \cprog{}.
+The coverage property ensures that the product-CFG includes all possible executions of \sprog{} and \cprog{}.
+Divergence preservation ensures a well-formed product-CFG exist (i.e. a bisimulation relation exist) only if either
+both programs terminate or both continue indefinitely producing sequence of equivalent observables.
+Lastly, validity of postcondition guarantees that if both programs terminate, their observables satisfy \post{}.
 
 \section{Recursive Relation}
 \label{sec:recrel}
@@ -429,11 +476,11 @@ first-order logic formula:
 
 \begin{equation}
 \label{eqn:firstOrderFormula}
-(\phi_s \land {\tt pathcond}_{\sv{\rho}} \land {\tt pathcond}_{\cv{\rho}} \land {\tt ubfree}_{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
+(\phi_s \land \pathcond{\sv{\rho}} \land \pathcond{\cv{\rho}} \land \ubfree{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
 \end{equation}
 
-Here, ${\tt pathcond}_{\rho_X}$ represents the condition that path $\rho$ is taken in program $X$
-and ${\tt ubfree}_{\sv{\rho}}$ represents the condition that execution of \sprog{} along path $\sv{\rho}$
+Here, $\pathcond{\rho_X}$ represents the condition that path $\rho$ is taken in program $X$
+and $\ubfree{\sv{\rho}}$ represents the condition that execution of \sprog{} along path $\sv{\rho}$
 is free of undefined behaviour.
 ${\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)$ represents the weakest-precondition
 of the predicate $\phi_d$ across the product-CFG edge $e = (\sv{\rho},\cv{\rho})$.

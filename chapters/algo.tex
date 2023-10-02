@@ -144,7 +144,7 @@ An example of such a scenario is depicted in \cref{sec:strchrexample}.
 For now, we briefly summarize pathsets in the context of \SpecL{}-C bisimulation search.
 A {\em pathset} $\xi$ is essentially a set of paths with the following additional properties:
 (a) all paths $\rho \in \xi$ begin at the same node and terminate at the same node, and
-(b) all paths $\rho \in \xi$ are mutually exclusive i.e. {\em at most} one of ${\tt pathcond}_{\rho}$ can be true.
+(b) all paths $\rho \in \xi$ are mutually exclusive i.e. {\em at most} one of $\pathcond{\rho}$ can be true.
 A $(\mu,\delta)$-{\em unrolled pathset} $\xi$ is a pathset from $n_s$ to $n_d$ such that:
 (a) all paths $\rho \in \xi$ contains {\em at most} $\mu$ occurrences of {\em any} node except $n_d$ as the end node (to-PC) of an edge in $\rho$, and
 (b) all paths $\rho \in \xi$ contains {\em exactly} $\delta$ occurrences of $n_d$ as the end (to-PC) of an edge in $\rho$.
@@ -317,7 +317,7 @@ We call a pair of paths $\rho_S \in \xi_S$ and $\rho_C \in \xi_C$ {\em simultane
 at $s$ (satisfying the node invariants $\phi_s$) for which \sprog{} and \cprog{} takes the paths $\rho_S$ and $\rho_C$ respectively.
 In practice, the number of paths in \sprog{} that are simultaneously active with a path in \cprog{} (and vice versa) is quite low
 and consequently, most of these proof obligations usually end up with an unsatisfiable \lhs{} when lowered to
-first-order logic (through \cref{eqn:firstOrderFormula}) due to presence of {\tt pathcond}$_{\rho_S}$ and {\tt pathcond}$_{\rho_C}$.
+first-order logic (through \cref{eqn:firstOrderFormula}) due to presence of $\pathcond{\rho_S}$ and $\pathcond{\rho_C}$.
 Our proof discharge procedure begins with an attempt to disprove \lhs{} ($0$-depth overapproximate) which trivially resolves the
 smaller proof obligations to {\tt true} for path pairs that are not simultaneously active (\fref{areSimultaneouslyActive}{3}).
 For path pairs that are simultaneously active, we discharge the smaller Hoare triple queries through \fref{prove}{4} (in \cref{algo:proofSummary}).

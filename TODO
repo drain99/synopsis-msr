@@ -66,5 +66,7 @@ List the other ADTs and their layouts considered
 Thank you slide
 
 TODO:
-(1) remove horizontal rules for invinfer xfer
-(5) format and submit
+update CFG with deterministic + non-blocking => DONE
+update product-CFG with deterministic + non-blocking + divergence preservance + coverage + inductivity of invariants + validity of observables => DONE
+update bisimulation relation with a section of intuitive proof sketch => DONE
+update the evaluation section with failed tests [se on ion] => TUESDAY

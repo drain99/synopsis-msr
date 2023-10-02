@@ -133,7 +133,7 @@ and (\sv{\rho},\cv{\rho}) represents a product-CFG edge correlating the paths \s
 in $S$ and $C$ respectively. The above Hoare triple lowers to the following predicate:
 \begin{equation}
 \label{eqn:firstOrderFormula}
-(\phi_s \land pathcond_{\sv{\rho}} \land pathcond_{\cv{\rho}} \land ubfree_{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
+(\phi_s \land \pathcond{\sv{\rho}} \land \pathcond{\cv{\rho}} \land \ubfree{\sv{\rho}}) \Rightarrow {\tt WP}_{{\sv{\rho},\cv{\rho}}}(\phi_d)
 \end{equation}
 We will use `\lhs{}' and `\rhs{}' to refer to the antecedent and consequent of the
 implication operator `$\Rightarrow$' in \cref{eqn:firstOrderFormula}.

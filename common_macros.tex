@@ -53,11 +53,14 @@
 \newcommand{\term}[1]{{\tt #1}}%
 \newcommand{\sv}[1]{\ensuremath{{\tt #1}_{S}}}%
 \newcommand{\cv}[1]{\ensuremath{{\tt #1}_{C}}}%
+\newcommand{\cfgpath}[1]{\ensuremath{{\tt \rho_{#1}}}}%
+\newcommand{\pc}[1]{\ensuremath{{\tt #1}}}%
 \newcommand{\apc}[1]{\ensuremath{{\tt A#1}}}%
 \newcommand{\bpc}[1]{\ensuremath{{\tt B#1}}}%
 \newcommand{\spc}[1]{\ensuremath{{\tt S#1}}}%
 \newcommand{\cpc}[1]{\ensuremath{{\tt C#1}}}%
 \newcommand{\dpc}[1]{\ensuremath{{\tt D#1}}}%
+\newcommand{\prodpc}[2]{\ensuremath{{\tt #1\!:\!#2}}}%
 \newcommand{\scpc}[2]{\ensuremath{{\tt S#1\!:\!C#2}}}%
 \newcommand{\scpcinv}[2]{\ensuremath{{\phi_{\tt S#1:C#2}}}}%
 \newcommand{\ddpc}[2]{\ensuremath{{\tt D#1\!:\!D#2}}}%
@@ -87,6 +90,7 @@
   \renewcommand*{\do}[1]{\nextitem{{\tt ##1}}}% How to process each item
   \docsvlist{#2}% Process list
 }
+\newcommand{\prodedge}[4]{\ensuremath{{\small (\prodpc{#1}{#2}) \! \rightarrow \! (\prodpc{#3}{#4})}}}%
 \newcommand{\scedge}[4]{\ensuremath{{\small (\scpc{#1}{#2}) \! \rightarrow \! (\scpc{#3}{#4})}}}%
 \newcommand{\ddedge}[4]{\ensuremath{{\small (\ddpc{#1}{#2}) \! \rightarrow \! (\ddpc{#3}{#4})}}}%
 \newcommand{\type}[1]{{\tt #1}}%
@@ -121,8 +125,9 @@
 \newcommand{\execpath}{{\tt ep}}%
 \newcommand{\ftrace}[1]{{\ensuremath{{\tt Ftrace}(#1)}}}%
 \newcommand{\comp}[2]{{\ensuremath{{\tt Comp}_{#2}(e)}}}%
-\newcommand{\retval}[1]{{\ensuremath{{\tt Retval}(#1)}}}%
-\newcommand{\pathcond}[1]{{\ensuremath{{\tt Pathcond}(#1)}}}%
+\newcommand{\retval}[1]{{\ensuremath{{\tt retval}(#1)}}}%
+\newcommand{\pathcond}[1]{{\ensuremath{{\tt pathcond}(#1)}}}%
+\newcommand{\ubfree}[1]{{\ensuremath{{\tt ubfree}(#1)}}}%
 \newcommand{\execpaths}[3]{{\ensuremath{{\tt EP}_{#1}(#2,#3)}}}%
 \newcommand{\func}[1]{{\tt #1()}}%
 \newcommand{\fref}[2]{{\tt #1()} in L#2}%
