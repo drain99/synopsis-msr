@@ -39,6 +39,8 @@ layouts etc. On the other hand, an optimized implementation may choose manual ve
 of an inner-most loop. Next, we consider each ADT in more detail. For each,
 we discuss (a) its corresponding programs, (b) C memory layouts and their lifting
 constructors, and (c) varying algorithmic strategies.
+All \SpecL{} specifications are written based on naive algorithms that simply confirm to the function specifications.
+Importantly, no consideration was given to the actual C implementations during the design of specifications.
 \input{chapters/figures/figThesisLiftingConsStr.tex}
 \vspace{-5px}
 \subsection{String}
@@ -189,17 +191,76 @@ We also introduce two auxiliary lifting constructors \lift{list}{\mem{}}{u32[r]}
 for lifting each row of matrices lifted using the corresponding \lift{mat}{\mem{}}{u32[r]} and \lift{mat}{\mem{}}{u32[c]} \type{Matrix} lifting
 constructors. These lifting constructors are listed in \cref{tab:LiftingConsMatrix}.
 
-\input{chapters/figures/figEvalTable.tex}   
+\input{chapters/figures/figTestsTableA.tex}
+\input{chapters/figures/figTestsTableB.tex}
+\begin{figure}
+\begin{subfigure}[b]{0.43\textwidth}
+\begin{center}
+\begin{footnotesize}
+\begin{tabular}{@{\hspace{1mm}}c@{\hspace{2mm}}r@{\hspace{2mm}}r@{\hspace{2mm}}r@{\hspace{2mm}}r@{\hspace{1mm}}}
+\toprule
+& \multicolumn{1}{c}{$\mathbf{Proven}$} & \multicolumn{1}{c}{$\mathbf{Disproven}$} & \multicolumn{1}{c}{$\mathbf{Unknown}$} & \multicolumn{1}{c}{$\bm{\Sigma}$} \\
+\toprule
+\multirow{2}{*}{\qcount{I}}    & 13      & 6                                       & \multicolumn{1}{r}{\multirow{2}{*}{0}}    & 19       \\
+                               & 68.4\%  & 31.6\%                                  &                                           & 0.01\%   \\
+\midrule
+\multirow{2}{*}{\qcount{II}}   & 80266   & 2330                                    & 810                                       & 83366    \\
+                               & 96.2\%  & 2.8\%                                   & 1.0\%                                     & 58.85\%  \\
+\midrule
+\multirow{2}{*}{\qcount{III}}  & 46288   & \multicolumn{1}{r}{\multirow{2}{*}{-}}  & 11984                                     & 58272    \\
+                               & 79.4\%  &                                         & 20.6\%                                    & 41.14\%  \\
+\midrule
+\multicolumn{4}{l}{Total number of queries: }                                                                                  & 141657   \\
+\bottomrule
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\caption{\label{tab:querycountstable}Total number of queries discharged by our solver during equivalence checks for the tests listed in \cref{tab:testsa,tab:testsb}.
+We show the relative distribution of returned results for each type of query (\qcount{I}, \qcount{II} and \qcount{III}).}
+\end{subfigure}%
+\hfill
+\begin{subfigure}[b]{0.55\textwidth}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{chapters/figures/figQueryDepthDist.PNG}
+\end{center}
+\caption{\label{tab:querydepthdist}Minimum over- and under-approximation depths at which approximate queries were successfully proven {\em or} disproven with counterexamples by our solver.
+Approximate queries include type II prove, disprove queries and type III prove queries.}
+\end{subfigure}
+\end{figure}
 
 \section{Results}
 \label{sec:results}
-\Cref{tab:results} lists the various C implementations and the time \toolName{} took
-to compute equivalence with their specifications. For functions that
-take two or more data structures as arguments, we show
+\Cref{tab:testsa,tab:testsb} lists the various C implementations and the time \toolName{} took
+to compute equivalence against their specifications.
+For functions that take two or more data structures as arguments, we show
 results for different combinations of data layouts for each argument.
-We also show the minimum under-approximation ($d_u$) and over-approximation ($d_o$) depths
-at which the equivalence proof completed (keeping all other parameters to their
+We use \qcount{I}, \qcount{II} and \qcount{III} to represent the number of type I, II and III
+queries discharged by our solver respectively.
+\btcount{} denotes the number of times our counterexample-guided best-first search (described in \cref{sec:searchalgo}) backtracked
+during the search for a product-CFG representing equivalence.
+A higher value of $\mathcal{P}_{BT}$ represents that the search backtracked multiple times due to a combination of large search space
+and a sub-optimal choice in best-first ranking.
+We also show the minimum over-approximation (\minapprox{o}) and under-approximation (\minapprox{u}) depths
+at which the equivalence proofs successfully completed (keeping all other parameters to their
 default values).
+\Cref{tab:querycountstable} shows a breakdown of the number of queries discharged by our solver by query type and returned result.
+Our solver may either return {\em proven} implying a successfully proven query, {\em disproven} with counterexamples
+that falsify the query, or {\em unknown} representing a failure respectively.
+Given that 58.85\% of all queries are type II queries, support for counterexample generation for type II queries is found to be
+extremely helpful in guiding the best-first search.
+During over- and under-approximation attempts (for type II and type III queries), we use a strategy similar to ``iterative deepening'' \cite{iterativedeepening}.
+Instead of using the maximum approximation depth ({\em eight} for our tests) first, we begin with a smaller value which is increased until
+our attempt either succeeds or we reach the maximum permissible depth.
+For prove (i.e. over-approximation) and disprove (i.e. under-approximation) attempts, we start with approximation depths {\em zero} and {\em two} respectively.
+For both cases, we increase these depths by {\em one} until the maximum depth of {\em eight} is reached.
+A lower value translates to a simpler SMT query leading to a higher probability of a faster solution and lower probability of timeouts by the off-the-shelf SMT solvers.
+However, the precision of an attempt increases with higher approximation depths as previously discussed in detail in \cref{sec:approxdefs}.
+\Cref{tab:querydepthdist} depicts the distribution of minimum approximation depths at which approximate (type II prove \& disprove and type III prove) queries
+were successfully discharged (proven {\em or} disproven) by the solver.
+It can be seen that the vast majority of the attempts were successful for approximation depths smaller than {\em eight}
+and the number of successful attempts decreases exponentially with increasing depth.
+The above observation reinforces the idea of ``iterative deepening'' because the time saved by solving smaller queries significantly
+outweighs the comparatively rare loss of time in attempting the same query with increasing approximation depths.
 
 % During the verification of {\tt strchr} and {\tt strpbrk} implementations,
 % we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
