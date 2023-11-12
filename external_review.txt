@@ -145,7 +145,7 @@ could not find a proof of equivalence)? These need to be clarified.
 No, we were unable to find equivalence proofs for some C implementations
 (against S). Most of these are not bisimilar to the specification
 and hence cannot be proven equivalent through a product graph.
-We will include these results in the thesis as well.
+We will show these results in the thesis as well.
 The specifications were written based on naive algorithms that conform
 to the function specifications. The specs were written without any
 consideration to the actual implementations.
@@ -426,7 +426,7 @@ Bibliography:
 ## Fixed ##
 [48] Shubhani [Gupta]?
 ##
-As per my knowledge, she only uses her first name.
+She only uses her first name.
 Her name is only "Shubhani" in the PhD thesis as well.
 ##
 
