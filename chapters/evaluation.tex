@@ -217,6 +217,7 @@ default values).
 
 \section{Limitations}
 \label{sec:limitations}
+\input{chapters/figures/figLimitationExStrchr.tex}
 \toolName{} is not without limitations.
 Since \toolName{} is only interested in finding a bisimulation relation,
 a whole class of non-bisimilar but equivalent program pairs is beyond our scope.
@@ -235,17 +236,32 @@ in the C implementation is higher than the unrolling parameter $\mu_S$ used duri
 enumeration as part of the product-CFG construction algorithm.
 Larger values of $\mu_S$ would significantly increase the correlation search space and likely
 have negative implications on the runtime of the algorithm.
+\input{chapters/figures/figLimitationExStrspn.tex}
+Next, we demonstrate two common cases where \toolName{} is unable to find a proof of equivalence through two examples.
+\Cref{fig:limitationExStrchr} shows our \SpecL{} specification and a C implementation for the C function {\tt strchr}.
+Similarly, \cref{fig:limitationExStrspn} shows our \SpecL{} specification and a C implementation for {\tt strspn}.
+Both specifications (in \cref{fig:limitationExStrchrSpec,fig:limitationExStrspnSpec}) are rather straightforward
+and written to conform to the standard specifications of these functions.
+The complete list of specifications used for our evaluation can be found in \cref{app:specifications}.
+The first C implementation (in \cref{fig:limitationExStrchrImpl}) defines {\tt strchr} in terms of another function {\tt strchrnul}.
+\toolName{} fails to find a proof of equivalence in this case because it is unable to correlate the C function call edge at \cpc{3} with
+a suitable function call in the specification. At present, our correlation algorithm only supports the correlation of a function call edge
+with another function call edge.
+\Cref{fig:limitationExStrspnImpl} shows an implementation of {\tt strspn} adapted from the musl C library implementation.
+This implementation maintains a bitset (named `byteset') of $2^{8}$ bits to represent whether a character byte is present in the string `c'.
+The bitset is initialized at \cpc{5} by {\em setting} those bits to 1 that correspond to characters contained in `c'.
+Next, the input string `s' is traversed until it reaches the end or finds a character absent from the bitset.
+Clearly, this implementation is drastically different from the naive algorithm of the specification (\cref{fig:limitationExStrspnSpec})
+and non-bisimilar. Hence, \toolName{} fails in this case as well.
+These two examples highlight two of the major drawbacks of \toolName{} -- (a) non-matching function calls and (b) non-bisimilar algorithmic choices.
+
 Additionally, \toolName{} suffers from a similar trade-off with regards to the approximation parameters $d_o$ and $d_u$
 -- a smaller than necessary value would cause a failed equivalence check while a larger value may
 have major impact on the size of queries and counterexamples for reasons discussed next.
 Consider a \recursiveRelation{} relating values of a non-linear ADT such as \type{Tree}.
 It's $d$-depth approximation reduces into $\mathcal{O}(2^d)$ scalar equalities resulting in large SMT queries,
 which to our experience is a major source of SMT solver timeouts during evaluation.
-We partially subvert this issue by using an iterative deepening strategy for type II queries --
-we try prove and disprove attempts with approximation parameters smaller than the maximum $d_o$ and $d_u$,
-in hopes that either attempt would succeed saving valuable
-time waiting on SMT solvers.
-We found this strategy to be rather helpful during our evaluation.
+We partially subvert this issue by using an iterative deepening strategy for approximate queries described previously in \cref{sec:results}.
 
 Also, the completeness of type III proof obligations is highly contingent on the precision
 of our points-to analysis on \cprog{} as well as the deconstruction programs being

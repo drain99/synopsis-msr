@@ -1,0 +1,39 @@
+\begin{figure}[t!]
+\begin{tabular}{@{}c@{}}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:}}~ type OptStr = NotFound | Found (str:Str).
+~{\tiny \textcolor{mygray}{S2:}}~ 
+~{\tiny \textcolor{mygray}{S3:}}~ fn strchr_impl (s:Str) (c:i8) : OptStr =
+~{\tiny \textcolor{mygray}{S4:}}~   assuming $\neg$(s is SInvalid) do
+~{\tiny \textcolor{mygray}{S5:}}~   match s with
+~{\tiny \textcolor{mygray}{S6:}}~   | SInvalid => NotFound
+~{\tiny \textcolor{mygray}{S7:}}~   | SNil => if c == ${\tt 0_{i8}}$ then Found(s) else NotFound
+~{\tiny \textcolor{mygray}{S8:}}~   | SCons(ch, rest) => if c == ch then Found(s) else strchr_impl(rest, c).
+~{\tiny \textcolor{mygray}{S9:}}~ 
+~{\tiny \textcolor{mygray}{SE:}}~ fn strchr (s:Str) (c:i8) : OptStr = strchr_impl(s, c).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:limitationExStrchrSpec}\SpecL{} specification of {\tt strchr()}}
+\end{subfigure}%
+\\
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{C0:}}~ char* strchrnul(char* s, int c);
+~{\tiny \textcolor{mygray}{C1:}}~ 
+~{\tiny \textcolor{mygray}{C2:}}~ char* strchr(char* s, int c) {
+~{\tiny \textcolor{mygray}{C3:}}~   char* r = strchrnul(s, c);
+~{\tiny \textcolor{mygray}{C4:}}~   return *(unsigned char*)r == *(unsigned char*)c ? r : 0;
+~{\tiny \textcolor{mygray}{CE:}}~ }
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:limitationExStrchrImpl}Freebsd implementation of {\tt strchr()}}
+\end{subfigure}%
+\\
+\end{tabular}
+\caption{\label{fig:limitationExStrchr}\Cref{fig:limitationExStrchrSpec} shows our \SpecL{} specification of {\tt strchr()}.
+\Cref{fig:limitationExStrchrImpl} is a C implementation of {\tt strchr()} taken from the freebsd C library implementation.}
+\end{figure}

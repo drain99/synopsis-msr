@@ -1,0 +1,51 @@
+\begin{figure}[t!]
+\begin{tabular}{@{}c@{}}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:\phantom{ }}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S2:\phantom{ }}}~ fn strspn_impl2 (accept:Str) (c:i8) : bool =
+~{\tiny \textcolor{mygray}{S3:\phantom{ }}}~   assuming $\neg$(accept is SInvalid) do
+~{\tiny \textcolor{mygray}{S4:\phantom{ }}}~   match accept with
+~{\tiny \textcolor{mygray}{S5:\phantom{ }}}~   | SInvalid => false
+~{\tiny \textcolor{mygray}{S6:\phantom{ }}}~   | SNil => false
+~{\tiny \textcolor{mygray}{S7:\phantom{ }}}~   | SCons(ch, rest) => if ch == c then true else strspn_impl2(rest, c).
+~{\tiny \textcolor{mygray}{S8:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S9:\phantom{ }}}~ fn strspn_impl (s:Str) (accept:Str) (l:i32) : i32 =
+~{\tiny \textcolor{mygray}{S10:}}~   assuming $\neg$(s is SInvalid) do
+~{\tiny \textcolor{mygray}{S11:}}~   match s with
+~{\tiny \textcolor{mygray}{S12:}}~   | SInvalid => ${\tt 0_{i32}}$
+~{\tiny \textcolor{mygray}{S13:}}~   | SNil => l
+~{\tiny \textcolor{mygray}{S14:}}~   | SCons(ch, rest) => if strspn_impl2(accept, ch)
+~{\tiny \textcolor{mygray}{S15:}}~                        then strspn_impl(rest, accept, l + ${\tt 1_{i32}}$)
+~{\tiny \textcolor{mygray}{S16:}}~                        else l.
+~{\tiny \textcolor{mygray}{S17:}}~ 
+~{\tiny \textcolor{mygray}{SE:\phantom{ }}}~ fn strspn (s:Str) (accept:Str) : i32 = strspn_impl(s, accept, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:limitationExStrspnSpec}\SpecL{} specification of {\tt strspn()}}
+\end{subfigure}%
+\\
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{C0:}}~ #define BITOP(a,b,op) (a[(size_t)b / 32] op (size_t)b % 32)
+~{\tiny \textcolor{mygray}{C1:}}~ 
+~{\tiny \textcolor{mygray}{C2:}}~ size_t strspn(char* s, char* c) {
+~{\tiny \textcolor{mygray}{C3:}}~   char* a = s;
+~{\tiny \textcolor{mygray}{C4:}}~   size_t byteset[8] = { 0 };
+~{\tiny \textcolor{mygray}{C5:}}~   for (; *c && BITOP(byteset, *(unsigned char*)c, |=); c++);
+~{\tiny \textcolor{mygray}{C6:}}~   for (; *s && BITOP(byteset, *(unsigned char*)s, &); s++);
+~{\tiny \textcolor{mygray}{C7:}}~   return s - a;
+~{\tiny \textcolor{mygray}{CE:}}~ } 
+\end{allLangEnvFoot}
+\end{center}
+\caption{\label{fig:limitationExStrspnImpl}Musl implementation of {\tt strspn()}}
+\end{subfigure}%
+\\
+\end{tabular}
+\caption{\label{fig:limitationExStrspn}\Cref{fig:limitationExStrspnSpec} shows our \SpecL{} specification of {\tt strspn()}.
+\Cref{fig:limitationExStrspnImpl} depicts a possible C implementation of {\tt strspn()} adapted from the musl C
+library implementation. The implementation is simplified for a 32-bit architecture and special cases are omitted for brevity.}
+\end{figure}
