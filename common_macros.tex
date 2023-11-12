@@ -3,6 +3,8 @@
 \usepackage{xcolor}
 \usepackage{mathtools}
 \usepackage{accents}
+\usepackage{diagbox}
+\usepackage{bm}
 
 \newcommand{\xmark}{\ding{55}}%
 \newcommand{\rulesep}{\unskip\ \vrule\ }
@@ -131,6 +133,9 @@
 \newcommand{\execpaths}[3]{{\ensuremath{{\tt EP}_{#1}(#2,#3)}}}%
 \newcommand{\func}[1]{{\tt #1()}}%
 \newcommand{\fref}[2]{{\tt #1()} in L#2}%
+\newcommand{\qcount}[1]{{\ensuremath{\mathbf{\mathcal{Q}_{#1}}}}}%
+\newcommand{\btcount}{{\ensuremath{\mathcal{P}_{B\!T}}}}%
+\newcommand{\minapprox}[1]{{\ensuremath{\mathbf{d}_{#1}}}}%
 
 \newcommand{\keyword}[1]{{\ensuremath{\ \textnormal{\textbf{#1}}\ }}}%
 \newcommand{\subst}[3]{{\ensuremath{\{ #2 \mapsto #3 \} #1}}}%
