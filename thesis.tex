@@ -59,6 +59,8 @@
 \usepackage[english]{babel}
 \usepackage{fancyhdr}
 
+\AtBeginEnvironment{appendices}{\crefalias{chapter}{appendix}}
+
 \addtolength{\oddsidemargin}{10pt}
 \addtolength{\evensidemargin}{-65pt}
 \addtolength{\textwidth}{64pt}
@@ -152,14 +154,15 @@
 \addtocontents{toc}{\vspace{1em}} % Add a gap in the Contents, for aesthetics
 
 \cleardoublepage
-\addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{plain} 
 \bibliography{main}
+\addcontentsline{toc}{chapter}{Bibliography}
 
-%\cleardoublepage
-\pagestyle{plain}
-\doublespacing
+\onehalfspacing
 \cleardoublepage
+\pagestyle{plain}
+\include{chapters/appendix}
+\doublespacing
 \include{rest/bio}
 \cleardoublepage
 \pagestyle{plain}

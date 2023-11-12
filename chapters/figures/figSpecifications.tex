@@ -1,0 +1,247 @@
+\begin{figure}[H]
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:}}~ type List = LNil | LCons (val:i32, tail:List).
+~{\tiny \textcolor{mygray}{S1:}}~ 
+~{\tiny \textcolor{mygray}{S2:}}~ fn mk_list_impl (n:i32) (i:i32) (l:List) : List =
+~{\tiny \textcolor{mygray}{S3:}}~     if ${\tt i \geq_u n}$ then l
+~{\tiny \textcolor{mygray}{S4:}}~             else make_list_impl(n, i+${\tt 1_{i32}}$, LCons(i, l)).
+~{\tiny \textcolor{mygray}{S5:}}~ 
+~{\tiny \textcolor{mygray}{SE:}}~ fn mk_list (n:i32) : List = mk_list_impl(n, ${\tt 0_{i32}}$, LNil).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt mk\_list()}}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:}}~ type List = LNil | LCons (val:i32, tail:List).
+~{\tiny \textcolor{mygray}{S1:}}~ 
+~{\tiny \textcolor{mygray}{S2:}}~ fn sum_list_impl (l:List) (sum:i32) : i32 =
+~{\tiny \textcolor{mygray}{S3:}}~    match l with
+~{\tiny \textcolor{mygray}{S4:}}~    | LNil => sum
+~{\tiny \textcolor{mygray}{S5:}}~    | LCons(x, rest) => sum_list_impl(rest, sum + x).
+~{\tiny \textcolor{mygray}{S6:}}~ 
+~{\tiny \textcolor{mygray}{SE:}}~ fn sum_list (l:List) : i32 = sum_list_impl(l, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt sum\_list()}}
+\end{subfigure}
+\caption{\label{fig:specifications}\SpecL{} specifications corresponding to functions used during evaluation of \toolName{}}
+\end{figure}
+\begin{figure}[H]\ContinuedFloat
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:\phantom{ }}}~ type List = LNil | LCons (val:i32, tail:List).
+~{\tiny \textcolor{mygray}{S1:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S2:\phantom{ }}}~ fn dot_list_impl (x:List) (y:List) (res:i32) : i32 =
+~{\tiny \textcolor{mygray}{S3:\phantom{ }}}~   assuming (x is LNil) == (y is LNil) do
+~{\tiny \textcolor{mygray}{S4:\phantom{ }}}~   match x with
+~{\tiny \textcolor{mygray}{S5:\phantom{ }}}~   | LNil => res
+~{\tiny \textcolor{mygray}{S6:\phantom{ }}}~   | LCons(xv, xrest) => match y with
+~{\tiny \textcolor{mygray}{S7:\phantom{ }}}~                         | LNil => res
+~{\tiny \textcolor{mygray}{S8:\phantom{ }}}~                         | LCons(yv, yrest) =>
+~{\tiny \textcolor{mygray}{S9:\phantom{ }}}~                             dot_list_impl(xrest, yrest, res + xv * yv).
+~{\tiny \textcolor{mygray}{S10:}}~ 
+~{\tiny \textcolor{mygray}{SE:\phantom{ }}}~ fn dot_list (x:List) (y:List) : i32 = dot_list_impl(x, y, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt dot\_list()}}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:}}~ type Tree = TNil | TCons (val:i32, left:Tree, right:Tree).
+~{\tiny \textcolor{mygray}{S1:}}~ 
+~{\tiny \textcolor{mygray}{S2:}}~ fn sum_tree (t:Tree) : i32 =
+~{\tiny \textcolor{mygray}{S3:}}~   match t with
+~{\tiny \textcolor{mygray}{S4:}}~   | TNil => ${\tt 0_{i32}}$
+~{\tiny \textcolor{mygray}{S5:}}~   | TCons(val, left, right) => let l = sum_tree(left),
+~{\tiny \textcolor{mygray}{S6:}}~                                    r = sum_tree(right),
+~{\tiny \textcolor{mygray}{SE:}}~                                in  val + l + r.
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt sum\_tree()}}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:}}~ 
+~{\tiny \textcolor{mygray}{S2:}}~ fn strlen_impl (s:Str) (len:i32) : i32 =
+~{\tiny \textcolor{mygray}{S3:}}~   assuming $\neg$(s is SInvalid) do
+~{\tiny \textcolor{mygray}{S4:}}~   match s with
+~{\tiny \textcolor{mygray}{S5:}}~   | SInvalid => ${\tt 0_{i32}}$
+~{\tiny \textcolor{mygray}{S6:}}~   | SNil => len
+~{\tiny \textcolor{mygray}{S7:}}~   | SCons(ch, rest) => strlen_impl(rest, len + ${\tt 1_{i32}}$).
+~{\tiny \textcolor{mygray}{S8:}}~ 
+~{\tiny \textcolor{mygray}{SE:}}~ fn strlen (s:Str) : i32 = strlen_impl(s, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt strlen()}}
+\end{subfigure}
+\caption{\label{fig:specifications}\SpecL{} specifications corresponding to functions used during evaluation of \toolName{}}
+\end{figure}
+\begin{figure}[H]\ContinuedFloat
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:}}~ type OptStr = NotFound | Found (str:Str).
+~{\tiny \textcolor{mygray}{S2:}}~ 
+~{\tiny \textcolor{mygray}{S3:}}~ fn strchr_impl (s:Str) (c:i8) : OptStr =
+~{\tiny \textcolor{mygray}{S4:}}~   assuming $\neg$(s is SInvalid) do
+~{\tiny \textcolor{mygray}{S5:}}~   match s with
+~{\tiny \textcolor{mygray}{S6:}}~   | SInvalid => NotFound
+~{\tiny \textcolor{mygray}{S7:}}~   | SNil => if c == ${\tt 0_{i8}}$ then Found(s) else NotFound
+~{\tiny \textcolor{mygray}{S8:}}~   | SCons(ch, rest) => if c == ch then Found(s) else strchr_impl(rest, c).
+~{\tiny \textcolor{mygray}{S9:}}~ 
+~{\tiny \textcolor{mygray}{SE:}}~ fn strchr (s:Str) (c:i8) : OptStr = strchr_impl(s, c).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt strchr()}}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:\phantom{ }}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:\phantom{ }}}~ type LtEqGt = Less | Equal | Greater.
+~{\tiny \textcolor{mygray}{S2:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S3:\phantom{ }}}~ fn strcmp_impl (s1:Str) (s2:Str) : LtEqGt =
+~{\tiny \textcolor{mygray}{S4:\phantom{ }}}~   assuming $\neg$(s1 is SInvalid) do
+~{\tiny \textcolor{mygray}{S5:\phantom{ }}}~   match s1 with
+~{\tiny \textcolor{mygray}{S6:\phantom{ }}}~   | SInvalid => Less
+~{\tiny \textcolor{mygray}{S7:\phantom{ }}}~   | SNil => assuming $\neg$(s2 is SInvalid) do
+~{\tiny \textcolor{mygray}{S8:\phantom{ }}}~             match s2 with
+~{\tiny \textcolor{mygray}{S9:\phantom{ }}}~             | SInvalid => Less
+~{\tiny \textcolor{mygray}{S10:}}~             | SNil => Equal
+~{\tiny \textcolor{mygray}{S11:}}~             | SCons(_, _) => Less
+~{\tiny \textcolor{mygray}{S12:}}~   | SCons(ch1, rest1) => assuming $\neg$(s2 is SInvalid) do
+~{\tiny \textcolor{mygray}{S13:}}~                          match s2 with
+~{\tiny \textcolor{mygray}{S14:}}~                          | SInvalid => Less
+~{\tiny \textcolor{mygray}{S15:}}~                          | SNil => Greater
+~{\tiny \textcolor{mygray}{S16:}}~                          | SCons(ch2, rest2) => if ${\tt ch1 <_{u} ch2}$ then Less
+~{\tiny \textcolor{mygray}{S17:}}~                                                 else if ${\tt ch1 >_{u} ch2}$ then Greater
+~{\tiny \textcolor{mygray}{S18:}}~                                                 else strcmp_impl(rest1, rest2).
+~{\tiny \textcolor{mygray}{S19:}}~ 
+~{\tiny \textcolor{mygray}{SE:\phantom{ }}}~ fn strcmp (s1:Str) (s2:Str) : LtEqGt = strcmp_impl(s1, s2).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt strcmp()}}
+\end{subfigure}
+\caption{\label{fig:specifications}\SpecL{} specifications corresponding to functions used during evaluation of \toolName{}}
+\end{figure}
+\begin{figure}[H]\ContinuedFloat
+\captionsetup[]{skip=-7pt}
+\captionsetup[subfigure]{skip=-7pt}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:\phantom{ }}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S2:\phantom{ }}}~ fn strspn_impl2 (accept:Str) (c:i8) : bool =
+~{\tiny \textcolor{mygray}{S3:\phantom{ }}}~   assuming $\neg$(accept is SInvalid) do
+~{\tiny \textcolor{mygray}{S4:\phantom{ }}}~   match accept with
+~{\tiny \textcolor{mygray}{S5:\phantom{ }}}~   | SInvalid => false
+~{\tiny \textcolor{mygray}{S6:\phantom{ }}}~   | SNil => false
+~{\tiny \textcolor{mygray}{S7:\phantom{ }}}~   | SCons(ch, rest) => if ch == c then true else strspn_impl2(rest, c).
+~{\tiny \textcolor{mygray}{S8:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S9:\phantom{ }}}~ fn strspn_impl (s:Str) (accept:Str) (l:i32) : i32 =
+~{\tiny \textcolor{mygray}{S10:}}~   assuming $\neg$(s is SInvalid) do
+~{\tiny \textcolor{mygray}{S11:}}~   match s with
+~{\tiny \textcolor{mygray}{S12:}}~   | SInvalid => ${\tt 0_{i32}}$
+~{\tiny \textcolor{mygray}{S13:}}~   | SNil => l
+~{\tiny \textcolor{mygray}{S14:}}~   | SCons(ch, rest) => if strspn_impl2(accept, ch)
+~{\tiny \textcolor{mygray}{S15:}}~                        then strspn_impl(rest, accept, l + ${\tt 1_{i32}}$)
+~{\tiny \textcolor{mygray}{S16:}}~                        else l.
+~{\tiny \textcolor{mygray}{S17:}}~ 
+~{\tiny \textcolor{mygray}{SE:\phantom{ }}}~ fn strspn (s:Str) (accept:Str) : i32 = strspn_impl(s, accept, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt strspn()}}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:\phantom{ }}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S2:\phantom{ }}}~ fn strcspn_impl2 (reject:Str) (c:i8) : bool =
+~{\tiny \textcolor{mygray}{S3:\phantom{ }}}~   assuming $\neg$(reject is SInvalid) do
+~{\tiny \textcolor{mygray}{S4:\phantom{ }}}~   match reject with
+~{\tiny \textcolor{mygray}{S5:\phantom{ }}}~   | SInvalid => false
+~{\tiny \textcolor{mygray}{S6:\phantom{ }}}~   | SNil => false
+~{\tiny \textcolor{mygray}{S7:\phantom{ }}}~   | SCons(ch, rest) => if ch == c then true else strcspn_impl2(rest, c).
+~{\tiny \textcolor{mygray}{S8:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S9:\phantom{ }}}~ fn strcspn_impl (s:Str) (reject:Str) (l:i32) : i32 =
+~{\tiny \textcolor{mygray}{S10:}}~   assuming $\neg$(s is SInvalid) do
+~{\tiny \textcolor{mygray}{S11:}}~   match s with
+~{\tiny \textcolor{mygray}{S12:}}~   | SInvalid => ${\tt 0_{i32}}$
+~{\tiny \textcolor{mygray}{S13:}}~   | SNil => l
+~{\tiny \textcolor{mygray}{S14:}}~   | SCons(ch, rest) => if strcspn_impl2(reject, ch)
+~{\tiny \textcolor{mygray}{S15:}}~                        then l
+~{\tiny \textcolor{mygray}{S16:}}~                        else strcspn_impl(rest, reject, l + ${\tt 1_{i32}}$)
+~{\tiny \textcolor{mygray}{S17:}}~ 
+~{\tiny \textcolor{mygray}{SE:\phantom{ }}}~ fn strcspn (s:Str) (reject:Str) : i32 = strcspn_impl(s, reject, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt strcspn()}}
+\end{subfigure}
+\caption{\label{fig:specifications}\SpecL{} specifications corresponding to functions used during evaluation of \toolName{}}
+\end{figure}
+\begin{figure}[H]\ContinuedFloat
+\captionsetup[]{skip=-7pt}
+\captionsetup[subfigure]{skip=-7pt}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:\phantom{ }}}~ type Str = SInvalid | SNil | SCons (ch:i8, tail:Str).
+~{\tiny \textcolor{mygray}{S1:\phantom{ }}}~ type OptStr = NotFound | Found(str:Str).
+~{\tiny \textcolor{mygray}{S2:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S3:\phantom{ }}}~ fn strpbrk_impl2 (accept:Str) (c:i8) : bool =
+~{\tiny \textcolor{mygray}{S4:\phantom{ }}}~   assuming $\neg$(accept is SInvalid) do
+~{\tiny \textcolor{mygray}{S5:\phantom{ }}}~   match accept with
+~{\tiny \textcolor{mygray}{S6:\phantom{ }}}~   | SInvalid => false
+~{\tiny \textcolor{mygray}{S7:\phantom{ }}}~   | SNil => false
+~{\tiny \textcolor{mygray}{S8:\phantom{ }}}~   | SCons(ch, rest) => if ch == c then true else strpbrk_impl2(rest, c).
+~{\tiny \textcolor{mygray}{S9:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S10:}}~ fn strpbrk_impl (s:Str) (accept:Str) : OptStr =
+~{\tiny \textcolor{mygray}{S11:}}~   assuming $\neg$(s is SInvalid) do
+~{\tiny \textcolor{mygray}{S12:}}~   match s with
+~{\tiny \textcolor{mygray}{S13:}}~   | SInvalid => NotFound
+~{\tiny \textcolor{mygray}{S14:}}~   | SNil => NotFound
+~{\tiny \textcolor{mygray}{S15:}}~   | SCons(ch, rest) => if strpbrk_impl2(accept, ch)
+~{\tiny \textcolor{mygray}{S16:}}~                        then Found(s)
+~{\tiny \textcolor{mygray}{S17:}}~                        else strpbrk_impl(rest, accept).
+~{\tiny \textcolor{mygray}{S18:}}~ 
+~{\tiny \textcolor{mygray}{SE:\phantom{ }}}~ fn strpbrk (s:Str) (accept:Str) : OptStr = strpbrk_impl(s, accept).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt strpbrk()}}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\begin{center}
+\begin{allLangEnvFoot}
+~{\tiny \textcolor{mygray}{S0:\phantom{ }}}~ type List = LNil | LCons (val:i32, tail:List).
+~{\tiny \textcolor{mygray}{S1:\phantom{ }}}~ type Mat = MNil | MCons (row:List, cols:Mat).
+~{\tiny \textcolor{mygray}{S2:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S3:\phantom{ }}}~ fn matfreq_impl2 (row:List) (x:i32) (res:i32) : i32 =
+~{\tiny \textcolor{mygray}{S4:\phantom{ }}}~   match row with
+~{\tiny \textcolor{mygray}{S5:\phantom{ }}}~   | LNil => res
+~{\tiny \textcolor{mygray}{S6:\phantom{ }}}~   | LCons(v, rest) => let val_res = if v == x then res + ${\tt 1_{i32}}$ else res
+~{\tiny \textcolor{mygray}{S7:\phantom{ }}}~                       in matfreq_impl2(rest, x, val_res).
+~{\tiny \textcolor{mygray}{S8:\phantom{ }}}~ 
+~{\tiny \textcolor{mygray}{S9:\phantom{ }}}~ fn matfreq_impl1 (mat:Mat) (x:i32) (res:i32) : i32 =
+~{\tiny \textcolor{mygray}{S10:}}~   match mat with
+~{\tiny \textcolor{mygray}{S11:}}~   | MNil => res
+~{\tiny \textcolor{mygray}{S12:}}~   | MCons(row, rest) => let mvec_res = matfreq_impl2(row, x, res)
+~{\tiny \textcolor{mygray}{S13:}}~                         in matfreq_impl1(rest, x, mvec_res).
+~{\tiny \textcolor{mygray}{S14:}}~ 
+~{\tiny \textcolor{mygray}{SE:\phantom{ }}}~ fn matfreq (mat:Mat) (x:i32) : i32 = matfreq_impl1(mat, x, ${\tt 0_{i32}}$).
+\end{allLangEnvFoot}
+\end{center}
+\caption{\SpecL{} specification of {\tt matfreq()}}
+\end{subfigure}
+\caption{\label{fig:specifications}\SpecL{} specifications corresponding to functions used during evaluation of \toolName{}}
+\end{figure}
