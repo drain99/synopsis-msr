@@ -65,8 +65,28 @@ Show the strlen programs and their product CFG with invariants
 List the other ADTs and their layouts considered
 Thank you slide
 
-TODO:
-update CFG with deterministic + non-blocking => DONE
-update product-CFG with deterministic + non-blocking + divergence preservance + coverage + inductivity of invariants + validity of observables => DONE
-update bisimulation relation with a section of intuitive proof sketch => DONE
-update the evaluation section with failed tests [se on ion] => TUESDAY
+TODO: 
+finish data collection
+DONE
+split the table into two tables:
+- include the following columns for each: {# of backtracking}, {# of Type I queries (Proven,Disproven,Timeout)}, {# of Type II queries (Proven,Disproven,Timeout)}, {# of Type III queries (Proven,Timeout)}
+DONE
+add a new table, show the full distribution of queries along with the distribution of depth. I want to show a bar chart but let's decide and finish this as well
+DONE
+add accompanying text with the updated stuff:
+- explain the new tables in caption and in text DONE
+- importance of counterexample-guided search : improved search order DONE
+- importance of counterexample-generation : type II algorithm is a 58% of all queries, generating CE is very important for this type! DONE
+- 1-2 lines on the iterative-deepening like proof discharge and the depth distribution chart DONE
+- add the limitation section
+  - first create the sources for the 2 examples DONE
+  - writing is easy. max of 5-10 lines DONE
+  - format DONE
+- add the appendix section with all the specification functions
+  - write the sources DONE
+  - write the text DONE
+  - figure out formatting for appendix section DONE
+2h to do this!
+do final formatting passes
+- format tables and chart properly
+update Q(P,D,U) alignment, erase all texts and readd in latex somehow, approx depth can be ignored maybe DONE
