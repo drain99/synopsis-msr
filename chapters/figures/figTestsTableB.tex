@@ -1,0 +1,66 @@
+\begin{table}
+\captionsetup{font=footnotesize,skip=-5pt}
+\begin{center}
+\begin{scriptsize}
+\begin{tabular}{@{\hspace{2mm}}l@{\hspace{2mm}}l@{\hspace{2mm}}r@{\hspace{2mm}}c@{\hspace{2mm}}r@{\hspace{2mm}}r@{\hspace{2mm}}r@{\hspace{2mm}}r@{\hspace{2mm}}}
+\toprule
+{\bf Data Layout} & {\bf Variant} & {\bf Time($s$)} & {(\minapprox{o},\minapprox{u})} & {\btcount{}} & {\qcount{I}(P,D,U)} & {\qcount{II}(P,D,U)} & {\qcount{III}(P,U)} \\
+\midrule
+& {\bf \underline{strspn}} \\
+u8[],u8[]             & dietlibc     & 277  & (1,2) & 3  & 0 & 545 (522,23,0)      & 358 (263,95)       \\
+                      & opt          & 388  & (4,2) & 8  & 0 & 4874 (4843,31,0)    & 1759 (1666,93)     \\
+u8[],lnode(u8)        & naive        & 405  & (1,2) & 3  & 0 & 546 (524,22,0)      & 389 (263,126)      \\
+                      & opt          & 682  & (4,2) & 8  & 0 & 4875 (4844,31,0)    & 1790 (1666,124)    \\
+u8[],clnode(u8)       & opt          & 535  & (4,2) & 4  & 0 & 2030 (2007,23,0)    & 853 (742,111)      \\
+lnode(u8),u8[]        & naive        & 409  & (1,2) & 3  & 0 & 359 (336,23,0)      & 469 (319,150)      \\
+                      & opt          & 553  & (4,2) & 8  & 0 & 3290 (3259,31,0)    & 1850 (1706,144)    \\
+lnode(u8),lnode(u8)   & naive        & 357  & (1,2) & 3  & 0 & 359 (336,23,0)      & 432 (319,113)      \\
+                      & opt          & 514  & (4,2) & 7  & 0 & 3288 (3256,32,0)    & 1793 (1686,107)    \\
+lnode(u8),clnode(u8)  & opt          & 616  & (4,2) & 4  & 0 & 1362 (1335,27,0)    & 913 (782,131)      \\
+& {\bf \underline{strcspn}} \\
+u8[],u8[]             & dietlibc     & 462  & (1,2) & 3  & 0 & 340 (318,22,0)      & 372 (201,171)      \\
+                      & opt          & 538  & (4,2) & 7  & 0 & 1043 (1016,27,0)    & 544 (377,167)      \\
+u8[],lnode(u8)        & naive        & 395  & (1,2) & 3  & 0 & 341 (318,23,0)      & 315 (189,126)      \\
+                      & opt          & 521  & (4,2) & 8  & 0 & 1045 (1016,29,0)    & 489 (365,124)      \\
+u8[],clnode(u8)       & opt          & 527  & (4,2) & 4  & 0 & 1202 (1180,22,0)    & 523 (412,111)      \\
+lnode(u8),u8[]        & naive        & 601  & (1,2) & 3  & 0 & 265 (237,28,0)      & 498 (257,241)      \\
+                      & opt          & 660  & (4,2) & 7  & 0 & 757 (728,29,0)      & 646 (409,237)      \\
+lnode(u8),lnode(u8)   & naive        & 349  & (1,2) & 3  & 0 & 267 (237,30,0)      & 358 (245,113)      \\
+                      & opt          & 502  & (4,2) & 7  & 0 & 843 (812,31,0)      & 504 (397,107)      \\
+lnode(u8),clnode(u8)  & opt          & 595  & (4,2) & 4  & 0 & 868 (844,24,0)      & 575 (444,131)      \\
+& {\bf \underline{strpbrk}} \\
+u8[],u8[]             & dietlibc     & 398  & (1,2) & 6  & 0 & 146 (125,21,0)      & 375 (222,153)      \\
+                      & opt          & 494  & (4,2) & 8  & 0 & 293 (266,27,0)      & 611 (467,144)      \\
+u8[],lnode(u8)        & naive        & 392  & (1,2) & 6  & 0 & 145 (123,22,0)      & 353 (222,131)      \\
+                      & opt          & 540  & (4,2) & 8  & 0 & 295 (266,29,0)      & 596 (467,129)      \\
+u8[],clnode(u8)       & opt          & 523  & (4,2) & 4  & 0 & 285 (262,23,0)      & 630 (514,116)      \\
+lnode(u8),u8[]        & naive        & 497  & (1,2) & 3  & 0 & 143 (120,23,0)      & 480 (257,223)      \\
+                      & opt          & 602  & (4,2) & 8  & 0 & 309 (278,31,0)      & 709 (499,210)      \\
+lnode(u8),lnode(u8)   & naive        & 345  & (1,2) & 3  & 0 & 141 (120,21,0)      & 378 (257,121)      \\
+                      & opt          & 503  & (4,2) & 8  & 0 & 297 (266,31,0)      & 614 (499,115)      \\
+lnode(u8),clnode(u8)  & opt          & 572  & (4,2) & 4  & 0 & 288 (264,24,0)      & 688 (546,142)      \\
+& {\bf \underline{tree}} \\
+u32[]                 & sum          & 264  & (1,2) & 0  & 0 & 51 (30,21,0)        & 262 (10,252)       \\
+tnode(u32)            & sum          & 204  & (1,2) & 0  & 0 & 50 (28,22,0)        & 380 (10,370)       \\
+& {\bf \underline{matfreq}} \\
+u8[][]                & naive        & 974  & (1,3) & 12 & 0 & 429 (348,45,36)     & 473 (273,200)      \\
+                      & opt          & 1.8k & (4,6) & 33 & 0 & 9625 (9409,129,87)  & 5134 (4707,427)    \\
+u8[r]                 & naive        & 958  & (1,3) & 13 & 0 & 613 (517,54,42)     & 567 (357,210)      \\
+                      & opt          & 1.9k & (4,6) & 33 & 0 & 9614 (9399,128,87)  & 5134 (4707,427)    \\
+u8[c]                 & naive        & 984  & (1,3) & 13 & 0 & 613 (518,56,39)     & 567 (357,210)      \\
+                      & opt          & 1.9k & (4,6) & 33 & 0 & 9615 (9399,129,87)  & 5134 (4707,427)    \\
+lnode(u8[])           & naive        & 753  & (1,3) & 15 & 0 & 378 (306,65,7)      & 711 (413,298)      \\
+                      & opt          & 1.7k & (4,6) & 24 & 0 & 9229 (9046,164,19)  & 8941 (8263,678)    \\
+lnode(u8)[]           & naive        & 1.5k & (1,2) & 6  & 0 & 306 (244,45,17)     & 887 (246,641)      \\
+                      & opt          & 2.3k & (4,6) & 9  & 0 & 4807 (4353,101,353) & 4461 (2876,1585)   \\
+clnode(u8)[]          & opt          & 1.8k & (4,6) & 8  & 0 & 1559 (1504,35,20)   & 2185 (1544,641)    \\
+\bottomrule
+\end{tabular}
+\end{scriptsize}
+\end{center}
+\caption{\label{tab:testsb}Time taken by \toolName{} for successful equivalence checks between \SpecL{} and C program pairs.
+\minapprox{o} and \minapprox{u} represents the minimum over- and under-approximation depths at which the equivalence checks succeeded.
+\btcount{} represents the number of backtrackings performed by the best-first search algorithm.
+Additionally, we list the number of queries discharged by our solver by query type (\qcount{I}, \qcount{II} and \qcount{III})
+and returned result.}
+\end{table}
