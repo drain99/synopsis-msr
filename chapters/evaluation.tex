@@ -202,26 +202,27 @@ constructors. These lifting constructors are listed in \cref{tab:LiftingConsMatr
 & \multicolumn{1}{c}{$\mathbf{Proven}$} & \multicolumn{1}{c}{$\mathbf{Disproven}$} & \multicolumn{1}{c}{$\mathbf{Unknown}$} & \multicolumn{1}{c}{$\bm{\Sigma}$} \\
 \toprule
 \multirow{2}{*}{\qcount{I}}    & 13      & 6                                       & \multicolumn{1}{r}{\multirow{2}{*}{0}}    & 19       \\
-                               & 68.4\%  & 31.6\%                                  &                                           & 0.01\%   \\
+                               & 68.4\%  & 31.6\%                                  &                                           & 0.02\%   \\
 \midrule
-\multirow{2}{*}{\qcount{II}}   & 80266   & 2330                                    & 810                                       & 83366    \\
-                               & 96.2\%  & 2.8\%                                   & 1.0\%                                     & 58.85\%  \\
+\multirow{2}{*}{\qcount{II}}   & 64966   & 1407                                    & 133                                       & 66506    \\
+                               & 97.7\%  & 2.1\%                                   & 0.2\%                                     & 62.42\%  \\
 \midrule
-\multirow{2}{*}{\qcount{III}}  & 46288   & \multicolumn{1}{r}{\multirow{2}{*}{-}}  & 11984                                     & 58272    \\
-                               & 79.4\%  &                                         & 20.6\%                                    & 41.14\%  \\
+\multirow{2}{*}{\qcount{III}}  & 32588   & \multicolumn{1}{r}{\multirow{2}{*}{-}}  & 7441                                      & 40029    \\
+                               & 81.4\%  &                                         & 18.6\%                                    & 37.56\%  \\
 \midrule
-\multicolumn{4}{l}{Total number of queries: }                                                                                  & 141657   \\
+\multicolumn{4}{l}{Total number of queries: }                                                                                  & 106554   \\
 \bottomrule
 \end{tabular}
 \end{footnotesize}
 \end{center}
+\vspace{10px}
 \caption{\label{tab:querycountstable}Total number of queries discharged by our solver during equivalence checks for the tests listed in \cref{tab:testsa,tab:testsb}.
 We show the relative distribution of returned results for each type of query (\qcount{I}, \qcount{II} and \qcount{III}).}
 \end{subfigure}%
 \hfill
 \begin{subfigure}[b]{0.55\textwidth}
 \begin{center}
-\includegraphics[width=0.95\textwidth]{chapters/figures/figQueryDepthDist.PNG}
+\includegraphics[width=1.02\textwidth]{chapters/figures/figQueryDepthDist.png}
 \end{center}
 \caption{\label{tab:querydepthdist}Minimum over- and under-approximation depths at which approximate queries were successfully proven {\em or} disproven with counterexamples by our solver.
 Approximate queries include type II prove, disprove queries and type III prove queries.}
@@ -246,7 +247,7 @@ default values).
 \Cref{tab:querycountstable} shows a breakdown of the number of queries discharged by our solver by query type and returned result.
 Our solver may either return {\em proven} implying a successfully proven query, {\em disproven} with counterexamples
 that falsify the query, or {\em unknown} representing a failure respectively.
-Given that 58.85\% of all queries are type II queries, support for counterexample generation for type II queries is found to be
+Given that 62.42\% of all queries are type II queries, support for counterexample generation for type II queries is found to be
 extremely helpful in guiding the best-first search.
 During over- and under-approximation attempts (for type II and type III queries), we use a strategy similar to ``iterative deepening'' \cite{iterativedeepening}.
 Instead of using the maximum approximation depth ({\em eight} for our tests) first, we begin with a smaller value which is increased until
