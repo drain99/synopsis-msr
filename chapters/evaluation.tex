@@ -263,6 +263,10 @@ and the number of successful attempts decreases exponentially with increasing de
 The above observation reinforces the idea of ``iterative deepening'' because the time saved by solving smaller queries significantly
 outweighs the comparatively rare loss of time in attempting the same query with increasing approximation depths.
 
+The complete list of specifications used for our evaluation can be found in \cref{app:specifications}.
+Additionally, \toolName{} along with the testcases used during evaluation is available as a docker image
+at \cite{s2c_docker}.
+
 % During the verification of {\tt strchr} and {\tt strpbrk} implementations,
 % we identified an interesting subtlety. Since {\tt strchr} and {\tt strpbrk}
 % return null pointers to signify absence of the required character(s) in the input string,
@@ -304,7 +308,6 @@ Next, we demonstrate two common cases where \toolName{} is unable to find a proo
 Similarly, \cref{fig:limitationExStrspn} shows our \SpecL{} specification and a C implementation for {\tt strspn}.
 Both specifications (in \cref{fig:limitationExStrchrSpec,fig:limitationExStrspnSpec}) are rather straightforward
 and written to conform to the standard specifications of these functions.
-The complete list of specifications used for our evaluation can be found in \cref{app:specifications}.
 The first C implementation (in \cref{fig:limitationExStrchrImpl}) defines {\tt strchr} in terms of another function {\tt strchrnul}.
 \toolName{} fails to find a proof of equivalence in this case because it is unable to correlate the C function call edge at \cpc{3} with
 a suitable function call in the specification. At present, our correlation algorithm only supports the correlation of a function call edge
